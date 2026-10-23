@@ -4,7 +4,7 @@ Use Yarn. Deliver changes on feature branches through pull requests. Never push 
 
 Follow TDD with separate atomic commits for the failing test, passing implementation, and any refactoring. Keep TypeScript strict, use explicit typed Results for expected failures, and keep files small and cohesive. Do not suppress lint rules or use explicit any. Use composition and simple responsibilities.
 
-Run `yarn check` and `xvfb-run --auto-servernum yarn test:electron` before handing off coding changes. Ask whether the user wants a code review after delivering a coding PR.
+Run `yarn verify` and `xvfb-run --auto-servernum yarn test:electron` before handing off coding changes. Ask whether the user wants a code review after delivering a coding PR.
 
 Do not use Unicode U+2014. Comments explain constraints and rationale only. Prefer restrained visuals and plain language.
 

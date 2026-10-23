@@ -37,7 +37,7 @@ The build writes runnable application files to `out/`. Native installers and dis
 ## Checks
 
 ```sh
-yarn check
+yarn verify
 ```
 
 This checks formatting, Airbnb-based TypeScript-aware linting, strict types, React integration tests and the production build. Run the real Electron smoke test after building:
