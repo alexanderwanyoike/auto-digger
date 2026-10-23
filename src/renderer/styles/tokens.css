@@ -1,0 +1,128 @@
+:root {
+  font-family: 'Manrope Variable', sans-serif;
+  color: var(--text);
+  background: var(--body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  color-scheme: light;
+  --body: #d7dadd;
+  --surface: #f7f8f9;
+  --surface-raised: #fff;
+  --surface-inset: #eff1f3;
+  --metal-top: #f5f6f7;
+  --metal-bottom: #e3e6e9;
+  --line: #d8dde2;
+  --text: #252c35;
+  --muted: #697480;
+  --faint: #9099a3;
+  --blue: #2465dd;
+  --blue-soft: #e7effe;
+  --blue-on: #fff;
+  --shadow: 0 8px 24px #1d2a3b0a;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --body: #181b1f;
+  --surface: #25292e;
+  --surface-raised: #2c3138;
+  --surface-inset: #202429;
+  --metal-top: #33383f;
+  --metal-bottom: #282d33;
+  --line: #3b424b;
+  --text: #e7ebf0;
+  --muted: #a1acba;
+  --faint: #83909f;
+  --blue: #8bb4ff;
+  --blue-soft: #2c3e58;
+  --blue-on: #172a47;
+  --shadow: 0 8px 24px #00000018;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 760px;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+}
+button {
+  -webkit-app-region: no-drag;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+svg {
+  flex-shrink: 0;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.eyebrow,
+.catalogue-number,
+.preview-badge,
+.count-badge,
+.status-bar,
+.stage-caption,
+.sleeve-caption,
+.sleeve-edition,
+.timeline,
+.playback-source {
+  font-family: 'IBM Plex Mono', monospace;
+}
+.eyebrow {
+  font-size: 9px;
+  line-height: 1.5;
+  letter-spacing: 1.3px;
+  font-weight: 500;
+}
+.blue-text {
+  color: var(--blue);
+}
+.status-dot,
+.blue-dot {
+  width: 5px;
+  height: 5px;
+  display: inline-block;
+  border-radius: 50%;
+  background: var(--faint);
+  flex-shrink: 0;
+}
+.blue-dot {
+  background: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-soft);
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
