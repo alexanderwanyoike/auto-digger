@@ -1,10 +1,13 @@
 import { Disc3, Radio } from 'lucide-react';
+import { useAppearance } from './theme/useAppearance';
+import { AppearanceControl } from './components/AppearanceControl';
 import { FilterPanel } from './components/FilterPanel';
 import { DiscoveryPanel } from './components/DiscoveryPanel';
 import { CratePanel } from './components/CratePanel';
 import { PlaybackBar } from './components/PlaybackBar';
 
 export function App() {
+  const { appearance, selectAppearance } = useAppearance();
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -18,6 +21,7 @@ export function App() {
         <span className="connection-status">
           <span className="status-dot" /> Discogs not connected
         </span>
+        <AppearanceControl appearance={appearance} onSelect={selectAppearance} />
       </header>
       <main>
         <div className="desk-toolbar">

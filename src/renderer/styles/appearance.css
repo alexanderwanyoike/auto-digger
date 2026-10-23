@@ -1,0 +1,29 @@
+.appearance-control {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-inset);
+}
+.appearance-control button {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 25px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: none;
+  color: var(--muted);
+}
+.appearance-control button:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+.appearance-control button[aria-pressed='true'] {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--blue);
+  box-shadow: 0 1px 3px #0000000d;
+}
