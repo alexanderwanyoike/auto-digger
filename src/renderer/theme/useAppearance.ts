@@ -6,6 +6,8 @@ export function useAppearance() {
   const [initial] = useState(readAppearance);
   const [appearance, setAppearance] = useState<Appearance>(initial.ok ? initial.value : 'system');
 
+  const [storageAvailable, setStorageAvailable] = useState(initial.ok);
+
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const apply = () => {
@@ -22,10 +24,8 @@ export function useAppearance() {
   const selectAppearance = (next: Appearance) => {
     setAppearance(next);
     const result = saveAppearance(next);
-    if (!result.ok) {
-      setAppearance(next);
-    }
+    setStorageAvailable(result.ok);
   };
 
-  return { appearance, selectAppearance };
+  return { appearance, selectAppearance, storageAvailable };
 }

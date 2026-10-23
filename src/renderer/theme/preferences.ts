@@ -5,11 +5,19 @@ export type PreferenceError = 'storage-unavailable';
 const storageKey = 'auto-digger.appearance';
 
 export function readAppearance(): Result<Appearance, PreferenceError> {
-  const saved = window.localStorage.getItem(storageKey);
-  return { ok: true, value: saved === 'light' || saved === 'dark' ? saved : 'system' };
+  try {
+    const saved = window.localStorage.getItem(storageKey);
+    return { ok: true, value: saved === 'light' || saved === 'dark' ? saved : 'system' };
+  } catch {
+    return { ok: false, error: 'storage-unavailable' };
+  }
 }
 
 export function saveAppearance(appearance: Appearance): Result<undefined, PreferenceError> {
-  window.localStorage.setItem(storageKey, appearance);
-  return { ok: true, value: undefined };
+  try {
+    window.localStorage.setItem(storageKey, appearance);
+    return { ok: true, value: undefined };
+  } catch {
+    return { ok: false, error: 'storage-unavailable' };
+  }
 }

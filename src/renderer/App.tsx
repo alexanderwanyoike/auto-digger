@@ -7,7 +7,7 @@ import { CratePanel } from './components/CratePanel';
 import { PlaybackBar } from './components/PlaybackBar';
 
 export function App() {
-  const { appearance, selectAppearance } = useAppearance();
+  const { appearance, selectAppearance, storageAvailable } = useAppearance();
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -23,6 +23,11 @@ export function App() {
         </span>
         <AppearanceControl appearance={appearance} onSelect={selectAppearance} />
       </header>
+      {!storageAvailable && (
+        <p role="status" className="preference-notice">
+          Appearance works for this session, but could not be saved on this device.
+        </p>
+      )}
       <main>
         <div className="desk-toolbar">
           <div className="desk-title">
