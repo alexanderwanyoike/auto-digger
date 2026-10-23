@@ -52,7 +52,7 @@ On headless Linux, use:
 xvfb-run --auto-servernum yarn test:electron
 ```
 
-CI runs both commands on every PR. The Electron test uses its own temporary profile, checks renderer isolation, blocked popups, theme persistence and layout at 900 by 780 pixels, and saves light and dark screenshots under `test-results/`. Playwright adds its own Chromium test launch switches; the production window explicitly enables sandboxing and context isolation and disables Node integration.
+CI runs both commands on every PR. The Electron test uses its own temporary profile, checks renderer isolation, blocked popups, theme persistence and layout at both 900 by 780 and 1180 by 780 pixels, and saves light and dark screenshots under `test-results/`. Playwright adds its own Chromium test launch switches; the production window explicitly enables sandboxing and context isolation and disables Node integration.
 
 Use `yarn format` to format the project or `yarn test:watch` while developing. EditorConfig and VS Code format-on-save settings are included; install the recommended Prettier and ESLint extensions to enable editor formatting.
 
