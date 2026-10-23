@@ -1,13 +1,16 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 
-test('opens an isolated desktop window and retains a chosen theme after reload', async () => {
+test('desktop desk opens safely, remembers appearance and fits a compact window', async () => {
   const environment = Object.fromEntries(
     Object.entries(process.env).filter(
       (entry): entry is [string, string] =>
         typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
     ),
   );
-  const desktop = await electron.launch({ args: ['.'], env: environment });
+  const desktop = await electron.launch({
+    args: [`--user-data-dir=${test.info().outputPath('profile')}`, '.'],
+    env: environment,
+  });
   try {
     const page = await desktop.firstWindow();
     await expect(page.getByRole('heading', { name: 'Digging desk' })).toBeVisible();
@@ -25,6 +28,21 @@ test('opens an isolated desktop window and retains a chosen theme after reload',
     const popup = await page.evaluate(() => window.open('https://example.com'));
     expect(popup).toBeNull();
     expect(desktop.windows()).toHaveLength(1);
+    await page.setViewportSize({ width: 900, height: 780 });
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+    });
+    const layout = await page.evaluate(() => ({
+      width: document.documentElement.scrollWidth,
+      height: document.documentElement.scrollHeight,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+    }));
+    expect(layout.width).toBeLessThanOrEqual(layout.viewportWidth);
+    expect(layout.height).toBeLessThanOrEqual(layout.viewportHeight);
+    await page.screenshot({ path: 'test-results/phase-1-light.png', fullPage: true });
+    await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    await page.screenshot({ path: 'test-results/phase-1-dark.png', fullPage: true });
   } finally {
     await desktop.close();
   }
