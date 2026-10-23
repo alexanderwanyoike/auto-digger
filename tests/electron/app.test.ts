@@ -1,7 +1,7 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 
 [900, 1180].forEach((width) => {
-  test(`desktop desk opens safely, remembers appearance and fits ${width}x780`, async () => {
+  test(`desktop desk opens safely, remembers appearance and fits ${width.toString()}x780`, async () => {
     const environment = Object.fromEntries(
       Object.entries(process.env).filter(
         (entry): entry is [string, string] =>
@@ -42,9 +42,15 @@ import { _electron as electron, expect, test } from '@playwright/test';
       expect(layout.width).toBeLessThanOrEqual(layout.viewportWidth);
       expect(layout.height).toBeLessThanOrEqual(layout.viewportHeight);
       await expect(page.getByText('Built for the long way round.')).toBeInViewport({ ratio: 1 });
-      await page.screenshot({ path: `test-results/phase-1-${width}-light.png`, fullPage: true });
+      await page.screenshot({
+        path: `test-results/phase-1-${width.toString()}-light.png`,
+        fullPage: true,
+      });
       await page.getByRole('button', { name: 'Dark', exact: true }).click();
-      await page.screenshot({ path: `test-results/phase-1-${width}-dark.png`, fullPage: true });
+      await page.screenshot({
+        path: `test-results/phase-1-${width.toString()}-dark.png`,
+        fullPage: true,
+      });
     } finally {
       await desktop.close();
     }
