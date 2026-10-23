@@ -1,9 +1,9 @@
 .playback-bar {
-  min-height: 83px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   gap: 26px;
-  padding: 16px 28px;
+  padding: 12px 28px;
   background: linear-gradient(var(--metal-top), var(--metal-bottom));
   border-top: 1px solid var(--line);
 }
@@ -86,7 +86,7 @@
 @media (max-width: 1000px) {
   .playback-bar {
     gap: 18px;
-    padding: 16px 22px;
+    padding: 12px 22px;
   }
   .now-playing {
     min-width: 238px;

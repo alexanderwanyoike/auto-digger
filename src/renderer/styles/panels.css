@@ -1,6 +1,6 @@
 fieldset {
   padding: 0;
-  margin: 22px 0 0;
+  margin: 16px 0 0;
   border: 0;
   min-width: 0;
 }
@@ -14,11 +14,11 @@ fieldset label {
   display: block;
   position: relative;
   margin-top: 6px;
-  margin-bottom: 17px;
+  margin-bottom: 10px;
 }
 .input-wrap input {
   width: 100%;
-  height: 34px;
+  height: 30px;
   border: 1px solid var(--line);
   border-radius: 5px;
   background: var(--surface);
@@ -34,19 +34,19 @@ fieldset label {
 .input-wrap svg {
   position: absolute;
   right: 9px;
-  top: 11px;
+  top: 9px;
   color: var(--faint);
 }
 .filter-divider {
   height: 1px;
   background: var(--line);
-  margin: 1px 0 18px;
+  margin: 1px 0 12px;
 }
 .format-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 20px 0;
+  margin: 14px 0;
   font-size: 10px;
   font-weight: 600;
 }
@@ -78,8 +78,8 @@ fieldset label {
   color: var(--muted);
 }
 .source-card {
-  margin-top: 28px;
-  padding-top: 17px;
+  margin-top: 18px;
+  padding-top: 12px;
   border-top: 1px solid var(--line);
 }
 .source-card .eyebrow {

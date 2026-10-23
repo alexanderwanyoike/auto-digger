@@ -10,6 +10,7 @@ import './styles/layout.css';
 import './styles/panels.css';
 import './styles/record.css';
 import './styles/playback.css';
+import './styles/compact.css';
 
 const container = document.getElementById('root');
 

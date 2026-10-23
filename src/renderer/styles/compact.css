@@ -1,0 +1,26 @@
+@media (max-height: 900px) {
+  .record-stage {
+    height: 240px;
+  }
+  .sleeve {
+    top: 20px;
+  }
+  .vinyl {
+    top: 33px;
+  }
+
+  fieldset label {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .input-wrap {
+    margin: 0;
+  }
+
+  .input-wrap input {
+    display: block;
+  }
+}

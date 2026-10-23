@@ -5,7 +5,7 @@
   background: var(--surface);
 }
 .app-header {
-  height: 78px;
+  height: 64px;
   padding: 0 30px;
   display: flex;
   align-items: center;
@@ -52,7 +52,7 @@ main {
   justify-content: space-between;
   align-items: center;
   gap: 15px;
-  min-height: 75px;
+  min-height: 62px;
   padding: 16px 30px;
 }
 .desk-title {
@@ -86,7 +86,7 @@ h1 {
   grid-template-columns: 225px minmax(310px, 1fr) 230px;
   flex: 1;
   margin: 0 24px 24px;
-  min-height: 536px;
+  min-height: 516px;
   border: 1px solid var(--line);
   border-radius: 9px;
   overflow: hidden;
@@ -94,7 +94,7 @@ h1 {
 }
 .filter-panel,
 .crate-panel {
-  padding: 23px 20px;
+  padding: 20px 20px;
   background: var(--surface-raised);
 }
 .filter-panel {
