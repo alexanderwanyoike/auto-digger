@@ -48,3 +48,23 @@ test('switches appearance, remembers the choice and follows changes to the syste
   });
   expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
 });
+
+test.each(['getItem', 'setItem'] as const)(
+  'keeps appearance usable and explains when storage %s is unavailable',
+  async (operation) => {
+    vi.spyOn(Storage.prototype, operation).mockImplementation(() => {
+      throw new DOMException('Storage is blocked', 'SecurityError');
+    });
+    const user = userEvent.setup();
+    render(<App />);
+
+    if (operation === 'getItem') {
+      expect(screen.getByRole('status')).toHaveTextContent('could not be saved');
+    }
+    await user.click(screen.getByRole('button', { name: 'Dark' }));
+    expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
+    if (operation === 'setItem') {
+      expect(screen.getByRole('status')).toHaveTextContent('could not be saved');
+    }
+  },
+);
