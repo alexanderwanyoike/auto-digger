@@ -46,8 +46,7 @@ test('shows labelled unavailable installers with a single release status', async
     'macOS Intel disk image',
     'Linux x64 AppImage',
   ]);
-  controls.forEach((control) =>
-    expect(control.getAttribute('aria-describedby')).toBe('download-release-status'),
+  controls.forEach((control) => { expect(control.getAttribute('aria-describedby')).toBe('download-release-status'); },
   );
   expect(section?.querySelector('details summary')?.textContent).toContain('Requirements');
   expect(section?.textContent).not.toContain('not published yet');
