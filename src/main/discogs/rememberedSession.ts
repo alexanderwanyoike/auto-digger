@@ -24,7 +24,12 @@ export function createRememberedSession(
         const stored = await tokens.load();
         if (!stored.ok) return stored;
         if (stored.value === null) return current;
-        return session.connect(stored.value);
+        const restored = await session.connect(stored.value);
+        if (!restored.ok && restored.error.code === 'unauthorized') {
+          const removed = await tokens.clear();
+          if (!removed.ok) return removed;
+        }
+        return restored;
       }),
     connect: (input: unknown) =>
       serialize(async () => {
