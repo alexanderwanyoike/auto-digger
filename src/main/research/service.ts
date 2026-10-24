@@ -76,8 +76,14 @@ export function createResearchService(
           ['create_crate', 'add_release', 'annotate_track', 'save_research'].includes(
             parsed.data.name,
           )
-        )
-          onChange();
+        ) {
+          try {
+            onChange();
+          } catch {
+            // A closed window cannot undo the committed catalogue change.
+            return result;
+          }
+        }
         return result;
       } catch {
         return catalogueFailure(
