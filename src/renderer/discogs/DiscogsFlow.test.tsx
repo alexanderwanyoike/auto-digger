@@ -7,12 +7,10 @@ import { App } from '../App';
 
 function mockBridge(): DiscogsBridge {
   return {
-    dig: vi
-      .fn<DiscogsBridge['dig']>()
-      .mockResolvedValue({
-        ok: true,
-        value: { release: loadedRelease, seen: 1, total: 1, limited: false },
-      }),
+    dig: vi.fn<DiscogsBridge['dig']>().mockResolvedValue({
+      ok: true,
+      value: { release: loadedRelease, seen: 1, total: 1, limited: false },
+    }),
     search: vi.fn<DiscogsBridge['search']>().mockResolvedValue({
       ok: true,
       value: { page: 1, pages: 0, perPage: 50, items: 0, releases: [] },
