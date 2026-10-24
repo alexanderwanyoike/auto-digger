@@ -65,3 +65,19 @@ test('combines genres and removes stale styles while preserving compatible selec
   await user.type(screen.getByLabelText('Style'), 'Deep House');
   expect(screen.getByRole('option', { name: 'Deep House' })).toBeInTheDocument();
 });
+
+test('allows explicit newer styles absent from the reference without guessing their genre', async () => {
+  const search = renderDesk();
+  const user = userEvent.setup();
+  await screen.findByRole('button', { name: 'Connected as quiet-digger' });
+  await user.type(screen.getByLabelText('Genre'), 'Hip Hop');
+  await user.click(screen.getByRole('option', { name: 'Hip Hop' }));
+  await user.type(screen.getByLabelText('Style'), 'Drill');
+  await user.click(screen.getByRole('option', { name: 'Use "Drill"' }));
+  await user.type(screen.getByLabelText('Genre'), 'Electronic');
+  await user.click(screen.getByRole('option', { name: 'Electronic' }));
+  await user.keyboard('{Escape}');
+  expect(screen.getByLabelText('Remove Drill')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Search releases' }));
+  expect(search.mock.lastCall?.[0].filters.style).toEqual(['Drill']);
+});
