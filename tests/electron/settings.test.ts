@@ -74,3 +74,66 @@ test('persists settings and finds old and per-release downloads after a native r
     await desktop.close();
   }
 });
+
+test('keeps small text and accent actions readable across supported materials, accents and modes', async () => {
+  const { contrast } = await import('../contrast');
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encryptedDesktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('appearance-profile')}`,
+    ],
+    env: Object.fromEntries(
+      Object.entries(process.env).filter(
+        (entry): entry is [string, string] =>
+          typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
+      ),
+    ),
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    const choices = ['light', 'dark'].flatMap((mode) =>
+      ['aluminium', 'ceramic', 'slate'].flatMap((material) =>
+        ['blue', 'teal', 'amber'].map((accent) => ({ mode, material, accent })),
+      ),
+    );
+    await choices.reduce<Promise<void>>(
+      (previous, choice) =>
+        previous.then(async () => {
+          await page.getByRole('combobox', { name: 'Mode', exact: true }).selectOption(choice.mode);
+          await page
+            .getByRole('combobox', { name: 'Material', exact: true })
+            .selectOption(choice.material);
+          await page
+            .getByRole('combobox', { name: 'Accent', exact: true })
+            .selectOption(choice.accent);
+          await expect(page.locator('html')).toHaveAttribute('data-accent', choice.accent);
+          const colors = await page.evaluate(() => {
+            const style = getComputedStyle(document.documentElement);
+            return {
+              muted: style.getPropertyValue('--muted').trim(),
+              surface: style.getPropertyValue('--surface').trim(),
+              raised: style.getPropertyValue('--surface-raised').trim(),
+              accent: style.getPropertyValue('--blue').trim(),
+              soft: style.getPropertyValue('--blue-soft').trim(),
+            };
+          });
+          expect(
+            contrast(colors.muted, colors.surface),
+            JSON.stringify(choice),
+          ).toBeGreaterThanOrEqual(4.5);
+          expect(
+            contrast(colors.muted, colors.raised),
+            JSON.stringify(choice),
+          ).toBeGreaterThanOrEqual(4.5);
+          expect(
+            contrast(colors.accent, colors.soft),
+            JSON.stringify(choice),
+          ).toBeGreaterThanOrEqual(4.5);
+        }),
+      Promise.resolve(),
+    );
+  } finally {
+    await desktop.close();
+  }
+});
