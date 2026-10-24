@@ -13,11 +13,14 @@ export function createPreviewSession(
   request: typeof fetch = fetch,
 ) {
   let revision = 0;
+  let expiryTimer: ReturnType<typeof setTimeout> | undefined;
   let resolving: AbortController | undefined;
   let active: { id: string; source: ResolvedPreview; expires: number } | undefined;
   const controllers = new Set<AbortController>();
   function stop(): AudioResult<undefined> {
     revision += 1;
+    if (expiryTimer) clearTimeout(expiryTimer);
+    expiryTimer = undefined;
     resolving?.abort();
     resolving = undefined;
     active = undefined;
@@ -56,6 +59,16 @@ export function createPreviewSession(
         source: result.value,
         expires: Number.isSafeInteger(expiry) && expiry > 0 ? Math.min(expiry, maximum) : maximum,
       };
+      if (active.expires <= Date.now()) {
+        stop();
+        return audioFailure(
+          'unavailable',
+          'This preview link has expired. Please choose Preview again.',
+        );
+      }
+      expiryTimer = setTimeout(() => {
+        stop();
+      }, active.expires - Date.now());
       const index = trackIndex === undefined ? matchTrack(release, result.value.title) : trackIndex;
       const title =
         index === null ? result.value.title : (release.tracks[index]?.title ?? result.value.title);
