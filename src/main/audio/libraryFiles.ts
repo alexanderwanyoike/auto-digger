@@ -56,7 +56,7 @@ export function createLibraryFiles(directory: string) {
           .sort();
         const results = await Promise.all(names.map((name) => read(name.slice(0, -5), true)));
         const failed = results.find((result) => !result.ok);
-        if (failed) return failed;
+        if (failed) return audioFailure('invalid-data', failed.error.message);
         return { ok: true, value: results.flatMap((result) => (result.ok ? [result.value] : [])) };
       } catch {
         return audioFailure(

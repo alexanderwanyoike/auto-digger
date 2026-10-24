@@ -6,6 +6,7 @@ import type { PlaybackItem } from './playback';
 
 export const audioErrorSchema = z.object({
   code: z.enum([
+    'invalid-data',
     'invalid-input',
     'unavailable',
     'tools',

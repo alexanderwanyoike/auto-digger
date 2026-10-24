@@ -53,8 +53,12 @@ export function createIndexedLibrary(
         result: await library(directory).list(),
       })),
     );
-    const failed = scanned.find((scan) => !scan.result.ok);
-    if (failed) return failed.result;
+    const errors = scanned.flatMap((scan) => (scan.result.ok ? [] : [scan.result]));
+    const invalid = errors.find((result) => result.error.code !== 'storage');
+    if (invalid) return invalid;
+    const firstError = errors[0];
+    if (!records.value.length && scanned.every((scan) => !scan.result.ok) && firstError)
+      return firstError;
     const saved = await Promise.all(
       scanned.flatMap(({ directory, result }) =>
         result.ok
