@@ -27,7 +27,9 @@ test('distinguishes the selected Discogs track from the verified YouTube upload 
   const user = userEvent.setup();
   render(<App crate={crate} audioLibrary={bridge} />);
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
-  const row = within(screen.getByRole('region', { name: 'Audio sources' })).getByRole('listitem');
+  const row = within(screen.getByRole('list', { name: 'YouTube audio sources' })).getByRole(
+    'listitem',
+  );
   expect(await within(row).findByText('Quiet Orbit | vinyl upload by a collector')).toBeVisible();
   expect(within(row).getByText('YouTube video')).toBeVisible();
   expect(within(row).getByLabelText('Discogs track')).toHaveDisplayValue('A1 · Quiet Orbit');
@@ -84,7 +86,9 @@ test.each([
     const user = userEvent.setup();
     render(<App crate={crate} audioLibrary={bridge} />);
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
-    const row = within(screen.getByRole('region', { name: 'Audio sources' })).getByRole('listitem');
+    const row = within(screen.getByRole('list', { name: 'YouTube audio sources' })).getByRole(
+      'listitem',
+    );
     expect(
       await within(row).findByText(
         online ? 'Renamed collector upload' : 'Original collector upload',
