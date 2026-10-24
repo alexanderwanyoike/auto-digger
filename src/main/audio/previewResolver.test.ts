@@ -3,18 +3,16 @@ import { createPreviewResolver } from './previewResolver';
 import type { Execute } from './downloader';
 
 test('resolves a single audio stream without saving media and rejects untrusted destinations', async () => {
-  const execute = vi
-    .fn<Execute>()
-    .mockResolvedValue({
-      ok: true,
-      value: JSON.stringify({
-        id: 'abcdefghijk',
-        title: 'Quiet Orbit',
-        url: 'https://r1.googlevideo.com/videoplayback?expire=123',
-        http_headers: { 'User-Agent': 'yt-dlp', Cookie: 'must-stay-out' },
-        is_live: false,
-      }),
-    });
+  const execute = vi.fn<Execute>().mockResolvedValue({
+    ok: true,
+    value: JSON.stringify({
+      id: 'abcdefghijk',
+      title: 'Quiet Orbit',
+      url: 'https://r1.googlevideo.com/videoplayback?expire=123',
+      http_headers: { 'User-Agent': 'yt-dlp', Cookie: 'must-stay-out' },
+      is_live: false,
+    }),
+  });
   const resolve = createPreviewResolver(execute);
   expect(await resolve('https://youtu.be/abcdefghijk')).toEqual({
     ok: true,
