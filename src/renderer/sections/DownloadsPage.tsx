@@ -54,12 +54,14 @@ export function DownloadsPage({ audio }: { audio: ReturnType<typeof useAudioLibr
               <span>
                 {track.artist} · {track.album}
               </span>
+              {track.missing && <small>File missing or unavailable</small>}
               {track.warning && <small>{track.warning}</small>}
             </div>
             <button
               type="button"
               className="icon-button"
               aria-label={`Play ${track.title}`}
+              disabled={track.missing === true}
               onClick={() => {
                 audio.play(track);
               }}

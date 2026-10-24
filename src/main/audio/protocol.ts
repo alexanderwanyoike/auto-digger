@@ -1,8 +1,7 @@
 import { net, protocol } from 'electron';
 import { stat } from 'node:fs/promises';
-import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import type { createAudioLibrary } from './library';
+import type { createIndexedLibrary } from './indexedLibrary';
 import type { createPreviewSession } from './previewSession';
 
 export function registerAudioScheme() {
@@ -15,8 +14,7 @@ export function registerAudioScheme() {
 }
 
 export function registerAudioProtocol(
-  library: ReturnType<typeof createAudioLibrary>,
-  directory: string,
+  library: ReturnType<typeof createIndexedLibrary>,
   previews: ReturnType<typeof createPreviewSession>,
 ) {
   protocol.handle('auto-digger-audio', async (request) => {
@@ -24,10 +22,10 @@ export function registerAudioProtocol(
     if (url.hostname === 'preview') return previews.serve(request);
     if (url.hostname !== 'track' || !['GET', 'HEAD'].includes(request.method))
       return new Response(null, { status: 404 });
-    const track = await library.find(url.pathname.slice(1));
+    const track = await library.locate(url.pathname.slice(1));
     if (!track.ok) return new Response(null, { status: 404 });
     try {
-      const file = join(directory, track.value.filename);
+      const { file } = track.value;
       const { size } = await stat(file);
       const range = request.headers.get('range');
       let start = 0;

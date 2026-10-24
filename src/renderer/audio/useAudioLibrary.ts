@@ -33,13 +33,14 @@ export function useAudioLibrary(bridge: AudioBridge | undefined) {
       .then((result) => {
         if (!active) return;
         if (result.ok) {
+          const firstPlayable = result.value.find((track) => !track.missing);
           setTracks((previous) => [
             ...result.value.filter((saved) => !previous.some((track) => track.id === saved.id)),
             ...previous,
           ]);
           if (version === actions.current)
             setPlayback({
-              track: result.value[0] ? downloadedPlayback(result.value[0]) : null,
+              track: firstPlayable ? downloadedPlayback(firstPlayable) : null,
               request: 0,
             });
         } else setError(result.error.message);
@@ -53,6 +54,12 @@ export function useAudioLibrary(bridge: AudioBridge | undefined) {
     };
   }, [bridge]);
   function play(track: LocalTrack) {
+    if (track.missing) {
+      setError(
+        'This audio file is missing or unavailable. Restore it or download the source again.',
+      );
+      return;
+    }
     actions.current += 1;
     setPreviewing(false);
     bridge

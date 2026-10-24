@@ -1,9 +1,18 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import { createPreferencesBridge } from './preferencesBridge';
 import { createStoreLinksBridge } from './storeLinksBridge';
 import { createCrateBridge } from './crateBridge';
 import { createDiscogsBridge } from './bridge';
 import { createCatalogueBridge } from './catalogueBridge';
 import { createAudioBridge } from './audioBridge';
+
+contextBridge.exposeInMainWorld(
+  'preferences',
+  createPreferencesBridge(async (channel, input) => {
+    const result: unknown = await ipcRenderer.invoke(channel, input);
+    return result;
+  }),
+);
 
 contextBridge.exposeInMainWorld(
   'storeLinks',

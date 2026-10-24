@@ -29,12 +29,13 @@ export function SourceRow({
   const sourceTitle = checked?.ok ? checked.value.title : (saved?.sourceTitle ?? video.title);
   const suggestion = saved ? saved.trackIndex : matchTrack(release, sourceTitle);
   const selected = manual === undefined ? suggestion : manual;
+  const available = saved && !saved.missing;
   const changed = saved && selected !== saved.trackIndex;
-  let actionLabel = saved ? 'Update tags' : 'Download audio';
+  let actionLabel = available ? 'Update tags' : 'Download audio';
   if (pending) actionLabel = 'Saving…';
-  let matchLabel = 'Suggested match';
+  let matchLabel = saved?.missing ? 'File missing' : 'Suggested match';
   if (selected === null) matchLabel = 'Unassigned';
-  else if (saved && !changed) matchLabel = 'Saved';
+  else if (available && !changed) matchLabel = 'Saved';
   else if (manual !== undefined) matchLabel = 'Your choice';
   async function download() {
     setPending(true);
@@ -73,7 +74,7 @@ export function SourceRow({
         </span>
       </div>
       <div className="source-actions">
-        {!saved && (
+        {!available && (
           <button
             type="button"
             className="secondary-button source-preview"
@@ -88,7 +89,7 @@ export function SourceRow({
             {audio.previewing ? 'Preparing…' : 'Preview'}
           </button>
         )}
-        {saved && (
+        {available && (
           <button
             type="button"
             className="secondary-button"
@@ -100,11 +101,11 @@ export function SourceRow({
             Play track
           </button>
         )}
-        {(!saved || changed) && (
+        {(!available || changed) && (
           <button
             type="button"
             className="secondary-button source-download"
-            disabled={audio.busy || (!saved && !checked?.ok)}
+            disabled={audio.busy || (!available && !checked?.ok)}
             onClick={() => {
               download().catch(() => {
                 setPending(false);
@@ -116,7 +117,7 @@ export function SourceRow({
             {actionLabel}
           </button>
         )}
-        {saved && (
+        {available && (
           <button
             type="button"
             className="source-folder source-reveal"
@@ -129,9 +130,9 @@ export function SourceRow({
             <FolderOpen size={13} aria-hidden="true" />
           </button>
         )}
-        {!saved && !checked && audio.available && <span role="status">Checking…</span>}
+        {!available && !checked && audio.available && <span role="status">Checking…</span>}
         {!audio.available && <span>Open the desktop app to download audio.</span>}
-        {!saved && checked && !checked.ok && (
+        {!available && checked && !checked.ok && (
           <button
             type="button"
             className="source-folder"
@@ -143,7 +144,7 @@ export function SourceRow({
           </button>
         )}
       </div>
-      {!saved && checked && !checked.ok && (
+      {!available && checked && !checked.ok && (
         <p role="alert" className="source-notice">
           {checked.error.message}
         </p>

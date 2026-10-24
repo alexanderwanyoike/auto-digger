@@ -6,6 +6,7 @@ import type { PlaybackItem } from './playback';
 
 export const audioErrorSchema = z.object({
   code: z.enum([
+    'invalid-data',
     'invalid-input',
     'unavailable',
     'tools',
@@ -42,6 +43,7 @@ export const localTrackSchema = z.object({
       Array.from(value).every((character) => (character.codePointAt(0) ?? 0) >= 32),
     ),
   warning: z.string().nullable(),
+  missing: z.boolean().optional(),
 });
 export type LocalTrack = z.infer<typeof localTrackSchema>;
 export const downloadInputSchema = z.object({

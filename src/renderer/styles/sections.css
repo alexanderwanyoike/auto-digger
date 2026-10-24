@@ -295,3 +295,9 @@ main {
 .crate-management .primary-button {
   width: auto;
 }
+
+.section-nav .settings-nav {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+}
