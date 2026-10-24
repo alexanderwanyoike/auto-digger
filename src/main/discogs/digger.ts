@@ -2,7 +2,6 @@ import type { DiscogsRelease, DiscogsResult } from '../../shared/discogs';
 import type { DigFilters, SearchPage } from '../../shared/search';
 import type { DigResult } from '../../shared/dig';
 import { discogsFailure } from '../../shared/discogsFailure';
-import { isEp } from '../../shared/isEp';
 
 type Search = (filters: DigFilters, page: number) => Promise<DiscogsResult<SearchPage>>;
 type Load = (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
@@ -31,18 +30,18 @@ export function createDigger(search: Search, load: Load, random = Math.random) {
     if (!pool.length)
       return discogsFailure(
         'exhausted',
-        'No unseen EPs remain in this search. Reset digging or change the filters.',
+        'No unseen releases remain in this search. Reset digging or change the filters.',
       );
     if (!attempts)
       return discogsFailure(
         'not-found',
-        'These candidates were unavailable or no longer EPs. Try Dig again.',
+        'These candidates were unavailable or no longer match your release types. Try Dig again.',
       );
     const pick = Math.floor(random() * pool.length);
     const position = pool[pick];
     const last = pool.pop();
     if (position === undefined || last === undefined)
-      return discogsFailure('exhausted', 'No unseen EPs remain.');
+      return discogsFailure('exhausted', 'No unseen releases remain.');
     if (pick < pool.length) pool[pick] = last;
     const page = Math.floor(position / perPage) + 1;
     let batch = pages.get(page);
@@ -67,7 +66,12 @@ export function createDigger(search: Search, load: Load, random = Math.random) {
           pool.push(position);
           return result;
         }
-      } else if (isEp(result.value.formats)) {
+      } else if (
+        !filters.format.length ||
+        result.value.formats.some((format) =>
+          format.split(',').some((part) => filters.format.includes(part.trim())),
+        )
+      ) {
         seen.add(candidate.id);
         return { ok: true, value: { release: result.value, seen: seen.size, total, limited } };
       }
