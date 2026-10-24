@@ -31,15 +31,24 @@ export async function openCatalogue(
         database.close();
         return legacy;
       }
-      if (legacyFile && legacy.value.length) {
+      if (legacyFile) {
         try {
           await copyFile(legacyFile, `${legacyFile}.bak`, constants.COPYFILE_EXCL);
         } catch (error) {
-          if (!(error instanceof Error && 'code' in error && error.code === 'EEXIST')) throw error;
+          if (!(
+            error instanceof Error &&
+            'code' in error &&
+            (error.code === 'EEXIST' || error.code === 'ENOENT')
+          ))
+            throw error;
         }
       }
       database.exec('BEGIN IMMEDIATE');
       try {
+        if (database.prepare("SELECT value FROM metadata WHERE key='legacy-import'").get()) {
+          database.exec('COMMIT');
+          return { ok: true, value: database };
+        }
         database
           .prepare("INSERT OR IGNORE INTO crates(id,name,ordinal) VALUES('default','My crate',0)")
           .run();
