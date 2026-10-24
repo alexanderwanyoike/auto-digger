@@ -92,14 +92,6 @@
   overflow: hidden;
   position: relative;
 }
-:root[data-theme='dark'] .material-thumbnail[data-material='aluminium'] {
-  --surface: #25292e;
-  --surface-raised: #2c3138;
-  --surface-inset: #202429;
-  --metal-top: #33383f;
-  --metal-bottom: #282d33;
-  --line: #3b424b;
-}
 .material-choice input:checked + .material-thumbnail {
   outline: 2px solid var(--blue);
   outline-offset: 3px;
@@ -120,7 +112,6 @@
   border-bottom: 1px solid var(--line);
   background: linear-gradient(var(--metal-top), var(--metal-bottom));
 }
-.material-thumbnail[data-material='aluminium'] .material-mini-header,
 .material-thumbnail[data-material='copper'] .material-mini-header {
   background:
     repeating-linear-gradient(0deg, transparent 0, #8190a00c 1px, transparent 2px),

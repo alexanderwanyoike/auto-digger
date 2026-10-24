@@ -11,9 +11,7 @@
   align-items: center;
   gap: 28px;
   border-bottom: 1px solid var(--line);
-  background:
-    repeating-linear-gradient(0deg, transparent 0 2px, #8893a906 2px 3px),
-    linear-gradient(var(--metal-top), var(--metal-bottom));
+  background: linear-gradient(var(--metal-top), var(--metal-bottom));
 }
 .wordmark {
   display: flex;
