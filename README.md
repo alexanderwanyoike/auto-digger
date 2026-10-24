@@ -10,8 +10,6 @@ Tokens are verified with Discogs, kept only in main-process memory and cleared o
 
 Live digging filters, random EP discovery, YouTube playback and saved crates remain later phases. Their controls are inactive in this version.
 
-This change is stacked on Phase 1 in PR #1. Merge Phase 1 first, then Phase 2.
-
 ## Run
 
 Use Node.js 22.16 or later within Node 22, and Yarn 1.22.22.

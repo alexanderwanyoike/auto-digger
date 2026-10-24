@@ -1,6 +1,6 @@
 # Phase 2: Discogs connection and release metadata
 
-Dependency: PR #1 supplies the desktop foundation. Merge Phase 1 first, then this stacked change.
+Builds on the Phase 1 desktop foundation from PR #1.
 
 ## Scope
 
