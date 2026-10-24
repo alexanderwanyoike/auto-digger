@@ -53,6 +53,9 @@ test('previews through the shared transport without saving, then stops the tempo
   fireEvent.play(media);
   const player = screen.getByRole('contentinfo', { name: 'Playback' });
   expect(within(player).getByText(/Preview · Low Tide/)).toBeVisible();
+  fireEvent.waiting(media);
+  expect(within(player).getByText('Buffering preview…')).toBeVisible();
+  fireEvent.canPlay(media);
   await user.click(within(player).getByRole('button', { name: 'Stop preview' }));
   expect(stopPreview).toHaveBeenCalled();
   expect(within(player).getByText('Nothing on the deck')).toBeVisible();
