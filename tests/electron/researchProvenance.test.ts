@@ -134,6 +134,7 @@ test('researches verified release tracks through MCP and preserves visible prove
     ).toMatchObject({ isError: false });
     const research = page.getByRole('region', { name: 'Research notes' });
     await expect(research.getByText('Confirmed', { exact: true })).toBeVisible();
+    await expect(page.getByLabel('Pick Quiet Orbit', { exact: true })).toBeInViewport();
     await expect(research.getByText('Unresolved', { exact: true })).toBeVisible();
     await expect(research.getByText('00:31:20', { exact: true }).first()).toBeVisible();
     await desktop.evaluate(({ shell }) => {
