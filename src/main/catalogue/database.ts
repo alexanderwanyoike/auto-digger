@@ -5,7 +5,7 @@ import { dirname } from 'node:path';
 import type { CatalogueResult } from '../../shared/catalogue';
 import { catalogueFailure } from '../../shared/catalogueFailure';
 import { readCrate } from '../crate/file';
-import { upgradeCatalogue } from './upgrade';
+import { catalogueVersion, upgradeCatalogue } from './upgrade';
 import { initialiseCatalogue } from './schema';
 
 export async function openCatalogue(
@@ -18,7 +18,7 @@ export async function openCatalogue(
     database = new DatabaseSync(file, { timeout: 5000, allowExtension: false });
     await chmod(file, 0o600);
     const version = database.prepare('PRAGMA user_version').get()?.user_version;
-    if (typeof version !== 'number' || version > 2) {
+    if (typeof version !== 'number' || version > catalogueVersion) {
       database.close();
       return catalogueFailure(
         'invalid-data',
@@ -52,13 +52,15 @@ export async function openCatalogue(
           'This catalogue is unreadable. Its files have been preserved.',
         );
       }
-      if (version === 2) {
+      if (version >= 2) {
         database.prepare('SELECT path FROM download_directories LIMIT 0').all();
         database.prepare('SELECT id,directory,metadata FROM downloads LIMIT 0').all();
       }
+      if (version >= 3)
+        database.prepare('SELECT id,crate_id,metadata FROM research_notes LIMIT 0').all();
       database.exec('PRAGMA foreign_keys=ON');
     }
-    if (version < 2) upgradeCatalogue(database);
+    if (version < catalogueVersion) upgradeCatalogue(database);
     if (!database.prepare("SELECT value FROM metadata WHERE key='legacy-import'").get()) {
       const legacy = legacyFile ? await readCrate(legacyFile) : { ok: true as const, value: [] };
       if (!legacy.ok) {

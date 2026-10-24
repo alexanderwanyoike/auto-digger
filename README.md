@@ -83,3 +83,11 @@ See the [completed handoff and PR merge order](docs/handoff.md).
 - Review and fix records: [Phase 2](docs/reviews/phase-2.md), [Phase 3](docs/reviews/phase-3.md), [Phase 4](docs/reviews/phase-4.md), [Phase 5](docs/reviews/phase-5.md), [Phase 6](docs/reviews/phase-6.md)
 
 The renderer remains sandboxed and isolated with no Node access. Narrow preload operations validate responses, and main-process handlers validate the sender and inputs. Fonts and icons stay local. Remote renderer images are restricted to Discogs artwork. Audio is served through a restricted local protocol; the renderer cannot pass file paths or execute commands.
+
+## Experimental mix research
+
+Build with `yarn build`, start the app and open Settings using the cog. Enable **AI mix research** and copy the displayed MCP configuration into your local client. Choose JSON configuration for a compatible desktop host, or Codex TOML for the [documented `mcp_servers` configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli). Node.js 22 or newer must be available on that client's PATH. The app must stay open; searches also require a connected Discogs account. Copy the configuration again if the app folder moves.
+
+Then ask the host to research a specific mix, verify its tracklist and versions, create a named crate, add the original single/EP releases where possible, pick the matching tracks and retain source links, timestamps and unresolved candidates. The host needs its own web/source research capabilities. Auto Digger supplies catalogue and Discogs tools; it does not identify an entire mix automatically.
+
+Crates displays the host's evidence and uncertainty alongside the saved records. Picks, tags and source notes persist in SQLite. Disable research access or close the app to revoke client access. Access starts disabled after every restart. No client configuration is installed automatically, and the displayed configuration contains no Discogs token. See [the feature specification](docs/features/mix-research.md) for the tool set, local boundary and prototype limits.

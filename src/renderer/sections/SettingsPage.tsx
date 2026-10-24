@@ -1,6 +1,7 @@
 import type { useDiscogs } from '../discogs/useDiscogs';
 import type { Appearance } from '../theme/preferences';
 import type { usePreferences } from './usePreferences';
+import { ResearchSettings } from './ResearchSettings';
 import { DownloadSettings } from './DownloadSettings';
 import { SettingsSelect } from './SettingsSelect';
 
@@ -72,6 +73,7 @@ export function SettingsPage({
         </div>
       </div>
       <DownloadSettings preferences={preferences} />
+      <ResearchSettings />
       {preferences.error && (
         <div className="crate-notice">
           <p role="alert">{preferences.error}</p>

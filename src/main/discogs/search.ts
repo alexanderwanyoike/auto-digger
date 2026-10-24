@@ -45,6 +45,7 @@ export async function searchDiscogs(
   input: z.infer<typeof searchInputSchema>,
   token: string,
   request: typeof fetch,
+  options: { epOnly: boolean; query?: string; signal?: AbortSignal } = { epOnly: true },
 ): Promise<DiscogsResult<SearchPage>> {
   const { filters, page } = input;
   const query = new URLSearchParams({
@@ -53,10 +54,18 @@ export async function searchDiscogs(
     per_page: '50',
     page: page.toString(),
   });
+  if (!options.epOnly) query.delete('format');
+  if (options.query) query.set('q', options.query);
   Object.entries(filters).forEach(([key, value]) => {
     if (Array.isArray(value)) {
       if (value.length) query.set(key, value.join('|'));
     } else if (value) query.set(key === 'title' ? 'release_title' : key, value);
   });
-  return requestDiscogs(`/database/search?${query.toString()}`, token, responseSchema, request);
+  return requestDiscogs(
+    `/database/search?${query.toString()}`,
+    token,
+    responseSchema,
+    request,
+    options.signal,
+  );
 }

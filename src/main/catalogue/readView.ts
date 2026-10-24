@@ -3,6 +3,7 @@ import { catalogueViewSchema } from '../../shared/catalogue';
 import type { CatalogueResult, CatalogueView } from '../../shared/catalogue';
 import { catalogueFailure } from '../../shared/catalogueFailure';
 import { releaseSchema } from '../../shared/discogs';
+import { readResearchNotes } from '../research/readNotes';
 import { trackKey } from './trackKey';
 
 function json(value: unknown): unknown {
@@ -55,10 +56,14 @@ export function readCatalogueView(
       }),
     };
   });
+  const research =
+    typeof id === 'string' ? readResearchNotes(database, id) : { ok: true as const, value: [] };
+  if (!research.ok) return research;
   const parsed = catalogueViewSchema.safeParse({
     crates,
     crateId: typeof id === 'string' ? id : null,
     entries,
+    research: research.value,
   });
   return parsed.success
     ? { ok: true, value: parsed.data }

@@ -1,4 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { createResearchStore } from '../research/store';
 import { createDownloadIndex } from '../audio/downloadIndex';
 import { createPreferencesStore } from '../settings/store';
 import { catalogueFailure } from '../../shared/catalogueFailure';
@@ -23,9 +24,12 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
   }
   async function change(
     operation: (mutations: ReturnType<typeof catalogueMutations>) => CatalogueResult<CatalogueView>,
+    signal?: AbortSignal,
   ): Promise<CatalogueResult<CatalogueView>> {
     const database = await getConnection();
     if (!database.ok) return database;
+    if (signal?.aborted)
+      return catalogueFailure('unavailable', 'Research access has stopped. No change was saved.');
     const connection: DatabaseSync = database.value;
     if (!connection.isOpen)
       return catalogueFailure(
@@ -57,11 +61,15 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
   return {
     preferences: createPreferencesStore(getConnection),
     downloads: createDownloadIndex(getConnection),
-    annotate: (input: unknown) => change((mutations) => mutations.annotate(input)),
-    create: (name: unknown) => change((mutations) => mutations.create(name)),
+    research: createResearchStore(getConnection),
+    annotate: (input: unknown, signal?: AbortSignal) =>
+      change((mutations) => mutations.annotate(input), signal),
+    create: (name: unknown, signal?: AbortSignal) =>
+      change((mutations) => mutations.create(name), signal),
     rename: (input: unknown) => change((mutations) => mutations.rename(input)),
     deleteCrate: (id: unknown) => change((mutations) => mutations.deleteCrate(id)),
-    add: (input: unknown) => change((mutations) => mutations.add(input)),
+    add: (input: unknown, signal?: AbortSignal) =>
+      change((mutations) => mutations.add(input), signal),
     remove: (input: unknown) => change((mutations) => mutations.remove(input)),
     async view(crateId?: string): Promise<CatalogueResult<CatalogueView>> {
       const database = await getConnection();

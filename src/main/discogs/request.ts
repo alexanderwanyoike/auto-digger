@@ -7,6 +7,7 @@ export async function requestDiscogs<T>(
   token: string,
   schema: z.ZodType<T>,
   request: typeof fetch,
+  signal?: AbortSignal,
 ): Promise<DiscogsResult<T>> {
   let response: Response;
   try {
@@ -15,10 +16,13 @@ export async function requestDiscogs<T>(
         Authorization: `Discogs token=${token}`,
         'User-Agent': 'AutoDigger/0.1 (+https://github.com/alexanderwanyoike/auto-digger)',
       },
-      signal: AbortSignal.timeout(10_000),
+      signal: signal
+        ? AbortSignal.any([signal, AbortSignal.timeout(10_000)])
+        : AbortSignal.timeout(10_000),
       redirect: 'error',
     });
   } catch {
+    if (signal?.aborted) return discogsFailure('cancelled', 'This Discogs request was cancelled.');
     return discogsFailure(
       'network',
       'Could not reach Discogs. Check your connection and try again.',
@@ -46,6 +50,7 @@ export async function requestDiscogs<T>(
   try {
     raw = await response.json();
   } catch (error) {
+    if (signal?.aborted) return discogsFailure('cancelled', 'This Discogs request was cancelled.');
     const malformed =
       typeof error === 'object' &&
       error !== null &&

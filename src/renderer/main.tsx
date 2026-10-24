@@ -22,6 +22,7 @@ import './styles/sections.css';
 import './styles/materials.css';
 import './styles/queue.css';
 import './styles/library.css';
+import './styles/research.css';
 
 const container = document.getElementById('root');
 
