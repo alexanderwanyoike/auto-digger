@@ -3,11 +3,14 @@ import { join } from 'node:path';
 import type { Result } from '../shared/result';
 import { createCrateStore } from './crate/store';
 import { registerCrateHandlers } from './crate/registerHandlers';
+import { createRememberedSession } from './discogs/rememberedSession';
+import { createTokenStore } from './credentials/tokenStore';
+import { electronEncryption } from './credentials/electronEncryption';
 import { createDiscogsSession } from './discogs/session';
 import { registerPlayerIdentity } from './youtube/registerIdentity';
 import { registerDiscogsHandlers } from './discogs/registerHandlers';
 
-const discogsSession = createDiscogsSession();
+let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
 let crateStore: ReturnType<typeof createCrateStore> | undefined;
 
 export async function createWindow(): Promise<Result<undefined, string>> {
@@ -31,6 +34,10 @@ export async function createWindow(): Promise<Result<undefined, string>> {
       },
     });
     crateStore ??= createCrateStore(join(app.getPath('userData'), 'crate.json'));
+    discogsSession ??= createRememberedSession(
+      createDiscogsSession(),
+      createTokenStore(join(app.getPath('userData'), 'discogs-token.bin'), electronEncryption),
+    );
     registerCrateHandlers(window, crateStore);
     registerDiscogsHandlers(window, discogsSession);
     registerPlayerIdentity(window.webContents.session);

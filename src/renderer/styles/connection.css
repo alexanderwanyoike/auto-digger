@@ -98,3 +98,11 @@ button.connection-status:not(:disabled):hover {
 .request-error {
   margin: 0 24px 16px;
 }
+
+.saved-account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}

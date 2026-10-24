@@ -91,7 +91,9 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
         <div className="source-name">
           <span className="small-record" aria-hidden="true" /> Discogs
         </div>
-        <p>{session.account ? 'Connected for this session.' : 'Connect your Discogs account.'}</p>
+        <p>
+          {session.account ? 'Account remembered on this device.' : 'Connect your Discogs account.'}
+        </p>
       </div>
     </aside>
   );

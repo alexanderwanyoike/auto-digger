@@ -22,13 +22,17 @@ yarn dev
 
 You can also enter a numeric Discogs release ID to load a record directly. The crate supports EPs. Click the connected username to disconnect when finished.
 
-Tokens stay only in main-process memory and are cleared on disconnect or exit. Token fields clear after submission, including unsuccessful attempts. Enter credentials in the app, not chat or project files. No YouTube API key is needed.
+After one successful connection, the app remembers your token using operating-system credential encryption and reconnects automatically on launch. Disconnect deletes the saved token. Token fields clear after submission, including unsuccessful attempts. Enter credentials in the app, not chat or project files. No YouTube API key is needed.
 
 ## Discovery and listening
 
 Search uses Discogs' specific release and EP filters. Pagination and random digging operate within the first 10,000 matching results exposed by search. Narrow broad criteria to explore further. A digging session avoids repeated release IDs and verifies EP format against loaded metadata. This history and cached search pages stay in memory.
 
 YouTube uses its visible official player, including seek and volume controls. Selection does not autoplay. Playback pauses when the player leaves view or the app is hidden, and stops when the release is replaced. It requires internet and an available video. Auto Digger does not download or extract audio.
+
+## Remembered account
+
+The encrypted token is stored separately from the crate, in `discogs-token.bin` under Electron’s `userData` directory. The decrypted value stays in the main process and is never returned to the renderer. If the network is temporarily unavailable, **Reconnect saved account** retries the saved token. **Forget saved token** removes it even when the keyring cannot unlock it. Unlock your desktop keyring if credential storage is unavailable; the app does not use plaintext fallback storage.
 
 ## Local crate
 

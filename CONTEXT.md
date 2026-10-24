@@ -8,6 +8,6 @@ A crate is a local saved playlist of whole EP releases, distinct from a Discogs 
 
 Playback uses visible official YouTube players for videos associated with a release. It requires internet and video availability. Selection does not autoplay; hidden players pause and replaced players are destroyed.
 
-A connected account means Discogs verified a personal token for the current app session. Tokens live only in main-process memory. Disconnect clears account, loaded record, search results and digging history, while the saved crate persists.
+A connected account means Discogs verified a personal token for the current app session. Decrypted tokens stay in main-process memory; an OS-encrypted credential is remembered on this device and verified again on launch. Disconnect forgets that credential and clears the account, loaded record, search results and digging history, while the saved crate persists.
 
 Phases 1 through 6 cover desktop foundation, connection/metadata, filtered search, random discovery, YouTube playback and local crate persistence. Installer packaging, cloud sync, named crates and export are outside this prototype.

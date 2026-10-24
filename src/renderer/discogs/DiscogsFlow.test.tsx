@@ -44,7 +44,7 @@ test('connects, clears the submitted token, shows release metadata and disconnec
   await user.click(screen.getByRole('button', { name: 'Connect account' }));
   await screen.findByRole('button', { name: 'Connected as quiet-digger' });
   expect(screen.queryByLabelText('Personal token')).not.toBeInTheDocument();
-  expect(screen.getByText('Connected for this session.')).toBeInTheDocument();
+  expect(screen.getByText('Account remembered on this device.')).toBeInTheDocument();
   expect(bridge.connect).toHaveBeenCalledWith('private-token');
   await user.type(screen.getByLabelText('Discogs release ID'), '12');
   await user.click(screen.getByRole('button', { name: 'Load release' }));
@@ -120,4 +120,21 @@ test('shows a catalogue fallback for a label without a catalogue number', async 
     />,
   );
   expect(screen.getByText('Catalogue number not listed')).toBeInTheDocument();
+});
+
+test('retries a saved connection without asking for the token again', async () => {
+  const bridge = mockBridge();
+  vi.mocked(bridge.account)
+    .mockResolvedValueOnce({
+      ok: false,
+      error: { code: 'network', message: 'Discogs is temporarily unavailable.' },
+    })
+    .mockResolvedValue({ ok: true, value: identityResponse });
+  const user = userEvent.setup();
+  render(<App discogs={bridge} />);
+  await screen.findByRole('alert');
+  await user.click(screen.getByRole('button', { name: 'Discogs not connected' }));
+  await user.click(screen.getByRole('button', { name: 'Reconnect saved account' }));
+  expect(await screen.findByRole('button', { name: 'Connected as quiet-digger' })).toBeEnabled();
+  expect(bridge.connect).not.toHaveBeenCalled();
 });

@@ -22,4 +22,4 @@ Every delivered phase completed two independent review cycles on the Standards a
 
 ## Prototype limits
 
-Discogs needs a personal token and internet; it is kept only in process memory. Search/digging operates within the first 10,000 matches. Saved metadata persists locally, while artwork and YouTube still need internet. Video availability and embedding permissions belong to YouTube and uploaders. Installer packaging, cloud sync, named crates and export are deferred. Packaging must register the documented app identity before distribution.
+Discogs needs a personal token and internet; the token is remembered with OS credential encryption and restored in main-process memory. Search/digging operates within the first 10,000 matches. Saved metadata persists locally, while artwork and YouTube still need internet. Video availability and embedding permissions belong to YouTube and uploaders. Installer packaging, cloud sync, named crates and export are deferred. Packaging must register the documented app identity before distribution.

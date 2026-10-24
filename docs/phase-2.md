@@ -1,6 +1,6 @@
 # Phase 2: Discogs connection and release metadata
 
-Builds on the Phase 1 desktop foundation from PR #1.
+Builds on the Phase 1 desktop foundation from PR #1. The historical session-only storage requirement below is superseded by [remembered credentials](adr/0003-remembered-discogs-account.md).
 
 ## Scope
 
