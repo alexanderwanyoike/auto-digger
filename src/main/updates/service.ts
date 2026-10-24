@@ -30,7 +30,9 @@ export function createUpdateService(backend: UpdateBackend) {
       if (state.stage !== 'available')
         return { ok: false, error: 'Choose an available update before downloading.' };
       const available = state;
-      state = { stage: 'downloading', version: available.version, percent: 0 };
+      state = backend.manual
+        ? available
+        : { stage: 'downloading', version: available.version, percent: 0 };
       const result = await backend.download((percent) => {
         if (Number.isFinite(percent))
           state = {
