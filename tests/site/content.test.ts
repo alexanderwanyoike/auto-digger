@@ -31,3 +31,24 @@ test('offers a complete discovery workflow and honest release links without requ
   expect(document.querySelector('a.skip-link')?.getAttribute('href')).toBe('#main');
   expect(document.querySelectorAll('script')).toHaveLength(0);
 });
+
+test('shows labelled unavailable installers with a single release status', async () => {
+  document.documentElement.innerHTML = await readFile(resolve('site/index.html'), 'utf8');
+  const section = document.getElementById('get-started');
+  const controls = Array.from(
+    section?.querySelectorAll<HTMLButtonElement>('[data-download] button') ?? [],
+  );
+  expect(controls).toHaveLength(4);
+  expect(controls.every((control) => control.disabled)).toBe(true);
+  expect(controls.map((control) => control.getAttribute('aria-label'))).toEqual([
+    'Windows x64 installer',
+    'macOS Apple silicon disk image',
+    'macOS Intel disk image',
+    'Linux x64 AppImage',
+  ]);
+  controls.forEach((control) =>
+    expect(control.getAttribute('aria-describedby')).toBe('download-release-status'),
+  );
+  expect(section?.querySelector('details summary')?.textContent).toContain('Requirements');
+  expect(section?.textContent).not.toContain('not published yet');
+});
