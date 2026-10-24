@@ -20,9 +20,13 @@ export function DownloadSources({
           <Headphones size={14} aria-hidden="true" />
           Audio sources
         </h3>
-        <span>MP3 / DISCOGS TAGS</span>
+        <span>
+          {release.videos.length} {release.videos.length === 1 ? 'video' : 'videos'}
+        </span>
       </div>
-      <p className="sources-description">Download a source, then listen from the player below.</p>
+      <p className="sources-description">
+        Discogs names the track. YouTube supplies the audio. Change any match before downloading.
+      </p>
       {release.videos.length ? (
         <ol className="source-list">
           {release.videos.map((video, index) => (
