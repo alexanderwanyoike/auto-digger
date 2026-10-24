@@ -69,3 +69,40 @@ test('persists separate videos, avoids duplicate downloads and applies the chose
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('reuses saved audio offline and cleans incomplete downloads without publishing them', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-audio-'));
+  const probe = vi
+    .fn<ReturnType<typeof import('./downloader').createDownloader>['probe']>()
+    .mockResolvedValue({ ok: true, value: { videoId: 'abcdefghijk', title: 'Quiet Orbit' } });
+  const download = vi
+    .fn<ReturnType<typeof import('./downloader').createDownloader>['download']>()
+    .mockImplementation(async (_id, file) => {
+      await writeFile(file, 'audio');
+      return { ok: true, value: undefined };
+    });
+  try {
+    const library = createAudioLibrary(directory, { probe, download });
+    const first = await library.download({ release: loadedRelease, videoIndex: 0 });
+    probe.mockResolvedValue({ ok: false, error: { code: 'network', message: 'offline' } });
+    expect(await library.download({ release: loadedRelease, videoIndex: 0 })).toEqual(first);
+    expect(probe).toHaveBeenCalledTimes(1);
+    probe.mockResolvedValue({ ok: true, value: { videoId: 'lmnopqrstuv', title: 'Second' } });
+    download.mockImplementation(async (_id, file) => {
+      await writeFile(file, 'partial');
+      return { ok: false, error: { code: 'network', message: 'Interrupted' } };
+    });
+    const next = {
+      ...loadedRelease,
+      videos: [{ title: 'Second', url: 'https://youtu.be/lmnopqrstuv' }],
+    };
+    expect(await library.download({ release: next, videoIndex: 0 })).toMatchObject({ ok: false });
+    expect((await readdir(directory)).filter((file) => file.startsWith('.download'))).toEqual([]);
+    expect(await library.list()).toMatchObject({
+      ok: true,
+      value: [expect.objectContaining({ id: '12-abcdefghijk' })],
+    });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
