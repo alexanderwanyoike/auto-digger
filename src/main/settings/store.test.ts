@@ -48,3 +48,32 @@ test('persists validated appearance and download preferences independently of cr
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('keeps an expanded material and accent after reopening existing settings', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-expanded-settings-'));
+  const file = join(directory, 'catalog.sqlite');
+  const store = createCatalogueStore(file);
+  try {
+    expect(
+      await store.preferences.save({
+        material: 'paper',
+        accent: 'rose',
+        layout: 'flat',
+        directory: null,
+      }),
+    ).toMatchObject({ ok: true });
+    await store.close();
+    const reopened = createCatalogueStore(file);
+    try {
+      expect(await reopened.preferences.read()).toMatchObject({
+        ok: true,
+        value: { material: 'paper', accent: 'rose' },
+      });
+    } finally {
+      await reopened.close();
+    }
+  } finally {
+    await store.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
