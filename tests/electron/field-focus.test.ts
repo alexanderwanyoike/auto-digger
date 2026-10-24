@@ -44,6 +44,13 @@ async function expectFlushFocus(field: Locator) {
   ).toBeGreaterThanOrEqual(3);
 }
 
+async function expectSystemFocus(field: Locator) {
+  await expect(field).toHaveCSS('box-shadow', 'none');
+  await expect(field).toHaveCSS('outline-style', 'solid');
+  await expect(field).toHaveCSS('outline-width', '2px');
+  await expect(field).toHaveCSS('outline-offset', '0px');
+}
+
 (['Light', 'Dark'] as const).forEach((mode) => {
   test(`uses a single flush field focus frame in ${mode.toLowerCase()} mode`, async () => {
     const desktop = await electron.launch({
@@ -121,6 +128,20 @@ async function expectFlushFocus(field: Locator) {
       await config.focus();
       await expectFlushFocus(config);
       await page.getByRole('button', { name: 'Disable research access', exact: true }).click();
+      await page.emulateMedia({ forcedColors: 'active' });
+      await page.keyboard.press('Tab');
+      await layout.focus();
+      await expectSystemFocus(layout);
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+      const forcedGenre = page.getByLabel('Genre', { exact: true });
+      await forcedGenre.focus();
+      await expect(forcedGenre).toHaveCSS('outline-style', 'none');
+      const forcedControl = page
+        .locator('.taxonomy-field')
+        .filter({ has: forcedGenre })
+        .locator('.taxonomy__control');
+      await expectSystemFocus(forcedControl);
+      await page.screenshot({ path: `test-results/field-focus-${mode.toLowerCase()}-forced.png` });
     } finally {
       await desktop.close();
     }
