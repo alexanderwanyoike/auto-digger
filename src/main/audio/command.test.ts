@@ -26,3 +26,11 @@ test('executes without a shell and returns polished failures for missing tools, 
     error: { code: 'tools' },
   });
 });
+
+test('cancels an individual source resolution without waiting for its timeout', async () => {
+  const abort = new AbortController();
+  const runner = createCommandRunner(process.execPath);
+  const pending = runner.execute(['-e', 'setTimeout(() => {}, 10000)'], 500, abort.signal);
+  abort.abort();
+  expect(await pending).toMatchObject({ ok: false, error: { code: 'cancelled' } });
+});

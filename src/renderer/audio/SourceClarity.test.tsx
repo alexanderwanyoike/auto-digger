@@ -8,6 +8,8 @@ import { App } from '../App';
 
 test('distinguishes the selected Discogs track from the verified YouTube upload title', async () => {
   const bridge: AudioBridge = {
+    preview: vi.fn(),
+    stopPreview: () => Promise.resolve({ ok: true, value: undefined }),
     list: () => Promise.resolve({ ok: true, value: [] }),
     probe: () =>
       Promise.resolve({
@@ -39,6 +41,8 @@ test.each([true, false])(
   'uses a fresh upload title when online, and its saved title otherwise: online=%s',
   async (online) => {
     const bridge: AudioBridge = {
+      preview: vi.fn(),
+      stopPreview: () => Promise.resolve({ ok: true, value: undefined }),
       list: () =>
         Promise.resolve({
           ok: true,

@@ -1,7 +1,7 @@
-const { safeStorage, app } = require('electron');
+const { safeStorage, app, net } = require('electron');
 const { pathToFileURL } = require('node:url');
 const { resolve, delimiter } = require('node:path');
-const { mkdirSync } = require('node:fs');
+const { mkdirSync, readFileSync } = require('node:fs');
 const { createHash, createCipheriv, createDecipheriv, randomBytes } = require('node:crypto');
 
 const key = createHash('sha256').update('auto-digger synthetic credential fixture').digest();
@@ -24,6 +24,45 @@ safeStorage.decryptStringAsync = (encrypted) => {
     'utf8',
   );
   return Promise.resolve({ result, shouldReEncrypt: false });
+};
+const fetchNetwork = net.fetch.bind(net);
+net.fetch = (input, options) => {
+  const url = input instanceof Request ? input.url : input.toString();
+  if (url !== 'https://fixture.googlevideo.com/audio') return fetchNetwork(input, options);
+  const audio = readFileSync(resolve(__dirname, 'fixtures/preview.webm'));
+  const range = new Headers(options?.headers).get('range');
+  const match = range && /^bytes=(\d+)-(\d*)$/.exec(range);
+  const start = match ? Number(match[1]) : 0;
+  const end = match && match[2] ? Number(match[2]) : audio.length - 1;
+  const bytes = audio.subarray(start, end + 1);
+  globalThis.autoDiggerPreviewFinished = false;
+  let cancelled = false;
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(bytes.subarray(0, 131072));
+      setTimeout(() => {
+        if (!cancelled) {
+          if (start === 0 && end === audio.length - 1) globalThis.autoDiggerPreviewFinished = true;
+          controller.enqueue(bytes.subarray(131072));
+          controller.close();
+        }
+      }, 3000);
+    },
+    cancel() {
+      cancelled = true;
+    },
+  });
+  return Promise.resolve(
+    new Response(body, {
+      status: range ? 206 : 200,
+      headers: {
+        'Content-Type': 'audio/webm',
+        'Content-Length': bytes.length.toString(),
+        'Accept-Ranges': 'bytes',
+        ...(range ? { 'Content-Range': `bytes ${start}-${end}/${audio.length}` } : {}),
+      },
+    }),
+  );
 };
 if (process.env.AUTO_DIGGER_TEST_IDENTITY === '1') {
   globalThis.fetch = () =>
