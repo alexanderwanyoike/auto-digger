@@ -2,6 +2,7 @@ import { BrowserWindow } from 'electron';
 import { join } from 'node:path';
 import type { Result } from '../shared/result';
 import { createDiscogsSession } from './discogs/session';
+import { registerPlayerIdentity } from './youtube/registerIdentity';
 import { registerDiscogsHandlers } from './discogs/registerHandlers';
 
 const discogsSession = createDiscogsSession();
@@ -27,6 +28,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
       },
     });
     registerDiscogsHandlers(window, discogsSession);
+    registerPlayerIdentity(window.webContents.session);
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event) => {
       event.preventDefault();

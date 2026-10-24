@@ -14,6 +14,7 @@ import './styles/compact.css';
 import './styles/connection.css';
 import './styles/release.css';
 import './styles/search.css';
+import './styles/youtube.css';
 
 const container = document.getElementById('root');
 

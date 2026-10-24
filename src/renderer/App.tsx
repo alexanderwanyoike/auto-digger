@@ -54,7 +54,7 @@ export function App({ discogs = window.discogs }: { discogs?: DiscogsBridge }) {
           <div className="desk-title">
             <Radio size={17} aria-hidden="true" />
             <h1>Digging desk</h1>
-            <span className="preview-badge">PHASE 04</span>
+            <span className="preview-badge">PHASE 05</span>
           </div>
           <span className="toolbar-note">A fresh pair of ears.</span>
         </div>
@@ -69,7 +69,7 @@ export function App({ discogs = window.discogs }: { discogs?: DiscogsBridge }) {
           {session.error.message}
         </p>
       )}
-      <PlaybackBar />
+      <PlaybackBar release={session.release} />
       <div className="status-bar">
         <span>
           <span className="blue-dot" /> DISCOGS DISCOVERY
