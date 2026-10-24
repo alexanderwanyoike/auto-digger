@@ -1,0 +1,204 @@
+.release-workspace {
+  min-width: 0;
+  max-height: max(516px, calc(100vh - 260px));
+  overflow-y: auto;
+  background: var(--surface);
+}
+.release-lookup {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.release-lookup label {
+  flex: 1;
+  min-width: 0;
+  font-size: 10px;
+  font-weight: 700;
+}
+.release-lookup input {
+  display: block;
+  width: 100%;
+  height: 32px;
+  margin-top: 7px;
+  padding: 0 10px;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface-raised);
+  font-size: 11px;
+}
+.release-lookup button {
+  white-space: nowrap;
+}
+.release-placeholder {
+  min-height: 390px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+}
+.release-placeholder svg {
+  color: var(--blue);
+}
+.release-placeholder h2 {
+  font-size: 24px;
+  letter-spacing: -0.8px;
+  color: var(--text);
+}
+.release-placeholder p {
+  font-size: 12px;
+  line-height: 1.8;
+}
+.release-placeholder > span {
+  font-size: 10px;
+}
+.release-details {
+  padding: 24px;
+}
+.release-overview {
+  display: grid;
+  grid-template-columns: minmax(95px, 140px) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.release-artwork {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-inset);
+  box-shadow: var(--shadow);
+}
+.missing-artwork {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--faint);
+}
+.missing-artwork span {
+  font-size: 8px;
+  text-align: center;
+}
+.release-credits h2 {
+  font-size: clamp(19px, 2vw, 26px);
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.8px;
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
+.release-credits > p {
+  font-size: 10px;
+  line-height: 1.9;
+  color: var(--muted);
+}
+.release-credits .release-artist {
+  color: var(--text);
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+.release-labels {
+  margin-top: 10px;
+}
+.release-labels p {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  font-size: 10px;
+  line-height: 1.8;
+}
+.release-labels span {
+  color: var(--muted);
+}
+.release-facts {
+  display: grid;
+  gap: 8px;
+  border-block: 1px solid var(--line);
+  padding: 16px 0;
+  margin: 22px 0;
+  font-size: 10px;
+}
+.release-facts > div {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 12px;
+}
+.release-facts dt {
+  color: var(--muted);
+}
+.release-facts dd {
+  margin: 0;
+  line-height: 1.7;
+}
+.tracklist-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.tracklist-heading h3 {
+  font-size: 12px;
+}
+.tracklist-heading > span {
+  font-size: 9px;
+  color: var(--muted);
+}
+.tracklist {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.tracklist li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+  font-size: 11px;
+}
+.track-position,
+.track-duration {
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--muted);
+  font-size: 9px;
+}
+.track-position {
+  min-width: 20px;
+}
+.track-duration {
+  margin-left: auto;
+  white-space: nowrap;
+}
+.video-note,
+.metadata-empty {
+  font-size: 10px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-top: 18px;
+}
+@media (max-width: 1000px) {
+  .release-overview {
+    grid-template-columns: 95px minmax(0, 1fr);
+    gap: 15px;
+  }
+  .release-details,
+  .release-lookup {
+    padding: 18px;
+  }
+}

@@ -65,7 +65,7 @@ export function FilterPanel() {
         <div className="source-name">
           <span className="small-record" aria-hidden="true" /> Discogs
         </div>
-        <p>Discogs connection comes in Phase 2.</p>
+        <p>Connect your Discogs account.</p>
       </div>
     </aside>
   );
