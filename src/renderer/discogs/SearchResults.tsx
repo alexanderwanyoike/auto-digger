@@ -1,3 +1,4 @@
+import { RecordArtwork } from '../components/RecordArtwork';
 import type { useDiscogs } from './useDiscogs';
 
 export function SearchResults({ session }: { session: ReturnType<typeof useDiscogs> }) {
@@ -23,6 +24,7 @@ export function SearchResults({ session }: { session: ReturnType<typeof useDisco
                 session.loadRelease(release.id).catch(() => undefined);
               }}
             >
+              <RecordArtwork url={release.artworkUrl} title={release.title} decorative />
               <strong>{release.title}</strong>
               <span>
                 {release.year || 'Year not listed'} ·{' '}

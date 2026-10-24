@@ -13,12 +13,15 @@
 .search-results ul {
   list-style: none;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 20px 14px;
 }
 .search-result {
   width: 100%;
-  padding: 12px 0;
+  padding: 0 0 12px;
   display: grid;
-  gap: 5px;
+  gap: 8px;
   text-align: left;
   border: 0;
   border-bottom: 1px solid var(--line);
@@ -67,4 +70,12 @@
   width: 100%;
   font-size: 10px;
   color: var(--muted);
+}
+
+.search-result strong {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.search-result .record-cover {
+  margin-bottom: 4px;
 }
