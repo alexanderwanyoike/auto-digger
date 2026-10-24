@@ -1,4 +1,4 @@
-import { mkdtemp, rename, rm, stat } from 'node:fs/promises';
+import { link, mkdtemp, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
@@ -80,8 +80,9 @@ export function createAudioLibrary(
           filename: `${filenamePart(release.artists.join(', '))} - ${filenamePart(tagged.value.title)} [${id}].yt.mp3`,
           warning: tagged.value.warning,
         };
-        finalFile = join(directory, track.filename);
-        await rename(staged, finalFile);
+        const destination = join(directory, track.filename);
+        await link(staged, destination);
+        finalFile = destination;
         const result = await files.save(track);
         if (result.ok) finalFile = undefined;
         return result;
