@@ -37,3 +37,23 @@ test('restores a verified account in a fresh session and removes its token on di
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test.each([
+  [401, 'unauthorized', null],
+  [503, 'network', 'remember-me'],
+] as const)(
+  'handles restored-token HTTP %s without losing retryable credentials',
+  async (status, code, remaining) => {
+    const directory = await mkdtemp(join(tmpdir(), 'auto-remember-'));
+    try {
+      const store = createTokenStore(join(directory, 'token.bin'), encryption);
+      await store.save('remember-me');
+      const request = vi.fn<typeof fetch>().mockResolvedValue(new Response('{}', { status }));
+      const session = createRememberedSession(createDiscogsSession(request), store);
+      expect(await session.account()).toMatchObject({ ok: false, error: { code } });
+      expect(await store.load()).toEqual({ ok: true, value: remaining });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  },
+);
