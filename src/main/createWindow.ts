@@ -1,7 +1,9 @@
 import { app, BrowserWindow, nativeImage } from 'electron';
 import { join } from 'node:path';
 import type { Result } from '../shared/result';
-import { createCrateStore } from './crate/store';
+import { createLegacyCrateStore } from './catalogue/legacyCrateStore';
+import { createCatalogueStore } from './catalogue/store';
+import { registerCatalogueHandlers } from './catalogue/registerHandlers';
 import { registerCrateHandlers } from './crate/registerHandlers';
 import { createRememberedSession } from './discogs/rememberedSession';
 import { createTokenStore } from './credentials/tokenStore';
@@ -15,12 +17,27 @@ import { registerAudioHandlers } from './audio/registerHandlers';
 import { registerAudioProtocol } from './audio/protocol';
 
 let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
-let crateStore: ReturnType<typeof createCrateStore> | undefined;
+let crateStore: ReturnType<typeof createLegacyCrateStore> | undefined;
+let catalogueStore: ReturnType<typeof createCatalogueStore> | undefined;
 let audioLibrary: ReturnType<typeof createAudioLibrary> | undefined;
 const audioCommands = createCommandRunner();
 const downloader = createDownloader((args, timeout) => audioCommands.execute(args, timeout));
-app.on('before-quit', () => {
+let closingCatalogue = false;
+app.on('before-quit', (event) => {
   audioCommands.cancelAll();
+  if (catalogueStore && !closingCatalogue) {
+    event.preventDefault();
+    closingCatalogue = true;
+    catalogueStore
+      .close()
+      .then((result) => {
+        if (!result.ok) process.stderr.write(`${result.error.message}\n`);
+        app.quit();
+      })
+      .catch(() => {
+        app.quit();
+      });
+  }
 });
 
 export async function createWindow(): Promise<Result<undefined, string>> {
@@ -57,7 +74,12 @@ export async function createWindow(): Promise<Result<undefined, string>> {
         webSecurity: true,
       },
     });
-    crateStore ??= createCrateStore(join(app.getPath('userData'), 'crate.json'));
+    catalogueStore ??= createCatalogueStore(
+      join(app.getPath('userData'), 'catalog.sqlite'),
+      join(app.getPath('userData'), 'crate.json'),
+    );
+    crateStore ??= createLegacyCrateStore(catalogueStore);
+    registerCatalogueHandlers(window, catalogueStore);
     discogsSession ??= createRememberedSession(
       createDiscogsSession(),
       createTokenStore(join(app.getPath('userData'), 'discogs-token.bin'), electronEncryption),
