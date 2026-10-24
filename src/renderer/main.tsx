@@ -21,6 +21,7 @@ import './styles/crate.css';
 import './styles/sections.css';
 import './styles/materials.css';
 import './styles/queue.css';
+import './styles/library.css';
 
 const container = document.getElementById('root');
 
