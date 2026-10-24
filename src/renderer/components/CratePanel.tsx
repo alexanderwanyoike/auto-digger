@@ -19,7 +19,7 @@ export function CratePanel({
         <h2 id="crate-heading">
           <Library size={15} aria-hidden="true" /> Your crate
         </h2>
-        <span className="count-badge" aria-label={`${crate.releases.length.toString()} saved EPs`}>
+        <span className="count-badge" aria-label={`${crate.releases.length.toString()} saved releases`}>
           {crate.releases.length}
         </span>
       </div>
@@ -58,7 +58,7 @@ export function CratePanel({
           <p>
             When something catches your ear,
             <br />
-            keep the whole EP here.
+            keep the whole release here.
           </p>
         </div>
       )}
@@ -103,7 +103,7 @@ export function CratePanel({
         <span className="eyebrow">SAVE NOW. LISTEN LATER.</span>
         <p>
           {crate.available
-            ? 'Whole EPs, saved on this device.'
+            ? 'Records, saved on this device.'
             : 'Use the desktop app to save your crate.'}
         </p>
       </div>
