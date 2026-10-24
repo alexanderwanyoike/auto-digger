@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Radio } from 'lucide-react';
+import { Radio, Settings as SettingsIcon } from 'lucide-react';
 import { usePreferences } from './sections/usePreferences';
 import type { CatalogueBridge } from '../shared/catalogue';
 import { CratesPage } from './sections/CratesPage';
@@ -74,7 +74,7 @@ export function App({
         </p>
       )}
       <nav className="section-nav" aria-label="Main sections">
-        {['Digging desk', 'Crates', 'Downloads', 'Settings'].map((item) => (
+        {['Digging desk', 'Crates', 'Downloads'].map((item) => (
           <button
             type="button"
             key={item}
@@ -88,6 +88,18 @@ export function App({
             {item}
           </button>
         ))}
+        <button
+          type="button"
+          className="settings-nav"
+          aria-label="Settings"
+          title="Settings"
+          aria-current={section === 'Settings' ? 'page' : undefined}
+          onClick={() => {
+            setSection('Settings');
+          }}
+        >
+          <SettingsIcon size={17} aria-hidden="true" />
+        </button>
       </nav>
       <main>
         <div className="desk-toolbar">
