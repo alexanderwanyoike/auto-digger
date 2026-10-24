@@ -1,6 +1,6 @@
 # Auto Digger
 
-Auto Digger is a desktop music discovery tool. A digging session finds random EPs from Discogs releases matching optional label, year, genre, style, artist and release-title filters. Discogs calls subgenres styles. Filters are free text so the full Discogs genre/style vocabulary is available. Applied filters are distinct from draft edits.
+Auto Digger is a desktop music discovery tool. A digging session finds random EPs from Discogs releases matching optional label, year, genre, style, artist and release-title filters. Discogs calls subgenres styles. Genres and styles are searchable multi-selects: match any selected value within each field and combine the fields with AND. The bundled Discogs taxonomy includes every listed option and accepts new names. Applied filters are distinct from draft edits.
 
 A release is a specific Discogs pressing, identified by release ID. An EP is the initial supported format. Digging avoids repeating release IDs within a session, verifies EP format and stays within Discogs' accessible search window. Changing applied criteria, explicitly resetting or reconnecting starts fresh.
 

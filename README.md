@@ -15,7 +15,7 @@ yarn dev
 
 1. Click **Discogs not connected**, open the linked Discogs settings, and generate a personal token under **Developers**.
 2. Paste the token into the desktop app and choose **Connect account**.
-3. Enter any combination of filters and choose **Search EPs**. Genre and style accept Discogs' full vocabulary; year accepts one four-digit year. Blank filters search widely.
+3. Enter any combination of filters and choose **Search EPs**. Genre and style are searchable multi-selects. Releases match any selected genre and any selected style; year accepts one four-digit year. Blank filters search widely.
 4. Open a match or choose **Dig a random EP**, then **Dig again**. Draft edits take effect when you submit Search EPs. Reset digging starts fresh with the applied filters.
 5. Choose an attached YouTube video and press its official play control. Some records have no video, and some videos are unavailable or prohibit embedding. Retry or select another attached video when needed.
 6. Choose **Save EP to crate**. Open saved EPs from the right-hand list or remove them with the adjacent button. Saved metadata and video links remain available after restart without reconnecting Discogs.
