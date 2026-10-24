@@ -79,16 +79,11 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
           'Use valid Discogs research filters and a query of up to 160 characters.',
         );
       const started = revision;
-      const result = await searchDiscogs(
-        parsed.data,
-        acceptedToken,
-        request,
-        {
-          epOnly: false,
-          query: parsed.data.query,
-        },
-        signal,
-      );
+      const result = await searchDiscogs(parsed.data, acceptedToken, request, {
+        epOnly: false,
+        query: parsed.data.query,
+        ...(signal ? { signal } : {}),
+      });
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();

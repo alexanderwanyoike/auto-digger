@@ -45,8 +45,7 @@ export async function searchDiscogs(
   input: z.infer<typeof searchInputSchema>,
   token: string,
   request: typeof fetch,
-  options: { epOnly: boolean; query?: string } = { epOnly: true },
-  signal?: AbortSignal,
+  options: { epOnly: boolean; query?: string; signal?: AbortSignal } = { epOnly: true },
 ): Promise<DiscogsResult<SearchPage>> {
   const { filters, page } = input;
   const query = new URLSearchParams({
@@ -67,6 +66,6 @@ export async function searchDiscogs(
     token,
     responseSchema,
     request,
-    signal,
+    options.signal,
   );
 }
