@@ -25,17 +25,17 @@ test('exports an installable Claude extension that calls the existing local tool
   try {
     const page = await desktop.firstWindow();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await page.getByRole('button', { name: 'Enable research access', exact: true }).click();
-    const file = test.info().outputPath('Auto Digger.mcpb');
+    await page.getByRole('button', { name: 'Enable MCP', exact: true }).click();
+    const file = test.info().outputPath('Auto Digger MCP.mcpb');
     await desktop.evaluate(({ dialog }, filePath) => {
       Object.assign(dialog, {
         showSaveDialog: () => Promise.resolve({ canceled: false, filePath }),
       });
     }, file);
     await expect(
-      page.getByRole('button', { name: 'Save Claude extension', exact: true }),
+      page.getByRole('button', { name: 'Save Auto Digger MCP', exact: true }),
     ).toBeVisible();
-    await page.getByRole('button', { name: 'Save Claude extension', exact: true }).click();
+    await page.getByRole('button', { name: 'Save Auto Digger MCP', exact: true }).click();
     await expect(page.getByText('Extension saved. Install it in Claude Desktop.')).toBeVisible();
     const files = unzipSync(await readFile(file));
     const manifestBytes = files['manifest.json'];
@@ -70,7 +70,7 @@ test('exports an installable Claude extension that calls the existing local tool
       'Extension picks',
     );
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await page.getByRole('button', { name: 'Disable research access', exact: true }).click();
+    await page.getByRole('button', { name: 'Disable MCP', exact: true }).click();
     expect(await client.callTool({ name: 'list_crates', arguments: {} })).toMatchObject({
       isError: true,
     });

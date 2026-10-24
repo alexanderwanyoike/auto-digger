@@ -123,12 +123,12 @@ async function expectSystemFocus(field: Locator) {
       await page.keyboard.press('Tab');
       await layout.focus();
       await expectFlushFocus(layout);
-      await page.getByRole('button', { name: 'Enable research access', exact: true }).click();
+      await page.getByRole('button', { name: 'Enable MCP', exact: true }).click();
       await page.getByText('Codex and other local clients', { exact: true }).click();
-      const config = page.getByRole('textbox', { name: 'MCP client configuration', exact: true });
+      const config = page.getByRole('textbox', { name: 'Argument 1', exact: true });
       await config.focus();
       await expectFlushFocus(config);
-      await page.getByRole('button', { name: 'Disable research access', exact: true }).click();
+      await page.getByRole('button', { name: 'Disable MCP', exact: true }).click();
       await page.emulateMedia({ forcedColors: 'active' });
       await page.keyboard.press('Tab');
       await layout.focus();

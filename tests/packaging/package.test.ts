@@ -50,7 +50,7 @@ test.skipIf(process.platform !== 'linux')(
       const page = await desktop.firstWindow();
       await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
-      await page.getByRole('button', { name: 'Enable research access', exact: true }).click();
+      await page.getByRole('button', { name: 'Enable MCP', exact: true }).click();
       const status = await page.evaluate(async () => window.researchAccess?.status());
       if (!status?.ok || !status.value.enabled)
         throw new Error('Packaged research access unavailable');

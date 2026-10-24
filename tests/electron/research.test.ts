@@ -24,7 +24,7 @@ test('enables a real stdio MCP client, reflects created crates and revokes its t
   try {
     const page = await desktop.firstWindow();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await page.getByRole('button', { name: 'Enable research access', exact: true }).click();
+    await page.getByRole('button', { name: 'Enable MCP', exact: true }).click();
     const access = await page.evaluate(async () => window.researchAccess?.status());
     if (!access?.ok || !access.value.enabled) throw new Error('No research access');
     await page.getByText('Codex and other local clients', { exact: true }).click();
@@ -69,7 +69,7 @@ test('enables a real stdio MCP client, reflects created crates and revokes its t
       duplicate.kill();
     }
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await page.getByRole('button', { name: 'Disable research access', exact: true }).click();
+    await page.getByRole('button', { name: 'Disable MCP', exact: true }).click();
     expect(await client.callTool({ name: 'list_crates', arguments: {} })).toMatchObject({
       isError: true,
     });
