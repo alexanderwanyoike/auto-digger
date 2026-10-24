@@ -10,8 +10,8 @@ import { createAudioBridge } from './audioBridge';
 
 contextBridge.exposeInMainWorld(
   'researchAccess',
-  createResearchAccessBridge(async (channel) => {
-    const result: unknown = await ipcRenderer.invoke(channel);
+  createResearchAccessBridge(async (channel, input) => {
+    const result: unknown = await ipcRenderer.invoke(channel, input);
     return result;
   }),
 );

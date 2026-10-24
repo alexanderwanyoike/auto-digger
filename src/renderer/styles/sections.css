@@ -283,5 +283,88 @@ main {
   color: var(--text);
   border: 1px solid var(--line);
   border-radius: 4px;
-  font: 10px/1.7 var(--font-mono);
+  font:
+    10px/1.7 'IBM Plex Mono',
+    monospace;
+}
+
+.research-notes {
+  margin: 24px 0;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+}
+.research-notes header {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 0;
+}
+.research-notes h2 {
+  font-size: 13px;
+}
+.research-notes header > span,
+.research-note-copy p,
+.research-position {
+  color: var(--muted);
+}
+.research-notes ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.research-notes li {
+  display: flex;
+  gap: 20px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.research-position {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 70px;
+  font:
+    10px/1.6 'IBM Plex Mono',
+    monospace;
+}
+.research-note-copy {
+  display: flex;
+  align-items: baseline;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.research-note-copy strong {
+  font-weight: 650;
+}
+.research-note-copy p,
+.research-sources {
+  width: 100%;
+}
+.research-note-copy p {
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.research-certainty {
+  color: var(--muted);
+  font-size: 10px;
+}
+.research-confirmed {
+  color: var(--blue);
+}
+.research-sources {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.research-source {
+  border: 0;
+  padding: 4px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  color: var(--blue);
+  font: inherit;
 }

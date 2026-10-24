@@ -115,7 +115,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
       join(import.meta.dirname, 'mcp.js'),
       (input, signal) => research.execute(input, signal),
     );
-    registerResearchHandlers(window, researchRuntime);
+    registerResearchHandlers(window, researchRuntime, catalogueStore.research);
     registerCrateHandlers(window, crateStore);
     const downloadsDirectory = join(app.getPath('music'), 'Auto Digger');
     if (!audioLibrary) {

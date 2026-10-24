@@ -3,6 +3,7 @@ import type { DiscogsRelease } from '../../shared/discogs';
 import type { useCrate } from '../crate/useCrate';
 import { CrateOptions } from '../crate/CrateOptions';
 import { CratePicker } from '../crate/CratePicker';
+import { ResearchNotes } from '../crate/ResearchNotes';
 import { TrackMarks } from '../crate/TrackMarks';
 import { RecordArtwork } from '../components/RecordArtwork';
 
@@ -81,6 +82,7 @@ export function CratesPage({
             : 'Create a crate to start keeping records.'}
         </p>
       )}
+      <ResearchNotes notes={catalogue.view.research ?? []} />
       <div className="crate-entries">
         {catalogue.view.entries.map((entry) => (
           <article

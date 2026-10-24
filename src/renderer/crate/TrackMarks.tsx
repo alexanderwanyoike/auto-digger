@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import type { z } from 'zod';
 import type { markedTrackSchema } from '../../shared/catalogue';
 import type { useCrate } from './useCrate';
@@ -15,6 +15,13 @@ export function TrackMarks({
   const [picked, setPicked] = useState(track.picked);
   const pickId = useId();
   const [tags, setTags] = useState(track.tags.join(', '));
+  const savedTags = track.tags.join(', ');
+  useEffect(() => {
+    setPicked(track.picked);
+  }, [track.picked]);
+  useEffect(() => {
+    setTags(savedTags);
+  }, [savedTags]);
   const { catalogue } = crate;
   const save = (nextPick: boolean) =>
     catalogue.perform((api) =>

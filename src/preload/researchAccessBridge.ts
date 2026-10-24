@@ -6,7 +6,7 @@ import type { CatalogueResult } from '../shared/catalogue';
 import type { ResearchAccess, ResearchAccessBridge } from '../shared/researchAccess';
 
 export function createResearchAccessBridge(
-  invoke: (channel: string) => Promise<unknown>,
+  invoke: (channel: string, input?: unknown) => Promise<unknown>,
 ): ResearchAccessBridge {
   const responseSchema = z.discriminatedUnion('ok', [
     z.object({ ok: z.literal(true), value: researchAccessSchema }),
@@ -25,6 +25,26 @@ export function createResearchAccessBridge(
     return catalogueFailure('unavailable', 'Research settings could not be read. Please retry.');
   };
   return {
+    openSource: async (input) => {
+      try {
+        const result = z
+          .discriminatedUnion('ok', [
+            z.object({ ok: z.literal(true), value: z.undefined() }),
+            z.object({ ok: z.literal(false), error: crateErrorSchema }),
+          ])
+          .safeParse(await invoke(researchAccessChannels.openSource, input));
+        if (result.success) return result.data;
+      } catch {
+        return catalogueFailure<undefined>(
+          'unavailable',
+          'The research source could not open. Please retry.',
+        );
+      }
+      return catalogueFailure<undefined>(
+        'unavailable',
+        'The research source could not be reached.',
+      );
+    },
     status: () => call(researchAccessChannels.status),
     start: () => call(researchAccessChannels.start),
     stop: () => call(researchAccessChannels.stop),

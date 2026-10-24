@@ -29,6 +29,11 @@ export const researchAccessSchema = z.object({
 });
 export type ResearchAccess = z.infer<typeof researchAccessSchema>;
 export interface ResearchAccessBridge {
+  openSource: (input: {
+    crateId: string;
+    noteId: string;
+    sourceIndex: number;
+  }) => Promise<CatalogueResult<undefined>>;
   status: () => Promise<CatalogueResult<ResearchAccess>>;
   start: () => Promise<CatalogueResult<ResearchAccess>>;
   stop: () => Promise<CatalogueResult<ResearchAccess>>;
@@ -37,4 +42,5 @@ export const researchAccessChannels = {
   status: 'research:status',
   start: 'research:start',
   stop: 'research:stop',
+  openSource: 'research:open-source',
 } as const;
