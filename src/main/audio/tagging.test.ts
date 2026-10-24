@@ -18,7 +18,9 @@ test('tags the matched Discogs track and front cover, retaining audio when artwo
           headers: { 'content-type': 'image/jpeg' },
         }),
       );
-    expect(await tagDownload(file, release, 'Low Tide - Quiet Orbit', fetchImage)).toEqual({
+    expect(
+      await tagDownload(file, release, 'Low Tide - Quiet Orbit', { request: fetchImage }),
+    ).toEqual({
       ok: true,
       value: { title: 'Quiet Orbit', warning: null },
     });
@@ -34,10 +36,9 @@ test('tags the matched Discogs track and front cover, retaining audio when artwo
     });
     expect((await readFile(file)).includes(Buffer.from('audio-payload'))).toBe(true);
     const failedFetch: typeof fetch = () => Promise.reject(new Error('offline'));
-    expect(await tagDownload(file, release, 'A whole EP mix', failedFetch)).toMatchObject({
-      ok: true,
-      value: { title: 'A whole EP mix', warning: expect.stringContaining('artwork') },
-    });
+    const partial = await tagDownload(file, release, 'A whole EP mix', { request: failedFetch });
+    expect(partial).toMatchObject({ ok: true, value: { title: 'A whole EP mix' } });
+    if (partial.ok) expect(partial.value.warning).toContain('artwork');
     expect((await NodeID3.Promise.read(file)).trackNumber).toBeUndefined();
   } finally {
     await rm(directory, { recursive: true, force: true });

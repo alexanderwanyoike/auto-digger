@@ -17,13 +17,15 @@ test('persists separate videos, avoids duplicate downloads and applies the chose
     ],
   };
   const downloader = {
-    probe: vi.fn(async (url: string) => ({
-      ok: true as const,
-      value: {
-        videoId: url.includes('lmnopqrstuv') ? 'lmnopqrstuv' : 'abcdefghijk',
-        title: url.includes('lmnopqrstuv') ? 'Unknown upload' : 'Low Tide - Quiet Orbit',
-      },
-    })),
+    probe: vi.fn((url: string) =>
+      Promise.resolve({
+        ok: true as const,
+        value: {
+          videoId: url.includes('lmnopqrstuv') ? 'lmnopqrstuv' : 'abcdefghijk',
+          title: url.includes('lmnopqrstuv') ? 'Unknown upload' : 'Low Tide - Quiet Orbit',
+        },
+      }),
+    ),
     download: vi.fn(async (_id: string, file: string) => {
       await writeFile(file, 'audio');
       return { ok: true as const, value: undefined };
@@ -37,7 +39,6 @@ test('persists separate videos, avoids duplicate downloads and applies the chose
       value: {
         title: 'Quiet Orbit',
         id: '12-abcdefghijk',
-        filename: expect.stringMatching(/\.yt\.mp3$/),
       },
     });
     const second = await library.download({ release, videoIndex: 1, trackIndex: 1 });

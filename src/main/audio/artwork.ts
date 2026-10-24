@@ -16,7 +16,7 @@ export async function fetchArtwork(
     const reader = response.body.getReader();
     const chunks: Uint8Array[] = [];
     let length = 0;
-    async function read(): Promise<boolean> {
+    const read = async (): Promise<boolean> => {
       const chunk = await reader.read();
       if (chunk.done) return true;
       length += chunk.value.length;
@@ -26,7 +26,7 @@ export async function fetchArtwork(
       }
       chunks.push(chunk.value);
       return read();
-    }
+    };
     if (await read()) {
       const imageBuffer = Buffer.concat(chunks);
       const jpeg = imageBuffer[0] === 255 && imageBuffer[1] === 216;

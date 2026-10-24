@@ -12,8 +12,11 @@ test('executes without a shell and returns polished failures for missing tools, 
   );
   expect(blocked).toMatchObject({
     ok: false,
-    error: { code: 'unavailable', message: expect.stringContaining('private') },
+    error: {
+      code: 'unavailable',
+    },
   });
+  if (!blocked.ok) expect(blocked.error.message).toContain('private');
   expect(await runner.execute(['-e', 'setTimeout(() => {}, 10000)'], 20)).toMatchObject({
     ok: false,
     error: { code: 'network' },

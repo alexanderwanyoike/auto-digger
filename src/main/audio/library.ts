@@ -8,8 +8,10 @@ import { createLibraryFiles } from './libraryFiles';
 import { tagDownload } from './tagging';
 
 function filenamePart(value: string): string {
-  let safe = value
-    .replace(/[<>:"/\\|?*\x00-\x1f]/g, '')
+  let safe = Array.from(value)
+    .filter((character) => (character.codePointAt(0) ?? 0) >= 32)
+    .join('')
+    .replace(/[<>:"/\\|?*]/g, '')
     .trim()
     .replace(/\.+$/g, '');
   while (Buffer.byteLength(safe) > 70) safe = safe.slice(0, -1);
@@ -24,8 +26,8 @@ export function createAudioLibrary(
   const files = createLibraryFiles(directory);
   let busy = false;
   return {
-    list: files.list,
-    find: files.read,
+    list: () => files.list(),
+    find: (id: string) => files.read(id),
     async download(input: unknown): Promise<AudioResult<LocalTrack>> {
       const parsed = downloadInputSchema.safeParse(input);
       if (!parsed.success)
@@ -59,7 +61,10 @@ export function createAudioLibrary(
             'unavailable',
             'YouTube returned an empty audio file. Please try another source.',
           );
-        const tagged = await tagDownload(staged, release, source.value.title, request, trackIndex);
+        const tagged = await tagDownload(staged, release, source.value.title, {
+          request,
+          trackIndex,
+        });
         if (!tagged.ok) return tagged;
         const track: LocalTrack = {
           id,

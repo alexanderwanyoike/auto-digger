@@ -26,7 +26,10 @@ export const localTrackSchema = z.object({
   filename: z
     .string()
     .max(240)
-    .regex(/^[^/\\\x00-\x1f]+\.yt\.mp3$/),
+    .regex(/^[^/\\]+\.yt\.mp3$/)
+    .refine((value) =>
+      Array.from(value).every((character) => (character.codePointAt(0) ?? 0) >= 32),
+    ),
   warning: z.string().nullable(),
 });
 export type LocalTrack = z.infer<typeof localTrackSchema>;

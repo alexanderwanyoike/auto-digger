@@ -10,9 +10,9 @@ export async function tagDownload(
   file: string,
   release: DiscogsRelease,
   videoTitle: string,
-  request: typeof fetch = fetch,
-  trackIndex?: number | null,
+  options: { request?: typeof fetch; trackIndex?: number | null | undefined } = {},
 ): Promise<AudioResult<{ title: string; warning: string | null }>> {
+  const { trackIndex, request = fetch } = options;
   const index = trackIndex === undefined ? matchTrack(release, videoTitle) : trackIndex;
   const match = index === null ? undefined : release.tracks[index];
   const title = match?.title ?? videoTitle;
@@ -40,7 +40,7 @@ export async function tagDownload(
     if (artwork.ok)
       tags.image = {
         ...artwork.value,
-        type: { id: 3, name: 'front cover' },
+        type: { id: 3 },
         description: release.title,
       };
     else notices.push('The audio is saved, but Discogs artwork could not be embedded.');
