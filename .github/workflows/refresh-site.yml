@@ -1,0 +1,19 @@
+name: Refresh published downloads
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  actions: write
+
+jobs:
+  refresh:
+    if: github.event.release.prerelease == false && github.event.release.draft == false
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Rebuild Pages from main after release publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run pages.yml --ref main

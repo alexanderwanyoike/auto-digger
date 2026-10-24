@@ -29,7 +29,10 @@
     "site:screenshots": "yarn build && node --experimental-strip-types scripts/capture-project-site.ts",
     "verify": "yarn icons:check && yarn format:check && yarn lint && yarn typecheck && yarn test && yarn build",
     "icons:generate": "node --experimental-strip-types scripts/generate-icons.ts",
-    "icons:check": "node --experimental-strip-types scripts/generate-icons.ts --check"
+    "icons:check": "node --experimental-strip-types scripts/generate-icons.ts --check",
+    "package:dir": "yarn build && electron-builder --config electron-builder.json --dir --publish never",
+    "package:make": "yarn build && electron-builder --config electron-builder.json --publish never",
+    "package:test": "vitest run --config distribution.vitest.config.ts"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",
@@ -57,6 +60,7 @@
     "@typescript-eslint/parser": "^8",
     "@vitejs/plugin-react": "^6.1.2",
     "electron": "^45.0.0",
+    "electron-builder": "26.18.0",
     "electron-vite": "^6.0.0",
     "eslint": "^8.57.1",
     "eslint-config-airbnb": "^19.0.4",
@@ -73,5 +77,11 @@
     "typescript": "~5.9.3",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
+  },
+  "author": "Alexander Wanyoike",
+  "homepage": "https://alexanderwanyoike.github.io/auto-digger/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexanderwanyoike/auto-digger.git"
   }
 }
