@@ -145,6 +145,20 @@ export function createDownloadJobs(
       const entry = entries.find((item) => item.job.id === id);
       if (!entry || !['failed', 'cancelled'].includes(entry.job.stage))
         return audioFailure('invalid-input', 'Choose a failed or cancelled download to retry.');
+      if (
+        entries.some(
+          (other) =>
+            other !== entry &&
+            !terminal.has(other.job.stage) &&
+            other.input.release.id === entry.input.release.id &&
+            videoId(other.input.release.videos[other.input.videoIndex]?.url ?? '') ===
+              videoId(entry.input.release.videos[entry.input.videoIndex]?.url ?? ''),
+        )
+      )
+        return audioFailure(
+          'busy',
+          'This source already has an active or queued download. Wait for it before retrying.',
+        );
       if (pending() >= 100)
         return audioFailure('busy', 'The download queue is full. Let some tracks finish first.');
       entry.job = { ...entry.job, ...downloadStage('queued'), track: null, error: null };
