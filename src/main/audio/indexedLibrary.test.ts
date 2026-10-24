@@ -45,6 +45,16 @@ test('imports legacy downloads, applies future destination/layout settings and r
     if (!located.ok) throw new Error(located.error.message);
     expect(dirname(dirname(located.value.file))).toBe(newRoot);
     expect(located.value.file.endsWith('.yt.mp3')).toBe(true);
+    await rm(join(dirname(located.value.file), `${saved.value.id}.json`));
+    expect(await library.list()).toMatchObject({
+      ok: true,
+      value: [
+        { id: legacy.value.id, missing: false },
+        { id: saved.value.id, missing: false },
+      ],
+    });
+    expect(await library.locate(saved.value.id)).toEqual(located);
+    expect(await library.download({ release: album, videoIndex: 0 })).toEqual(saved);
     expect(await library.download({ release: loadedRelease, videoIndex: 0 })).toEqual(legacy);
     expect(downloader.download).toHaveBeenCalledTimes(2);
     await rm(join(oldRoot, legacy.value.filename));
