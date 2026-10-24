@@ -24,6 +24,21 @@ export async function requestDiscogs<T>(
       'Could not reach Discogs. Check your connection and try again.',
     );
   }
+  if (response.status === 401 || response.status === 403) {
+    return discogsFailure(
+      'unauthorized',
+      'Discogs rejected this token. Connect again with a valid personal token.',
+    );
+  }
+  if (response.status === 429) {
+    return discogsFailure(
+      'rate-limited',
+      'Discogs rate limit reached. Please wait a minute and try again.',
+    );
+  }
+  if (response.status === 404) {
+    return discogsFailure('not-found', 'That release was not found on Discogs.');
+  }
   if (!response.ok) {
     return discogsFailure('network', 'Discogs could not complete the request. Please try again.');
   }

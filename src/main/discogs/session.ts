@@ -1,4 +1,4 @@
-import { accountSchema } from '../../shared/discogs';
+import { accountSchema, discogsFailure } from '../../shared/discogs';
 import type { DiscogsAccount, DiscogsResult } from '../../shared/discogs';
 import { requestDiscogs } from './request';
 
@@ -10,6 +10,9 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       return { ok: true, value: account };
     },
     async connect(token: string): Promise<DiscogsResult<DiscogsAccount>> {
+      if (!token.trim() || /\s/.test(token.trim()) || token.length > 256) {
+        return discogsFailure('invalid-input', 'Enter a valid Discogs personal token.');
+      }
       const result = await requestDiscogs('/oauth/identity', token.trim(), accountSchema, request);
       if (result.ok) {
         account = result.value;
