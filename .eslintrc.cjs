@@ -11,6 +11,7 @@ module.exports = {
   ignorePatterns: [
     'node_modules/',
     'out/',
+    'release/',
     'dist/',
     'coverage/',
     'test-results/',
