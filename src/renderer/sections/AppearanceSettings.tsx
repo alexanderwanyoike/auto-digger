@@ -1,4 +1,6 @@
 import { Monitor, Moon, Sun } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import type { Preferences } from '../../shared/preferences';
 import type { Appearance } from '../theme/preferences';
 import type { usePreferences } from './usePreferences';
 import { MaterialChoice } from './MaterialChoice';
@@ -36,7 +38,25 @@ export function AppearanceSettings({
   appearance: Appearance;
   onAppearance: (value: Appearance) => void;
 }) {
-  const disabled = preferences.busy || !preferences.available;
+  const disabled = !preferences.available;
+  const [selection, setSelection] = useState({
+    material: preferences.value.material,
+    accent: preferences.value.accent,
+  });
+  useEffect(() => {
+    setSelection({ material: preferences.value.material, accent: preferences.value.accent });
+  }, [preferences.value.material, preferences.value.accent]);
+  async function select(patch: Partial<Pick<Preferences, 'material' | 'accent'>>) {
+    if (disabled || preferences.busy) return;
+    const previous = selection;
+    setSelection({ ...previous, ...patch });
+    try {
+      const result = await preferences.save(patch);
+      if (!result.ok) setSelection(previous);
+    } catch {
+      setSelection(previous);
+    }
+  }
   return (
     <section className="appearance-settings" aria-label="Appearance settings">
       <header>
@@ -44,17 +64,18 @@ export function AppearanceSettings({
         <p>Choose a material, appearance and accent colour.</p>
       </header>
       <div className="appearance-options">
-        <fieldset className="material-options">
+        <fieldset className="material-options" aria-busy={preferences.busy}>
           <legend>Material</legend>
           <div className="material-choices">
             {materials.map((material) => (
               <MaterialChoice
                 key={material.value}
                 {...material}
-                checked={preferences.value.material === material.value}
+                checked={selection.material === material.value}
                 disabled={disabled}
+                busy={preferences.busy}
                 onSelect={() => {
-                  preferences.save({ material: material.value }).catch(() => undefined);
+                  select({ material: material.value }).catch(() => undefined);
                 }}
               />
             ))}
@@ -84,7 +105,7 @@ export function AppearanceSettings({
               ))}
             </div>
           </fieldset>
-          <fieldset>
+          <fieldset aria-busy={preferences.busy}>
             <legend>Accent colour</legend>
             <div className="accent-options">
               {accents.map(({ value, label }) => (
@@ -94,17 +115,18 @@ export function AppearanceSettings({
                     name="appearance-accent"
                     value={value}
                     aria-label={label}
-                    checked={preferences.value.accent === value}
+                    checked={selection.accent === value}
                     disabled={disabled}
+                    aria-disabled={disabled || preferences.busy}
                     onChange={() => {
-                      preferences.save({ accent: value }).catch(() => undefined);
+                      select({ accent: value }).catch(() => undefined);
                     }}
                   />
                   <span className={`accent-swatch accent-${value}`} aria-hidden="true" />
                 </label>
               ))}
               <span className="accent-name">
-                {accents.find((accent) => accent.value === preferences.value.accent)?.label}
+                {accents.find((accent) => accent.value === selection.accent)?.label}
               </span>
             </div>
           </fieldset>

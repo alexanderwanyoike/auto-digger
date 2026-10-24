@@ -7,6 +7,7 @@ export function MaterialChoice({
   description,
   checked,
   disabled,
+  busy,
   onSelect,
 }: {
   value: Preferences['material'];
@@ -14,6 +15,7 @@ export function MaterialChoice({
   description: string;
   checked: boolean;
   disabled: boolean;
+  busy: boolean;
   onSelect: () => void;
 }) {
   const id = useId();
@@ -28,6 +30,7 @@ export function MaterialChoice({
         aria-describedby={`${id}-description`}
         checked={checked}
         disabled={disabled}
+        aria-disabled={disabled || busy}
         onChange={onSelect}
       />
       <span className="material-thumbnail" data-material={value} aria-hidden="true">
