@@ -57,3 +57,31 @@ test.each([
     }
   },
 );
+
+test.each(['loadRelease', 'search', 'dig'] as const)(
+  'forgets a remembered token rejected during %s',
+  async (operation) => {
+    const directory = await mkdtemp(join(tmpdir(), 'auto-remember-'));
+    try {
+      const store = createTokenStore(join(directory, 'token.bin'), encryption);
+      const request = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(new Response(JSON.stringify(identityResponse)))
+        .mockResolvedValueOnce(new Response('{}', { status: 401 }));
+      const session = createRememberedSession(createDiscogsSession(request), store);
+      await session.connect('remember-me');
+      const operations = {
+        loadRelease: () => session.loadRelease(12),
+        search: () => session.search({ filters: {}, page: 1 }),
+        dig: () => session.dig({ filters: {} }),
+      };
+      expect(await operations[operation]()).toMatchObject({
+        ok: false,
+        error: { code: 'unauthorized' },
+      });
+      expect(await store.load()).toEqual({ ok: true, value: null });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  },
+);
