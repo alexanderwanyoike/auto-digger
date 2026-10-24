@@ -9,9 +9,11 @@ import { RecordArtwork } from '../components/RecordArtwork';
 export function CratesPage({
   crate,
   onOpen,
+  disabled,
 }: {
   crate: ReturnType<typeof useCrate>;
   onOpen: (release: DiscogsRelease) => void;
+  disabled: boolean;
 }) {
   const [name, setName] = useState('');
   const { catalogue } = crate;
@@ -95,6 +97,7 @@ export function CratesPage({
                 <span className="eyebrow">{entry.release.artists.join(', ')}</span>
                 <button
                   className="record-title-button"
+                  disabled={disabled}
                   type="button"
                   aria-label={`Open ${entry.release.title}`}
                   onClick={() => {
