@@ -34,3 +34,54 @@ test('distinguishes the selected Discogs track from the verified YouTube upload 
     within(row).queryByText('Discogs tags will use this track. You can change the match.'),
   ).not.toBeInTheDocument();
 });
+
+test.each([true, false])(
+  'uses a fresh upload title when online, and its saved title otherwise: online=%s',
+  async (online) => {
+    const bridge: AudioBridge = {
+      list: () =>
+        Promise.resolve({
+          ok: true,
+          value: [
+            {
+              id: '12-abcdefghijk',
+              videoId: 'abcdefghijk',
+              releaseId: 12,
+              title: 'Quiet Orbit',
+              sourceTitle: 'Original collector upload',
+              trackIndex: 0,
+              album: 'Quiet Orbit EP',
+              artist: 'Low Tide',
+              artworkUrl: null,
+              filename: 'Quiet Orbit.yt.mp3',
+              warning: null,
+            },
+          ],
+        }),
+      probe: () =>
+        Promise.resolve(
+          online
+            ? { ok: true, value: { videoId: 'abcdefghijk', title: 'Renamed collector upload' } }
+            : { ok: false, error: { code: 'network', message: 'Offline' } },
+        ),
+      download: vi.fn(),
+      reveal: vi.fn(),
+    };
+    const crate: CrateBridge = {
+      list: () => Promise.resolve({ ok: true, value: [loadedRelease] }),
+      save: vi.fn(),
+      remove: vi.fn(),
+    };
+    const user = userEvent.setup();
+    render(<App crate={crate} audioLibrary={bridge} />);
+    await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
+    const row = within(screen.getByRole('region', { name: 'Audio sources' })).getByRole('listitem');
+    expect(
+      await within(row).findByText(
+        online ? 'Renamed collector upload' : 'Original collector upload',
+      ),
+    ).toBeVisible();
+    expect(within(row).getByLabelText('Discogs track')).toHaveDisplayValue('A1 · Quiet Orbit');
+    expect(within(row).getByRole('button', { name: 'Play track' })).toBeEnabled();
+  },
+);
