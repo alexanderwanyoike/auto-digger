@@ -14,6 +14,7 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
   let description = audio.previewing ? 'Preparing preview…' : 'Preview a source to listen here.';
   if (track)
     description = `${track.source === 'preview' ? 'Preview · ' : ''}${track.artist} · ${track.album}`;
+  if (track?.source === 'preview' && player.buffering) description = 'Buffering preview…';
   return (
     <footer className="playback-bar" aria-label="Playback">
       <div className="now-playing">

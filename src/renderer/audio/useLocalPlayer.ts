@@ -8,6 +8,8 @@ const unavailableAudio =
 
 export function useLocalPlayer(track: PlaybackItem | null, request: number) {
   const [media] = useState(() => new Audio());
+  const kind = useRef<PlaybackItem['source']>('download');
+  const [buffering, setBuffering] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -26,7 +28,9 @@ export function useLocalPlayer(track: PlaybackItem | null, request: number) {
       const message =
         failure instanceof DOMException && failure.name === 'NotAllowedError'
           ? 'Ready to listen. Press play to start this saved track.'
-          : unavailableAudio;
+          : kind.current === 'preview'
+            ? 'This preview could not be played. Try another source or download the track.'
+            : unavailableAudio;
       return audioFailure('unavailable', message);
     }
   }, [media]);
@@ -36,6 +40,7 @@ export function useLocalPlayer(track: PlaybackItem | null, request: number) {
       setDuration(Number.isFinite(media.duration) ? media.duration : 0);
     };
     const onPlay = () => {
+      setBuffering(false);
       setPlaying(true);
       setError(null);
     };
@@ -44,9 +49,18 @@ export function useLocalPlayer(track: PlaybackItem | null, request: number) {
     };
     const onError = () => {
       setPlaying(false);
-      setError(unavailableAudio);
+      setBuffering(false);
+      setError(
+        kind.current === 'preview'
+          ? 'This preview could not be played. Try another source or download the track.'
+          : unavailableAudio,
+      );
+    };
+    const waiting = () => {
+      setBuffering(true);
     };
     const ready = () => {
+      setBuffering(false);
       update();
       if (requested.current > handled.current) {
         handled.current = requested.current;
@@ -57,6 +71,8 @@ export function useLocalPlayer(track: PlaybackItem | null, request: number) {
           .catch(() => undefined);
       }
     };
+    media.addEventListener('waiting', waiting);
+    media.addEventListener('stalled', waiting);
     media.addEventListener('play', onPlay);
     media.addEventListener('pause', onPause);
     media.addEventListener('ended', onPause);
@@ -68,6 +84,8 @@ export function useLocalPlayer(track: PlaybackItem | null, request: number) {
       revision.current += 1;
       media.pause();
       media.removeAttribute('src');
+      media.removeEventListener('waiting', waiting);
+      media.removeEventListener('stalled', waiting);
       media.removeEventListener('play', onPlay);
       media.removeEventListener('pause', onPause);
       media.removeEventListener('ended', onPause);
@@ -85,6 +103,8 @@ export function useLocalPlayer(track: PlaybackItem | null, request: number) {
     setError(null);
     setPlaying(false);
     requested.current = request;
+    kind.current = track?.source ?? 'download';
+    setBuffering(track?.source === 'preview');
     if (track) media.src = track.url;
     else media.removeAttribute('src');
     if (track && request > handled.current && media.readyState >= 3) {
@@ -111,5 +131,5 @@ export function useLocalPlayer(track: PlaybackItem | null, request: number) {
     media.currentTime = time;
     setPosition(time);
   }
-  return { playing, position, duration, volume, setVolume, toggle, seek, error };
+  return { buffering, playing, position, duration, volume, setVolume, toggle, seek, error };
 }
