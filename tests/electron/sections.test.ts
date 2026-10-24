@@ -40,6 +40,9 @@ test('manages named crates and track annotations in the UI and browses downloads
     await expect(page.getByLabel('Tags for Quiet Orbit', { exact: true })).toHaveValue(
       'dub, warm-up',
     );
+    const crateSleeve = await page.locator('.crate-entry .record-cover').boundingBox();
+    expect(crateSleeve?.width).toBe(crateSleeve?.height);
+    await page.screenshot({ path: 'test-results/crates-section.png' });
     await page.getByText('Manage My crate', { exact: true }).click();
     await page.getByRole('button', { name: 'Delete crate', exact: true }).click();
     await page.getByLabel('Active crate').selectOption({ label: 'Night drive (0)' });
@@ -58,6 +61,9 @@ test('manages named crates and track annotations in the UI and browses downloads
     await page.reload();
     await page.getByRole('button', { name: 'Downloads', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeVisible();
+    const downloadedSleeve = await page.locator('.downloaded-list .record-cover').boundingBox();
+    expect(downloadedSleeve?.width).toBe(downloadedSleeve?.height);
+    await page.screenshot({ path: 'test-results/downloads-section.png' });
     await page.getByLabel('Search downloads').fill('missing');
     await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toHaveCount(
       0,
