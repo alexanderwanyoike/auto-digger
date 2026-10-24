@@ -59,3 +59,67 @@ test.each(['malformed', 'network', 'json'] as const)(
     expect(JSON.stringify(result)).not.toContain('private-token');
   },
 );
+
+test('loads validated release metadata for the connected account without returning the token', async () => {
+  const { identityResponse, releaseResponse } = await import('../../../tests/discogsFixtures');
+  const request = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(JSON.stringify(identityResponse)))
+    .mockResolvedValueOnce(new Response(JSON.stringify(releaseResponse)));
+  const session = createDiscogsSession(request);
+  await session.connect('private-token');
+
+  const result = await session.loadRelease(12);
+
+  expect(result).toEqual({
+    ok: true,
+    value: {
+      id: 12,
+      title: 'Quiet Orbit EP',
+      artists: ['Low Tide'],
+      labels: [{ name: 'Still Records', catalogueNumber: 'ST001' }],
+      year: 1998,
+      country: 'UK',
+      genres: ['Electronic'],
+      styles: ['Deep House'],
+      formats: ['Vinyl, 12", EP'],
+      artworkUrl: 'https://i.discogs.com/example.jpg',
+      tracks: [{ position: 'A1', title: 'Quiet Orbit', duration: '6:12' }],
+      videos: [
+        { title: 'Low Tide - Quiet Orbit', url: 'https://www.youtube.com/watch?v=abcdefghijk' },
+      ],
+    },
+  });
+  expect(request.mock.calls[1]?.[0]).toBe('https://api.discogs.com/releases/12');
+  expect(new Headers(request.mock.calls[1]?.[1]?.headers).get('Authorization')).toBe(
+    'Discogs token=private-token',
+  );
+  expect(JSON.stringify(result)).not.toContain('private-token');
+});
+
+test('allows sparse metadata and ignores artwork and video URLs outside supported hosts', async () => {
+  const request = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(JSON.stringify({ id: 42, username: 'quiet-digger' })))
+    .mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          id: 12,
+          title: 'Untitled',
+          year: 0,
+          images: [{ uri: 'https://unknown.example/cover.jpg' }],
+          videos: [{ title: 'Other', uri: 'javascript:alert(1)' }],
+        }),
+      ),
+    );
+  const session = createDiscogsSession(request);
+  await session.connect('token');
+  const result = await session.loadRelease(12);
+  expect(result.ok).toBe(true);
+  if (result.ok) {
+    expect(result.value.year).toBeNull();
+    expect(result.value.artworkUrl).toBeNull();
+    expect(result.value.videos).toEqual([]);
+    expect(result.value.tracks).toEqual([]);
+  }
+});
