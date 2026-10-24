@@ -103,7 +103,7 @@ jobs:
           bundle="$volume/Auto Digger.app"
           executable=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$bundle/Contents/Info.plist")
           lipo "$bundle/Contents/MacOS/$executable" -verify_arch "$ARCHITECTURE"
-          for asset in out/main/index.js out/main/mcp.js out/preload/index.cjs out/renderer/index.html resources/icons/icon.png LICENSE site/public/licenses/manrope.txt; do
+          for asset in out/main/index.js out/main/mcp.js out/extension/mcp.cjs out/extension/LICENSES.txt out/preload/index.cjs out/renderer/index.html resources/icons/icon.png LICENSE site/public/licenses/manrope.txt; do
             test -s "$bundle/Contents/Resources/app/$asset"
           done
       - name: Install Windows payload and check bundled files
@@ -116,7 +116,7 @@ jobs:
           $process = Start-Process -FilePath $env:INSTALLER -ArgumentList '/S', "/D=$destination" -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw "Installer exited $($process.ExitCode)" }
           if (!(Test-Path "$destination/auto-digger.exe")) { throw 'Installed executable missing' }
-          foreach ($asset in @('out/main/index.js', 'out/main/mcp.js', 'out/preload/index.cjs', 'out/renderer/index.html', 'resources/icons/icon.png', 'LICENSE', 'site/public/licenses/manrope.txt')) {
+          foreach ($asset in @('out/main/index.js', 'out/main/mcp.js', 'out/extension/mcp.cjs', 'out/extension/LICENSES.txt', 'out/preload/index.cjs', 'out/renderer/index.html', 'resources/icons/icon.png', 'LICENSE', 'site/public/licenses/manrope.txt')) {
             $before = (Get-FileHash "$env:GITHUB_WORKSPACE/release/win-unpacked/resources/app/$asset").Hash
             $after = (Get-FileHash "$destination/resources/app/$asset").Hash
             if ($before -ne $after) { throw "Installed $asset changed" }
@@ -175,4 +175,4 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          gh release create "$RELEASE_TAG" release-set/* --verify-tag --draft --title "$RELEASE_TAG" --notes 'Windows, macOS and Linux preview installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized. Audio requires yt-dlp, FFmpeg, FFprobe and Node.js. MCP clients require Node.js 22 or newer. Verify downloads against SHA256SUMS.'
+          gh release create "$RELEASE_TAG" release-set/* --verify-tag --draft --title "$RELEASE_TAG" --notes 'Windows, macOS and Linux preview installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized. Audio requires yt-dlp, FFmpeg, FFprobe and Node.js. MCP uses the included runtime. Verify downloads against SHA256SUMS.'
