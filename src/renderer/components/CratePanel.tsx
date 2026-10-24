@@ -1,4 +1,5 @@
 import { Library, Bookmark, X } from 'lucide-react';
+import { CratePicker } from '../crate/CratePicker';
 import { RecordArtwork } from './RecordArtwork';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { useCrate } from '../crate/useCrate';
@@ -22,6 +23,7 @@ export function CratePanel({
           {crate.releases.length}
         </span>
       </div>
+      <CratePicker crate={crate} />
       <p className="panel-description">The ones worth coming back to.</p>
       {crate.busy && (
         <p className="crate-notice" role="status">
