@@ -75,3 +75,69 @@ test('reports actual subprocess progress, cancels, continues the queue and retri
     await desktop.close();
   }
 });
+
+test('reviews album source coverage, downloads one source per track and shows queue actions in the UI', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encryptedDesktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('batch-profile')}`,
+    ],
+    env: Object.fromEntries(
+      Object.entries(process.env).filter(
+        (entry): entry is [string, string] =>
+          typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
+      ),
+    ),
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
+    await page.evaluate(async (release) => window.catalogue?.add({ crateId: 'default', release }), {
+      ...loadedRelease,
+      formats: ['Album'],
+      tracks: [
+        ...loadedRelease.tracks,
+        { position: 'B1', title: 'Evening Mix', duration: '' },
+        { position: 'B2', title: 'No source', duration: '' },
+      ],
+      videos: [
+        { title: 'Quiet Orbit', url: 'https://youtu.be/slowvideo01' },
+        { title: 'Quiet Orbit alternative', url: 'https://youtu.be/abcdefghijk' },
+        { title: 'Evening Mix', url: 'https://youtu.be/lmnopqrstuv' },
+      ],
+    });
+    await page.reload();
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    const sources = page.getByRole('region', { name: 'Audio sources' });
+    await expect(
+      sources.getByRole('button', { name: 'Preview', exact: true }).last(),
+    ).toBeEnabled();
+    await sources.getByRole('listitem').nth(2).getByLabel('Discogs track').selectOption('1');
+    await page.getByText('Review track coverage', { exact: true }).click();
+    await page.getByLabel('Source for A1 Quiet Orbit', { exact: true }).selectOption('0');
+    await expect(page.getByText('No source available', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Download 2 available tracks', exact: true }).click();
+    await expect(
+      page.getByRole('progressbar', { name: 'Progress for Quiet Orbit', exact: true }),
+    ).toHaveAttribute('value', '25');
+    await page.getByRole('button', { name: 'Cancel download Quiet Orbit', exact: true }).click();
+    await page.getByRole('button', { name: 'Downloads', exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Retry download Quiet Orbit', exact: true }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Retry download Quiet Orbit', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Play Evening Mix', exact: true })).toBeEnabled();
+    const tracks = await page.evaluate(async () => window.audioLibrary?.list());
+    expect(tracks).toMatchObject({ ok: true });
+    if (!tracks?.ok) throw new Error('No saved tracks');
+    expect(tracks.value).toHaveLength(2);
+    expect(tracks.value.map((track) => track.videoId).sort()).toEqual([
+      'lmnopqrstuv',
+      'slowvideo01',
+    ]);
+    await page.screenshot({ path: 'test-results/download-queue.png' });
+  } finally {
+    await desktop.close();
+  }
+});
