@@ -23,14 +23,20 @@ export const downloadProgressSchema = z.object({
   eta: measured,
 });
 export type DownloadProgress = z.infer<typeof downloadProgressSchema>;
-export const downloadJobSchema = downloadProgressSchema.extend({
-  id: z.uuid(),
-  title: z.string(),
-  releaseId: z.number().int().positive(),
-  videoIndex: z.number().int().nonnegative(),
-  track: localTrackSchema.nullable(),
-  error: audioErrorSchema.nullable(),
-});
+export const downloadJobSchema = downloadProgressSchema
+  .extend({
+    id: z.uuid(),
+    title: z.string(),
+    releaseId: z.number().int().positive(),
+    videoIndex: z.number().int().nonnegative(),
+    track: localTrackSchema.nullable(),
+    error: audioErrorSchema.nullable(),
+  })
+  .refine(
+    (job) =>
+      job.stage !== 'complete' ||
+      (job.track !== null && job.error === null && job.track.releaseId === job.releaseId),
+  );
 export type DownloadJob = z.infer<typeof downloadJobSchema>;
 export function downloadStage(stage: DownloadProgress['stage']): DownloadProgress {
   return { stage, bytes: null, totalBytes: null, percent: null, speed: null, eta: null };
