@@ -19,7 +19,10 @@ export function CratePanel({
         <h2 id="crate-heading">
           <Library size={15} aria-hidden="true" /> Your crate
         </h2>
-        <span className="count-badge" aria-label={`${crate.releases.length.toString()} saved releases`}>
+        <span
+          className="count-badge"
+          aria-label={`${crate.releases.length.toString()} saved releases`}
+        >
           {crate.releases.length}
         </span>
       </div>
