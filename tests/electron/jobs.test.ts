@@ -136,6 +136,12 @@ test('reviews album source coverage, downloads one source per track and shows qu
     const tracks = await page.evaluate(async () => window.audioLibrary?.list());
     expect(tracks).toMatchObject({ ok: true });
     if (!tracks?.ok) throw new Error('No saved tracks');
+    await expect(
+      page.getByText(
+        '1 saved, 0 failed, 1 cancelled. Completed tracks have been kept. Retry the others in the download queue.',
+        { exact: true },
+      ),
+    ).toHaveCount(0);
     expect(tracks.value).toHaveLength(2);
     expect(tracks.value.map((track) => track.videoId).sort()).toEqual([
       'lmnopqrstuv',
