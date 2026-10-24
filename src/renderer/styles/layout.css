@@ -87,10 +87,9 @@ h1 {
   flex: 1;
   margin: 0 24px 24px;
   min-height: 516px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
+  border: 0;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: var(--shadow);
 }
 .filter-panel,
 .crate-panel {

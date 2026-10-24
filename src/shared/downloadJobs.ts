@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { audioErrorSchema, localTrackSchema } from './audio';
+import { audioErrorSchema, localTrackSchema, trackIdSchema } from './audio';
 import type { AudioResult, DownloadInput } from './audio';
 
 export const downloadStageSchema = z.enum([
@@ -29,6 +29,10 @@ export const downloadJobSchema = downloadProgressSchema
     title: z.string(),
     releaseId: z.number().int().positive(),
     videoIndex: z.number().int().nonnegative(),
+    sourceId: trackIdSchema.optional(),
+    artist: z.string().optional(),
+    album: z.string().optional(),
+    artworkUrl: z.string().nullable().optional(),
     track: localTrackSchema.nullable(),
     error: audioErrorSchema.nullable(),
   })

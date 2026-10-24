@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Radio, Settings as SettingsIcon } from 'lucide-react';
+import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
 import { usePreferences } from './sections/usePreferences';
 import type { CatalogueBridge } from '../shared/catalogue';
 import { CratesPage } from './sections/CratesPage';
@@ -21,6 +21,13 @@ import type { AudioBridge } from '../shared/audio';
 import { useAudioLibrary } from './audio/useAudioLibrary';
 import appIcon from '../../resources/icons/icon.svg';
 
+const sectionIcons = {
+  'Digging desk': Radio,
+  Crates: Library,
+  Downloads: ListMusic,
+  Settings: SettingsIcon,
+};
+
 export function App({
   discogs = window.discogs,
   crate: crateBridge = window.crate,
@@ -32,7 +39,8 @@ export function App({
   audioLibrary?: AudioBridge;
   catalogue?: CatalogueBridge;
 }) {
-  const [section, setSection] = useState('Digging desk');
+  const [section, setSection] = useState<keyof typeof sectionIcons>('Digging desk');
+  const SectionIcon = sectionIcons[section];
   const preferences = usePreferences(window.preferences);
   const audio = useAudioLibrary(audioBridge);
   const crate = useCrate(crateBridge, catalogue);
@@ -74,7 +82,7 @@ export function App({
         </p>
       )}
       <nav className="section-nav" aria-label="Main sections">
-        {['Digging desk', 'Crates', 'Downloads'].map((item) => (
+        {(['Digging desk', 'Crates', 'Downloads'] as const).map((item) => (
           <button
             type="button"
             key={item}
@@ -104,10 +112,12 @@ export function App({
       <main>
         <div className="desk-toolbar">
           <div className="desk-title">
-            <Radio size={17} aria-hidden="true" />
+            <SectionIcon size={17} aria-hidden="true" />
             <h1>{section}</h1>
           </div>
-          <span className="toolbar-note">A fresh pair of ears.</span>
+          {section === 'Digging desk' && (
+            <span className="toolbar-note">A fresh pair of ears.</span>
+          )}
         </div>
         {section === 'Crates' && (
           <CratesPage

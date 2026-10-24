@@ -8,7 +8,7 @@ Cancel a queued or active job from the record page or Downloads. Active cancella
 
 Download release shows coverage before starting. Each Discogs track has zero, one or several usable source candidates according to the same assignments shown in the individual source rows. Missing tracks remain explicit. Select one alternative or skip a track. Only ready selections are queued, one source per track. Existing saved release/video pairs are reused. A full-album upload stays one source unless the user explicitly maps it; this phase does not split or fingerprint recordings.
 
-The shared player remains mounted across navigation. Completed jobs refresh the library index and the first successful track in a batch can play without changing the saved status of other results. The queue appears in both the current record and Downloads, with the same cancellation/retry operations.
+The shared player remains mounted across navigation. Completed jobs refresh the library index and the first successful track in a batch can play without changing the saved status of other results. The current record retains its queue history. Downloads merges current activity into its searchable track rows, with inline cancellation/retry and no duplicate completed-history panel.
 
 Patterns: [yt-dlp structured progress](https://github.com/yt-dlp/yt-dlp#embedding-yt-dlp) and [Node AbortController](https://nodejs.org/docs/latest-v22.x/api/globals.html#class-abortcontroller). yt-dlp is Unlicense; Node is MIT. No upstream source is copied and no queue dependency is added. This extends the existing staged file publication and typed Result boundaries.
 
