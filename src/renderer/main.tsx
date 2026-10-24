@@ -24,6 +24,7 @@ import './styles/queue.css';
 import './styles/library.css';
 import './styles/research.css';
 import './styles/appearanceSettings.css';
+import './styles/deskPanels.css';
 
 const container = document.getElementById('root');
 

@@ -1,0 +1,25 @@
+.workspace > .filter-panel,
+.workspace > .crate-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.filter-panel > .panel-heading,
+.filter-panel > .source-card,
+.crate-panel > .panel-heading,
+.crate-panel > .crate-footer {
+  flex-shrink: 0;
+}
+.desk-panel-scroll {
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 6px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.crate-panel > .desk-panel-scroll {
+  display: flex;
+  flex-direction: column;
+}
