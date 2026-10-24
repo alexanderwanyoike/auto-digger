@@ -29,7 +29,7 @@ test('builds a researched crate from verified releases, picked tracks and source
     expect(
       await service.execute({ name: 'add_release', arguments: { crateId, releaseId: 12 } }),
     ).toMatchObject({ ok: true });
-    expect(loadRelease).toHaveBeenCalledWith(12);
+    expect(loadRelease).toHaveBeenCalledWith(12, undefined);
     const added = await catalogue.view(crateId);
     if (!added.ok || !added.value.entries[0]?.tracks[0]) throw new Error('No track');
     const trackKey = added.value.entries[0].tracks[0].key;
