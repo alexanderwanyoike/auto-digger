@@ -1,18 +1,16 @@
 import { ipcMain, shell } from 'electron';
 import type { BrowserWindow } from 'electron';
-import { join } from 'node:path';
 import { audioChannels } from '../../shared/audio';
 import type { AudioResult } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
-import type { createAudioLibrary } from './library';
+import type { createIndexedLibrary } from './indexedLibrary';
 import type { createDownloader } from './downloader';
 import type { createPreviewSession } from './previewSession';
 
 export function registerAudioHandlers(
   window: BrowserWindow,
-  library: ReturnType<typeof createAudioLibrary>,
+  library: ReturnType<typeof createIndexedLibrary>,
   downloader: ReturnType<typeof createDownloader>,
-  directory: string,
   previews: ReturnType<typeof createPreviewSession>,
 ) {
   const handle = (
@@ -47,7 +45,9 @@ export function registerAudioHandlers(
     if (input === undefined) {
       const ready = await library.list();
       if (!ready.ok) return ready;
-      const error = await shell.openPath(directory);
+      const root = await library.root();
+      if (!root.ok) return root;
+      const error = await shell.openPath(root.value);
       if (error)
         return audioFailure(
           'unavailable',
@@ -55,9 +55,9 @@ export function registerAudioHandlers(
         );
     } else {
       if (typeof input !== 'string') return audioFailure('invalid-input', 'Choose a saved track.');
-      const track = await library.find(input);
+      const track = await library.locate(input);
       if (!track.ok) return track;
-      shell.showItemInFolder(join(directory, track.value.filename));
+      shell.showItemInFolder(track.value.file);
     }
     return { ok: true, value: undefined };
   });

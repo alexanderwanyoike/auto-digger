@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Radio } from 'lucide-react';
+import { usePreferences } from './sections/usePreferences';
 import type { CatalogueBridge } from '../shared/catalogue';
 import { CratesPage } from './sections/CratesPage';
 import { DownloadsPage } from './sections/DownloadsPage';
@@ -32,6 +33,7 @@ export function App({
   catalogue?: CatalogueBridge;
 }) {
   const [section, setSection] = useState('Digging desk');
+  const preferences = usePreferences(window.preferences);
   const audio = useAudioLibrary(audioBridge);
   const crate = useCrate(crateBridge, catalogue);
   const session = useDiscogs(discogs);
@@ -108,6 +110,7 @@ export function App({
         {section === 'Downloads' && <DownloadsPage audio={audio} />}
         {section === 'Settings' && (
           <SettingsPage
+            preferences={preferences}
             session={session}
             appearance={appearance}
             onAppearance={selectAppearance}

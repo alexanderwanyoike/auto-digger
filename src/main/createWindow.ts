@@ -11,7 +11,8 @@ import { createTokenStore } from './credentials/tokenStore';
 import { electronEncryption } from './credentials/electronEncryption';
 import { createDiscogsSession } from './discogs/session';
 import { registerDiscogsHandlers } from './discogs/registerHandlers';
-import { createAudioLibrary } from './audio/library';
+import { createIndexedLibrary } from './audio/indexedLibrary';
+import { registerPreferencesHandlers } from './settings/registerHandlers';
 import { createCommandRunner } from './audio/command';
 import { createDownloader } from './audio/downloader';
 import { registerAudioHandlers } from './audio/registerHandlers';
@@ -22,7 +23,7 @@ import { createPreviewResolver } from './audio/previewResolver';
 let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
 let crateStore: ReturnType<typeof createLegacyCrateStore> | undefined;
 let catalogueStore: ReturnType<typeof createCatalogueStore> | undefined;
-let audioLibrary: ReturnType<typeof createAudioLibrary> | undefined;
+let audioLibrary: ReturnType<typeof createIndexedLibrary> | undefined;
 const audioCommands = createCommandRunner();
 const downloader = createDownloader((args, timeout) => audioCommands.execute(args, timeout));
 const previews = createPreviewSession(
@@ -88,6 +89,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     );
     crateStore ??= createLegacyCrateStore(catalogueStore);
     registerCatalogueHandlers(window, catalogueStore);
+    registerPreferencesHandlers(window, catalogueStore.preferences);
     registerStoreLinkHandlers(window);
     discogsSession ??= createRememberedSession(
       createDiscogsSession(),
@@ -96,10 +98,10 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     registerCrateHandlers(window, crateStore);
     const downloadsDirectory = join(app.getPath('music'), 'Auto Digger');
     if (!audioLibrary) {
-      audioLibrary = createAudioLibrary(downloadsDirectory, downloader);
-      registerAudioProtocol(audioLibrary, downloadsDirectory, previews);
+      audioLibrary = createIndexedLibrary(downloadsDirectory, catalogueStore, downloader);
+      registerAudioProtocol(audioLibrary, previews);
     }
-    registerAudioHandlers(window, audioLibrary, downloader, downloadsDirectory, previews);
+    registerAudioHandlers(window, audioLibrary, downloader, previews);
     registerDiscogsHandlers(window, discogsSession);
     window.on('closed', () => {
       previews.stop();

@@ -101,7 +101,7 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
             Downloads
           </option>
           {audio.tracks.map((item) => (
-            <option key={item.id} value={item.id}>
+            <option key={item.id} value={item.id} disabled={item.missing === true}>
               {item.artist} · {item.title}
             </option>
           ))}
