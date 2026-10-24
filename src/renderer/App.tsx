@@ -59,7 +59,7 @@ export function App({ discogs = window.discogs }: { discogs?: DiscogsBridge }) {
           <span className="toolbar-note">A fresh pair of ears.</span>
         </div>
         <div className="workspace">
-          <FilterPanel />
+          <FilterPanel connected={Boolean(session.account)} />
           {session.account ? <ReleaseWorkspace session={session} /> : <DiscoveryPanel />}
           <CratePanel />
         </div>

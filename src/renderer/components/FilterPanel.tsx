@@ -1,6 +1,6 @@
 import { ArrowRight, ChevronDown, SlidersHorizontal } from 'lucide-react';
 
-export function FilterPanel() {
+export function FilterPanel({ connected = false }: { connected?: boolean }) {
   return (
     <aside className="filter-panel" aria-labelledby="filters-heading">
       <div className="panel-heading">
@@ -65,7 +65,7 @@ export function FilterPanel() {
         <div className="source-name">
           <span className="small-record" aria-hidden="true" /> Discogs
         </div>
-        <p>Connect your Discogs account.</p>
+        <p>{connected ? 'Connected for this session.' : 'Connect your Discogs account.'}</p>
       </div>
     </aside>
   );
