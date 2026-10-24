@@ -12,16 +12,31 @@ export function useYouTube(id: string, retry: number) {
     if (!container) return undefined;
     let active = true;
     let visible = true;
+    let failed = false;
+    let ready = false;
+    let timer: number | undefined;
     let player: YouTubeInstance | undefined;
     setMessage('Loading YouTube player…');
     setError(null);
+    const destroyPlayer = () => {
+      try {
+        player?.destroy();
+      } catch {
+        container.replaceChildren();
+      }
+      player = undefined;
+    };
     const fail = (reason: string) => {
-      if (active) {
+      if (active && !failed) {
+        failed = true;
+        clearTimeout(timer);
+        destroyPlayer();
         setError(reason);
         setMessage('Playback unavailable');
       }
     };
     const pause = () => {
+      if (!ready || failed) return;
       try {
         player?.pauseVideo();
       } catch {
@@ -43,12 +58,12 @@ export function useYouTube(id: string, retry: number) {
             { threshold: 0.5 },
           );
     observer?.observe(container);
-    const timer = window.setTimeout(() => {
+    timer = window.setTimeout(() => {
       fail('The player did not become ready. Check your connection and retry.');
     }, 15000);
     loadYouTubeApi()
       .then((result) => {
-        if (!active) return;
+        if (!active || failed) return;
         if (!result.ok) {
           clearTimeout(timer);
           fail(result.error);
@@ -70,14 +85,15 @@ export function useYouTube(id: string, retry: number) {
             },
             events: {
               onReady: () => {
-                if (active) {
+                if (active && !failed) {
                   clearTimeout(timer);
+                  ready = true;
                   setMessage('Ready. Press play in the video.');
                   if (document.hidden || !visible) pause();
                 }
               },
               onStateChange: ({ data }) => {
-                if (active) {
+                if (active && !failed) {
                   if (data === 1 && (document.hidden || !visible)) pause();
                   const state: Record<number, string> = {
                     [-1]: 'Ready. Press play in the video.',
@@ -95,7 +111,7 @@ export function useYouTube(id: string, retry: number) {
                 fail(playerError(data));
               },
               onAutoplayBlocked: () => {
-                if (active) setMessage('Press play in the video to begin.');
+                if (active && !failed) setMessage('Press play in the video to begin.');
               },
             },
           });
@@ -113,11 +129,7 @@ export function useYouTube(id: string, retry: number) {
       clearTimeout(timer);
       observer?.disconnect();
       document.removeEventListener('visibilitychange', visibility);
-      try {
-        player?.destroy();
-      } catch {
-        container.replaceChildren();
-      }
+      destroyPlayer();
       container.replaceChildren();
     };
   }, [id, retry]);

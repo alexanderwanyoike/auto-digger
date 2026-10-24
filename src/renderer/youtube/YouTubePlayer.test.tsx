@@ -50,12 +50,11 @@ test('keeps a timed-out attempt failed when late ready and playing events arrive
   vi.useFakeTimers();
   const destroy = vi.fn();
   let options: YouTubeOptions | undefined;
-  vi.stubGlobal('YT', {
-    Player: vi.fn(function createPlayer(_element: HTMLElement, configuration: YouTubeOptions) {
-      options = configuration;
-      return { destroy, pauseVideo: vi.fn() };
-    }),
-  });
+  function createPlayer(_element: HTMLElement, configuration: YouTubeOptions) {
+    options = configuration;
+    return { destroy, pauseVideo: vi.fn() };
+  }
+  vi.stubGlobal('YT', { Player: vi.fn(createPlayer) });
   const view = render(
     <YouTubePlayer videos={[{ title: 'Late video', url: 'https://youtu.be/abcdefghijk' }]} />,
   );
