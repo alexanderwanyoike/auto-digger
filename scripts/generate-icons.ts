@@ -12,7 +12,7 @@ async function generateIcons(): Promise<Result<undefined, string>> {
     const ico = png2icons.createICO(png, png2icons.BICUBIC, 0, true, true);
     const icns = png2icons.createICNS(png, png2icons.BICUBIC, 0);
     if (!ico || !icns) return { ok: false, error: 'Native icon conversion failed.' };
-    const images = await Promise.all(
+    const images: { name: string; buffer: Buffer }[] = await Promise.all(
       [16, 24, 32, 48, 64, 128, 256, 512].map(async (size) => ({
         name: `icon-${size.toString()}.png`,
         buffer: await sharp(source).resize(size, size).png().toBuffer(),
