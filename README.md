@@ -60,9 +60,11 @@ Use `yarn format` or `yarn test:watch` while developing. EditorConfig and VS Cod
 
 ## Project notes
 
+See the [completed handoff and PR merge order](docs/handoff.md).
+
 - [Domain language](CONTEXT.md)
 - Phase scopes: [1](docs/phase-1.md), [2](docs/phase-2.md), [3](docs/phase-3.md), [4](docs/phase-4.md), [5](docs/phase-5.md), [6](docs/phase-6.md)
 - [Desktop foundation](docs/adr/0001-desktop-foundation.md) and [Discogs boundary](docs/adr/0002-discogs-boundary.md)
-- Review and fix records: [Phase 2](docs/reviews/phase-2.md), [Phase 3](docs/reviews/phase-3.md), [Phase 4](docs/reviews/phase-4.md), [Phase 5](docs/reviews/phase-5.md)
+- Review and fix records: [Phase 2](docs/reviews/phase-2.md), [Phase 3](docs/reviews/phase-3.md), [Phase 4](docs/reviews/phase-4.md), [Phase 5](docs/reviews/phase-5.md), [Phase 6](docs/reviews/phase-6.md)
 
 The renderer remains sandboxed and isolated with no Node access. Narrow preload operations validate responses, and main-process handlers validate the sender and inputs. Fonts and icons stay local. Parent-page remote resources are scoped to Discogs artwork and the official YouTube embed.
