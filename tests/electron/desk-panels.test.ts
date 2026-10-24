@@ -98,6 +98,7 @@ async function expectPanelEnds(panel: Locator, heading: string, footer: string) 
       await page.getByRole('option', { name: 'Electronic', exact: true }).click();
       await page.getByLabel('Style', { exact: true }).fill('Acid House');
       await page.getByRole('option', { name: 'Acid House', exact: true }).click();
+      await page.getByLabel('Style', { exact: true }).press('Escape');
       const filters = page.getByRole('complementary', { name: 'The starting point' });
       const crate = page.getByRole('complementary', { name: 'Your crate' });
       const filterFooter = 'Account remembered on this device.';
