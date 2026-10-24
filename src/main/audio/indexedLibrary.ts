@@ -4,6 +4,7 @@ import type { createDownloader } from './downloader';
 import { createAudioLibrary } from './library';
 import { createLibraryFiles } from './libraryFiles';
 import { fileAvailable } from './fileAvailable';
+import type { DownloadOptions } from './downloadOptions';
 import { filenamePart } from './filenamePart';
 import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
@@ -114,7 +115,10 @@ export function createIndexedLibrary(
       const result = await locate(id);
       return result.ok ? { ok: true, value: result.value.track } : result;
     },
-    async download(input: unknown): Promise<AudioResult<LocalTrack>> {
+    async download(
+      input: unknown,
+      options: DownloadOptions = {},
+    ): Promise<AudioResult<LocalTrack>> {
       const parsed = downloadInputSchema.safeParse(input);
       if (!parsed.success)
         return audioFailure('invalid-input', 'Choose a video and a valid Discogs track.');
@@ -160,7 +164,7 @@ export function createIndexedLibrary(
         const directory = existing?.directory ?? target;
         const remembered = await catalogue.downloads.rememberDirectory(directory);
         if (!remembered.ok) return audioFailure('storage', remembered.error.message);
-        const result = await library(directory).download(parsed.data);
+        const result = await library(directory).download(parsed.data, options);
         if (!result.ok) return result;
         const indexed = await catalogue.downloads.save({ directory, track: result.value });
         return indexed.ok

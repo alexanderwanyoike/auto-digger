@@ -8,6 +8,8 @@ import { matchTrack } from '../../shared/matchTrack';
 import type { createDownloader } from './downloader';
 import { createLibraryFiles } from './libraryFiles';
 import { tagDownload } from './tagging';
+import type { DownloadOptions } from './downloadOptions';
+import { downloadStage } from '../../shared/downloadJobs';
 import { filenamePart } from './filenamePart';
 import { reassignTrack } from './reassign';
 
@@ -21,7 +23,19 @@ export function createAudioLibrary(
   return {
     list: () => files.list(),
     find: (id: string) => files.read(id),
-    async download(input: unknown): Promise<AudioResult<LocalTrack>> {
+    async download(
+      input: unknown,
+      options: DownloadOptions = {},
+    ): Promise<AudioResult<LocalTrack>> {
+      if (options.signal?.aborted) return audioFailure('cancelled', 'This download was cancelled.');
+      const tagRequest: typeof fetch = (resource, init) =>
+        request(resource, {
+          ...init,
+          signal: AbortSignal.any([
+            ...(init?.signal ? [init.signal] : []),
+            ...(options.signal ? [options.signal] : []),
+          ]),
+        });
       const parsed = downloadInputSchema.safeParse(input);
       if (!parsed.success)
         return audioFailure('invalid-input', 'Choose a video and a valid Discogs track.');
@@ -47,24 +61,38 @@ export function createAudioLibrary(
         if (saved && !saved.missing) {
           if (trackIndex === undefined || trackIndex === saved.trackIndex)
             return { ok: true, value: saved };
-          return await reassignTrack(directory, files, saved, release, trackIndex, request);
+          options.onProgress?.(downloadStage('tagging'));
+          return await reassignTrack(
+            directory,
+            files,
+            saved,
+            release,
+            trackIndex,
+            tagRequest,
+            options.signal,
+          );
         }
-        const source = await downloader.probe(video.url);
+        const source = await downloader.probe(video.url, options.signal);
         if (!source.ok) return source;
         temporary = await mkdtemp(join(directory, '.download-'));
         const staged = join(temporary, 'audio.mp3');
-        const download = await downloader.download(source.value.videoId, staged);
+        const download = await downloader.download(source.value.videoId, staged, options);
         if (!download.ok) return download;
         if ((await stat(staged)).size === 0)
           return audioFailure(
             'unavailable',
             'YouTube returned an empty audio file. Please try another source.',
           );
+        if (options.signal?.aborted)
+          return audioFailure('cancelled', 'This download was cancelled.');
+        options.onProgress?.(downloadStage('tagging'));
         const tagged = await tagDownload(staged, release, source.value.title, {
-          request,
+          request: tagRequest,
           trackIndex,
         });
         if (!tagged.ok) return tagged;
+        if (options.signal?.aborted)
+          return audioFailure('cancelled', 'This download was cancelled.');
         const track: LocalTrack = {
           id,
           releaseId: release.id,
