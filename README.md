@@ -32,9 +32,13 @@ Auto Digger checks YouTube source availability through yt-dlp and extracts MP3 w
 
 Each compact source row labels the **Discogs track** separately from the **YouTube video** upload title. The suggested match can be changed; **Tagging note** expands optional metadata notices.
 
-Files live in your operating system's **Music/Auto Digger** folder, with names such as `Artist - Track [release-video].yt.mp3`. Each has a versioned JSON sidecar holding library information. Use **Show in folder** beside a source or the folder button in the player to find it. Keep sidecars alongside their MP3s and back up the folder before manual repairs. Existing files are preserved on name collisions.
+Files initially live in your operating system's **Music/Auto Digger** folder, with names such as `Artist - Track [release-video].yt.mp3`. Each has a versioned JSON recovery sidecar; SQLite indexes its metadata and recorded location. Use **Show in folder** beside a source or the folder button in the player to find it. Keep sidecars alongside their MP3s and back up the folder before manual repairs. Existing files are preserved on name collisions.
 
 The bottom bar controls local audio with play/pause, seeking and volume. Its download selector reopens tracks after restart. Browsing another record or disconnecting Discogs keeps the current track playing. Downloading or choosing a saved track starts playback; a browser autoplay restriction shows a prompt to press play. Use **Preview** to stream a source through the bottom player before committing to a download. Preview shows preparing/buffering states and can be stopped; it creates no saved file or library entry. No YouTube frame remains. Internet is needed for downloading and fetching new cover art; saved audio plays offline.
+
+## Settings
+
+Open the cog at the right of the navigation bar. Choose aluminium, ceramic or slate material and blue, teal or amber accents independently of light/dark/system mode. Use the native folder picker to choose a downloads destination and choose flat storage or a folder per release. These choices apply to future downloads; existing files stay at their recorded locations. Unavailable MP3s remain individual library rows while healthy tracks still play. See [library settings and recovery](docs/features/library-settings.md).
 
 ## Remembered account
 
@@ -44,7 +48,7 @@ The encrypted token is stored separately from the crate, in `discogs-token.bin` 
 
 The catalogue is `catalog.sqlite` under Electron's `userData` directory. It supports independent named crates, release membership, track picks and personal tags through isolated desktop operations. The desk selector chooses where to save; the Crates section manages playlists, track picks and personal tags. Existing `crate.json` data is validated, backed up to `crate.json.bak` and imported exactly once. Corrupt or unsupported files are preserved and reported.
 
-Saved release metadata can be reopened while disconnected. Credentials remain separately encrypted; audio files remain in Music/Auto Digger. Close the app before backing up the SQLite database and any WAL/SHM companion files. See the [catalogue decision](docs/adr/0006-sqlite-catalogue.md).
+Saved release metadata can be reopened while disconnected. Credentials remain separately encrypted; audio files stay in their recorded directories. Close the app before backing up the SQLite database and any WAL/SHM companion files. See the [catalogue decision](docs/adr/0006-sqlite-catalogue.md).
 
 ## Build and preview
 
