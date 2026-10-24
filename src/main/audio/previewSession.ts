@@ -49,7 +49,13 @@ export function createPreviewSession(
       if (!isPreviewUrl(result.value.url))
         return audioFailure('unavailable', 'This source cannot be previewed.');
       const id = randomUUID();
-      active = { id, source: result.value, expires: Date.now() + 60 * 60 * 1000 };
+      const expiry = Number(new URL(result.value.url).searchParams.get('expire')) * 1000;
+      const maximum = Date.now() + 6 * 60 * 60 * 1000;
+      active = {
+        id,
+        source: result.value,
+        expires: Number.isSafeInteger(expiry) && expiry > 0 ? Math.min(expiry, maximum) : maximum,
+      };
       const index = trackIndex === undefined ? matchTrack(release, result.value.title) : trackIndex;
       const title =
         index === null ? result.value.title : (release.tracks[index]?.title ?? result.value.title);
