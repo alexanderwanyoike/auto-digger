@@ -231,3 +231,44 @@ test('retries a failed initial open after the legacy file is repaired', async ()
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('marks identical unnamed tracks independently', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-catalogue-'));
+  const store = createCatalogueStore(join(directory, 'catalog.sqlite'));
+  try {
+    const release = {
+      ...loadedRelease,
+      tracks: [
+        { position: '', title: 'Untitled', duration: '' },
+        { position: '', title: 'Untitled', duration: '' },
+      ],
+    };
+    const saved = await store.add({ crateId: 'default', release });
+    if (!saved.ok) throw new Error('No release');
+    const tracks = saved.value.entries[0]?.tracks;
+    expect(new Set(tracks?.map((track) => track.key)).size).toBe(2);
+    const marked = await store.annotate({
+      crateId: 'default',
+      releaseId: release.id,
+      trackKey: tracks?.[1]?.key,
+      picked: true,
+      tags: ['dub'],
+    });
+    expect(marked).toMatchObject({
+      ok: true,
+      value: {
+        entries: [
+          {
+            tracks: [
+              { picked: false, tags: [] },
+              { picked: true, tags: ['dub'] },
+            ],
+          },
+        ],
+      },
+    });
+  } finally {
+    await store.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
