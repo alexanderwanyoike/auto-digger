@@ -5,6 +5,8 @@ import { videoId } from '../../shared/youtubeVideoId';
 
 export type Execute = (args: string[], timeout: number) => Promise<AudioResult<string>>;
 const common = [
+  '--js-runtimes',
+  'node',
   '--ignore-config',
   '--no-plugin-dirs',
   '--no-playlist',
