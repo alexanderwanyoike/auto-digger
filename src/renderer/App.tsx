@@ -12,14 +12,19 @@ import { FilterPanel } from './components/FilterPanel';
 import { DiscoveryPanel } from './components/DiscoveryPanel';
 import { CratePanel } from './components/CratePanel';
 import { PlaybackBar } from './components/PlaybackBar';
+import type { AudioBridge } from '../shared/audio';
+import { useAudioLibrary } from './audio/useAudioLibrary';
 
 export function App({
   discogs = window.discogs,
   crate: crateBridge = window.crate,
+  audioLibrary: audioBridge = window.audioLibrary,
 }: {
   discogs?: DiscogsBridge;
   crate?: CrateBridge;
+  audioLibrary?: AudioBridge;
 }) {
+  const audio = useAudioLibrary(audioBridge);
   const crate = useCrate(crateBridge);
   const session = useDiscogs(discogs);
   const [connectionOpen, setConnectionOpen] = useState(false);
@@ -70,7 +75,7 @@ export function App({
         <div className="workspace">
           <FilterPanel session={session} />
           {session.account || session.release ? (
-            <ReleaseWorkspace session={session} crate={crate} />
+            <ReleaseWorkspace session={session} crate={crate} audio={audio} />
           ) : (
             <DiscoveryPanel />
           )}
@@ -82,7 +87,7 @@ export function App({
           {session.error.message}
         </p>
       )}
-      <PlaybackBar release={session.release} />
+      <PlaybackBar audio={audio} />
       <div className="status-bar">
         <span>
           <span className="blue-dot" /> DISCOGS DISCOVERY

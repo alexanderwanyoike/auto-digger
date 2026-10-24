@@ -92,8 +92,7 @@ svg {
 .stage-caption,
 .sleeve-caption,
 .sleeve-edition,
-.timeline,
-.playback-source {
+.timeline {
   font-family: 'IBM Plex Mono', monospace;
 }
 .eyebrow {

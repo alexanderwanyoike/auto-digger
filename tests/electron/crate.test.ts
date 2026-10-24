@@ -2,7 +2,6 @@ import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import type { ElectronApplication, Page } from '@playwright/test';
 import { identityResponse, releaseResponse } from '../discogsFixtures';
-import { youtubeApiFixture } from '../youtubeApiFixture';
 
 function launch(profile: string) {
   const environment = Object.fromEntries(
@@ -17,15 +16,6 @@ function launch(profile: string) {
   });
 }
 async function playerFixture(page: Page) {
-  await page.route('https://www.youtube.com/iframe_api', async (route) => {
-    await route.fulfill({ contentType: 'application/javascript', body: youtubeApiFixture });
-  });
-  await page.route('https://www.youtube.com/embed/**', async (route) => {
-    await route.fulfill({
-      contentType: 'text/html',
-      body: '<html lang="en"><body>Player fixture</body></html>',
-    });
-  });
   await page.route('https://i.discogs.com/**', async (route) => {
     await route.abort();
   });
@@ -72,7 +62,7 @@ test('keeps a whole EP after restart, reopens it disconnected and persists remov
     ).toBeEnabled();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
-    await expect(page.getByText('Ready. Press play in the video.', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Download audio', exact: true })).toBeEnabled();
     await expect(page.getByRole('button', { name: 'Load release', exact: true })).toBeDisabled();
     await page.setViewportSize({ width: 900, height: 780 });
     await expect(page.getByText('Built for the long way round.', { exact: true })).toBeInViewport({

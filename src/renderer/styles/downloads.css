@@ -1,0 +1,144 @@
+.download-sources {
+  margin: 20px 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface-raised);
+  overflow: hidden;
+}
+.sources-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 14px 0;
+}
+.sources-title h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+}
+.sources-title h3 svg {
+  color: var(--blue);
+}
+.sources-title > span {
+  font:
+    7px 'IBM Plex Mono',
+    monospace;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+.sources-description {
+  padding: 7px 14px 12px;
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.source-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.audio-source {
+  padding: 14px;
+  border-top: 1px solid var(--line);
+}
+.source-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.source-heading strong {
+  font-size: 10px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.source-number {
+  font:
+    9px 'IBM Plex Mono',
+    monospace;
+  color: var(--blue);
+}
+.source-provider {
+  margin-left: auto;
+  font-size: 8px;
+  color: var(--faint);
+}
+.source-assignment {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 11px;
+}
+.source-assignment > span {
+  font-size: 9px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.source-assignment select {
+  font: inherit;
+  font-size: 10px;
+  min-width: 0;
+  width: 100%;
+  color: var(--text);
+  background: var(--surface-inset);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 6px;
+}
+.source-match {
+  margin: 7px 0 11px;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.7;
+}
+.source-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.source-actions .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  padding: 7px 9px;
+}
+.source-actions .source-download {
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+.source-actions button:disabled {
+  opacity: 0.5;
+}
+.source-actions > span {
+  color: var(--muted);
+  font-size: 9px;
+}
+.source-folder {
+  padding: 4px 0;
+  background: none;
+  border: none;
+  color: var(--blue);
+  font: inherit;
+  font-size: 9px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.source-notice {
+  padding-top: 10px;
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.download-sources > .source-notice {
+  padding: 0 14px 14px;
+}
+.source-notice[role='alert'] {
+  color: var(--text);
+}
+select:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}

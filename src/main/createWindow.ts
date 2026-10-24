@@ -7,7 +7,6 @@ import { createRememberedSession } from './discogs/rememberedSession';
 import { createTokenStore } from './credentials/tokenStore';
 import { electronEncryption } from './credentials/electronEncryption';
 import { createDiscogsSession } from './discogs/session';
-import { registerPlayerIdentity } from './youtube/registerIdentity';
 import { registerDiscogsHandlers } from './discogs/registerHandlers';
 import { createAudioLibrary } from './audio/library';
 import { createCommandRunner } from './audio/command';
@@ -57,7 +56,6 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     }
     registerAudioHandlers(window, audioLibrary, downloader, downloadsDirectory);
     registerDiscogsHandlers(window, discogsSession);
-    registerPlayerIdentity(window.webContents.session);
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event) => {
       event.preventDefault();

@@ -61,6 +61,8 @@ export function createDownloader(execute: Execute) {
           ...common,
           '--no-progress',
           '--no-overwrites',
+          '--format',
+          'bestaudio/best',
           '--extract-audio',
           '--audio-format',
           'mp3',

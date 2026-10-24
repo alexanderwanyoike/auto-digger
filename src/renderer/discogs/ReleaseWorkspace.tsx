@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Disc3 } from 'lucide-react';
 import { SaveToCrate } from '../crate/SaveToCrate';
 import type { useCrate } from '../crate/useCrate';
-import { YouTubePlayer } from '../youtube/YouTubePlayer';
+import { DownloadSources } from '../audio/DownloadSources';
+import type { useAudioLibrary } from '../audio/useAudioLibrary';
 import type { useDiscogs } from './useDiscogs';
 import { ReleaseDetails } from './ReleaseDetails';
 import { DigControls } from './DigControls';
@@ -11,9 +12,11 @@ import { SearchResults } from './SearchResults';
 export function ReleaseWorkspace({
   session,
   crate,
+  audio,
 }: {
   session: ReturnType<typeof useDiscogs>;
   crate: ReturnType<typeof useCrate>;
+  audio: ReturnType<typeof useAudioLibrary>;
 }) {
   const [id, setId] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -81,7 +84,7 @@ export function ReleaseWorkspace({
           release={session.release}
         >
           <SaveToCrate release={session.release} crate={crate} />
-          <YouTubePlayer key={session.release.id} videos={session.release.videos} />
+          <DownloadSources key={session.release.id} release={session.release} audio={audio} />
         </ReleaseDetails>
       )}
       {!session.busy && !session.release && !session.matches && (

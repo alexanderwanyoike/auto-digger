@@ -6,7 +6,7 @@ A release is a specific Discogs pressing, identified by release ID. An EP is the
 
 A crate is a local saved playlist of whole EP releases, distinct from a Discogs collection or wantlist. It preserves insertion order and unique release IDs. Saved metadata and YouTube links can be reopened after restart without connecting Discogs. It does not store credentials or audio.
 
-Playback uses visible official YouTube players for videos associated with a release. It requires internet and video availability. Selection does not autoplay; hidden players pause and replaced players are destroyed.
+Each video attached to a release is a distinct audio source. Several sources can map to one Discogs track. Automatic matching uses unambiguous complete titles; the user can correct assignments or keep the video title. yt-dlp and FFmpeg extract MP3, with best effort Discogs ID3 and artwork. Saved sources are keyed by release/video pair, live in Music/Auto Digger and can be corrected offline without redownloading. The bottom player controls local audio, persists independently of browsing or Discogs connection and can reopen downloaded tracks after restart. No embedded YouTube playback remains.
 
 A connected account means Discogs verified a personal token for the current app session. Decrypted tokens stay in main-process memory; an OS-encrypted credential is remembered on this device and verified again on launch. Disconnect forgets that credential and clears the account, loaded record, search results and digging history, while the saved crate persists.
 

@@ -99,6 +99,6 @@ test('shows saved sleeves and places the selected sleeve before playback', async
   ).toHaveAttribute('src', saved.artworkUrl);
   await user.click(open);
   const cover = screen.getByRole('img', { name: 'Quiet Orbit EP record sleeve' });
-  const player = screen.getByRole('region', { name: 'Listen on YouTube' });
+  const player = screen.getByRole('region', { name: 'Audio sources' });
   expect(cover.compareDocumentPosition(player)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 });
