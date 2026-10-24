@@ -1,6 +1,6 @@
 import { FolderOpen, Pause, Play, Square, Volume2 } from 'lucide-react';
 import type { useAudioLibrary } from '../audio/useAudioLibrary';
-import { useLocalPlayer } from '../audio/useLocalPlayer';
+import { usePlayer } from '../audio/usePlayer';
 import { RecordArtwork } from './RecordArtwork';
 
 function timecode(value: number) {
@@ -10,7 +10,7 @@ function timecode(value: number) {
 
 export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrary> }) {
   const { track, request } = audio.playback;
-  const player = useLocalPlayer(track, request);
+  const player = usePlayer(track, request);
   let description = audio.previewing ? 'Preparing preview…' : 'Preview a source to listen here.';
   if (track)
     description = `${track.source === 'preview' ? 'Preview · ' : ''}${track.artist} · ${track.album}`;

@@ -29,7 +29,7 @@ const fetchNetwork = net.fetch.bind(net);
 net.fetch = (input, options) => {
   const url = input instanceof Request ? input.url : input.toString();
   if (url !== 'https://fixture.googlevideo.com/audio') return fetchNetwork(input, options);
-  const audio = readFileSync(resolve(__dirname, 'fixtures/preview.mp3'));
+  const audio = readFileSync(resolve(__dirname, 'fixtures/preview.webm'));
   const range = new Headers(options?.headers).get('range');
   const match = range && /^bytes=(\d+)-(\d*)$/.exec(range);
   const start = match ? Number(match[1]) : 0;
@@ -56,7 +56,7 @@ net.fetch = (input, options) => {
     new Response(body, {
       status: range ? 206 : 200,
       headers: {
-        'Content-Type': 'audio/mpeg',
+        'Content-Type': 'audio/webm',
         'Content-Length': bytes.length.toString(),
         'Accept-Ranges': 'bytes',
         ...(range ? { 'Content-Range': `bytes ${start}-${end}/${audio.length}` } : {}),

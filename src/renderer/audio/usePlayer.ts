@@ -6,7 +6,7 @@ import { audioFailure } from '../../shared/audioFailure';
 const unavailableAudio =
   'This saved audio could not be played. It may have been moved or removed. Check its folder and try again.';
 
-export function useLocalPlayer(track: PlaybackItem | null, request: number) {
+export function usePlayer(track: PlaybackItem | null, request: number) {
   const [media] = useState(() => new Audio());
   const kind = useRef<PlaybackItem['source']>('download');
   const [buffering, setBuffering] = useState(false);
@@ -25,12 +25,12 @@ export function useLocalPlayer(track: PlaybackItem | null, request: number) {
       return { ok: true, value: undefined };
     } catch (failure) {
       if (version !== revision.current) return { ok: true, value: undefined };
-      const message =
-        failure instanceof DOMException && failure.name === 'NotAllowedError'
-          ? 'Ready to listen. Press play to start this saved track.'
-          : kind.current === 'preview'
-            ? 'This preview could not be played. Try another source or download the track.'
-            : unavailableAudio;
+      let message =
+        kind.current === 'preview'
+          ? 'This preview could not be played. Try another source or download the track.'
+          : unavailableAudio;
+      if (failure instanceof DOMException && failure.name === 'NotAllowedError')
+        message = 'Ready to listen. Press play to start.';
       return audioFailure('unavailable', message);
     }
   }, [media]);
@@ -84,6 +84,7 @@ export function useLocalPlayer(track: PlaybackItem | null, request: number) {
       revision.current += 1;
       media.pause();
       media.removeAttribute('src');
+      media.load();
       media.removeEventListener('waiting', waiting);
       media.removeEventListener('stalled', waiting);
       media.removeEventListener('play', onPlay);
@@ -106,7 +107,10 @@ export function useLocalPlayer(track: PlaybackItem | null, request: number) {
     kind.current = track?.source ?? 'download';
     setBuffering(track?.source === 'preview');
     if (track) media.src = track.url;
-    else media.removeAttribute('src');
+    else {
+      media.removeAttribute('src');
+      media.load();
+    }
     if (track && request > handled.current && media.readyState >= 3) {
       handled.current = request;
       start()

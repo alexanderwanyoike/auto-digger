@@ -3,6 +3,7 @@ import type { AudioResult } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
 import { videoId } from '../../shared/youtubeVideoId';
 import type { Execute } from './downloader';
+import { ytDlpArguments } from './ytDlpArguments';
 
 export interface ResolvedPreview {
   videoId: string;
@@ -39,16 +40,7 @@ export function createPreviewResolver(execute: Execute) {
     if (!id) return audioFailure('invalid-input', 'Choose a supported YouTube source to preview.');
     const result = await execute(
       [
-        '--js-runtimes',
-        'node',
-        '--ignore-config',
-        '--no-plugin-dirs',
-        '--no-playlist',
-        '--no-warnings',
-        '--socket-timeout',
-        '20',
-        '--retries',
-        '2',
+        ...ytDlpArguments,
         '--format',
         'bestaudio[ext=webm]/bestaudio',
         '--dump-single-json',
