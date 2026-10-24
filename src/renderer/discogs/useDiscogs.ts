@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { DigFilters, SearchPage } from '../../shared/search';
 import { discogsFailure } from '../../shared/discogsFailure';
 import type {
   DiscogsAccount,
@@ -11,6 +12,8 @@ import type {
 export function useDiscogs(bridge: DiscogsBridge | undefined) {
   const [account, setAccount] = useState<DiscogsAccount | null>(null);
   const [release, setRelease] = useState<DiscogsRelease | null>(null);
+  const [matches, setMatches] = useState<SearchPage | null>(null);
+  const [filters, setFilters] = useState<DigFilters | null>(null);
   const [busy, setBusy] = useState(Boolean(bridge));
   const [error, setError] = useState<DiscogsError | null>(null);
 
@@ -60,6 +63,8 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
     else {
       setError(result.error);
       if (result.error.code === 'unauthorized') {
+        setMatches(null);
+        setFilters(null);
         setAccount(null);
         setRelease(null);
       }
@@ -70,6 +75,22 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
 
   return {
     account,
+    matches,
+    closeRelease: () => {
+      setRelease(null);
+    },
+    filters,
+    search: (criteria: DigFilters, page = 1) => {
+      setMatches(null);
+      setRelease(null);
+      return perform(
+        (api) => api.search({ filters: criteria, page }),
+        (value) => {
+          setMatches(value);
+          setFilters(criteria);
+        },
+      );
+    },
     release,
     busy,
     error,
@@ -86,6 +107,8 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
       perform(
         (api) => api.disconnect(),
         () => {
+          setMatches(null);
+          setFilters(null);
           setAccount(null);
           setRelease(null);
         },

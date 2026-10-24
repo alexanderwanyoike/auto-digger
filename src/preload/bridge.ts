@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { searchPageSchema } from '../shared/search';
 import {
   accountSchema,
   discogsChannels,
@@ -44,6 +45,7 @@ export function createDiscogsBridge(invoke: Invoke): DiscogsBridge {
     }
   }
   return {
+    search: (input) => call(discogsChannels.search, searchPageSchema, input),
     account: () => call(discogsChannels.account, accountSchema.nullable()),
     connect: (token) => call(discogsChannels.connect, accountSchema, token),
     loadRelease: (id) => call(discogsChannels.loadRelease, releaseSchema, id),

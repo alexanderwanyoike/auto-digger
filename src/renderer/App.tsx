@@ -54,12 +54,12 @@ export function App({ discogs = window.discogs }: { discogs?: DiscogsBridge }) {
           <div className="desk-title">
             <Radio size={17} aria-hidden="true" />
             <h1>Digging desk</h1>
-            <span className="preview-badge">PHASE 02</span>
+            <span className="preview-badge">PHASE 03</span>
           </div>
           <span className="toolbar-note">A fresh pair of ears.</span>
         </div>
         <div className="workspace">
-          <FilterPanel connected={Boolean(session.account)} />
+          <FilterPanel session={session} />
           {session.account ? <ReleaseWorkspace session={session} /> : <DiscoveryPanel />}
           <CratePanel />
         </div>

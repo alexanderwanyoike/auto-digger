@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Disc3 } from 'lucide-react';
 import type { useDiscogs } from './useDiscogs';
 import { ReleaseDetails } from './ReleaseDetails';
+import { SearchResults } from './SearchResults';
 
 export function ReleaseWorkspace({ session }: { session: ReturnType<typeof useDiscogs> }) {
   const [id, setId] = useState('');
@@ -48,13 +49,24 @@ export function ReleaseWorkspace({ session }: { session: ReturnType<typeof useDi
           <p>Loading release metadata…</p>
         </div>
       )}
+      {!session.busy && !session.release && <SearchResults session={session} />}
+      {session.release && session.matches && (
+        <button
+          type="button"
+          className="secondary-button back-to-matches"
+          disabled={session.busy}
+          onClick={session.closeRelease}
+        >
+          Back to matches
+        </button>
+      )}
       {!session.busy && session.release && <ReleaseDetails release={session.release} />}
-      {!session.busy && !session.release && (
+      {!session.busy && !session.release && !session.matches && (
         <div className="release-placeholder">
           <Disc3 size={40} strokeWidth={1} aria-hidden="true" />
           <h2>Follow a record.</h2>
           <p>Enter a Discogs release ID to take a closer look.</p>
-          <span>Filters and random discovery come next.</span>
+          <span>Set filters to explore matching EPs.</span>
         </div>
       )}
     </section>

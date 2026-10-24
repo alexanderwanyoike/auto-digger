@@ -1,6 +1,17 @@
-import { ArrowRight, ChevronDown, SlidersHorizontal } from 'lucide-react';
+import { ArrowRight, SlidersHorizontal } from 'lucide-react';
+import type { DigFilters } from '../../shared/search';
+import type { useDiscogs } from '../discogs/useDiscogs';
 
-export function FilterPanel({ connected = false }: { connected?: boolean }) {
+const fields = [
+  ['label', 'Label', 'Any label'],
+  ['artist', 'Artist', 'Any artist'],
+  ['year', 'Year', 'Any year'],
+  ['genre', 'Genre', 'All genres'],
+  ['style', 'Style', 'All styles'],
+  ['title', 'Release title', 'Any release title'],
+] as const;
+
+export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs> }) {
   return (
     <aside className="filter-panel" aria-labelledby="filters-heading">
       <div className="panel-heading">
@@ -8,64 +19,61 @@ export function FilterPanel({ connected = false }: { connected?: boolean }) {
           <SlidersHorizontal size={15} aria-hidden="true" /> The starting point
         </h2>
       </div>
-      <p className="panel-description" id="filters-notice">
-        Set the boundaries. Leave room for a surprise.
-      </p>
-      <fieldset disabled aria-describedby="filter-phase">
-        <legend className="sr-only">Digging filters</legend>
-        <label htmlFor="label">
-          <span>Label</span>
-          <span className="input-wrap">
-            <input id="label" placeholder="Any label" />
-            <ChevronDown size={13} />
-          </span>
-        </label>
-        <label htmlFor="artist">
-          <span>Artist</span>
-          <span className="input-wrap">
-            <input id="artist" placeholder="Any artist" />
-            <ChevronDown size={13} />
-          </span>
-        </label>
-        <label htmlFor="year">
-          <span>Year</span>
-          <span className="input-wrap">
-            <input id="year" placeholder="Any year" inputMode="numeric" />
-            <ChevronDown size={13} />
-          </span>
-        </label>
-        <div className="filter-divider" />
-        <label htmlFor="genre">
-          <span>Genre</span>
-          <span className="input-wrap">
-            <input id="genre" placeholder="All genres" />
-            <ChevronDown size={13} />
-          </span>
-        </label>
-        <label htmlFor="style">
-          <span>Style</span>
-          <span className="input-wrap">
-            <input id="style" placeholder="All styles" />
-            <ChevronDown size={13} />
-          </span>
-        </label>
-        <div className="format-row">
-          <span>Format</span>
-          <span className="format-tag">EP</span>
-        </div>
-        <button className="primary-button" type="button">
-          Start digging <ArrowRight size={15} />
-        </button>
-      </fieldset>
-      <p className="phase-note" id="filter-phase">
-        Filters come in Phase 3.
+      <p className="panel-description">Set the boundaries. Leave room for a surprise.</p>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          const data = new FormData(event.currentTarget);
+          const value = (name: string) => {
+            const field = data.get(name);
+            return typeof field === 'string' ? field.trim() : '';
+          };
+          const filters: DigFilters = {
+            label: value('label'),
+            artist: value('artist'),
+            year: value('year'),
+            genre: value('genre'),
+            style: value('style'),
+            title: value('title'),
+          };
+          session.search(filters).catch(() => undefined);
+        }}
+      >
+        <fieldset disabled={!session.account || session.busy}>
+          <legend className="sr-only">Digging filters</legend>
+          {fields.map(([name, label, placeholder]) => (
+            <label htmlFor={name} key={name}>
+              <span>{label}</span>
+              <span className="input-wrap">
+                <input
+                  id={name}
+                  name={name}
+                  placeholder={placeholder}
+                  maxLength={name === 'year' ? 4 : 160}
+                  pattern={name === 'year' ? '[0-9]{4}' : undefined}
+                  inputMode={name === 'year' ? 'numeric' : 'text'}
+                />
+              </span>
+            </label>
+          ))}
+          <div className="format-row">
+            <span>Format</span>
+            <span className="format-tag">EP</span>
+          </div>
+          <button className="primary-button" type="submit">
+            Search EPs <ArrowRight size={15} aria-hidden="true" />
+          </button>
+        </fieldset>
+      </form>
+      <p className="phase-note">
+        Use any Discogs genre or style. Leave fields blank to search widely.
       </p>
       <div className="source-card">
         <span className="eyebrow">THE SOURCE</span>
         <div className="source-name">
           <span className="small-record" aria-hidden="true" /> Discogs
         </div>
-        <p>{connected ? 'Connected for this session.' : 'Connect your Discogs account.'}</p>
+        <p>{session.account ? 'Connected for this session.' : 'Connect your Discogs account.'}</p>
       </div>
     </aside>
   );
