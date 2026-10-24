@@ -17,6 +17,8 @@ test('checks a YouTube source then extracts a single MP3 using fixed safe argume
   });
   expect(execute.mock.calls[0]?.[0]).toEqual(
     expect.arrayContaining([
+      '--js-runtimes',
+      'node',
       '--ignore-config',
       '--no-playlist',
       '--dump-single-json',
