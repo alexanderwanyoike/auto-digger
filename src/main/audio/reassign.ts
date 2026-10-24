@@ -9,14 +9,15 @@ import { tagDownload } from './tagging';
 
 export async function reassignTrack(
   directory: string,
-  files: ReturnType<typeof createLibraryFiles>,
+  files: Pick<ReturnType<typeof createLibraryFiles>, 'save'>,
   saved: LocalTrack,
   release: DiscogsRelease,
   trackIndex: number | null,
   request: typeof fetch,
 ): Promise<AudioResult<LocalTrack>> {
   const original = join(directory, saved.filename);
-  const staged = join(directory, `.${randomUUID()}.retag`);
+  const staged = join(directory, `${saved.id}-${randomUUID()}.recovery.mp3`);
+  let keepRecovery = false;
   try {
     await copyFile(original, staged);
     const tagged = await tagDownload(staged, release, saved.sourceTitle, { request, trackIndex });
@@ -32,7 +33,14 @@ export async function reassignTrack(
     try {
       await rename(staged, original);
     } catch {
-      await files.save(saved);
+      const rollback = await files.save(saved);
+      if (!rollback.ok) {
+        keepRecovery = true;
+        return audioFailure(
+          'storage',
+          'The correction could not finish. Your original audio and a recovery MP3 have been kept in your downloads folder.',
+        );
+      }
       return audioFailure(
         'storage',
         'The track correction could not be saved. Your original audio has been preserved.',
@@ -45,6 +53,6 @@ export async function reassignTrack(
       'The track correction could not be saved. Your original audio has been preserved.',
     );
   } finally {
-    await rm(staged, { force: true }).catch(() => undefined);
+    if (!keepRecovery) await rm(staged, { force: true }).catch(() => undefined);
   }
 }
