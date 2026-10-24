@@ -7,5 +7,9 @@ export const mappedStyles = [...new Set(Object.values(byGenre).flat())].sort();
 
 export function stylesForGenres(selected: readonly string[]): readonly string[] {
   if (!selected.length) return styles;
-  return [...new Set(selected.flatMap((genre) => byGenre[genre] ?? []))].sort();
+  return [
+    ...new Set(
+      selected.flatMap((genre) => (Object.hasOwn(byGenre, genre) ? (byGenre[genre] ?? []) : [])),
+    ),
+  ].sort();
 }
