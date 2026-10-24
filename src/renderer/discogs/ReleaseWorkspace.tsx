@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Disc3 } from 'lucide-react';
+import { YouTubePlayer } from '../youtube/YouTubePlayer';
 import type { useDiscogs } from './useDiscogs';
 import { ReleaseDetails } from './ReleaseDetails';
 import { DigControls } from './DigControls';
@@ -62,7 +63,12 @@ export function ReleaseWorkspace({ session }: { session: ReturnType<typeof useDi
           Back to matches
         </button>
       )}
-      {!session.busy && session.release && <ReleaseDetails release={session.release} />}
+      {!session.busy && session.release && (
+        <>
+          <YouTubePlayer key={session.release.id} videos={session.release.videos} />
+          <ReleaseDetails release={session.release} />
+        </>
+      )}
       {!session.busy && !session.release && !session.matches && (
         <div className="release-placeholder">
           <Disc3 size={40} strokeWidth={1} aria-hidden="true" />

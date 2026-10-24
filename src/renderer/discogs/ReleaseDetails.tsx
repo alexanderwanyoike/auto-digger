@@ -76,7 +76,7 @@ export function ReleaseDetails({ release }: { release: DiscogsRelease }) {
       )}
       <p className="video-note">
         {release.videos.length} YouTube {release.videos.length === 1 ? 'video' : 'videos'} attached
-        · Playback comes in Phase 5.
+        · Videos are provided by Discogs contributors.
       </p>
     </article>
   );

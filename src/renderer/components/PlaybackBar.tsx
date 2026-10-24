@@ -1,6 +1,7 @@
-import { Disc3, Play, SkipForward, Volume2 } from 'lucide-react';
+import { Disc3, Play } from 'lucide-react';
+import type { DiscogsRelease } from '../../shared/discogs';
 
-export function PlaybackBar() {
+export function PlaybackBar({ release }: { release: DiscogsRelease | null }) {
   return (
     <footer className="playback-bar" aria-label="Playback">
       <div className="now-playing">
@@ -8,24 +9,29 @@ export function PlaybackBar() {
           <Disc3 size={21} strokeWidth={1.3} aria-hidden="true" />
         </div>
         <div>
-          <strong>Nothing on the deck</strong>
-          <span>YouTube playback comes in Phase 5.</span>
+          <strong>{release?.title ?? 'Nothing on the deck'}</strong>
+          <span>
+            {release
+              ? 'Use the YouTube controls in the record view.'
+              : 'Select a record to listen on YouTube.'}
+          </span>
         </div>
       </div>
       <div className="transport">
-        <button type="button" className="play-button" aria-label="Play" disabled>
-          <Play size={17} fill="currentColor" />
-        </button>
-        <button className="icon-button" type="button" aria-label="Next track" disabled>
-          <SkipForward size={17} />
+        <button
+          type="button"
+          className="play-button"
+          aria-label={release ? 'Show YouTube player' : 'Play'}
+          disabled={!release}
+          onClick={() => {
+            document
+              .querySelector('.youtube-player')
+              ?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+          }}
+        >
+          <Play size={17} fill="currentColor" aria-hidden="true" />
         </button>
       </div>
-      <div className="timeline" aria-hidden="true">
-        <span>0:00</span>
-        <div />
-        <span>0:00</span>
-      </div>
-      <Volume2 className="volume-icon" size={17} aria-hidden="true" />
       <span className="playback-source">YouTube</span>
     </footer>
   );
