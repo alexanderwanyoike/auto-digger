@@ -26,3 +26,19 @@ export type DiscogsResult<T> = Result<T, DiscogsError>;
 export function discogsFailure(code: DiscogsError['code'], message: string): DiscogsResult<never> {
   return { ok: false, error: { code, message } };
 }
+
+export const releaseSchema = z.object({
+  id: z.number().int().positive(),
+  title: z.string().min(1),
+  artists: z.array(z.string()),
+  labels: z.array(z.object({ name: z.string(), catalogueNumber: z.string() })),
+  year: z.number().int().positive().nullable(),
+  country: z.string().nullable(),
+  genres: z.array(z.string()),
+  styles: z.array(z.string()),
+  formats: z.array(z.string()),
+  artworkUrl: z.string().nullable(),
+  tracks: z.array(z.object({ position: z.string(), title: z.string(), duration: z.string() })),
+  videos: z.array(z.object({ title: z.string(), url: z.string() })),
+});
+export type DiscogsRelease = z.infer<typeof releaseSchema>;
