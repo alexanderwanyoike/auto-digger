@@ -49,7 +49,17 @@ export function ReleaseWorkspace({ session }: { session: ReturnType<typeof useDi
           <p>Loading release metadata…</p>
         </div>
       )}
-      {!session.busy && <SearchResults session={session} />}
+      {!session.busy && !session.release && <SearchResults session={session} />}
+      {session.release && session.matches && (
+        <button
+          type="button"
+          className="secondary-button back-to-matches"
+          disabled={session.busy}
+          onClick={session.closeRelease}
+        >
+          Back to matches
+        </button>
+      )}
       {!session.busy && session.release && <ReleaseDetails release={session.release} />}
       {!session.busy && !session.release && !session.matches && (
         <div className="release-placeholder">

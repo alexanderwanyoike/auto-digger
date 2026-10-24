@@ -76,6 +76,9 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
   return {
     account,
     matches,
+    closeRelease: () => {
+      setRelease(null);
+    },
     filters,
     search: (criteria: DigFilters, page = 1) => {
       setMatches(null);

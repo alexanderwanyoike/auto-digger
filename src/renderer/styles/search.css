@@ -48,3 +48,6 @@
   max-height: max(516px, calc(100vh - 260px));
   overflow-y: auto;
 }
+.back-to-matches {
+  margin: 16px 24px 0;
+}
