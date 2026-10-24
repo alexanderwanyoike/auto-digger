@@ -26,7 +26,7 @@ export function SourceRow({
   const [pending, setPending] = useState(false);
   const video = release.videos[index];
   if (!video) return null;
-  const sourceTitle = saved?.sourceTitle ?? (checked?.ok ? checked.value.title : video.title);
+  const sourceTitle = checked?.ok ? checked.value.title : (saved?.sourceTitle ?? video.title);
   const suggestion = saved ? saved.trackIndex : matchTrack(release, sourceTitle);
   const selected = manual === undefined ? suggestion : manual;
   const changed = saved && selected !== saved.trackIndex;
