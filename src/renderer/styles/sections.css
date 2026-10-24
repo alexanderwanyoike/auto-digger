@@ -262,3 +262,34 @@
   font-size: 9px;
   padding: 7px 9px;
 }
+
+.app-shell {
+  height: 100vh;
+  min-height: 0;
+}
+.app-header,
+.section-nav,
+.desk-toolbar,
+.playback-bar,
+.status-bar {
+  flex-shrink: 0;
+}
+main {
+  min-height: 0;
+}
+.workspace {
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+}
+.workspace > * {
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+}
+.section-page {
+  min-height: 0;
+  max-height: none;
+}
+.crate-management .primary-button {
+  width: auto;
+}
