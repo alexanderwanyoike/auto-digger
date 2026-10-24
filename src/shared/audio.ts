@@ -33,10 +33,12 @@ export type LocalTrack = z.infer<typeof localTrackSchema>;
 export const downloadInputSchema = z.object({
   release: releaseSchema,
   videoIndex: z.number().int().nonnegative(),
+  trackIndex: z.number().int().nonnegative().nullable().optional(),
 });
 export interface DownloadInput {
   release: DiscogsRelease;
   videoIndex: number;
+  trackIndex?: number | null;
 }
 export const audioChannels = {
   list: 'audio:list',

@@ -4,26 +4,17 @@ import NodeID3 from 'node-id3';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { AudioResult } from '../../shared/audio';
 import { fetchArtwork } from './artwork';
-
-function normalise(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, ' ')
-    .trim();
-}
+import { matchTrack } from '../../shared/matchTrack';
 
 export async function tagDownload(
   file: string,
   release: DiscogsRelease,
   videoTitle: string,
   request: typeof fetch = fetch,
+  trackIndex?: number | null,
 ): Promise<AudioResult<{ title: string; warning: string | null }>> {
-  const normalised = ` ${normalise(videoTitle)} `;
-  const matches = release.tracks.filter((track) => {
-    const title = normalise(track.title);
-    return title.length >= 3 && normalised.includes(` ${title} `);
-  });
-  const match = matches.length === 1 ? matches[0] : undefined;
+  const index = trackIndex === undefined ? matchTrack(release, videoTitle) : trackIndex;
+  const match = index === null ? undefined : release.tracks[index];
   const title = match?.title ?? videoTitle;
   const notices: string[] = [];
   if (!match)
