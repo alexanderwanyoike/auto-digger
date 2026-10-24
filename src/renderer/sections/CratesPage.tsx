@@ -82,7 +82,6 @@ export function CratesPage({
             : 'Create a crate to start keeping records.'}
         </p>
       )}
-      <ResearchNotes notes={catalogue.view.research ?? []} />
       <div className="crate-entries">
         {catalogue.view.entries.map((entry) => (
           <article
@@ -136,6 +135,7 @@ export function CratesPage({
           </article>
         ))}
       </div>
+      <ResearchNotes notes={catalogue.view.research ?? []} />
     </section>
   );
 }
