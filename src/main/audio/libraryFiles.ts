@@ -1,9 +1,12 @@
 import { lstat, mkdir, open, readFile, readdir, rename, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { z } from 'zod';
 import { localTrackSchema, trackIdSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
+
+const sidecarSchema = z.object({ version: z.literal(1), track: localTrackSchema });
 
 export function createLibraryFiles(directory: string) {
   async function read(id: string): Promise<AudioResult<LocalTrack>> {
@@ -14,17 +17,17 @@ export function createLibraryFiles(directory: string) {
       if (!(await lstat(metadata)).isFile())
         return audioFailure('storage', 'This saved track could not be read.');
       const data: unknown = JSON.parse(await readFile(metadata, 'utf8'));
-      const track = localTrackSchema.safeParse(data);
+      const track = sidecarSchema.safeParse(data);
       if (
         !track.success ||
-        track.data.id !== id ||
-        !(await lstat(join(directory, track.data.filename))).isFile()
+        track.data.track.id !== id ||
+        !(await lstat(join(directory, track.data.track.filename))).isFile()
       )
         return audioFailure(
           'storage',
           'This saved track is missing or unreadable. Its files have been preserved.',
         );
-      return { ok: true, value: track.data };
+      return { ok: true, value: track.data.track };
     } catch {
       return audioFailure(
         'storage',
@@ -58,7 +61,7 @@ export function createLibraryFiles(directory: string) {
       try {
         const file = await open(temporary, 'wx', 0o600);
         try {
-          await file.writeFile(JSON.stringify(track));
+          await file.writeFile(JSON.stringify({ version: 1, track }));
           await file.sync();
         } finally {
           await file.close();
