@@ -29,6 +29,7 @@ test('draws without repetition across a partially filled final page and resets e
             year: '',
             labels: [],
             formats: ['EP'],
+            artworkUrl: null,
           })),
         },
       }),

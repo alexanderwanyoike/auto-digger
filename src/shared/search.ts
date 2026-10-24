@@ -42,6 +42,7 @@ export const searchPageSchema = z.object({
       year: z.string(),
       labels: z.array(z.string()),
       formats: z.array(z.string()),
+      artworkUrl: z.string().nullable().default(null),
     }),
   ),
 });

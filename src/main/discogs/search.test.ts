@@ -49,6 +49,7 @@ test('combines Discogs filters into an authenticated paged EP search', async () 
           year: '1998',
           labels: ['Still Records'],
           formats: ['Vinyl', 'EP'],
+          artworkUrl: null,
         },
       ],
     },

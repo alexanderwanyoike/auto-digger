@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { supportedUrl } from './mediaUrl';
 import type { searchInputSchema, SearchPage } from '../../shared/search';
 import type { DiscogsResult } from '../../shared/discogs';
 import { requestDiscogs } from './request';
@@ -18,6 +19,8 @@ const responseSchema = z
         year: z.union([z.string(), z.number()]).optional(),
         label: z.array(z.string()).default([]),
         format: z.array(z.string()).default([]),
+        cover_image: z.string().default(''),
+        thumb: z.string().default(''),
       }),
     ),
   })
@@ -32,6 +35,9 @@ const responseSchema = z
       year: release.year?.toString() ?? '',
       labels: release.label,
       formats: release.format,
+      artworkUrl:
+        supportedUrl(release.cover_image, ['i.discogs.com', 'img.discogs.com']) ??
+        supportedUrl(release.thumb, ['i.discogs.com', 'img.discogs.com']),
     })),
   }));
 
