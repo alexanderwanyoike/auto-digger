@@ -67,7 +67,7 @@ test('queues serially, exposes measured progress, cancels queued/active items an
   await vi.waitFor(() => {
     expect(jobs.list()).toMatchObject({
       ok: true,
-      value: [{ stage: 'complete', track }, { stage: 'cancelled' }],
+      value: [{ stage: 'cancelled' }, { stage: 'complete', track }],
     });
   });
   expect(execute).toHaveBeenCalledTimes(2);
@@ -105,6 +105,46 @@ test('does not retry an old job while a newer job targets the same pending sourc
     jobs.cancel(old.id);
     expect(jobs.start([{ release: loadedRelease, videoIndex: 0 }])).toMatchObject({ ok: true });
     expect(jobs.retry(old.id)).toMatchObject({ ok: false, error: { code: 'busy' } });
+  } finally {
+    await jobs.close();
+  }
+});
+
+test('lists a retried success after later-created failures for the same source', async () => {
+  const execute = vi
+    .fn<() => Promise<AudioResult<LocalTrack>>>()
+    .mockResolvedValueOnce({ ok: false, error: { code: 'unavailable', message: 'Try again' } })
+    .mockResolvedValueOnce({
+      ok: false,
+      error: { code: 'unavailable', message: 'Still unavailable' },
+    })
+    .mockResolvedValue({ ok: true, value: track });
+  const jobs = createDownloadJobs(execute);
+  const input = { release: loadedRelease, videoIndex: 0 };
+  try {
+    const first = jobs.start([input]);
+    if (!first.ok || !first.value[0]) throw new Error('No first job');
+    await vi.waitFor(() => {
+      expect(jobs.list()).toMatchObject({ ok: true, value: [{ stage: 'failed' }] });
+    });
+    const second = jobs.start([input]);
+    if (!second.ok || !second.value[0]) throw new Error('No second job');
+    await vi.waitFor(() => {
+      expect(jobs.list()).toMatchObject({
+        ok: true,
+        value: [{ stage: 'failed' }, { stage: 'failed' }],
+      });
+    });
+    jobs.retry(first.value[0].id);
+    await vi.waitFor(() => {
+      expect(jobs.list()).toMatchObject({
+        ok: true,
+        value: [
+          { id: second.value[0]?.id, stage: 'failed' },
+          { id: first.value[0]?.id, stage: 'complete', track },
+        ],
+      });
+    });
   } finally {
     await jobs.close();
   }
