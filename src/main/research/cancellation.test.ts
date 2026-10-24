@@ -22,10 +22,14 @@ test('revocation aborts the active Discogs request and prevents queued research 
       return Promise.resolve(new Response(JSON.stringify(value)));
     signals.push(init?.signal);
     return new Promise((resolveRequest, reject) => {
-      finish.push(() => resolveRequest(new Response(JSON.stringify(value))));
+      finish.push(() => {
+        resolveRequest(new Response(JSON.stringify(value)));
+      });
       init?.signal?.addEventListener(
         'abort',
-        () => reject(new DOMException('Cancelled', 'AbortError')),
+        () => {
+          reject(new DOMException('Cancelled', 'AbortError'));
+        },
         { once: true },
       );
     });
@@ -50,7 +54,9 @@ test('revocation aborts the active Discogs request and prevents queued research 
         controller.signal,
       ),
     );
-    await vi.waitFor(() => expect(signals).toHaveLength(1));
+    await vi.waitFor(() => {
+      expect(signals).toHaveLength(1);
+    });
     controller.abort();
     expect(signals[0]?.aborted).toBe(true);
     expect(await Promise.all(pending)).toMatchObject([
@@ -64,7 +70,9 @@ test('revocation aborts the active Discogs request and prevents queued research 
     expect(await session.account()).toMatchObject({ ok: true, value: identityResponse });
   } finally {
     cleaning = true;
-    finish.forEach((resolveRequest) => resolveRequest());
+    finish.forEach((resolveRequest) => {
+      resolveRequest();
+    });
     await Promise.allSettled(pending);
     await catalogue.close();
     await rm(directory, { recursive: true, force: true });
