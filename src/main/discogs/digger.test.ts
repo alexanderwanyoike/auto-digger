@@ -37,13 +37,14 @@ test('draws without repetition across a partially filled final page and resets e
     .fn<(id: number) => Promise<DiscogsResult<DiscogsRelease>>>()
     .mockImplementation((id) => Promise.resolve({ ok: true, value: { ...loadedRelease, id } }));
   const digger = createDigger(search, load, () => 0.99);
-  const ids: number[] = [];
-  for (let index = 0; index < 3; index += 1) {
-    const result = await digger.next(filters);
-    expect(result.ok).toBe(true);
-    if (result.ok) ids.push(result.value.release.id);
-  }
-  expect(ids).toEqual([14, 13, 12]);
+  const results = [
+    await digger.next(filters),
+    await digger.next(filters),
+    await digger.next(filters),
+  ];
+  expect(results.map((result) => (result.ok ? result.value.release.id : null))).toEqual([
+    14, 13, 12,
+  ]);
   expect(search).toHaveBeenCalledTimes(2);
   expect(await digger.next(filters)).toMatchObject({ ok: false, error: { code: 'exhausted' } });
   expect(await digger.next(filters, true)).toMatchObject({

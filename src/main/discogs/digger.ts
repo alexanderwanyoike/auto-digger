@@ -23,6 +23,58 @@ export function createDigger(search: Search, load: Load, random = Math.random) {
     pages.clear();
     seen.clear();
   };
+  async function draw(
+    filters: DigFilters,
+    started: number,
+    attempts: number,
+  ): Promise<DiscogsResult<DigResult>> {
+    if (!pool.length)
+      return discogsFailure(
+        'exhausted',
+        'No unseen EPs remain in this search. Reset digging or change the filters.',
+      );
+    if (!attempts)
+      return discogsFailure(
+        'not-found',
+        'These candidates were unavailable or no longer EPs. Try Dig again.',
+      );
+    const pick = Math.floor(random() * pool.length);
+    const position = pool[pick];
+    const last = pool.pop();
+    if (position === undefined || last === undefined)
+      return discogsFailure('exhausted', 'No unseen EPs remain.');
+    if (pick < pool.length) pool[pick] = last;
+    const page = Math.floor(position / perPage) + 1;
+    let batch = pages.get(page);
+    if (!batch) {
+      const result = await search(filters, page);
+      if (started !== generation)
+        return discogsFailure('cancelled', 'The digging session has changed.');
+      if (!result.ok) {
+        pool.push(position);
+        return result;
+      }
+      batch = result.value;
+      pages.set(page, batch);
+    }
+    const candidate = batch.releases[position % perPage];
+    if (candidate && !seen.has(candidate.id)) {
+      const result = await load(candidate.id);
+      if (started !== generation)
+        return discogsFailure('cancelled', 'The digging session has changed.');
+      if (!result.ok) {
+        if (result.error.code !== 'not-found') {
+          pool.push(position);
+          return result;
+        }
+      } else if (isEp(result.value.formats)) {
+        seen.add(candidate.id);
+        return { ok: true, value: { release: result.value, seen: seen.size, total, limited } };
+      }
+    }
+    return draw(filters, started, attempts - 1);
+  }
+
   async function next(filters: DigFilters, restart = false): Promise<DiscogsResult<DigResult>> {
     const criteria = JSON.stringify(filters);
     if (restart || criteria !== key) reset();
@@ -40,48 +92,7 @@ export function createDigger(search: Search, load: Load, random = Math.random) {
       pages.set(1, value);
       key = criteria;
     }
-    for (let attempt = 0; attempt < 10 && pool.length; attempt += 1) {
-      const pick = Math.floor(random() * pool.length);
-      const position = pool[pick];
-      const last = pool.pop();
-      if (position === undefined || last === undefined) break;
-      if (pick < pool.length) pool[pick] = last;
-      const page = Math.floor(position / perPage) + 1;
-      let batch = pages.get(page);
-      if (!batch) {
-        const result = await search(filters, page);
-        if (cancelled()) return discogsFailure('cancelled', 'The digging session has changed.');
-        if (!result.ok) {
-          pool.push(position);
-          return result;
-        }
-        batch = result.value;
-        pages.set(page, batch);
-      }
-      const candidate = batch.releases[position % perPage];
-      if (candidate && !seen.has(candidate.id)) {
-        const result = await load(candidate.id);
-        if (cancelled()) return discogsFailure('cancelled', 'The digging session has changed.');
-        if (!result.ok) {
-          if (result.error.code !== 'not-found') {
-            pool.push(position);
-            return result;
-          }
-        } else if (isEp(result.value.formats)) {
-          seen.add(candidate.id);
-          return { ok: true, value: { release: result.value, seen: seen.size, total, limited } };
-        }
-      }
-    }
-    return pool.length
-      ? discogsFailure(
-          'not-found',
-          'These candidates were unavailable or no longer EPs. Try Dig again.',
-        )
-      : discogsFailure(
-          'exhausted',
-          'No unseen EPs remain in this search. Reset digging or change the filters.',
-        );
+    return draw(filters, started, 10);
   }
   return { next, reset };
 }
