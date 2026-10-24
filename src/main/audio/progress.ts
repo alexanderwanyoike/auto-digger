@@ -2,7 +2,10 @@ import { z } from 'zod';
 import { downloadStage } from '../../shared/downloadJobs';
 import type { DownloadProgress } from '../../shared/downloadJobs';
 
-const measure = z.number().nonnegative().nullable().optional();
+const measure = z
+  .union([z.number().nonnegative(), z.null(), z.literal('NA')])
+  .optional()
+  .transform((value) => (typeof value === 'number' ? value : null));
 const progressSchema = z.object({
   downloaded_bytes: measure,
   total_bytes: measure,
@@ -23,12 +26,7 @@ export function parseDownloadProgress(line: string): DownloadProgress | null {
     if (!line.startsWith('AD_PROGRESS:')) return null;
     const data: unknown = JSON.parse(line.slice('AD_PROGRESS:'.length));
     const parsed = progressSchema.safeParse(data);
-    if (
-      !parsed.success ||
-      parsed.data.downloaded_bytes === undefined ||
-      parsed.data.downloaded_bytes === null
-    )
-      return null;
+    if (!parsed.success || parsed.data.downloaded_bytes === null) return null;
     const bytes = parsed.data.downloaded_bytes;
     const totalBytes = parsed.data.total_bytes ?? parsed.data.total_bytes_estimate ?? null;
     return {
