@@ -33,7 +33,12 @@ export function createCommandRunner(executable = 'yt-dlp') {
         terminateProcess(child);
       });
     },
-    execute(args: string[], timeout: number, signal?: AbortSignal): Promise<AudioResult<string>> {
+    execute(
+      args: string[],
+      timeout: number,
+      signal?: AbortSignal,
+      onLine?: (line: string) => void,
+    ): Promise<AudioResult<string>> {
       if (signal?.aborted)
         return Promise.resolve(audioFailure('cancelled', 'This operation was cancelled.'));
       return new Promise((resolve) => {
@@ -49,6 +54,7 @@ export function createCommandRunner(executable = 'yt-dlp') {
         };
         signal?.addEventListener('abort', abort, { once: true });
         let stdout = '';
+        let pendingLine = '';
         let stderr = '';
         let expired = false;
         const timer = setTimeout(() => {
@@ -59,7 +65,15 @@ export function createCommandRunner(executable = 'yt-dlp') {
           if (stdout.length + data.length > 4_000_000) {
             expired = true;
             terminateProcess(child);
-          } else stdout += data.toString();
+          } else {
+            const chunk = data.toString();
+            stdout += chunk;
+            if (onLine) {
+              const lines = (pendingLine + chunk).split(/\r?\n/);
+              pendingLine = lines.pop() ?? '';
+              lines.forEach(onLine);
+            }
+          }
         });
         child.stderr.on('data', (data: Buffer) => {
           stderr = (stderr + data.toString()).slice(-16000);
@@ -76,6 +90,7 @@ export function createCommandRunner(executable = 'yt-dlp') {
           );
         });
         child.once('close', (code) => {
+          if (pendingLine) onLine?.(pendingLine);
           clearTimeout(timer);
           active.delete(child);
           signal?.removeEventListener('abort', abort);
