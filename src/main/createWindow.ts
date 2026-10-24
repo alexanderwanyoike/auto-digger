@@ -22,8 +22,22 @@ let catalogueStore: ReturnType<typeof createCatalogueStore> | undefined;
 let audioLibrary: ReturnType<typeof createAudioLibrary> | undefined;
 const audioCommands = createCommandRunner();
 const downloader = createDownloader((args, timeout) => audioCommands.execute(args, timeout));
-app.on('before-quit', () => {
+let closingCatalogue = false;
+app.on('before-quit', (event) => {
   audioCommands.cancelAll();
+  if (catalogueStore && !closingCatalogue) {
+    event.preventDefault();
+    closingCatalogue = true;
+    catalogueStore
+      .close()
+      .then((result) => {
+        if (!result.ok) process.stderr.write(`${result.error.message}\n`);
+        app.quit();
+      })
+      .catch(() => {
+        app.quit();
+      });
+  }
 });
 
 export async function createWindow(): Promise<Result<undefined, string>> {
