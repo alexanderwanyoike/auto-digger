@@ -208,3 +208,39 @@ test('reports unreadable audio rather than calling a failed track ready to play'
     screen.queryByText('Ready to listen. Press play to start this saved track.'),
   ).not.toBeInTheDocument();
 });
+
+test('ignores an old play rejection after another downloaded track is selected', async () => {
+  const media = new Audio();
+  function TestAudio() {
+    return media;
+  }
+  vi.stubGlobal('Audio', TestAudio);
+  let rejectPlay = (_error: unknown) => {
+    throw new Error('Playback has not started');
+  };
+  const oldPlay = new Promise<void>((_resolve, reject) => {
+    rejectPlay = reject;
+  });
+  vi.spyOn(HTMLMediaElement.prototype, 'play')
+    .mockImplementationOnce(() => oldPlay)
+    .mockResolvedValue();
+  const second = { ...track, id: '13-abcdefghijk', releaseId: 13, title: 'Another track' };
+  const bridge: AudioBridge = {
+    list: () => Promise.resolve({ ok: true, value: [track, second] }),
+    probe: vi.fn(),
+    download: vi.fn(),
+    reveal: vi.fn(),
+  };
+  const user = userEvent.setup();
+  render(<App audioLibrary={bridge} />);
+  await screen.findByText('Evening Mix');
+  await user.click(screen.getByRole('button', { name: 'Play' }));
+  await user.selectOptions(screen.getByLabelText('Downloaded track'), second.id);
+  const { act } = await import('@testing-library/react');
+  await act(async () => {
+    rejectPlay(new DOMException('interrupted', 'AbortError'));
+    await oldPlay.catch(() => undefined);
+  });
+  expect(screen.getByText('Another track')).toBeVisible();
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+});
