@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import type { createCatalogueStore } from '../catalogue/store';
 import type { createDownloader } from './downloader';
 import { createAudioLibrary, filenamePart } from './library';
@@ -61,30 +61,27 @@ export function createIndexedLibrary(
       value: [...tracks.values()].sort((left, right) => left.id.localeCompare(right.id)),
     };
   }
-  async function locate(id: string): Promise<AudioResult<{ track: LocalTrack; file: string }>> {
-    const tracks = await list();
-    if (!tracks.ok) return tracks;
-    const track = tracks.value.find((item) => item.id === id);
-    if (!track || track.missing)
-      return audioFailure(
-        'storage',
-        'This audio file is missing or unavailable. Restore it at its recorded location, or download the source again.',
-      );
+  async function location(id: string): Promise<AudioResult<{ track: LocalTrack; file: string }>> {
     const records = await catalogue.downloads.list();
     if (!records.ok) return audioFailure('storage', records.error.message);
     const record = records.value.find((item) => item.track.id === id);
-    if (!record) return audioFailure('invalid-input', 'Choose a downloaded track.');
-    const valid = await library(record.directory).find(id);
-    return valid.ok
+    return record
       ? {
           ok: true,
-          value: { track: valid.value, file: join(record.directory, valid.value.filename) },
+          value: { track: record.track, file: join(record.directory, record.track.filename) },
         }
-      : valid;
+      : audioFailure('invalid-input', 'Choose a downloaded track.');
+  }
+  async function locate(id: string): Promise<AudioResult<{ track: LocalTrack; file: string }>> {
+    const record = await location(id);
+    if (!record.ok) return record;
+    const valid = await library(dirname(record.value.file)).find(id);
+    return valid.ok ? { ok: true, value: { track: valid.value, file: record.value.file } } : valid;
   }
   return {
     list,
     locate,
+    location,
     async root(): Promise<AudioResult<string>> {
       const preferences = await catalogue.preferences.read();
       return preferences.ok

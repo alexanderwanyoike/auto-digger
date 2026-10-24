@@ -55,7 +55,7 @@ export function registerAudioHandlers(
         );
     } else {
       if (typeof input !== 'string') return audioFailure('invalid-input', 'Choose a saved track.');
-      const track = await library.locate(input);
+      const track = await library.location(input);
       if (!track.ok) return track;
       shell.showItemInFolder(track.value.file);
     }
