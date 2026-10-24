@@ -18,7 +18,7 @@ export function createResearchStore(connection: () => Promise<CatalogueResult<Da
         return catalogueFailure('storage', 'Your research could not be read. Please retry.');
       }
     },
-    async save(input: unknown): Promise<CatalogueResult<ResearchNote>> {
+    async save(input: unknown, signal?: AbortSignal): Promise<CatalogueResult<ResearchNote>> {
       const parsed = researchNoteInputSchema.safeParse(input);
       if (!parsed.success)
         return catalogueFailure(
@@ -27,6 +27,8 @@ export function createResearchStore(connection: () => Promise<CatalogueResult<Da
         );
       const result = await connection();
       if (!result.ok) return result;
+      if (signal?.aborted)
+        return catalogueFailure('unavailable', 'Research access has stopped. No note was saved.');
       try {
         const view = readCatalogueView(result.value, parsed.data.crateId);
         if (!view.ok) return view;

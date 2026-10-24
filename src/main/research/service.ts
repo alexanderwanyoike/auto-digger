@@ -30,7 +30,7 @@ export function createResearchService(
       case 'get_crate':
         return catalogue.view(command.arguments.crateId);
       case 'create_crate':
-        return catalogue.create(command.arguments.name);
+        return catalogue.create(command.arguments.name, signal);
       case 'search_releases':
         return discogs.researchSearch(command.arguments, signal);
       case 'get_release': {
@@ -55,12 +55,12 @@ export function createResearchService(
             'invalid-data',
             'Discogs returned a different release. No release was added.',
           );
-        return catalogue.add({ crateId: command.arguments.crateId, release: result.value });
+        return catalogue.add({ crateId: command.arguments.crateId, release: result.value }, signal);
       }
       case 'annotate_track':
-        return catalogue.annotate(command.arguments);
+        return catalogue.annotate(command.arguments, signal);
       case 'save_research':
-        return catalogue.research.save(command.arguments);
+        return catalogue.research.save(command.arguments, signal);
       default:
         return catalogueFailure('invalid-input', 'Choose a supported research tool.');
     }
