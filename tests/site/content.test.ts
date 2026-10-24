@@ -9,7 +9,7 @@ test('leads with MCP mix research and explains how verified finds reach a crate'
   expect(document.querySelector('nav a')?.getAttribute('href')).toBe('#research');
   const research = document.getElementById('research');
   expect(research?.textContent).toMatch(/client.*Discogs.*crate/is);
-  expect(research?.querySelector('a')?.getAttribute('href')).toContain('mix-research.md');
+  expect(research?.querySelector('a')?.getAttribute('href')).toBe('setup/#mcp');
 });
 
 test('offers a complete discovery workflow and honest release links without requiring JavaScript', async () => {
