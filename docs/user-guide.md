@@ -1,0 +1,53 @@
+# Using Auto Digger
+
+## Connect Discogs
+
+Choose **Discogs not connected** or open the connection section in Settings. Generate a personal token through the linked Discogs settings, then paste it into the app. Fields clear after submission. A successful connection is stored using operating-system encryption and restored at launch.
+
+If the network is temporarily unavailable, use **Reconnect saved account**. If the keyring cannot unlock the token, unlock the desktop keyring or use **Forget saved token**. The app does not fall back to plaintext storage. Disconnecting removes the saved token.
+
+## Find records
+
+Combine label, artist, a four-digit year, title, genres, styles and release types. Each multi-select matches any selected option within that field. Leave release type empty to include all types. Style suggestions follow selected genres; changing genres clears known incompatible styles. Newer styles missing from the bundled hierarchy can be entered explicitly.
+
+Submit **Search releases** to apply your filters. Browse sleeves, choose **Dig a random release**, then **Dig again**. Draft filter edits take effect on the next search. Reset digging starts a fresh session with the applied filters. You can also load a numeric Discogs release ID directly.
+
+Discogs search exposes up to the first 10,000 matching results. Narrow broad criteria to explore further. Seen release IDs and cached search pages stay in memory for the session.
+
+## Preview and download
+
+Every attached video has its own source row. **Discogs track** names the release track; **YouTube video** names the upload. Auto Digger matches unambiguous complete titles. Correct a suggestion or choose **Keep video title** when a source covers something different. Multiple videos can map to one track.
+
+Choose **Preview** to listen through the bottom player without adding a file or download entry. Preparing and buffering states explain the wait. Another preview replaces the current one, and you can stop it at any time.
+
+Choose **Download audio** to keep a source. The shared queue shows measured progress, conversion and tagging stages. Cancel or retry from the release or Downloads. **Download release** reviews source coverage, chooses one upload per track and lets you skip tracks. Gaps remain visible. Existing saved sources are reused.
+
+Private, removed or restricted sources show a readable error with **Check again**. yt-dlp, FFmpeg and FFprobe must be installed and available on `PATH`; update yt-dlp if extraction stops working.
+
+## Saved audio and the player
+
+Files initially live in the operating system's `Music/Auto Digger` folder, with names such as `Artist - Track [release-video].yt.mp3`. Downloads use best-effort Discogs artist, album, year, genre/style and matched-track tags, plus available front-cover artwork. Missing metadata leaves usable audio with a notice. **Update tags** can correct a saved assignment offline.
+
+The bottom bar plays local audio or the active preview, with play/pause, seeking and volume. Choosing another record or disconnecting Discogs keeps the current saved track playing. Use the download selector to reopen a saved track. If autoplay is blocked, press play. Use the folder button or **Show in folder** to find a track.
+
+**Downloads** is one searchable list. Missing MP3s remain visible beside healthy tracks and offer recovery actions. Keep versioned JSON sidecars alongside the MP3s; SQLite records metadata and file locations.
+
+## Crates and track picks
+
+Choose an active crate before saving a release. **Crates** lets you create and rename independent playlists, reopen saved records, mark individual tracks and save comma-separated personal tags. The same release can belong to several crates with different picks and tags.
+
+Reopening the app restores your active crate, including an intentionally empty one. Older profiles without a saved choice open a populated crate when available. Crate records, track marks and research notes live in the same local SQLite catalogue; the selected crate is a separate device preference.
+
+## Settings
+
+Open the cog at the right of the navigation bar. Choose Brushed aluminium, Ceramic, Slate, Graphite, Warm paper or Copper, with Blue, Teal, Amber, Coral, Sage, Lilac or Rose accents. Light, Dark and System modes are independent of the material.
+
+Choose a downloads destination and flat storage or a folder per release. These choices apply to future downloads; existing files retain their recorded locations. See [download settings and recovery](features/library-settings.md).
+
+## Backups and recovery
+
+The catalogue is `catalog.sqlite` in Electron's `userData` directory. The encrypted token is stored separately as `discogs-token.bin`; downloaded audio stays in its chosen folders. Close Auto Digger before backing up the database and any SQLite WAL/SHM companion files. Back up audio folders with their sidecars.
+
+Legacy `crate.json` data is validated, backed up to `crate.json.bak` and imported once. Unsupported or corrupt storage is preserved and reported. Do not delete the catalogue to recover a missing selection; check the active crate first.
+
+For a bug report, include your operating system, app version, steps to reproduce and the readable error. Remove tokens and private file paths from screenshots. Use [GitHub Issues](https://github.com/alexanderwanyoike/auto-digger/issues).

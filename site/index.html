@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Auto Digger | Discogs discovery and MCP mix research</title>
+    <meta
+      name="description"
+      content="Research a mix with your MCP client, verify the Discogs releases and build a crate with track picks and source notes. A desktop for finding records."
+    />
+    <meta name="theme-color" content="#101216" />
+    <link rel="canonical" href="https://alexanderwanyoike.github.io/auto-digger/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Auto Digger | Discogs discovery and MCP mix research" />
+    <meta
+      property="og:description"
+      content="Discogs discovery, a player for listening and crates for your next session. An open-source desktop preview."
+    />
+    <meta property="og:url" content="https://alexanderwanyoike.github.io/auto-digger/" />
+    <meta
+      property="og:image"
+      content="https://alexanderwanyoike.github.io/auto-digger/images/digging-desk.jpg"
+    />
+    <meta property="og:image:width" content="1440" />
+    <meta property="og:image:height" content="1000" />
+    <meta
+      property="og:image:alt"
+      content="Auto Digger's digging desk with a demo record, source previews and a named crate"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header wrap">
+      <a class="brand" href="#main" aria-label="Auto Digger home"
+        ><img src="icon.svg" alt="" width="32" height="32" />Auto Digger</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="#research">MCP</a><a href="#features">Features</a
+        ><a href="#get-started">Downloads</a
+        ><a href="https://github.com/alexanderwanyoike/auto-digger">GitHub</a>
+      </nav>
+    </header>
+    <main id="main" tabindex="-1">
+      <section class="hero wrap" aria-labelledby="hero-title">
+        <h1 id="hero-title">Auto Digger</h1>
+        <p class="lead">Music discovery with Discogs and MCP.</p>
+        <p class="description">
+          Research mixes with your AI client, find the original releases and save tracks to crates.
+          Browse Discogs and preview the records in a desktop app.
+        </p>
+        <div class="actions">
+          <a class="button" href="#get-started">Downloads</a
+          ><a href="https://github.com/alexanderwanyoike/auto-digger#quick-start"
+            >Run from source</a
+          >
+        </div>
+        <figure class="app-figure">
+          <img
+            src="images/digging-desk.jpg"
+            width="1440"
+            height="1000"
+            alt="Auto Digger with Discogs filters, a release, audio sources and a named crate"
+            fetchpriority="high"
+          />
+          <figcaption>Desktop preview with demo records.</figcaption>
+        </figure>
+      </section>
+      <section class="research wrap" id="research" aria-labelledby="research-title">
+        <div class="section-copy">
+          <h2 id="research-title">Mix research with MCP</h2>
+          <p>
+            Use a compatible MCP client such as Claude or Codex to research a mix, search Discogs
+            and add the releases to a crate. Mark the matching tracks and keep source links, tags
+            and unresolved candidates with the records.
+          </p>
+          <p>
+            Enable AI mix research in Settings and copy the client configuration. The app must stay
+            open. Your client handles the research; Auto Digger provides the Discogs and crate
+            tools.
+          </p>
+          <a
+            href="https://github.com/alexanderwanyoike/auto-digger/blob/main/docs/features/mix-research.md"
+            >MCP setup and tools</a
+          >
+        </div>
+        <figure class="app-figure">
+          <img
+            src="images/crates.jpg"
+            width="1440"
+            height="1000"
+            alt="An Auto Digger crate with saved releases, selected tracks and personal tags"
+            loading="lazy"
+          />
+          <figcaption>Crates and track picks.</figcaption>
+        </figure>
+      </section>
+      <section class="features wrap" id="features" aria-labelledby="features-title">
+        <h2 id="features-title">In the app</h2>
+        <dl>
+          <div>
+            <dt>Discogs discovery</dt>
+            <dd>
+              Filter by label, artist, year, genre, style and release type. Browse artwork or choose
+              a random match.
+            </dd>
+          </div>
+          <div>
+            <dt>Audio</dt>
+            <dd>
+              Preview available YouTube sources before downloading. Save tracks with Discogs tags
+              and artwork, then play them locally.
+            </dd>
+          </div>
+          <div>
+            <dt>Crates</dt>
+            <dd>
+              Save releases in named crates with track picks and personal tags. Search downloaded
+              tracks and open their folders.
+            </dd>
+          </div>
+          <div>
+            <dt>Appearance</dt>
+            <dd>
+              Six materials, seven accents and light or dark mode. Choose a download folder and flat
+              or per-release storage.
+            </dd>
+          </div>
+        </dl>
+      </section>
+      <section class="getting-started wrap" id="get-started" aria-labelledby="start-title">
+        <div class="download-heading">
+          <div>
+            <h2 id="start-title">Downloads</h2>
+            <p id="download-release-status" data-release-status>Installers are being prepared.</p>
+          </div>
+          <a href="https://github.com/alexanderwanyoike/auto-digger/releases"
+            >All releases <span aria-hidden="true">↗</span></a
+          >
+        </div>
+        <div class="platforms">
+          <article>
+            <div class="platform-name">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 4h8v7H3zM13 4h8v7h-8zM3 13h8v7H3zM13 13h8v7h-8z" />
+              </svg>
+              <div>
+                <h3>Windows</h3>
+                <p>x64 · .exe installer</p>
+              </div>
+            </div>
+            <div class="platform-actions">
+              <div data-download="windows-x64">
+                <button
+                  class="download-button"
+                  type="button"
+                  disabled
+                  aria-label="Windows x64 installer"
+                  aria-describedby="download-release-status"
+                >
+                  x64 <span aria-hidden="true">↓</span>
+                </button>
+              </div>
+            </div>
+          </article>
+          <article>
+            <div class="platform-name">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M9 7V5a2 2 0 1 0-2 2h10a2 2 0 1 0-2-2v14a2 2 0 1 0 2-2H7a2 2 0 1 0 2 2V7Z"
+                />
+              </svg>
+              <div>
+                <h3>macOS</h3>
+                <p>Apple silicon &amp; Intel · .dmg</p>
+              </div>
+            </div>
+            <div class="platform-actions">
+              <div data-download="macos-arm64">
+                <button
+                  class="download-button"
+                  type="button"
+                  disabled
+                  aria-label="macOS Apple silicon disk image"
+                  aria-describedby="download-release-status"
+                >
+                  Apple silicon <span aria-hidden="true">↓</span>
+                </button>
+              </div>
+              <div data-download="macos-x64">
+                <button
+                  class="download-button"
+                  type="button"
+                  disabled
+                  aria-label="macOS Intel disk image"
+                  aria-describedby="download-release-status"
+                >
+                  Intel <span aria-hidden="true">↓</span>
+                </button>
+              </div>
+            </div>
+          </article>
+          <article>
+            <div class="platform-name">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="m6 9 3 3-3 3m6 0h5" />
+              </svg>
+              <div>
+                <h3>Linux</h3>
+                <p>x64 · AppImage</p>
+              </div>
+            </div>
+            <div class="platform-actions">
+              <div data-download="linux-x64">
+                <button
+                  class="download-button"
+                  type="button"
+                  disabled
+                  aria-label="Linux x64 AppImage"
+                  aria-describedby="download-release-status"
+                >
+                  x64 <span aria-hidden="true">↓</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+        <div class="download-footer">
+          <a href="https://github.com/alexanderwanyoike/auto-digger#quick-start"
+            >Run from source <span aria-hidden="true">↗</span></a
+          >
+          <details class="requirements">
+            <summary>Requirements</summary>
+            <p>
+              Audio needs yt-dlp, FFmpeg, FFprobe and Node.js on PATH. MCP clients need Node.js 22
+              or newer.
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer wrap">
+      <span>Auto Digger</span>
+      <div>
+        <a href="https://github.com/alexanderwanyoike/auto-digger/issues">Issues</a
+        ><a href="https://github.com/alexanderwanyoike/auto-digger/blob/main/LICENSE"
+          >MIT licence</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>
