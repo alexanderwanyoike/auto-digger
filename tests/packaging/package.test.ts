@@ -62,7 +62,9 @@ test.skipIf(process.platform !== 'linux')(
       const status = await page.evaluate(async () => window.researchAccess?.status());
       if (!status?.ok || !status.value.enabled)
         throw new Error('Packaged research access unavailable');
-      expect(status.value.configuration.args[0]).toBe(join(resources, 'out/main/mcp.js'));
+      expect(status.value.configuration.args[0]).toBe(
+        join(await desktop.evaluate(({ app }) => app.getAppPath()), 'out/main/mcp.js'),
+      );
       await client.connect(new StdioClientTransport(status.value.configuration));
       expect(
         await client.callTool({ name: 'create_crate', arguments: { name: 'Package check' } }),
