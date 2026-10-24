@@ -56,3 +56,51 @@ import { _electron as electron, expect, test } from '@playwright/test';
     }
   });
 });
+
+test('connects and loads metadata through the isolated Discogs bridge', async () => {
+  const { identityResponse, releaseResponse } = await import('../discogsFixtures');
+  const environment = Object.fromEntries(
+    Object.entries(process.env).filter(
+      (entry): entry is [string, string] =>
+        typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
+    ),
+  );
+  const desktop = await electron.launch({
+    args: [`--user-data-dir=${test.info().outputPath('discogs-profile')}`, '.'],
+    env: environment,
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
+    await desktop.evaluate(
+      (_electron, fixtures) => {
+        globalThis.fetch = (input) => {
+          const url = input instanceof Request ? input.url : input.toString();
+          if (url.endsWith('/oauth/identity'))
+            return Promise.resolve(new Response(JSON.stringify(fixtures.identityResponse)));
+          if (url.endsWith('/releases/12'))
+            return Promise.resolve(new Response(JSON.stringify(fixtures.releaseResponse)));
+          return Promise.resolve(new Response('{}', { status: 404 }));
+        };
+      },
+      { identityResponse, releaseResponse },
+    );
+    const account = await page.evaluate(async () => window.discogs?.connect('test-session-token'));
+    expect(account).toEqual({ ok: true, value: identityResponse });
+    const release = await page.evaluate(async () => window.discogs?.loadRelease(12));
+    expect(release?.ok).toBe(true);
+    if (release?.ok) expect(release.value.title).toBe('Quiet Orbit EP');
+    expect(JSON.stringify(release)).not.toContain('test-session-token');
+    expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
+    expect(await page.evaluate(async () => window.discogs?.disconnect())).toEqual({
+      ok: true,
+      value: undefined,
+    });
+    expect(await page.evaluate(async () => window.discogs?.account())).toEqual({
+      ok: true,
+      value: null,
+    });
+  } finally {
+    await desktop.close();
+  }
+});
