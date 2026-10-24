@@ -27,7 +27,7 @@ import { loadedRelease } from '../discogsFixtures';
         const index = Number(/fixture-(\d)/.exec(route.request().url())?.[1] ?? 0);
         await route.fulfill({
           contentType: 'image/svg+xml',
-          body: `<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280"><rect width="280" height="280" fill="${palette[index] ?? palette[0]}"/><circle cx="160" cy="120" r="78" fill="none" stroke="#e0d8c4" stroke-width="2"/><path d="M30 230h220M30 242h100" stroke="#e0d8c4" stroke-width="4"/></svg>`,
+          body: `<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280"><rect width="280" height="280" fill="${palette[index] ?? '#344e55'}"/><circle cx="160" cy="120" r="78" fill="none" stroke="#e0d8c4" stroke-width="2"/><path d="M30 230h220M30 242h100" stroke="#e0d8c4" stroke-width="4"/></svg>`,
         });
       });
       await page.evaluate(
