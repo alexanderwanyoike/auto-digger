@@ -14,6 +14,10 @@ interface Entry {
   job: DownloadJob;
   controller?: AbortController;
 }
+function sourceKey(input: Pick<DownloadInput, 'release' | 'videoIndex'>): string | null {
+  const id = videoId(input.release.videos[input.videoIndex]?.url ?? '');
+  return id ? `${input.release.id.toString()}-${id}` : null;
+}
 export function createDownloadJobs(
   execute: (input: DownloadInput, options: DownloadOptions) => Promise<AudioResult<LocalTrack>>,
 ) {
@@ -56,6 +60,12 @@ export function createDownloadJobs(
         running = undefined;
       });
   }
+  const pendingKeys = () =>
+    new Set(
+      entries
+        .filter((entry) => !terminal.has(entry.job.stage))
+        .map((entry) => sourceKey(entry.input)),
+    );
   const pending = () => entries.filter((entry) => !terminal.has(entry.job.stage)).length;
   return {
     list(): AudioResult<DownloadJob[]> {
@@ -72,19 +82,11 @@ export function createDownloadJobs(
         return audioFailure('invalid-input', 'Choose between 1 and 100 audio sources.');
       if (pending() + parsed.data.length > 100)
         return audioFailure('busy', 'The download queue is full. Let some tracks finish first.');
-      const keys = new Set(
-        entries
-          .filter((entry) => !terminal.has(entry.job.stage))
-          .map(
-            (entry) =>
-              `${entry.input.release.id.toString()}-${videoId(entry.input.release.videos[entry.input.videoIndex]?.url ?? '') ?? ''}`,
-          ),
-      );
+      const keys = pendingKeys();
       const valid = parsed.data.every(({ release, videoIndex, trackIndex }) => {
-        const source = videoId(release.videos[videoIndex]?.url ?? '');
-        const key = `${release.id.toString()}-${source ?? ''}`;
+        const key = sourceKey({ release, videoIndex });
         if (
-          !source ||
+          !key ||
           keys.has(key) ||
           (typeof trackIndex === 'number' && !release.tracks[trackIndex])
         )
@@ -145,16 +147,7 @@ export function createDownloadJobs(
       const entry = entries.find((item) => item.job.id === id);
       if (!entry || !['failed', 'cancelled'].includes(entry.job.stage))
         return audioFailure('invalid-input', 'Choose a failed or cancelled download to retry.');
-      if (
-        entries.some(
-          (other) =>
-            other !== entry &&
-            !terminal.has(other.job.stage) &&
-            other.input.release.id === entry.input.release.id &&
-            videoId(other.input.release.videos[other.input.videoIndex]?.url ?? '') ===
-              videoId(entry.input.release.videos[entry.input.videoIndex]?.url ?? ''),
-        )
-      )
+      if (pendingKeys().has(sourceKey(entry.input)))
         return audioFailure(
           'busy',
           'This source already has an active or queued download. Wait for it before retrying.',
