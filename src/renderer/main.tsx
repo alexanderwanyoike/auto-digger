@@ -23,6 +23,7 @@ import './styles/materials.css';
 import './styles/queue.css';
 import './styles/library.css';
 import './styles/research.css';
+import './styles/appearanceSettings.css';
 
 const container = document.getElementById('root');
 

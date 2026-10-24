@@ -18,7 +18,8 @@
   --blue-soft: #443825;
   --blue-on: #2e2413;
 }
-:root[data-material='ceramic'] {
+:root[data-material='ceramic'],
+.material-thumbnail[data-material='ceramic'] {
   --surface: #f7f5f0;
   --surface-raised: #fdfcf9;
   --surface-inset: #eeece5;
@@ -26,7 +27,8 @@
   --metal-bottom: #f0ede6;
   --line: #d9d5cc;
 }
-:root[data-theme='dark'][data-material='ceramic'] {
+:root[data-theme='dark'][data-material='ceramic'],
+:root[data-theme='dark'] .material-thumbnail[data-material='ceramic'] {
   --surface: #282724;
   --surface-raised: #302f2b;
   --surface-inset: #22211f;
@@ -34,7 +36,8 @@
   --metal-bottom: #292824;
   --line: #45423b;
 }
-:root[data-material='slate'] {
+:root[data-material='slate'],
+.material-thumbnail[data-material='slate'] {
   --surface: #edf1f4;
   --surface-raised: #f8fafb;
   --surface-inset: #e5eaee;
@@ -42,7 +45,8 @@
   --metal-bottom: #dce4e9;
   --line: #cbd6dd;
 }
-:root[data-theme='dark'][data-material='slate'] {
+:root[data-theme='dark'][data-material='slate'],
+:root[data-theme='dark'] .material-thumbnail[data-material='slate'] {
   --surface: #1e2931;
   --surface-raised: #27343e;
   --surface-inset: #19242b;
@@ -52,11 +56,6 @@
 }
 :root:not([data-material='aluminium']) .app-header {
   background: linear-gradient(var(--metal-top), var(--metal-bottom));
-}
-.settings-choices {
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
 }
 .settings-select {
   min-width: 150px;
