@@ -45,3 +45,33 @@ test('shows official player events, retries errors and destroys replaced players
   view.unmount();
   expect(destroy).toHaveBeenCalledTimes(3);
 });
+
+test('keeps a timed-out attempt failed when late ready and playing events arrive', async () => {
+  vi.useFakeTimers();
+  const destroy = vi.fn();
+  let options: YouTubeOptions | undefined;
+  vi.stubGlobal('YT', {
+    Player: vi.fn(function createPlayer(_element: HTMLElement, configuration: YouTubeOptions) {
+      options = configuration;
+      return { destroy, pauseVideo: vi.fn() };
+    }),
+  });
+  const view = render(
+    <YouTubePlayer videos={[{ title: 'Late video', url: 'https://youtu.be/abcdefghijk' }]} />,
+  );
+  await act(async () => {
+    await Promise.resolve();
+  });
+  act(() => {
+    vi.advanceTimersByTime(15000);
+  });
+  expect(screen.getByRole('alert')).toHaveTextContent('did not become ready');
+  act(() => {
+    options?.events.onReady();
+    options?.events.onStateChange({ data: 1 });
+  });
+  expect(screen.getByRole('status')).toHaveTextContent('Playback unavailable');
+  expect(destroy).toHaveBeenCalledTimes(1);
+  view.unmount();
+  vi.useRealTimers();
+});
