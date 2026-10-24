@@ -82,3 +82,33 @@ test('keeps a long mix seekable beyond one hour while respecting source expiry',
   clock.mockReturnValue(now + 7 * 60 * 60 * 1000);
   expect((await session.serve(new Request(started.value.url))).status).toBe(404);
 });
+
+test('revokes an already open preview stream when its session expires', async () => {
+  vi.useFakeTimers();
+  const fetchMedia = vi.fn<typeof fetch>().mockResolvedValue(
+    new Response(
+      new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new Uint8Array([1]));
+        },
+      }),
+    ),
+  );
+  const session = createPreviewSession(
+    () => Promise.resolve({ ok: true, value: source }),
+    fetchMedia,
+  );
+  try {
+    const started = await session.start({ release: loadedRelease, videoIndex: 0 });
+    if (!started.ok) throw new Error('Expected preview');
+    await session.serve(new Request(started.value.url));
+    const signal = fetchMedia.mock.calls[0]?.[1]?.signal;
+    expect(signal?.aborted).toBe(false);
+    await vi.advanceTimersByTimeAsync(6 * 60 * 60 * 1000);
+    expect(signal?.aborted).toBe(true);
+    expect((await session.serve(new Request(started.value.url))).status).toBe(404);
+  } finally {
+    session.stop();
+    vi.useRealTimers();
+  }
+});
