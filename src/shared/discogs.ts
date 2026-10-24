@@ -20,6 +20,7 @@ export const discogsErrorSchema = z.object({
     'unavailable',
     'cancelled',
     'exhausted',
+    'credential-storage',
   ]),
   message: z.string(),
 });
