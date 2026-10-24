@@ -94,5 +94,11 @@ export function createDigger(search: Search, load: Load, random = Math.random) {
     }
     return draw(filters, started, 10);
   }
-  return { next, reset };
+  return {
+    next,
+    reset,
+    apply: (filters: DigFilters) => {
+      if (JSON.stringify(filters) !== key) reset();
+    },
+  };
 }

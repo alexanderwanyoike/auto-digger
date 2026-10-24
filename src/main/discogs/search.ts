@@ -1,8 +1,6 @@
 import { z } from 'zod';
-import { searchInputSchema } from '../../shared/search';
+import type { searchInputSchema, SearchPage } from '../../shared/search';
 import type { DiscogsResult } from '../../shared/discogs';
-import type { SearchPage } from '../../shared/search';
-import { discogsFailure } from '../../shared/discogsFailure';
 import { requestDiscogs } from './request';
 
 const responseSchema = z
@@ -38,17 +36,11 @@ const responseSchema = z
   }));
 
 export async function searchDiscogs(
-  input: unknown,
+  input: z.infer<typeof searchInputSchema>,
   token: string,
   request: typeof fetch,
 ): Promise<DiscogsResult<SearchPage>> {
-  const parsed = searchInputSchema.safeParse(input);
-  if (!parsed.success)
-    return discogsFailure(
-      'invalid-input',
-      'Use a four-digit year and filters of at most 160 characters.',
-    );
-  const { filters, page } = parsed.data;
+  const { filters, page } = input;
   const query = new URLSearchParams({
     type: 'release',
     format: 'EP',

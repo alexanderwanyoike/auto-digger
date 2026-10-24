@@ -7,6 +7,7 @@ import type { DiscogsAccount, DiscogsRelease, DiscogsResult } from '../../shared
 import { releaseMetadataSchema } from './releaseMetadata';
 import { requestDiscogs } from './request';
 import { searchDiscogs } from './search';
+import { searchInputSchema } from '../../shared/search';
 import type { SearchPage } from '../../shared/search';
 
 export function createDiscogsSession(request: typeof fetch = (input, init) => fetch(input, init)) {
@@ -54,10 +55,17 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       if (!acceptedToken)
         return discogsFailure('unauthorized', 'Connect your Discogs account first.');
       const started = revision;
-      const result = await searchDiscogs(input, acceptedToken, request);
+      const parsed = searchInputSchema.safeParse(input);
+      if (!parsed.success)
+        return discogsFailure(
+          'invalid-input',
+          'Use a four-digit year and filters of at most 160 characters.',
+        );
+      const result = await searchDiscogs(parsed.data, acceptedToken, request);
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();
+      if (result.ok) digger.apply(parsed.data.filters);
       return result;
     },
     async loadRelease(id: unknown): Promise<DiscogsResult<DiscogsRelease>> {
