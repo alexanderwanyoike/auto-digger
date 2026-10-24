@@ -27,6 +27,13 @@ export function ConnectionDialog({ session, onClose }: ConnectionDialogProps) {
     const result = await session.connect(typeof token === 'string' ? token : '');
     if (result.ok) onClose();
   }
+  async function reconnect() {
+    setFormError(null);
+    const result = await session.reconnect();
+    if (result.ok && result.value) onClose();
+    else if (result.ok)
+      setFormError('No saved token was found. Enter your token once to remember this account.');
+  }
   async function disconnect() {
     const result = await session.disconnect();
     if (result.ok) onClose();
@@ -64,7 +71,7 @@ export function ConnectionDialog({ session, onClose }: ConnectionDialogProps) {
           <p>
             Connected as <strong>{session.account.username}</strong>.
           </p>
-          <p>Your token will be cleared when you disconnect.</p>
+          <p>This account reconnects automatically. Disconnect forgets the saved token.</p>
           <button
             type="button"
             disabled={session.busy}
@@ -82,6 +89,28 @@ export function ConnectionDialog({ session, onClose }: ConnectionDialogProps) {
             connect(event).catch(unexpected);
           }}
         >
+          <div className="saved-account-actions">
+            <button
+              type="button"
+              className="secondary-button"
+              disabled={session.busy}
+              onClick={() => {
+                reconnect().catch(unexpected);
+              }}
+            >
+              Reconnect saved account
+            </button>
+            <button
+              type="button"
+              className="text-button"
+              disabled={session.busy}
+              onClick={() => {
+                disconnect().catch(unexpected);
+              }}
+            >
+              Forget saved token
+            </button>
+          </div>
           <p>Generate a personal token in Discogs under Settings → Developers.</p>
           <button
             type="button"
@@ -105,7 +134,9 @@ export function ConnectionDialog({ session, onClose }: ConnectionDialogProps) {
               disabled={session.busy}
             />
           </label>
-          <p className="token-note">Kept in memory until you disconnect or quit.</p>
+          <p className="token-note">
+            Saved using this device’s credential encryption and restored on launch.
+          </p>
           <button type="submit" className="primary-button" disabled={session.busy}>
             {session.busy ? 'Connecting…' : 'Connect account'}
           </button>

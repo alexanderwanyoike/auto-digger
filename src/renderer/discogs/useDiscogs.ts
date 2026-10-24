@@ -19,6 +19,13 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
   const [busy, setBusy] = useState(Boolean(bridge));
   const [error, setError] = useState<DiscogsError | null>(null);
 
+  const clearSession = () => {
+    setDigging(null);
+    setMatches(null);
+    setFilters(null);
+    setAccount(null);
+    setRelease(null);
+  };
   useEffect(() => {
     if (!bridge) return undefined;
     let active = true;
@@ -65,11 +72,7 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
     else {
       setError(result.error);
       if (result.error.code === 'unauthorized') {
-        setDigging(null);
-        setMatches(null);
-        setFilters(null);
-        setAccount(null);
-        setRelease(null);
+        clearSession();
       }
     }
     setBusy(false);
@@ -124,17 +127,11 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
       setRelease(null);
       return perform((api) => api.loadRelease(id), setRelease);
     },
-    disconnect: () =>
-      perform(
-        (api) => api.disconnect(),
-        () => {
-          setDigging(null);
-          setMatches(null);
-          setFilters(null);
-          setAccount(null);
-          setRelease(null);
-        },
-      ),
+    reconnect: () => perform((api) => api.account(), setAccount),
+    disconnect: () => {
+      clearSession();
+      return perform((api) => api.disconnect());
+    },
     openSettings: () => perform((api) => api.openSettings()),
   };
 }
