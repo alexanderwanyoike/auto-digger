@@ -25,3 +25,16 @@ test('persists whole EPs across store instances, preserves order and prevents du
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('serializes concurrent saves so no EP is lost', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-crate-'));
+  try {
+    const store = createCrateStore(join(directory, 'crate.json'));
+    const releases = Array.from({ length: 8 }, (_, index) => ({ ...loadedRelease, id: index + 1 }));
+    const results = await Promise.all(releases.map((release) => store.save(release)));
+    expect(results.every((result) => result.ok)).toBe(true);
+    expect(await store.list()).toEqual({ ok: true, value: releases });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
