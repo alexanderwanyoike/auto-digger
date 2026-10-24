@@ -24,7 +24,7 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
       connection.exec(result.ok ? 'COMMIT' : 'ROLLBACK');
       return result;
     } catch {
-      if (connection.isOpen && connection.isTransaction) {
+      if (connection.isTransaction) {
         try {
           connection.exec('ROLLBACK');
         } catch {

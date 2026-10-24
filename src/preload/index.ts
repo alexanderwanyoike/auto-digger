@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { createCrateBridge } from './crateBridge';
 import { createDiscogsBridge } from './bridge';
 import { createCatalogueBridge } from './catalogueBridge';
+import { createAudioBridge } from './audioBridge';
 
 contextBridge.exposeInMainWorld(
   'catalogue',
@@ -10,7 +11,6 @@ contextBridge.exposeInMainWorld(
     return result;
   }),
 );
-import { createAudioBridge } from './audioBridge';
 
 contextBridge.exposeInMainWorld(
   'audioLibrary',

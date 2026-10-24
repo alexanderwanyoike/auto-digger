@@ -30,7 +30,7 @@ test('migrates the crate and persists named crate track annotations through isol
       async (release) => {
         const created = await window.catalogue?.create('H-Foundation picks');
         if (!created?.ok || !created.value.crateId) throw new Error('No crate');
-        const crateId = created.value.crateId;
+        const { crateId } = created.value;
         const added = await window.catalogue?.add({ crateId, release });
         if (!added?.ok) throw new Error('No release');
         const track = added.value.entries[0]?.tracks[0];
