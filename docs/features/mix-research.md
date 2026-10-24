@@ -4,7 +4,7 @@ An MCP client such as Codex or Claude researches a mix, identifies its recording
 
 ## Workflow
 
-1. Enable research access in Settings and copy the client configuration. Access starts disabled and ends on disable or app exit. No host configuration is changed automatically.
+1. Enable MCP in Settings and copy the client configuration. Access starts disabled and ends on disable or app exit. No host configuration is changed automatically.
 2. The host identifies the requested mix and its tracklist from source evidence. Search Discogs across all formats, then inspect specific release IDs. Ordinary random digging uses the selected release types and keeps its applied filters/history independent.
 3. Prefer original single/EP releases while preserving exact mix/version identity and alternatives. Add releases using IDs fetched through the app's authenticated Discogs session. Arbitrary client-supplied release snapshots are rejected.
 4. Read stable track keys, pick the matching tracks and set personal tags within the chosen crate. Updates appear in the open app without switching the user's active crate.

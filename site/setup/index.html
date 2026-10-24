@@ -76,8 +76,8 @@ open "/Applications/Auto Digger.app"</code></pre>
           <h2 id="mcp-title">Connect your AI assistant</h2>
           <p>This lets your assistant find the records in a mix and save them to a crate.</p>
           <p>
-            Open <strong>Settings → AI mix research</strong> in Auto Digger and choose
-            <strong>Enable research access</strong>. Then follow the steps for your assistant below.
+            Open <strong>Settings → Auto Digger MCP</strong> in Auto Digger and choose
+            <strong>Enable MCP</strong>. Then follow the steps for your assistant below.
           </p>
           <p>
             Set this up once on the same computer. Keep Auto Digger open while using it. No separate
@@ -88,7 +88,7 @@ open "/Applications/Auto Digger.app"</code></pre>
           <h2 id="claude-desktop-title">Claude Desktop</h2>
           <ol>
             <li>
-              In Auto Digger, choose <strong>Save Claude extension</strong>. Save the file in
+              In Auto Digger, choose <strong>Save Auto Digger MCP</strong>. Save the file in
               Downloads.
             </li>
             <li>
@@ -98,7 +98,7 @@ open "/Applications/Auto Digger.app"</code></pre>
             </li>
             <li>
               Choose <strong>Install Extension</strong>, select
-              <strong>Auto Digger.mcpb</strong> from Downloads and follow the prompts.
+              <strong>Auto Digger MCP.mcpb</strong> from Downloads and follow the prompts.
             </li>
           </ol>
           <p>
@@ -123,16 +123,17 @@ open "/Applications/Auto Digger.app"</code></pre>
           <h2 id="codex-title">Codex</h2>
           <ol>
             <li>
-              In Auto Digger, expand <strong>Codex and other local clients</strong> and select
-              <strong>Codex TOML configuration</strong>.
+              In Auto Digger, expand <strong>Codex and other local clients</strong> to see the setup
+              fields.
             </li>
             <li>
               In Codex, open <strong>Settings → MCP servers → Add server</strong>. Name it
               <code>auto_digger</code> and choose <strong>STDIO</strong>.
             </li>
             <li>
-              Copy the displayed <code>command</code> into Command. Add each item in
-              <code>args</code> as a separate argument, without the surrounding quotes.
+              Copy <strong>Command</strong>, then <strong>Argument 1</strong>,
+              <strong>Argument 2</strong> and <strong>Argument 3</strong> into the matching fields.
+              The values are ready to paste.
             </li>
             <li>
               Add the environment variable <code>ELECTRON_RUN_AS_NODE</code> with value
@@ -206,8 +207,8 @@ env = { ELECTRON_RUN_AS_NODE = "1" }</code></pre>
             <div>
               <dt>My assistant cannot connect</dt>
               <dd>
-                Open Auto Digger and choose <strong>Enable research access</strong>. Do this each
-                time you reopen the app. Restart your assistant if its tools have not appeared.
+                Open Auto Digger and choose <strong>Enable MCP</strong>. Do this each time you
+                reopen the app. Restart your assistant if its tools have not appeared.
               </dd>
             </div>
             <div>

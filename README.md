@@ -102,9 +102,9 @@ Auto Digger lets Claude or Codex research a mix and save its records to a crate.
 
 ### Claude Desktop
 
-1. In Auto Digger, open **Settings → AI mix research** and choose **Enable research access**.
-2. Choose **Save Claude extension** and save the file in Downloads.
-3. In Claude Desktop, open **Settings → Desktop app**, choose **Manage** beside **Extensions**, then **Advanced settings → Install Extension**. Select the saved **Auto Digger.mcpb** file and follow the prompts.
+1. In Auto Digger, open **Settings → Auto Digger MCP** and choose **Enable MCP**.
+2. Choose **Save Auto Digger MCP** and save the file in Downloads.
+3. In Claude Desktop, open **Settings → Desktop app**, choose **Manage** beside **Extensions**, then **Advanced settings → Install Extension**. Select the saved **Auto Digger MCP.mcpb** file and follow the prompts.
 
 On Linux, use Claude Desktop's official beta for Ubuntu 22.04+ or Debian 12+. Install the file through Claude's settings using the steps above. [Linux installation help](https://support.claude.com/en/articles/10065433-install-claude-desktop).
 
@@ -112,8 +112,8 @@ No terminal commands, configuration files or separate Node installation are need
 
 ### Codex
 
-1. In Auto Digger's research settings, expand **Codex and other local clients** and select **Codex TOML configuration**.
-2. In Codex, open **Settings → MCP servers → Add server** and choose **STDIO**. Copy the displayed `command` into Command. Copy each item in `args` into its own argument field, without the surrounding quotes.
+1. In Auto Digger's research settings, expand **Codex and other local clients** to see the setup fields.
+2. In Codex, open **Settings → MCP servers → Add server** and choose **STDIO**. Copy **Command**, then **Argument 1**, **Argument 2** and **Argument 3** into the matching fields. The values are ready to paste.
 3. Add the environment variable **ELECTRON_RUN_AS_NODE** with value **1**, then save and restart Codex.
 
 The command uses Auto Digger's included runtime. You do not need to install Node for MCP.
@@ -139,7 +139,7 @@ Keep Auto Digger open and ask: **Use Auto Digger to list my crates.** Then try:
 
 Connect Discogs in Auto Digger for release searches. Your assistant researches the sources; Auto Digger verifies Discogs metadata and saves the results. Review the picks and uncertain matches in **Crates**.
 
-Each time you reopen Auto Digger, choose **Enable research access** again. Connected assistants can read and edit your crates until you disable access or close the app. Keep your Discogs token in Auto Digger. If you move the app, copy fresh Codex configuration. The [setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#mcp) includes troubleshooting.
+Each time you reopen Auto Digger, choose **Enable MCP** again. Connected assistants can read and edit your crates until you disable access or close the app. Keep your Discogs token in Auto Digger. If you move the app, copy fresh Codex configuration. The [setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#mcp) includes troubleshooting.
 
 ## Development
 
