@@ -11,6 +11,7 @@ test('opens a digging desk with honest empty states and inactive upcoming featur
   expect(screen.getByRole('heading', { name: 'Your crate' })).toBeInTheDocument();
   expect(screen.getByText('Discogs not connected')).toBeInTheDocument();
   expect(screen.getByText('No records saved yet.')).toBeInTheDocument();
+  expect(screen.getByLabelText('0 saved releases')).toBeInTheDocument();
   expect(screen.getByLabelText('Label')).toBeDisabled();
   expect(screen.getByLabelText('Artist')).toBeDisabled();
   expect(screen.getByLabelText('Year')).toBeDisabled();
