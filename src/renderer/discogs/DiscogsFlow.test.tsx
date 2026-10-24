@@ -36,6 +36,7 @@ test('connects, clears the submitted token, shows release metadata and disconnec
   await user.click(screen.getByRole('button', { name: 'Connect account' }));
   await screen.findByRole('button', { name: 'Connected as quiet-digger' });
   expect(screen.queryByLabelText('Personal token')).not.toBeInTheDocument();
+  expect(screen.getByText('Connected for this session.')).toBeInTheDocument();
   expect(bridge.connect).toHaveBeenCalledWith('private-token');
   await user.type(screen.getByLabelText('Discogs release ID'), '12');
   await user.click(screen.getByRole('button', { name: 'Load release' }));
