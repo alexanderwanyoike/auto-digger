@@ -1,4 +1,5 @@
 import { _electron as electron, expect, test } from '@playwright/test';
+import { resolve } from 'node:path';
 import { youtubeApiFixture } from '../youtubeApiFixture';
 
 [900, 1180].forEach((width) => {
@@ -10,7 +11,10 @@ import { youtubeApiFixture } from '../youtubeApiFixture';
       ),
     );
     const desktop = await electron.launch({
-      args: [`--user-data-dir=${test.info().outputPath('profile')}`, '.'],
+      args: [
+        resolve('tests/encryptedDesktop.cjs'),
+        `--user-data-dir=${test.info().outputPath('profile')}`,
+      ],
       env: environment,
     });
     try {
@@ -75,7 +79,10 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     ),
   );
   const desktop = await electron.launch({
-    args: [`--user-data-dir=${test.info().outputPath('discogs-profile')}`, '.'],
+    args: [
+      resolve('tests/encryptedDesktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('discogs-profile')}`,
+    ],
     env: environment,
   });
   try {

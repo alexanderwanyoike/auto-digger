@@ -1,4 +1,5 @@
 import { _electron as electron, expect, test } from '@playwright/test';
+import { resolve } from 'node:path';
 import type { ElectronApplication, Page } from '@playwright/test';
 import { identityResponse, releaseResponse } from '../discogsFixtures';
 import { youtubeApiFixture } from '../youtubeApiFixture';
@@ -10,7 +11,10 @@ function launch(profile: string) {
         typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
     ),
   );
-  return electron.launch({ args: [`--user-data-dir=${profile}`, '.'], env: environment });
+  return electron.launch({
+    args: [resolve('tests/encryptedDesktop.cjs'), `--user-data-dir=${profile}`],
+    env: environment,
+  });
 }
 async function playerFixture(page: Page) {
   await page.route('https://www.youtube.com/iframe_api', async (route) => {
@@ -57,6 +61,8 @@ test('keeps a whole EP after restart, reopens it disconnected and persists remov
     await page.getByRole('button', { name: 'Load release', exact: true }).click();
     await page.getByRole('button', { name: 'Save EP to crate', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Saved to crate', exact: true })).toBeDisabled();
+    await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).click();
+    await page.getByRole('button', { name: 'Disconnect', exact: true }).click();
     await desktop.close();
     desktop = await launch(profile);
     page = await desktop.firstWindow();

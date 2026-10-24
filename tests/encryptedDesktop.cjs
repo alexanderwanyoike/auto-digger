@@ -1,4 +1,6 @@
 const { safeStorage, app } = require('electron');
+const { pathToFileURL } = require('node:url');
+const { resolve } = require('node:path');
 const { createHash, createCipheriv, createDecipheriv, randomBytes } = require('node:crypto');
 
 const key = createHash('sha256').update('auto-digger synthetic credential fixture').digest();
@@ -22,7 +24,7 @@ if (process.env.AUTO_DIGGER_TEST_IDENTITY === '1') {
   globalThis.fetch = () =>
     Promise.resolve(new Response(JSON.stringify({ id: 42, username: 'quiet-digger' })));
 }
-import('../out/main/index.js').catch(() => {
+import(pathToFileURL(resolve(__dirname, '../out/main/index.js')).href).catch(() => {
   process.stderr.write('Could not start the credential test fixture.\n');
   app.exit(1);
 });
