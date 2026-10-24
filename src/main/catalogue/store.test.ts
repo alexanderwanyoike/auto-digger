@@ -272,3 +272,21 @@ test('marks identical unnamed tracks independently', async () => {
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('preserves a malformed existing SQLite schema without creating missing tables', async () => {
+  const { DatabaseSync } = await import('node:sqlite');
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-catalogue-'));
+  const file = join(directory, 'catalog.sqlite');
+  const database = new DatabaseSync(file);
+  database.exec('CREATE TABLE crates(id TEXT PRIMARY KEY); PRAGMA user_version=1');
+  database.close();
+  const original = await readFile(file);
+  const store = createCatalogueStore(file);
+  try {
+    expect((await store.view()).ok).toBe(false);
+    expect(await readFile(file)).toEqual(original);
+  } finally {
+    await store.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
