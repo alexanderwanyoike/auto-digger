@@ -93,20 +93,38 @@ async function expectPanelEnds(panel: Locator, heading: string, footer: string) 
       await page.evaluate(async () => {
         await document.fonts.ready;
       });
+      const filters = page.getByRole('complementary', { name: 'The starting point' });
+      const filterViewport = filters.locator('.desk-panel-scroll');
+      if (height > 900) {
+        const content = await filterViewport.evaluate((element) => ({
+          height: element.clientHeight,
+          contentHeight: element.scrollHeight,
+        }));
+        expect(content.contentHeight, 'Filter form fits without scrolling').toBeLessThanOrEqual(
+          content.height,
+        );
+        await expect(filters.locator('.phase-note')).toBeInViewport({ ratio: 1 });
+      }
+      await expect(filterViewport).toHaveCSS('scrollbar-width', 'none');
       await page.getByLabel('Year', { exact: true }).fill('2002');
       await page.getByLabel('Genre', { exact: true }).fill('Electronic');
       await page.getByRole('option', { name: 'Electronic', exact: true }).click();
       await page.getByLabel('Style', { exact: true }).fill('Acid House');
       await page.getByRole('option', { name: 'Acid House', exact: true }).click();
       await page.getByLabel('Style', { exact: true }).press('Escape');
-      const filters = page.getByRole('complementary', { name: 'The starting point' });
       const crate = page.getByRole('complementary', { name: 'Your crate' });
       const filterFooter = 'Account remembered on this device.';
       const crateFooter = 'Records, saved on this device.';
       await expectPanelEnds(filters, 'The starting point', filterFooter);
       await expectPanelEnds(crate, 'Your crate', crateFooter);
       await filters.getByRole('button', { name: 'Search EPs', exact: true }).focus();
+      await expect(filters.getByRole('button', { name: 'Search EPs', exact: true })).toBeInViewport(
+        { ratio: 1 },
+      );
       await expectPanelEnds(filters, 'The starting point', filterFooter);
+      await filterViewport.hover();
+      await page.mouse.wheel(0, -1000);
+      await expect(filters.getByLabel('Label', { exact: true })).toBeInViewport({ ratio: 1 });
       await filters.getByText(filterFooter, { exact: true }).scrollIntoViewIfNeeded();
       await expectPanelEnds(filters, 'The starting point', filterFooter);
       await page.screenshot({ path: `test-results/panel-ends-${width.toString()}-empty.png` });
