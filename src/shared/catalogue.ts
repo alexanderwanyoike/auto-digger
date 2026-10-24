@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { releaseSchema } from './discogs';
 import type { CrateError } from './crate';
 import type { Result } from './result';
+import type { DiscogsRelease } from './discogs';
 
 export const crateSummarySchema = z.object({
   id: z.string(),
@@ -36,3 +37,28 @@ export const catalogueViewSchema = z.object({
 });
 export type CatalogueView = z.infer<typeof catalogueViewSchema>;
 export type CatalogueResult<T> = Result<T, CrateError>;
+export type CatalogueViewResult = CatalogueResult<CatalogueView>;
+export interface CatalogueBridge {
+  view: (crateId?: string) => Promise<CatalogueViewResult>;
+  create: (name: string) => Promise<CatalogueViewResult>;
+  rename: (input: { crateId: string; name: string }) => Promise<CatalogueViewResult>;
+  deleteCrate: (crateId: string) => Promise<CatalogueViewResult>;
+  add: (input: { crateId: string; release: DiscogsRelease }) => Promise<CatalogueViewResult>;
+  remove: (input: { crateId: string; releaseId: number }) => Promise<CatalogueViewResult>;
+  annotate: (input: {
+    crateId: string;
+    releaseId: number;
+    trackKey: string;
+    picked: boolean;
+    tags: string[];
+  }) => Promise<CatalogueViewResult>;
+}
+export const catalogueChannels = {
+  view: 'catalogue:view',
+  create: 'catalogue:create',
+  rename: 'catalogue:rename',
+  deleteCrate: 'catalogue:delete',
+  add: 'catalogue:add',
+  remove: 'catalogue:remove',
+  annotate: 'catalogue:annotate',
+} as const;

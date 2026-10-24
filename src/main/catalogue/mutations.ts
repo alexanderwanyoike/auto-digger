@@ -6,6 +6,7 @@ import type { CatalogueResult, CatalogueView } from '../../shared/catalogue';
 import { catalogueFailure } from '../../shared/catalogueFailure';
 import { readCatalogueView } from './readView';
 import { personalTagsSchema } from '../../shared/catalogue';
+
 const annotationSchema = z.object({
   crateId: z.string(),
   releaseId: z.number().int().positive(),

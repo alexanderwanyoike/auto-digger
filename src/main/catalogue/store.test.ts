@@ -50,7 +50,7 @@ test('keeps named crates independent, accepts albums and preserves unique releas
   try {
     const created = await store.create('H-Foundation picks');
     if (!created.ok || !created.value.crateId) throw new Error('Expected a named crate');
-    const crateId = created.value.crateId;
+    const {crateId} = created.value;
     const album = { ...loadedRelease, formats: ['CD, Album, Mixed'] };
     expect(await store.add({ crateId, release: album })).toMatchObject({
       ok: true,
@@ -98,7 +98,7 @@ test('persists independent track picks and personal tags per crate without chang
     await store.add({ crateId: 'default', release: loadedRelease });
     const other = await store.create('Warm-up');
     if (!other.ok || !other.value.crateId) throw new Error('Expected another crate');
-    const crateId = other.value.crateId;
+    const {crateId} = other.value;
     const added = await store.add({ crateId, release: loadedRelease });
     if (!added.ok) throw new Error('Expected saved release');
     const track = added.value.entries[0]?.tracks[0];

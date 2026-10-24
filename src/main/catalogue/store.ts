@@ -1,9 +1,9 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { catalogueFailure } from '../../shared/catalogueFailure';
 import type { CatalogueResult, CatalogueView } from '../../shared/catalogue';
 import { openCatalogue } from './database';
 import { readCatalogueView } from './readView';
 import { catalogueMutations } from './mutations';
-import type { DatabaseSync } from 'node:sqlite';
 
 export function createCatalogueStore(file: string, legacyFile?: string) {
   const ready = openCatalogue(file, legacyFile);
