@@ -92,7 +92,7 @@ export function ReleaseWorkspace({
           <Disc3 size={40} strokeWidth={1} aria-hidden="true" />
           <h2>Follow a record.</h2>
           <p>Enter a Discogs release ID to take a closer look.</p>
-          <span>Set filters to explore matching EPs.</span>
+          <span>Set filters to explore matching releases.</span>
         </div>
       )}
     </section>

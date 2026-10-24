@@ -9,6 +9,7 @@ export const researchSearchInputSchema = z.object({
     year: '',
     genre: [],
     style: [],
+    format: [],
     title: '',
   }),
   page: z.number().int().min(1).max(200).default(1),

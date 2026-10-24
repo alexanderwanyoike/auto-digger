@@ -23,6 +23,7 @@ export const filtersSchema = z.object({
     .default(''),
   genre: selection,
   style: selection,
+  format: selection,
   title: text,
 });
 export type DigFilters = z.infer<typeof filtersSchema>;

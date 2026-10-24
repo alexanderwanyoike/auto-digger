@@ -2,7 +2,7 @@ import { expect, test, vi } from 'vitest';
 import { createDiscogsSession } from './session';
 import { identityResponse } from '../../../tests/discogsFixtures';
 
-test('research searches all release formats while ordinary digging searches remain EP-only', async () => {
+test('research and ordinary digging include all release types when no types are selected', async () => {
   const request = vi.fn<typeof fetch>((input) => {
     const url = input instanceof Request ? input.url : input.toString();
     return Promise.resolve(
@@ -42,6 +42,6 @@ test('research searches all release formats while ordinary digging searches rema
       ? diggingInput.url
       : String(diggingInput ?? 'https://invalid.example'),
   );
-  expect(digging.searchParams.get('format')).toBe('EP');
+  expect(digging.searchParams.get('format')).toBeNull();
   expect(digging.searchParams.get('q')).toBeNull();
 });

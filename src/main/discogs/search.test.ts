@@ -2,7 +2,7 @@ import { expect, test, vi } from 'vitest';
 import { createDiscogsSession } from './session';
 import { identityResponse } from '../../../tests/discogsFixtures';
 
-test('combines Discogs filters into an authenticated paged EP search', async () => {
+test('combines Discogs filters into an authenticated paged search matching any selected release type', async () => {
   const request = vi
     .fn<typeof fetch>()
     .mockResolvedValueOnce(new Response(JSON.stringify(identityResponse)))
@@ -30,6 +30,7 @@ test('combines Discogs filters into an authenticated paged EP search', async () 
       artist: 'Low Tide',
       year: '1998',
       genre: [' Electronic ', 'Jazz', 'Electronic'],
+      format: [' EP ', 'Compilation', 'Album', 'EP'],
       style: ['Techno', 'Deep House'],
       title: 'Quiet Orbit',
     },
@@ -59,7 +60,7 @@ test('combines Discogs filters into an authenticated paged EP search', async () 
   const url = new URL(typeof target === 'string' ? target : 'https://invalid.example');
   expect(Object.fromEntries(url.searchParams)).toEqual({
     type: 'release',
-    format: 'EP',
+    format: 'Album|Compilation|EP',
     per_page: '50',
     page: '2',
     label: 'Still Records',

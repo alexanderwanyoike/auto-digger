@@ -41,7 +41,7 @@ export function DiscoveryPanel() {
       </div>
       <div className="discovery-footnote">
         <Shuffle size={14} aria-hidden="true" />
-        <span>Random EPs. Within your orbit.</span>
+        <span>Random releases. Within your orbit.</span>
         <ArrowUpRight size={14} aria-hidden="true" />
       </div>
     </section>

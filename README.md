@@ -2,7 +2,7 @@
 
 A compact desktop desk for discovering records. Electron, React and TypeScript, with brushed aluminium, blue accents and light, dark or system appearance.
 
-Connect Discogs, combine label, artist, year, genre, style and release-title filters, then dig through random matching EPs. Download audio from attached YouTube sources, listen in the bottom player and save releases into named crates with track picks and personal tags.
+Connect Discogs, combine label, artist, year, genre, style and release-title filters, then dig through random matching releases. Download audio from attached YouTube sources, listen in the bottom player and save releases into named crates with track picks and personal tags.
 
 ## Run
 
@@ -15,8 +15,8 @@ yarn dev
 
 1. Click **Discogs not connected**, open the linked Discogs settings, and generate a personal token under **Developers**.
 2. Paste the token into the desktop app and choose **Connect account**.
-3. Enter any combination of filters and choose **Search EPs**. Genre and style are searchable multi-selects. Releases match any selected genre and any selected style; year accepts one four-digit year. Blank filters search widely.
-4. Browse sleeve cards, open a match or choose **Dig a random EP**, then **Dig again**. Draft edits take effect when you submit Search EPs. Reset digging starts fresh with the applied filters.
+3. Enter any combination of filters and choose **Search releases**. Release type, genre and style are searchable multi-selects. Releases match any selection within each field; year accepts one four-digit year. Leave release type empty to include all types. Blank filters search widely.
+4. Browse sleeve cards, open a match or choose **Dig a random release**, then **Dig again**. Draft edits take effect when you submit Search releases. Reset digging starts fresh with the applied filters.
 5. In **Audio sources**, check the suggested Discogs track for each video. Choose another track or **Keep video title** when needed, then **Preview** to listen without saving. Choose **Download audio** to keep it. The bottom player switches to the saved track after download. Each attached video is independently downloadable. Download actions enter the shared queue, showing measured progress, conversion and tagging stages. Cancel or retry from the record or Downloads. Use **Download release** to review source coverage, choose one upload per track, skip tracks and save the available selection. Existing saved sources are reused. Private, removed or restricted sources show a readable error and **Check again**.
 6. Choose an active crate and save the release. In **Crates**, create or rename playlists, choose track picks and save comma-separated personal tags. Saved metadata, artwork references and video links remain available after restart without reconnecting Discogs. **Downloads** is one searchable track list with artist/release columns, play and folder actions. Current download progress and retry controls appear inline; completed history does not duplicate saved tracks. **Settings** manages your Discogs connection and appearance.
 
@@ -26,7 +26,7 @@ After one successful connection, the app remembers your token using operating-sy
 
 ## Discovery and listening
 
-Search uses Discogs' specific release and EP filters. Pagination and random digging operate within the first 10,000 matching results exposed by search. Narrow broad criteria to explore further. A digging session avoids repeated release IDs and verifies EP format against loaded metadata. This history and cached search pages stay in memory.
+Search uses Discogs' specific release search and optional format descriptions for release types. Pagination and random digging operate within the first 10,000 matching results exposed by search. Narrow broad criteria to explore further. A digging session avoids repeated release IDs and checks loaded metadata against any selected release type. This history and cached search pages stay in memory.
 
 Auto Digger checks YouTube source availability through yt-dlp and extracts MP3 with FFmpeg. Downloads use Discogs artist, album, year, genre/style and matched track tags, plus front cover art where available. Automatic matching uses unambiguous complete track titles. You can correct a match before downloading or choose **Update tags** afterward, including while offline. Several videos can map to the same track. Missing tags or cover art leave usable audio with a notice.
 

@@ -6,7 +6,7 @@ import { identityResponse, loadedRelease } from '../../../tests/discogsFixtures'
 import { App } from '../App';
 
 test('applies filters, browses another page and opens a matching release', async () => {
-  const search = vi.fn().mockResolvedValue({
+  const search = vi.fn<DiscogsBridge['search']>().mockResolvedValue({
     ok: true,
     value: {
       page: 1,
@@ -51,10 +51,14 @@ test('applies filters, browses another page and opens a matching release', async
   await user.type(screen.getByLabelText('Style'), 'Techno');
   await user.click(screen.getByRole('option', { name: 'Techno' }));
   await user.keyboard('{Escape}');
-  await user.click(screen.getByRole('button', { name: 'Search EPs' }));
+  await user.click(screen.getByLabelText('Release type'));
+  await user.click(screen.getByRole('option', { name: 'Album' }));
+  await user.click(screen.getByRole('option', { name: 'Compilation' }));
+  await user.keyboard('{Escape}');
+  await user.click(screen.getByRole('button', { name: 'Search releases' }));
   expect(await screen.findByText('51 matching releases')).toBeInTheDocument();
   expect(
-    within(screen.getByRole('region', { name: 'Matching EPs' })).getByAltText(''),
+    within(screen.getByRole('region', { name: 'Matching releases' })).getByAltText(''),
   ).toHaveAttribute('src', 'https://i.discogs.com/quiet-orbit.jpg');
   expect(search).toHaveBeenLastCalledWith({
     filters: {
@@ -63,6 +67,7 @@ test('applies filters, browses another page and opens a matching release', async
       year: '',
       genre: ['Electronic', 'Jazz'],
       style: ['Deep House', 'Techno'],
+      format: ['Album', 'Compilation'],
       title: '',
     },
     page: 1,
@@ -77,9 +82,10 @@ test('applies filters, browses another page and opens a matching release', async
   ).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Back to matches' }));
   expect(screen.getByRole('button', { name: /Low Tide - Quiet Orbit EP/ })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: 'Dig a random EP' }));
+  await user.click(screen.getByRole('button', { name: 'Dig a random release' }));
   expect(await screen.findByText('1 found · 51 accessible matches')).toBeInTheDocument();
   await user.type(screen.getByLabelText('Style'), ' draft');
+  await user.click(screen.getByLabelText('Remove Album'));
   await user.click(screen.getByRole('button', { name: 'Dig again' }));
   expect(dig).toHaveBeenLastCalledWith({
     filters: {
@@ -88,8 +94,13 @@ test('applies filters, browses another page and opens a matching release', async
       year: '',
       genre: ['Electronic', 'Jazz'],
       style: ['Deep House', 'Techno'],
+      format: ['Album', 'Compilation'],
       title: '',
     },
     reset: false,
   });
+  await user.click(screen.getByLabelText('Remove Compilation'));
+  await user.keyboard('{Escape}');
+  await user.click(screen.getByRole('button', { name: 'Search releases' }));
+  expect(search.mock.lastCall?.[0].filters.format).toEqual([]);
 });

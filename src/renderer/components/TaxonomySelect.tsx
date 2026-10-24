@@ -6,11 +6,13 @@ export function TaxonomySelect({
   label,
   options,
   disabled,
+  placeholder = name === 'genre' ? 'All genres' : 'All styles',
 }: {
   name: string;
   label: string;
   options: readonly string[];
   disabled: boolean;
+  placeholder?: string;
 }) {
   const id = useId();
   return (
@@ -24,7 +26,7 @@ export function TaxonomySelect({
         isClearable
         isDisabled={disabled}
         options={options.map((value) => ({ value, label: value }))}
-        placeholder={`All ${name === 'genre' ? 'genres' : 'styles'}`}
+        placeholder={placeholder}
         classNamePrefix="taxonomy"
         unstyled
         closeMenuOnSelect={false}
