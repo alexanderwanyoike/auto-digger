@@ -2,15 +2,7 @@ import { spawn } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
 import type { AudioResult } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
-
-function terminate(child: ChildProcess) {
-  try {
-    if (process.platform !== 'win32' && child.pid) process.kill(-child.pid, 'SIGKILL');
-    else child.kill('SIGKILL');
-  } catch {
-    /* The process may already have exited. */
-  }
-}
+import { terminateProcess } from './terminateProcess';
 
 function commandFailure(stderr: string): AudioResult<string> {
   if (/ffmpeg|ffprobe|unrecognized arguments|no such option/i.test(stderr))
@@ -37,7 +29,9 @@ export function createCommandRunner(executable = 'yt-dlp') {
   const active = new Set<ChildProcess>();
   return {
     cancelAll() {
-      active.forEach(terminate);
+      active.forEach((child) => {
+        terminateProcess(child);
+      });
     },
     execute(args: string[], timeout: number): Promise<AudioResult<string>> {
       return new Promise((resolve) => {
@@ -53,12 +47,12 @@ export function createCommandRunner(executable = 'yt-dlp') {
         let expired = false;
         const timer = setTimeout(() => {
           expired = true;
-          terminate(child);
+          terminateProcess(child);
         }, timeout);
         child.stdout.on('data', (data: Buffer) => {
           if (stdout.length + data.length > 4_000_000) {
             expired = true;
-            terminate(child);
+            terminateProcess(child);
           } else stdout += data.toString();
         });
         child.stderr.on('data', (data: Buffer) => {
