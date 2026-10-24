@@ -38,3 +38,30 @@ test('serializes concurrent saves so no EP is lost', async () => {
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('preserves corrupt files and reports storage failures without saving', async () => {
+  const { writeFile, readFile } = await import('node:fs/promises');
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-crate-'));
+  try {
+    const file = join(directory, 'crate.json');
+    await writeFile(file, 'broken-json');
+    const store = createCrateStore(file);
+    expect(await store.list()).toMatchObject({ ok: false, error: { code: 'invalid-data' } });
+    expect(await store.save(loadedRelease)).toMatchObject({
+      ok: false,
+      error: { code: 'invalid-data' },
+    });
+    expect(await readFile(file, 'utf8')).toBe('broken-json');
+    const blocked = createCrateStore(join(file, 'crate.json'));
+    expect(await blocked.save(loadedRelease)).toMatchObject({
+      ok: false,
+      error: { code: 'storage' },
+    });
+    expect(await store.save({ ...loadedRelease, formats: ['LP'] })).toMatchObject({
+      ok: false,
+      error: { code: 'invalid-input' },
+    });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
