@@ -1,4 +1,5 @@
 import { Library, Bookmark, X } from 'lucide-react';
+import { RecordArtwork } from './RecordArtwork';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { useCrate } from '../crate/useCrate';
 
@@ -72,10 +73,13 @@ export function CratePanel({
                   onOpen(release);
                 }}
               >
-                <strong>{release.title}</strong>
-                <span>
-                  {release.artists.join(', ') || 'Artist not listed'} ·{' '}
-                  {release.year ?? 'Year not listed'}
+                <RecordArtwork url={release.artworkUrl} title={release.title} decorative />
+                <span className="crate-copy">
+                  <strong>{release.title}</strong>
+                  <span>
+                    {release.artists.join(', ') || 'Artist not listed'} ·{' '}
+                    {release.year ?? 'Year not listed'}
+                  </span>
                 </span>
               </button>
               <button

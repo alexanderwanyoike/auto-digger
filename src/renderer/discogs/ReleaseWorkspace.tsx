@@ -76,14 +76,13 @@ export function ReleaseWorkspace({
         </button>
       )}
       {!session.busy && session.release && (
-        <>
+        <ReleaseDetails
+          key={`${session.release.id.toString()}-${session.release.artworkUrl ?? ''}`}
+          release={session.release}
+        >
           <SaveToCrate release={session.release} crate={crate} />
           <YouTubePlayer key={session.release.id} videos={session.release.videos} />
-          <ReleaseDetails
-            key={`${session.release.id.toString()}-${session.release.artworkUrl ?? ''}`}
-            release={session.release}
-          />
-        </>
+        </ReleaseDetails>
       )}
       {!session.busy && !session.release && !session.matches && (
         <div className="release-placeholder">
