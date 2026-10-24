@@ -1,13 +1,18 @@
+import { useState } from 'react';
 import { Disc3 } from 'lucide-react';
 import type { DiscogsRelease } from '../../shared/discogs';
 
 export function ReleaseDetails({ release }: { release: DiscogsRelease }) {
+  const [artworkFailed, setArtworkFailed] = useState(false);
   return (
     <article className="release-details" aria-labelledby="release-title">
       <div className="release-overview">
-        {release.artworkUrl ? (
+        {release.artworkUrl && !artworkFailed ? (
           <img
             className="release-artwork"
+            onError={() => {
+              setArtworkFailed(true);
+            }}
             src={release.artworkUrl}
             alt={`${release.title} record sleeve`}
           />
