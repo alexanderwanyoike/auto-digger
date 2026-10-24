@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import type { CrateBridge } from '../../shared/crate';
@@ -53,4 +53,33 @@ test('only marks an EP saved after a completed write, then reopens it without Di
   await waitFor(() => {
     expect(screen.queryByRole('button', { name: 'Open Quiet Orbit EP' })).not.toBeInTheDocument();
   });
+});
+
+test('tries the next saved record artwork after the previous artwork fails', async () => {
+  const first = {
+    ...loadedRelease,
+    title: 'First EP',
+    artworkUrl: 'https://i.discogs.com/first.jpg',
+  };
+  const second = {
+    ...loadedRelease,
+    id: 13,
+    title: 'Second EP',
+    artworkUrl: 'https://i.discogs.com/second.jpg',
+  };
+  const crate: CrateBridge = {
+    list: () => Promise.resolve({ ok: true, value: [first, second] }),
+    save: vi.fn(),
+    remove: vi.fn(),
+  };
+  const user = userEvent.setup();
+  render(<App crate={crate} />);
+  await user.click(await screen.findByRole('button', { name: 'Open First EP' }));
+  fireEvent.error(screen.getByRole('img', { name: 'First EP record sleeve' }));
+  expect(screen.getByText('No artwork available')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Open Second EP' }));
+  expect(screen.getByRole('img', { name: 'Second EP record sleeve' })).toHaveAttribute(
+    'src',
+    'https://i.discogs.com/second.jpg',
+  );
 });
