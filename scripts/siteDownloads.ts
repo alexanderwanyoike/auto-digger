@@ -18,8 +18,11 @@ export function siteDownloads(): Plugin {
           (match: string, start: string, target: string, end: string) => {
             const url = links[target];
             if (!url) return match;
-            const label =
-              target === 'macos-arm64' ? 'Apple silicon' : target === 'macos-x64' ? 'Intel' : 'x64';
+            const labels: Record<string, string> = {
+              'macos-arm64': 'Apple silicon',
+              'macos-x64': 'Intel',
+            };
+            const label = labels[target] ?? 'x64';
             return `${start}<a class="download-button" href="${url}" aria-label="Download ${target}">${label} <span aria-hidden="true">↓</span></a>${end}`;
           },
         )

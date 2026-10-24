@@ -23,7 +23,7 @@ const schema = z.object({
 
 export function publishedDownloads(
   input: unknown,
-): Result<{ version: string; links: Record<string, string> }, string> {
+): Result<{ version: string; links: Record<string, string> & { checksums: string } }, string> {
   const parsed = schema.safeParse(input);
   if (!parsed.success)
     return { ok: false, error: 'Expected a published stable release with installer assets.' };
@@ -36,12 +36,11 @@ export function publishedDownloads(
     ),
     ['checksums', 'SHA256SUMS'] as const,
   ];
-  const links: Record<string, string> = {};
+  const links: Record<string, string> & { checksums: string } = {};
   const complete = files.every(([target, name]) => {
     const matches = release.assets.filter((asset) => asset.name === name);
     const asset = matches[0];
-    if (matches.length !== 1 || !asset || asset.browser_download_url !== `${prefix}${name}`)
-      return false;
+    if (matches.length !== 1 || asset?.browser_download_url !== `${prefix}${name}`) return false;
     links[target] = asset.browser_download_url;
     return true;
   });
