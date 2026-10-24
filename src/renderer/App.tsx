@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Disc3, Radio } from 'lucide-react';
+import type { CrateBridge } from '../shared/crate';
+import { useCrate } from './crate/useCrate';
 import type { DiscogsBridge } from '../shared/discogs';
 import { useDiscogs } from './discogs/useDiscogs';
 import { ConnectionDialog } from './discogs/ConnectionDialog';
@@ -11,7 +13,14 @@ import { DiscoveryPanel } from './components/DiscoveryPanel';
 import { CratePanel } from './components/CratePanel';
 import { PlaybackBar } from './components/PlaybackBar';
 
-export function App({ discogs = window.discogs }: { discogs?: DiscogsBridge }) {
+export function App({
+  discogs = window.discogs,
+  crate: crateBridge = window.crate,
+}: {
+  discogs?: DiscogsBridge;
+  crate?: CrateBridge;
+}) {
+  const crate = useCrate(crateBridge);
   const session = useDiscogs(discogs);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const { appearance, selectAppearance, storageAvailable } = useAppearance();
@@ -54,14 +63,18 @@ export function App({ discogs = window.discogs }: { discogs?: DiscogsBridge }) {
           <div className="desk-title">
             <Radio size={17} aria-hidden="true" />
             <h1>Digging desk</h1>
-            <span className="preview-badge">PHASE 05</span>
+            <span className="preview-badge">PHASE 06</span>
           </div>
           <span className="toolbar-note">A fresh pair of ears.</span>
         </div>
         <div className="workspace">
           <FilterPanel session={session} />
-          {session.account ? <ReleaseWorkspace session={session} /> : <DiscoveryPanel />}
-          <CratePanel />
+          {session.account || session.release ? (
+            <ReleaseWorkspace session={session} crate={crate} />
+          ) : (
+            <DiscoveryPanel />
+          )}
+          <CratePanel crate={crate} disabled={session.busy} onOpen={session.openSavedRelease} />
         </div>
       </main>
       {session.error && !connectionOpen && (
