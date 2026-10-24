@@ -248,3 +248,17 @@
     padding-block: 12px;
   }
 }
+
+.store-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 16px;
+}
+.store-links .secondary-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  padding: 7px 9px;
+}

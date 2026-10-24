@@ -1,5 +1,6 @@
 import { app, BrowserWindow, nativeImage, net } from 'electron';
 import { join } from 'node:path';
+import { registerStoreLinkHandlers } from './links/registerHandlers';
 import type { Result } from '../shared/result';
 import { createLegacyCrateStore } from './catalogue/legacyCrateStore';
 import { createCatalogueStore } from './catalogue/store';
@@ -87,6 +88,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     );
     crateStore ??= createLegacyCrateStore(catalogueStore);
     registerCatalogueHandlers(window, catalogueStore);
+    registerStoreLinkHandlers(window);
     discogsSession ??= createRememberedSession(
       createDiscogsSession(),
       createTokenStore(join(app.getPath('userData'), 'discogs-token.bin'), electronEncryption),
