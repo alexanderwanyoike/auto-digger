@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Disc3 } from 'lucide-react';
 import type { useDiscogs } from './useDiscogs';
 import { ReleaseDetails } from './ReleaseDetails';
+import { DigControls } from './DigControls';
 import { SearchResults } from './SearchResults';
 
 export function ReleaseWorkspace({ session }: { session: ReturnType<typeof useDiscogs> }) {
@@ -38,6 +39,7 @@ export function ReleaseWorkspace({ session }: { session: ReturnType<typeof useDi
           {session.busy ? 'Loading…' : 'Load release'}
         </button>
       </form>
+      <DigControls session={session} />
       {formError && (
         <p role="alert" className="dialog-error">
           {formError}

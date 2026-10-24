@@ -24,7 +24,12 @@ test('applies filters, browses another page and opens a matching release', async
       ],
     },
   });
+  const dig = vi.fn().mockResolvedValue({
+    ok: true,
+    value: { release: loadedRelease, seen: 1, total: 51, limited: false },
+  });
   const bridge: DiscogsBridge = {
+    dig,
     account: () => Promise.resolve({ ok: true, value: identityResponse }),
     connect: () => Promise.resolve({ ok: true, value: identityResponse }),
     loadRelease: vi
@@ -54,4 +59,12 @@ test('applies filters, browses another page and opens a matching release', async
   ).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Back to matches' }));
   expect(screen.getByRole('button', { name: /Low Tide - Quiet Orbit EP/ })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Dig a random EP' }));
+  expect(await screen.findByText('1 found · 51 accessible matches')).toBeInTheDocument();
+  await user.type(screen.getByLabelText('Style'), ' draft');
+  await user.click(screen.getByRole('button', { name: 'Dig again' }));
+  expect(dig).toHaveBeenLastCalledWith({
+    filters: { label: '', artist: '', year: '', genre: '', style: 'Deep House', title: '' },
+    reset: false,
+  });
 });

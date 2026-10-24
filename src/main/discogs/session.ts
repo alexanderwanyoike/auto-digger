@@ -1,16 +1,31 @@
+import { createDigger } from './digger';
+import { digInputSchema } from '../../shared/dig';
+import type { DigResult } from '../../shared/dig';
 import { accountSchema } from '../../shared/discogs';
 import { discogsFailure } from '../../shared/discogsFailure';
 import type { DiscogsAccount, DiscogsRelease, DiscogsResult } from '../../shared/discogs';
 import { releaseMetadataSchema } from './releaseMetadata';
 import { requestDiscogs } from './request';
 import { searchDiscogs } from './search';
+import { searchInputSchema } from '../../shared/search';
 import type { SearchPage } from '../../shared/search';
 
 export function createDiscogsSession(request: typeof fetch = (input, init) => fetch(input, init)) {
   let account: DiscogsAccount | null = null;
   let acceptedToken: string | null = null;
   let revision = 0;
+  const digger = createDigger(
+    (filters, page) => searchDiscogs({ filters, page }, acceptedToken ?? '', request),
+    (id) =>
+      requestDiscogs(
+        `/releases/${id.toString()}`,
+        acceptedToken ?? '',
+        releaseMetadataSchema,
+        request,
+      ),
+  );
   const clear = () => {
+    digger.reset();
     revision += 1;
     account = null;
     acceptedToken = null;
@@ -24,14 +39,33 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       clear();
       return { ok: true, value: undefined };
     },
+    async dig(input: unknown): Promise<DiscogsResult<DigResult>> {
+      if (!acceptedToken)
+        return discogsFailure('unauthorized', 'Connect your Discogs account first.');
+      const parsed = digInputSchema.safeParse(input);
+      if (!parsed.success) return discogsFailure('invalid-input', 'Use valid digging filters.');
+      const started = revision;
+      const result = await digger.next(parsed.data.filters, parsed.data.reset);
+      if (started !== revision)
+        return discogsFailure('cancelled', 'The Discogs session has changed.');
+      if (!result.ok && result.error.code === 'unauthorized') clear();
+      return result;
+    },
     async search(input: unknown): Promise<DiscogsResult<SearchPage>> {
       if (!acceptedToken)
         return discogsFailure('unauthorized', 'Connect your Discogs account first.');
       const started = revision;
-      const result = await searchDiscogs(input, acceptedToken, request);
+      const parsed = searchInputSchema.safeParse(input);
+      if (!parsed.success)
+        return discogsFailure(
+          'invalid-input',
+          'Use a four-digit year and filters of at most 160 characters.',
+        );
+      const result = await searchDiscogs(parsed.data, acceptedToken, request);
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();
+      if (result.ok) digger.apply(parsed.data.filters);
       return result;
     },
     async loadRelease(id: unknown): Promise<DiscogsResult<DiscogsRelease>> {
