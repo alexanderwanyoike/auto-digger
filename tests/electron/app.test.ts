@@ -15,6 +15,8 @@ import { _electron as electron, expect, test } from '@playwright/test';
     try {
       const page = await desktop.firstWindow();
       await expect(page.getByRole('heading', { name: 'Digging desk' })).toBeVisible();
+      await page.getByRole('button', { name: 'Dig a random EP', exact: true }).click();
+      await expect(page.getByText('1 found · 1 accessible matches', { exact: true })).toBeVisible();
       expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
       await page.getByRole('button', { name: 'Dark', exact: true }).click();
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
@@ -117,6 +119,8 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
     await expect(page.getByText('Low Tide', { exact: true })).toBeVisible();
     await expect(page.getByText('Quiet Orbit', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Dig a random EP', exact: true }).click();
+    await expect(page.getByText('1 found · 1 accessible matches', { exact: true })).toBeVisible();
     expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
     await page.setViewportSize({ width: 1180, height: 780 });
     await expect(page.getByText('Built for the long way round.', { exact: true })).toBeInViewport({
