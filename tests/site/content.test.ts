@@ -4,7 +4,7 @@ import { expect, test } from 'vitest';
 
 test('leads with MCP mix research and explains how verified finds reach a crate', async () => {
   document.documentElement.innerHTML = await readFile(resolve('site/index.html'), 'utf8');
-  expect(document.querySelector('h1')?.textContent).toMatch(/mix.*crate/is);
+  expect(document.querySelector('h1')?.textContent).toContain('Auto Digger');
   expect(document.querySelector('.hero')?.textContent).toContain('MCP');
   expect(document.querySelector('nav a')?.getAttribute('href')).toBe('#research');
   const research = document.getElementById('research');
