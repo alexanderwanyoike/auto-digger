@@ -1,3 +1,6 @@
+import { createDigger } from './digger';
+import { digInputSchema } from '../../shared/dig';
+import type { DigResult } from '../../shared/dig';
 import { accountSchema } from '../../shared/discogs';
 import { discogsFailure } from '../../shared/discogsFailure';
 import type { DiscogsAccount, DiscogsRelease, DiscogsResult } from '../../shared/discogs';
@@ -10,7 +13,18 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
   let account: DiscogsAccount | null = null;
   let acceptedToken: string | null = null;
   let revision = 0;
+  const digger = createDigger(
+    (filters, page) => searchDiscogs({ filters, page }, acceptedToken ?? '', request),
+    (id) =>
+      requestDiscogs(
+        `/releases/${id.toString()}`,
+        acceptedToken ?? '',
+        releaseMetadataSchema,
+        request,
+      ),
+  );
   const clear = () => {
+    digger.reset();
     revision += 1;
     account = null;
     acceptedToken = null;
@@ -23,6 +37,18 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
     disconnect(): DiscogsResult<undefined> {
       clear();
       return { ok: true, value: undefined };
+    },
+    async dig(input: unknown): Promise<DiscogsResult<DigResult>> {
+      if (!acceptedToken)
+        return discogsFailure('unauthorized', 'Connect your Discogs account first.');
+      const parsed = digInputSchema.safeParse(input);
+      if (!parsed.success) return discogsFailure('invalid-input', 'Use valid digging filters.');
+      const started = revision;
+      const result = await digger.next(parsed.data.filters, parsed.data.reset);
+      if (started !== revision)
+        return discogsFailure('cancelled', 'The Discogs session has changed.');
+      if (!result.ok && result.error.code === 'unauthorized') clear();
+      return result;
     },
     async search(input: unknown): Promise<DiscogsResult<SearchPage>> {
       if (!acceptedToken)
