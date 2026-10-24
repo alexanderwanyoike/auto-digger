@@ -144,3 +144,41 @@ test('explains an unavailable source and lets the user retry without losing the 
   await user.click(screen.getByRole('button', { name: 'Check again' }));
   expect(await screen.findByRole('button', { name: 'Download audio' })).toBeEnabled();
 });
+
+test('retains a freshly downloaded track when an older library snapshot finishes late', async () => {
+  let complete = (_value: import('../../shared/audio').AudioResult<LocalTrack[]>) => {};
+  const initial = new Promise<import('../../shared/audio').AudioResult<LocalTrack[]>>(
+    (resolveList) => {
+      complete = resolveList;
+    },
+  );
+  const bridge: AudioBridge = {
+    list: () => initial,
+    probe: () =>
+      Promise.resolve({
+        ok: true,
+        value: { videoId: 'abcdefghijk', title: 'Low Tide - Quiet Orbit' },
+      }),
+    download: () => Promise.resolve({ ok: true, value: track }),
+    reveal: vi.fn(),
+  };
+  const crate: CrateBridge = {
+    list: () => Promise.resolve({ ok: true, value: [loadedRelease] }),
+    save: vi.fn(),
+    remove: vi.fn(),
+  };
+  const user = userEvent.setup();
+  render(<App crate={crate} audioLibrary={bridge} />);
+  await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
+  await user.click(await screen.findByRole('button', { name: 'Download audio' }));
+  const player = screen.getByRole('contentinfo', { name: 'Playback' });
+  expect(within(player).getByText('Evening Mix')).toBeVisible();
+  const { act } = await import('@testing-library/react');
+  act(() => {
+    complete({ ok: true, value: [] });
+  });
+  await initial;
+  await screen.findByText('Evening Mix');
+  expect(within(player).getByText('Evening Mix')).toBeVisible();
+  expect(within(player).getByLabelText('Downloaded track')).toHaveValue(track.id);
+});
