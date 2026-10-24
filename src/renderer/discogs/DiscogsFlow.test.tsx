@@ -50,6 +50,7 @@ test('connects, clears the submitted token, shows release metadata and disconnec
   await user.click(screen.getByRole('button', { name: 'Load release' }));
   expect(await screen.findByRole('heading', { name: 'Quiet Orbit EP' })).toBeInTheDocument();
   expect(screen.getByText('Low Tide')).toBeInTheDocument();
+  expect(screen.getByRole('region', { name: 'Listen on YouTube' })).toBeInTheDocument();
   expect(screen.getByText('Still Records')).toBeInTheDocument();
   expect(screen.getByText('A1')).toBeInTheDocument();
   expect(screen.getByText('Quiet Orbit')).toBeInTheDocument();
