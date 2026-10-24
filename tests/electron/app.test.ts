@@ -1,4 +1,5 @@
 import { _electron as electron, expect, test } from '@playwright/test';
+import { youtubeApiFixture } from '../youtubeApiFixture';
 
 [900, 1180].forEach((width) => {
   test(`desktop desk opens safely, remembers appearance and fits ${width.toString()}x780`, async () => {
@@ -96,6 +97,15 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
       },
       { identityResponse, releaseResponse },
     );
+    await page.route('https://www.youtube.com/iframe_api', async (route) => {
+      await route.fulfill({ contentType: 'application/javascript', body: youtubeApiFixture });
+    });
+    await page.route('https://www.youtube.com/embed/**', async (route) => {
+      await route.fulfill({
+        contentType: 'text/html',
+        body: '<html lang="en"><body style="background:#202429;color:#a1acba;font:14px sans-serif;display:grid;place-items:center;height:90vh">YouTube player test fixture</body></html>',
+      });
+    });
     await page.route('https://i.discogs.com/**', async (route) => {
       await route.fulfill({
         contentType: 'image/svg+xml',
@@ -119,6 +129,11 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     await expect(page.getByText('Quiet Orbit', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Dig a random EP', exact: true }).click();
     await expect(page.getByText('1 found · 1 accessible matches', { exact: true })).toBeVisible();
+    await expect(page.getByText('Ready. Press play in the video.', { exact: true })).toBeVisible();
+    await expect(page.getByTitle('YouTube video player')).toHaveAttribute(
+      'src',
+      'https://www.youtube.com/embed/abcdefghijk',
+    );
     expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
     await page.setViewportSize({ width: 1180, height: 780 });
     await expect(page.getByText('Built for the long way round.', { exact: true })).toBeInViewport({
