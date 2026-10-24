@@ -1,6 +1,6 @@
 import { _electron as electron, expect, test } from '@playwright/test';
-import { mkdir, rm } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { mkdir, readFile, rm } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 import { loadedRelease } from '../discogsFixtures';
 
 test('persists settings and finds old and per-release downloads after a native restart', async () => {
@@ -60,9 +60,9 @@ test('persists settings and finds old and per-release downloads after a native r
       page.getByRole('button', { name: 'Play Quiet Orbit', exact: true }).last(),
     ).toBeEnabled();
     const file = join(chosen, `Low Tide - Quiet Orbit EP [r13]`, tracks.value[1].filename);
-    expect(dirname(dirname(file))).toBe(chosen);
-    const status = await page.evaluate(async (id) => {
-      const response = await fetch(`auto-digger-audio://track/${id}`, {
+    expect((await readFile(file)).length).toBeGreaterThan(0);
+    const status = await desktop.evaluate(async ({ net }, id) => {
+      const response = await net.fetch(`auto-digger-audio://track/${id}`, {
         headers: { Range: 'bytes=0-63' },
       });
       return response.status;
