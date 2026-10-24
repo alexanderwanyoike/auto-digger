@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
+import { videoId } from '../../shared/youtubeVideoId';
 import type { createDownloader } from './downloader';
 import { createLibraryFiles } from './libraryFiles';
 import { tagDownload } from './tagging';
@@ -47,11 +48,13 @@ export function createAudioLibrary(
       try {
         const existing = await files.list();
         if (!existing.ok) return existing;
-        const source = await downloader.probe(video.url);
-        if (!source.ok) return source;
-        const id = `${release.id.toString()}-${source.value.videoId}`;
+        const sourceId = videoId(video.url);
+        if (!sourceId) return audioFailure('invalid-input', 'Choose a supported YouTube source.');
+        const id = `${release.id.toString()}-${sourceId}`;
         const saved = existing.value.find((track) => track.id === id);
         if (saved) return { ok: true, value: saved };
+        const source = await downloader.probe(video.url);
+        if (!source.ok) return source;
         temporary = await mkdtemp(join(directory, '.download-'));
         const staged = join(temporary, 'audio.mp3');
         const download = await downloader.download(source.value.videoId, staged);
