@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
 
+const unavailableAudio =
+  'This saved audio could not be played. It may have been moved or removed. Check its folder and try again.';
+
 export function useLocalPlayer(track: LocalTrack | null, request: number) {
   const [media] = useState(() => new Audio());
   const [playing, setPlaying] = useState(false);
@@ -15,8 +18,12 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
     try {
       await media.play();
       return { ok: true, value: undefined };
-    } catch {
-      return audioFailure('unavailable', 'Ready to listen. Press play to start this saved track.');
+    } catch (failure) {
+      const message =
+        failure instanceof DOMException && failure.name === 'NotAllowedError'
+          ? 'Ready to listen. Press play to start this saved track.'
+          : unavailableAudio;
+      return audioFailure('unavailable', message);
     }
   }, [media]);
   useEffect(() => {
@@ -33,9 +40,7 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
     };
     const onError = () => {
       setPlaying(false);
-      setError(
-        'This saved audio could not be played. It may have been moved or removed. Check its folder and try again.',
-      );
+      setError(unavailableAudio);
     };
     const ready = () => {
       update();
