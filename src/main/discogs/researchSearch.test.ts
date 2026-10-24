@@ -26,12 +26,22 @@ test('research searches all release formats while ordinary digging searches rema
       filters: { genre: ['Electronic', 'Jazz'] },
     }),
   ).toMatchObject({ ok: true, value: { releases: [{ formats: ['Album'] }] } });
-  const research = new URL(request.mock.calls[1]?.[0].toString() ?? 'https://invalid.example');
+  const researchInput = request.mock.calls[1]?.[0];
+  const research = new URL(
+    researchInput instanceof Request
+      ? researchInput.url
+      : String(researchInput ?? 'https://invalid.example'),
+  );
   expect(research.searchParams.get('format')).toBeNull();
   expect(research.searchParams.get('q')).toBe('H-Foundation mix');
   expect(research.searchParams.get('genre')).toBe('Electronic|Jazz');
   await session.search({ filters: {}, page: 1 });
-  const digging = new URL(request.mock.calls[2]?.[0].toString() ?? 'https://invalid.example');
+  const diggingInput = request.mock.calls[2]?.[0];
+  const digging = new URL(
+    diggingInput instanceof Request
+      ? diggingInput.url
+      : String(diggingInput ?? 'https://invalid.example'),
+  );
   expect(digging.searchParams.get('format')).toBe('EP');
   expect(digging.searchParams.get('q')).toBeNull();
 });

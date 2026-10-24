@@ -16,7 +16,7 @@ export function upgradeCatalogue(database: DatabaseSync) {
       crate_id TEXT NOT NULL REFERENCES crates(id) ON DELETE CASCADE,
       metadata TEXT NOT NULL
     ) STRICT;
-    PRAGMA user_version=${catalogueVersion};
+    PRAGMA user_version=${catalogueVersion.toString()};
     COMMIT;
   `);
 }
