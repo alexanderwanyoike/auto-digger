@@ -3,6 +3,8 @@ import { discogsFailure } from '../../shared/discogsFailure';
 import type { DiscogsAccount, DiscogsRelease, DiscogsResult } from '../../shared/discogs';
 import { releaseMetadataSchema } from './releaseMetadata';
 import { requestDiscogs } from './request';
+import { searchDiscogs } from './search';
+import type { SearchPage } from '../../shared/search';
 
 export function createDiscogsSession(request: typeof fetch = (input, init) => fetch(input, init)) {
   let account: DiscogsAccount | null = null;
@@ -21,6 +23,16 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
     disconnect(): DiscogsResult<undefined> {
       clear();
       return { ok: true, value: undefined };
+    },
+    async search(input: unknown): Promise<DiscogsResult<SearchPage>> {
+      if (!acceptedToken)
+        return discogsFailure('unauthorized', 'Connect your Discogs account first.');
+      const started = revision;
+      const result = await searchDiscogs(input, acceptedToken, request);
+      if (started !== revision)
+        return discogsFailure('cancelled', 'The Discogs session has changed.');
+      if (!result.ok && result.error.code === 'unauthorized') clear();
+      return result;
     },
     async loadRelease(id: unknown): Promise<DiscogsResult<DiscogsRelease>> {
       if (!acceptedToken)
