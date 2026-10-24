@@ -14,8 +14,19 @@ import './styles/compact.css';
 import './styles/connection.css';
 import './styles/release.css';
 import './styles/search.css';
-import './styles/youtube.css';
+import './styles/artwork.css';
+import './styles/taxonomy.css';
+import './styles/downloads.css';
 import './styles/crate.css';
+import './styles/sections.css';
+import './styles/materials.css';
+import './styles/queue.css';
+import './styles/library.css';
+import './styles/research.css';
+import './styles/appearanceSettings.css';
+import './styles/aluminium.css';
+import './styles/deskPanels.css';
+import './styles/fieldFocus.css';
 
 const container = document.getElementById('root');
 

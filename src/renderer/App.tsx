@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { Disc3, Radio } from 'lucide-react';
+import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
+import { usePreferences } from './sections/usePreferences';
+import type { CatalogueBridge } from '../shared/catalogue';
+import { CratesPage } from './sections/CratesPage';
+import { DownloadsPage } from './sections/DownloadsPage';
+import { SettingsPage } from './sections/SettingsPage';
 import type { CrateBridge } from '../shared/crate';
 import { useCrate } from './crate/useCrate';
 import type { DiscogsBridge } from '../shared/discogs';
@@ -12,15 +17,33 @@ import { FilterPanel } from './components/FilterPanel';
 import { DiscoveryPanel } from './components/DiscoveryPanel';
 import { CratePanel } from './components/CratePanel';
 import { PlaybackBar } from './components/PlaybackBar';
+import type { AudioBridge } from '../shared/audio';
+import { useAudioLibrary } from './audio/useAudioLibrary';
+import appIcon from '../../resources/icons/icon.svg';
+
+const sectionIcons = {
+  'Digging desk': Radio,
+  Crates: Library,
+  Downloads: ListMusic,
+  Settings: SettingsIcon,
+};
 
 export function App({
   discogs = window.discogs,
   crate: crateBridge = window.crate,
+  audioLibrary: audioBridge = window.audioLibrary,
+  catalogue = window.catalogue,
 }: {
   discogs?: DiscogsBridge;
   crate?: CrateBridge;
+  audioLibrary?: AudioBridge;
+  catalogue?: CatalogueBridge;
 }) {
-  const crate = useCrate(crateBridge);
+  const [section, setSection] = useState<keyof typeof sectionIcons>('Digging desk');
+  const SectionIcon = sectionIcons[section];
+  const preferences = usePreferences(window.preferences);
+  const audio = useAudioLibrary(audioBridge);
+  const crate = useCrate(crateBridge, catalogue);
   const session = useDiscogs(discogs);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const { appearance, selectAppearance, storageAvailable } = useAppearance();
@@ -28,7 +51,7 @@ export function App({
     <div className="app-shell">
       <header className="app-header">
         <div className="wordmark">
-          <Disc3 size={25} strokeWidth={1.5} aria-hidden="true" />
+          <img src={appIcon} width={28} height={28} alt="" aria-hidden="true" />
           <span>
             auto digger<span className="wordmark-period">.</span>
           </span>
@@ -58,31 +81,85 @@ export function App({
           Appearance works for this session, but could not be saved on this device.
         </p>
       )}
+      <nav className="section-nav" aria-label="Main sections">
+        {(['Digging desk', 'Crates', 'Downloads'] as const).map((item) => (
+          <button
+            type="button"
+            key={item}
+            aria-current={section === item ? 'page' : undefined}
+            onClick={() => {
+              setSection(item);
+              if (item === 'Crates' && crate.catalogue.available)
+                crate.reload().catch(() => undefined);
+            }}
+          >
+            {item}
+          </button>
+        ))}
+        <button
+          type="button"
+          className="settings-nav"
+          aria-label="Settings"
+          title="Settings"
+          aria-current={section === 'Settings' ? 'page' : undefined}
+          onClick={() => {
+            setSection('Settings');
+          }}
+        >
+          <SettingsIcon size={17} aria-hidden="true" />
+        </button>
+      </nav>
       <main>
         <div className="desk-toolbar">
           <div className="desk-title">
-            <Radio size={17} aria-hidden="true" />
-            <h1>Digging desk</h1>
-            <span className="preview-badge">PHASE 06</span>
+            <SectionIcon size={17} aria-hidden="true" />
+            <h1>{section}</h1>
           </div>
-          <span className="toolbar-note">A fresh pair of ears.</span>
-        </div>
-        <div className="workspace">
-          <FilterPanel session={session} />
-          {session.account || session.release ? (
-            <ReleaseWorkspace session={session} crate={crate} />
-          ) : (
-            <DiscoveryPanel />
+          {section === 'Digging desk' && (
+            <span className="toolbar-note">A fresh pair of ears.</span>
           )}
-          <CratePanel crate={crate} disabled={session.busy} onOpen={session.openSavedRelease} />
         </div>
+        {section === 'Crates' && (
+          <CratesPage
+            disabled={session.busy}
+            crate={crate}
+            onOpen={(release) => {
+              session.openSavedRelease(release);
+              setSection('Digging desk');
+            }}
+          />
+        )}
+        {section === 'Downloads' && <DownloadsPage audio={audio} />}
+        {section === 'Settings' && (
+          <SettingsPage
+            preferences={preferences}
+            session={session}
+            appearance={appearance}
+            onAppearance={selectAppearance}
+            onConnect={() => {
+              session.clearError();
+              setConnectionOpen(true);
+            }}
+          />
+        )}
+        {section === 'Digging desk' && (
+          <div className="workspace">
+            <FilterPanel session={session} />
+            {session.account || session.release ? (
+              <ReleaseWorkspace session={session} crate={crate} audio={audio} />
+            ) : (
+              <DiscoveryPanel />
+            )}
+            <CratePanel crate={crate} disabled={session.busy} onOpen={session.openSavedRelease} />
+          </div>
+        )}
       </main>
       {session.error && !connectionOpen && (
         <p role="alert" className="request-error">
           {session.error.message}
         </p>
       )}
-      <PlaybackBar release={session.release} />
+      <PlaybackBar audio={audio} />
       <div className="status-bar">
         <span>
           <span className="blue-dot" /> DISCOGS DISCOVERY

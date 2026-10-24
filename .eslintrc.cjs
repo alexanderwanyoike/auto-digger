@@ -11,6 +11,7 @@ module.exports = {
   ignorePatterns: [
     'node_modules/',
     'out/',
+    'release/',
     'dist/',
     'coverage/',
     'test-results/',
@@ -48,6 +49,7 @@ module.exports = {
               '**/*.test.ts',
               '**/*.test.tsx',
               'tests/**',
+              'scripts/**',
               'src/main/**',
               'src/preload/**',
             ],

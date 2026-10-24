@@ -1,5 +1,5 @@
 import { _electron as electron, expect, test } from '@playwright/test';
-import { youtubeApiFixture } from '../youtubeApiFixture';
+import { resolve } from 'node:path';
 
 [900, 1180].forEach((width) => {
   test(`desktop desk opens safely, remembers appearance and fits ${width.toString()}x780`, async () => {
@@ -10,14 +10,37 @@ import { youtubeApiFixture } from '../youtubeApiFixture';
       ),
     );
     const desktop = await electron.launch({
-      args: [`--user-data-dir=${test.info().outputPath('profile')}`, '.'],
+      args: [
+        resolve('tests/encryptedDesktop.cjs'),
+        `--user-data-dir=${test.info().outputPath('profile')}`,
+      ],
       env: environment,
     });
     try {
       const page = await desktop.firstWindow();
       await expect(page.getByRole('heading', { name: 'Digging desk' })).toBeVisible();
+      await expect(page.locator('.wordmark img')).toBeVisible();
+      const settings = page.getByRole('button', { name: 'Settings', exact: true });
+      const cog = await settings.boundingBox();
+      const navigation = await page
+        .getByRole('navigation', { name: 'Main sections' })
+        .boundingBox();
+      if (!cog || !navigation) throw new Error('Missing settings navigation');
+      expect(cog.x).toBeGreaterThan(navigation.x + navigation.width - 80);
+      expect(await settings.innerText()).toBe('');
+      await expect(settings).toHaveAttribute('title', 'Settings');
+      expect(
+        await desktop.evaluate(
+          ({ nativeImage }, path) => nativeImage.createFromPath(path).isEmpty(),
+          resolve('resources/icons/icon.png'),
+        ),
+      ).toBe(false);
       expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
       await page.getByRole('button', { name: 'Dark', exact: true }).click();
+      await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
+        'background-color',
+        'rgb(37, 41, 46)',
+      );
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
       await page.reload();
       await expect(page.getByRole('button', { name: 'Dark', exact: true })).toHaveAttribute(
@@ -48,6 +71,10 @@ import { youtubeApiFixture } from '../youtubeApiFixture';
         fullPage: true,
       });
       await page.getByRole('button', { name: 'Dark', exact: true }).click();
+      await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
+        'background-color',
+        'rgb(37, 41, 46)',
+      );
       await page.screenshot({
         path: `test-results/phase-1-${width.toString()}-dark.png`,
         fullPage: true,
@@ -67,7 +94,10 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     ),
   );
   const desktop = await electron.launch({
-    args: [`--user-data-dir=${test.info().outputPath('discogs-profile')}`, '.'],
+    args: [
+      resolve('tests/encryptedDesktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('discogs-profile')}`,
+    ],
     env: environment,
   });
   try {
@@ -79,17 +109,30 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
           const url = input instanceof Request ? input.url : input.toString();
           if (url.endsWith('/oauth/identity'))
             return Promise.resolve(new Response(JSON.stringify(fixtures.identityResponse)));
-          if (url.includes('/database/search?'))
+          if (url.includes('/database/search?')) {
+            const query = new URL(url).searchParams;
+            if (
+              query.get('genre') !== 'Electronic|Jazz' ||
+              query.get('style') !== 'Deep House|Techno'
+            )
+              return Promise.resolve(new Response('{}', { status: 400 }));
             return Promise.resolve(
               new Response(
                 JSON.stringify({
                   pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
                   results: [
-                    { id: 12, title: 'Low Tide - Quiet Orbit EP', year: '1998', format: ['EP'] },
+                    {
+                      id: 12,
+                      title: 'Low Tide - Quiet Orbit EP',
+                      year: '1998',
+                      format: ['EP'],
+                      cover_image: 'https://i.discogs.com/example.jpg',
+                    },
                   ],
                 }),
               ),
             );
+          }
           if (url.endsWith('/releases/12'))
             return Promise.resolve(new Response(JSON.stringify(fixtures.releaseResponse)));
           return Promise.resolve(new Response('{}', { status: 404 }));
@@ -97,15 +140,6 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
       },
       { identityResponse, releaseResponse },
     );
-    await page.route('https://www.youtube.com/iframe_api', async (route) => {
-      await route.fulfill({ contentType: 'application/javascript', body: youtubeApiFixture });
-    });
-    await page.route('https://www.youtube.com/embed/**', async (route) => {
-      await route.fulfill({
-        contentType: 'text/html',
-        body: '<html lang="en"><body style="background:#202429;color:#a1acba;font:14px sans-serif;display:grid;place-items:center;height:90vh">YouTube player test fixture</body></html>',
-      });
-    });
     await page.route('https://i.discogs.com/**', async (route) => {
       await route.fulfill({
         contentType: 'image/svg+xml',
@@ -120,27 +154,66 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
       page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }),
     ).toBeEnabled();
     await expect(page.getByLabel('Personal token')).toHaveCount(0);
+    await page.getByLabel('Genre', { exact: true }).fill('Electronic');
+    await page.getByRole('option', { name: 'Electronic', exact: true }).click();
+    await page.getByLabel('Genre', { exact: true }).fill('Jazz');
+    await page.getByRole('option', { name: 'Jazz', exact: true }).click();
     await page.getByLabel('Style', { exact: true }).fill('Deep House');
-    await page.getByRole('button', { name: 'Search EPs', exact: true }).click();
+    await page.getByRole('option', { name: 'Deep House', exact: true }).click();
+    await page.getByLabel('Style', { exact: true }).fill('Techno');
+    await page.getByRole('option', { name: 'Techno', exact: true }).click();
+    await page.getByLabel('Style', { exact: true }).press('Escape');
+    await page.getByRole('button', { name: 'Search releases', exact: true }).click();
     await expect(page.getByText('1 matching releases', { exact: true })).toBeVisible();
+    const results = page.getByRole('region', { name: 'Matching releases' });
+    await expect(results.locator('img')).toHaveAttribute(
+      'src',
+      'https://i.discogs.com/example.jpg',
+    );
+    await expect(results.locator('img')).toBeInViewport();
+    await expect
+      .poll(() =>
+        results
+          .locator('img')
+          .evaluate((image) => (image instanceof HTMLImageElement ? image.naturalWidth : 0)),
+      )
+      .toBeGreaterThan(0);
+    await page.screenshot({ path: 'test-results/artwork-search-light.png' });
     await page.getByRole('button', { name: /Low Tide - Quiet Orbit EP/ }).click();
     await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
     await expect(page.getByText('Low Tide', { exact: true })).toBeVisible();
     await expect(page.getByText('Quiet Orbit', { exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'Dig a random EP', exact: true }).click();
+    await page.getByRole('button', { name: 'Dig a random release', exact: true }).click();
     await expect(page.getByText('1 found · 1 accessible matches', { exact: true })).toBeVisible();
-    await expect(page.getByText('Ready. Press play in the video.', { exact: true })).toBeVisible();
-    await expect(page.getByTitle('YouTube video player')).toHaveAttribute(
-      'src',
-      'https://www.youtube.com/embed/abcdefghijk',
-    );
+    await expect(
+      page.getByRole('img', { name: 'Quiet Orbit EP record sleeve', exact: true }),
+    ).toBeInViewport();
+    await expect(page.getByRole('region', { name: 'Audio sources' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Download audio', exact: true })).toBeEnabled();
+    await expect(page.locator('iframe')).toHaveCount(0);
     expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
     await page.setViewportSize({ width: 1180, height: 780 });
     await expect(page.getByText('Built for the long way round.', { exact: true })).toBeInViewport({
       ratio: 1,
     });
     await page.screenshot({ path: 'test-results/phase-2-release-light.png', fullPage: true });
+    await page.getByRole('button', { name: 'Save EP to crate', exact: true }).click();
+    await expect(
+      page.getByRole('complementary', { name: 'Your crate' }).locator('img'),
+    ).toHaveAttribute('src', 'https://i.discogs.com/example.jpg');
+    await page.screenshot({ path: 'test-results/artwork-record-and-crate-light.png' });
     await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
+      'background-color',
+      'rgb(37, 41, 46)',
+    );
+    await page.screenshot({ path: 'test-results/artwork-record-and-crate-dark.png' });
+    await page.getByRole('button', { name: 'Light', exact: true }).click();
+    await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
+      'background-color',
+      'rgb(37, 41, 46)',
+    );
     await page.screenshot({ path: 'test-results/phase-2-release-dark.png', fullPage: true });
     await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).click();
     await page.getByRole('button', { name: 'Disconnect', exact: true }).click();

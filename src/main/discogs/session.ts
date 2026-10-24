@@ -1,3 +1,4 @@
+import { researchSearchInputSchema } from '../../shared/researchSearch';
 import { createDigger } from './digger';
 import { digInputSchema } from '../../shared/dig';
 import type { DigResult } from '../../shared/dig';
@@ -68,7 +69,26 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       if (result.ok) digger.apply(parsed.data.filters);
       return result;
     },
-    async loadRelease(id: unknown): Promise<DiscogsResult<DiscogsRelease>> {
+    async researchSearch(input: unknown, signal?: AbortSignal): Promise<DiscogsResult<SearchPage>> {
+      if (!acceptedToken)
+        return discogsFailure('unauthorized', 'Connect your Discogs account first.');
+      const parsed = researchSearchInputSchema.safeParse(input);
+      if (!parsed.success)
+        return discogsFailure(
+          'invalid-input',
+          'Use valid Discogs research filters and a query of up to 160 characters.',
+        );
+      const started = revision;
+      const result = await searchDiscogs(parsed.data, acceptedToken, request, {
+        query: parsed.data.query,
+        ...(signal ? { signal } : {}),
+      });
+      if (started !== revision)
+        return discogsFailure('cancelled', 'The Discogs session has changed.');
+      if (!result.ok && result.error.code === 'unauthorized') clear();
+      return result;
+    },
+    async loadRelease(id: unknown, signal?: AbortSignal): Promise<DiscogsResult<DiscogsRelease>> {
       if (!acceptedToken)
         return discogsFailure('unauthorized', 'Connect your Discogs account first.');
       if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1) {
@@ -80,6 +100,7 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
         acceptedToken,
         releaseMetadataSchema,
         request,
+        signal,
       );
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');

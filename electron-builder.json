@@ -1,0 +1,52 @@
+{
+  "appId": "io.github.alexanderwanyoike.auto-digger",
+  "productName": "Auto Digger",
+  "asar": false,
+  "directories": {
+    "output": "release",
+    "buildResources": "resources/icons"
+  },
+  "files": [
+    "out/**/*",
+    "resources/icons/**/*",
+    "package.json",
+    "LICENSE",
+    "site/public/licenses/**/*"
+  ],
+  "publish": null,
+  "npmRebuild": false,
+  "win": {
+    "target": ["nsis"],
+    "executableName": "auto-digger",
+    "icon": "resources/icons/icon.ico",
+    "artifactName": "AutoDigger-${version}-windows-${arch}-setup.${ext}"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true
+  },
+  "mac": {
+    "target": ["dmg"],
+    "icon": "resources/icons/icon.icns",
+    "identity": "-",
+    "notarize": false,
+    "category": "public.app-category.music",
+    "artifactName": "AutoDigger-${version}-macos-${arch}.${ext}"
+  },
+  "dmg": {
+    "sign": false
+  },
+  "linux": {
+    "target": ["AppImage"],
+    "executableName": "auto-digger",
+    "icon": "resources/icons/icon.png",
+    "category": "AudioVideo",
+    "artifactName": "AutoDigger-${version}-linux-x64.${ext}",
+    "desktop": {
+      "entry": {
+        "StartupWMClass": "auto-digger"
+      }
+    }
+  }
+}

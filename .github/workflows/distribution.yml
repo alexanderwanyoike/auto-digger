@@ -1,0 +1,178 @@
+name: Desktop installers
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: installers-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  context:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - name: Resolve version and validate release tags
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(node -p 'JSON.parse(require("fs").readFileSync("package.json", "utf8")).version')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            test "$GITHUB_REF_NAME" = "v$version"
+            test "$(git cat-file -t "$GITHUB_REF")" = tag
+            git merge-base --is-ancestor HEAD origin/main
+          fi
+
+  package:
+    name: Installer (${{ matrix.target }})
+    needs: context
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: linux-x64
+            os: ubuntu-22.04
+            flags: --linux --x64
+            suffix: linux-x64.AppImage
+          - target: windows-x64
+            os: windows-latest
+            flags: --win --x64
+            suffix: windows-x64-setup.exe
+          - target: macos-arm64
+            os: macos-15
+            flags: --mac --arm64
+            suffix: macos-arm64.dmg
+            architecture: arm64
+          - target: macos-x64
+            os: macos-15
+            flags: --mac --x64
+            suffix: macos-x64.dmg
+            architecture: x86_64
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+          cache: yarn
+      - name: Prepare Yarn
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+      - run: yarn install --frozen-lockfile
+      - run: yarn package:make ${{ matrix.flags }}
+      - name: Open extracted AppImage and exercise installed MCP access
+        if: matrix.target == 'linux-x64'
+        run: xvfb-run --auto-servernum yarn package:test
+      - name: Check disk image payload and architecture
+        if: startsWith(matrix.target, 'macos-')
+        shell: bash
+        env:
+          INSTALLER: ${{ github.workspace }}/release/AutoDigger-${{ needs.context.outputs.version }}-${{ matrix.suffix }}
+          ARCHITECTURE: ${{ matrix.architecture }}
+        run: |
+          set -euo pipefail
+          hdiutil verify "$INSTALLER"
+          volume="$RUNNER_TEMP/auto-digger-volume"
+          mkdir "$volume"
+          hdiutil attach "$INSTALLER" -readonly -nobrowse -mountpoint "$volume" -quiet
+          trap 'hdiutil detach "$volume" -quiet' EXIT
+          bundle="$volume/Auto Digger.app"
+          executable=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$bundle/Contents/Info.plist")
+          lipo "$bundle/Contents/MacOS/$executable" -verify_arch "$ARCHITECTURE"
+          for asset in out/main/index.js out/main/mcp.js out/preload/index.cjs out/renderer/index.html resources/icons/icon.png LICENSE site/public/licenses/manrope.txt; do
+            test -s "$bundle/Contents/Resources/app/$asset"
+          done
+      - name: Install Windows payload and check bundled files
+        if: matrix.target == 'windows-x64'
+        shell: pwsh
+        env:
+          INSTALLER: ${{ github.workspace }}/release/AutoDigger-${{ needs.context.outputs.version }}-${{ matrix.suffix }}
+        run: |
+          $destination = Join-Path $env:RUNNER_TEMP 'auto-digger-installed'
+          $process = Start-Process -FilePath $env:INSTALLER -ArgumentList '/S', "/D=$destination" -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Installer exited $($process.ExitCode)" }
+          if (!(Test-Path "$destination/auto-digger.exe")) { throw 'Installed executable missing' }
+          foreach ($asset in @('out/main/index.js', 'out/main/mcp.js', 'out/preload/index.cjs', 'out/renderer/index.html', 'resources/icons/icon.png', 'LICENSE', 'site/public/licenses/manrope.txt')) {
+            $before = (Get-FileHash "$env:GITHUB_WORKSPACE/release/win-unpacked/resources/app/$asset").Hash
+            $after = (Get-FileHash "$destination/resources/app/$asset").Hash
+            if ($before -ne $after) { throw "Installed $asset changed" }
+          }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: installer-${{ matrix.target }}
+          path: release/AutoDigger-${{ needs.context.outputs.version }}-${{ matrix.suffix }}
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  assemble:
+    needs: [context, package]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: installer-*
+          path: release-set
+          merge-multiple: true
+      - name: Require every installer and generate checksums
+        working-directory: release-set
+        env:
+          VERSION: ${{ needs.context.outputs.version }}
+        run: |
+          set -euo pipefail
+          for suffix in windows-x64-setup.exe macos-arm64.dmg macos-x64.dmg linux-x64.AppImage; do
+            test -s "AutoDigger-$VERSION-$suffix"
+          done
+          test "$(find . -maxdepth 1 -type f | wc -l)" -eq 4
+          sha256sum AutoDigger-* > SHA256SUMS
+          sha256sum --check SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: auto-digger-release-set
+          path: release-set/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  draft:
+    if: github.ref_type == 'tag'
+    needs: [context, assemble]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: auto-digger-release-set
+          path: release-set
+      - name: Create a draft without replacing an existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$RELEASE_TAG" release-set/* --verify-tag --draft --title "$RELEASE_TAG" --notes 'Windows, macOS and Linux preview installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized. Audio requires yt-dlp, FFmpeg, FFprobe and Node.js. MCP clients require Node.js 22 or newer. Verify downloads against SHA256SUMS.'

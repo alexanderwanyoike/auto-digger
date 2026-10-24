@@ -3,11 +3,11 @@ import type { BrowserWindow } from 'electron';
 import { crateChannels } from '../../shared/crate';
 import type { CrateResult } from '../../shared/crate';
 import { crateFailure } from '../../shared/crateFailure';
-import type { createCrateStore } from './store';
+import type { createLegacyCrateStore } from '../catalogue/legacyCrateStore';
 
 export function registerCrateHandlers(
   window: BrowserWindow,
-  store: ReturnType<typeof createCrateStore>,
+  store: ReturnType<typeof createLegacyCrateStore>,
 ) {
   const handle = (channel: string, operation: (input: unknown) => Promise<CrateResult>) => {
     ipcMain.removeHandler(channel);

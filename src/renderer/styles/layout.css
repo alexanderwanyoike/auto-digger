@@ -11,9 +11,7 @@
   align-items: center;
   gap: 28px;
   border-bottom: 1px solid var(--line);
-  background:
-    repeating-linear-gradient(0deg, transparent 0 2px, #8893a906 2px 3px),
-    linear-gradient(var(--metal-top), var(--metal-bottom));
+  background: linear-gradient(var(--metal-top), var(--metal-bottom));
 }
 .wordmark {
   display: flex;
@@ -87,10 +85,9 @@ h1 {
   flex: 1;
   margin: 0 24px 24px;
   min-height: 516px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
+  border: 0;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: var(--shadow);
 }
 .filter-panel,
 .crate-panel {

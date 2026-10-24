@@ -13,12 +13,16 @@
 .search-results ul {
   list-style: none;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 20px 14px;
 }
 .search-result {
   width: 100%;
-  padding: 12px 0;
+  min-width: 0;
+  padding: 0 0 12px;
   display: grid;
-  gap: 5px;
+  gap: 8px;
   text-align: left;
   border: 0;
   border-bottom: 1px solid var(--line);
@@ -26,8 +30,18 @@
   color: inherit;
   cursor: pointer;
 }
-.search-result span {
+.search-result > strong,
+.search-result > span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.search-result > span {
+  height: 3em;
   font-size: 11px;
+  line-height: 1.5;
   color: var(--muted);
 }
 .search-results nav {
@@ -67,4 +81,13 @@
   width: 100%;
   font-size: 10px;
   color: var(--muted);
+}
+
+.search-result strong {
+  height: 3.2em;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.search-result .record-cover {
+  margin-bottom: 4px;
 }

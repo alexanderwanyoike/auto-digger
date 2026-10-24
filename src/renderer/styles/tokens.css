@@ -14,7 +14,7 @@
   --metal-bottom: #e3e6e9;
   --line: #d8dde2;
   --text: #252c35;
-  --muted: #697480;
+  --muted: #5f6a76;
   --faint: #9099a3;
   --blue: #2465dd;
   --blue-soft: #e7effe;
@@ -92,8 +92,7 @@ svg {
 .stage-caption,
 .sleeve-caption,
 .sleeve-edition,
-.timeline,
-.playback-source {
+.timeline {
   font-family: 'IBM Plex Mono', monospace;
 }
 .eyebrow {

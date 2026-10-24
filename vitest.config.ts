@@ -4,9 +4,31 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: 'jsdom',
-    setupFiles: ['tests/setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}'],
     restoreMocks: true,
+    unstubGlobals: true,
+    projects: [
+      {
+        test: {
+          name: 'site',
+          environment: 'jsdom',
+          include: ['tests/site/**/*.test.ts'],
+        },
+      },
+      {
+        test: {
+          name: 'main',
+          environment: 'node',
+          include: ['src/{main,shared,preload}/**/*.test.ts'],
+        },
+      },
+      {
+        test: {
+          name: 'renderer',
+          environment: 'jsdom',
+          setupFiles: ['tests/setup.ts'],
+          include: ['src/renderer/**/*.test.{ts,tsx}'],
+        },
+      },
+    ],
   },
 });

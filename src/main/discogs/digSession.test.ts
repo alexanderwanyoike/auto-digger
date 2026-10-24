@@ -55,11 +55,11 @@ test('applying different filters resets history even when returning before the n
   });
   const session = createDiscogsSession(request);
   await session.connect('token');
-  await session.search({ filters: { style: 'Deep House' }, page: 1 });
-  await session.dig({ filters: { style: 'Deep House' } });
-  await session.search({ filters: { style: 'Techno' }, page: 1 });
-  await session.search({ filters: { style: 'Deep House' }, page: 1 });
-  expect(await session.dig({ filters: { style: 'Deep House' } })).toMatchObject({
+  await session.search({ filters: { style: ['Deep House'] }, page: 1 });
+  await session.dig({ filters: { style: ['Deep House'] } });
+  await session.search({ filters: { style: ['Techno'] }, page: 1 });
+  await session.search({ filters: { style: ['Deep House'] }, page: 1 });
+  expect(await session.dig({ filters: { style: ['Deep House'] } })).toMatchObject({
     ok: true,
     value: { seen: 1, release: { id: 12 } },
   });
