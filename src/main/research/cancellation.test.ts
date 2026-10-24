@@ -2,7 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test, vi } from 'vitest';
-import { identityResponse, releaseResponse } from '../../../tests/discogsFixtures';
+import { identityResponse, loadedRelease, releaseResponse } from '../../../tests/discogsFixtures';
 import { createCatalogueStore } from '../catalogue/store';
 import { createTokenStore } from '../credentials/tokenStore';
 import { createDiscogsSession } from '../discogs/session';
@@ -87,20 +87,7 @@ test.each(['create_crate', 'annotate_track', 'save_research'] as const)(
       const { crateId } = created.value;
       const added = await catalogue.add({
         crateId,
-        release: {
-          id: 12,
-          title: 'Quiet Orbit EP',
-          artists: ['Low Tide'],
-          labels: [],
-          year: 1998,
-          country: null,
-          genres: [],
-          styles: [],
-          formats: ['EP'],
-          artworkUrl: null,
-          tracks: [{ position: 'A1', title: 'Quiet Orbit', duration: '' }],
-          videos: [],
-        },
+        release: loadedRelease,
       });
       if (!added.ok || !added.value.entries[0]?.tracks[0]) throw new Error('No track');
       const trackKey = added.value.entries[0].tracks[0].key;
