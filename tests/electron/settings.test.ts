@@ -93,8 +93,12 @@ test('keeps small text and accent actions readable across supported materials, a
     const page = await desktop.firstWindow();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     const choices = ['light', 'dark'].flatMap((mode) =>
-      ['aluminium', 'ceramic', 'slate'].flatMap((material) =>
-        ['blue', 'teal', 'amber'].map((accent) => ({ mode, material, accent })),
+      ['aluminium', 'ceramic', 'slate', 'graphite', 'paper', 'copper'].flatMap((material) =>
+        ['blue', 'teal', 'amber', 'coral', 'sage', 'lilac', 'rose'].map((accent) => ({
+          mode,
+          material,
+          accent,
+        })),
       ),
     );
     await choices.reduce<Promise<void>>(
