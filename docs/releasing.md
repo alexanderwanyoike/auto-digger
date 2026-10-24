@@ -8,11 +8,11 @@ Before promoting a release, run `yarn verify`, `xvfb-run --auto-servernum yarn t
 
 `yarn package:make` builds an installer for the current platform. Use `--linux --x64`, `--win --x64`, `--mac --arm64` or `--mac --x64` on a compatible build host. `yarn package:dir` creates an unpacked app. Outputs are in `release/`.
 
-The Desktop installers workflow builds Windows x64 NSIS, Apple silicon and Intel DMGs, and a Linux x64 AppImage. PR runs provide downloadable artifacts for testing. CI installs the Windows executable, mounts and checks both DMGs, and opens the extracted AppImage with a real MCP client. It checks the app, renderer, preload, MCP entry, icon and licence files in each payload. Windows and macOS interactive playback still need testing on those systems.
+The Desktop installers workflow builds Windows x64 NSIS, Apple silicon and Intel DMGs, and a Linux x64 AppImage. PR runs provide downloadable artifacts for testing. CI installs the Windows executable, mounts and checks both DMGs, and opens the extracted AppImage with a real MCP client. It checks the app, renderer, preload, MCP entry, standalone extension helper, icon and licence files in each payload. Windows and macOS interactive playback still need testing on those systems.
 
 Windows builds are unsigned. macOS builds are ad-hoc signed and not notarized. These preview installers may trigger operating-system checks. Signing with a publisher certificate and notarization need separate release credentials.
 
-The desktop requires current yt-dlp, FFmpeg, FFprobe and Node.js on PATH for audio extraction. Those tools are not bundled. External MCP clients need Node.js 22 or newer and a running app with research access enabled.
+The desktop requires current yt-dlp, FFmpeg, FFprobe and Node.js on PATH for audio extraction. Those tools are not bundled. MCP uses the included runtime or Claude Desktop's bundled runtime. Keep the app open with research access enabled.
 
 ## Draft and publication
 
@@ -28,6 +28,6 @@ For a local published-state preview, save the GitHub release API response and ru
 
 ## Packaging pattern and licences
 
-The packaging follows electron-builder's native targets and the existing Muzo distribution workflow. Auto Digger uses ordinary resource files (`asar: false`) because its MCP entry runs in an external Node process, which cannot load an Electron ASAR archive. Runtime dependencies and their licences remain alongside the compiled app. Font licences are included explicitly.
+The packaging follows electron-builder's native targets and the existing Muzo distribution workflow. Auto Digger uses ordinary resource files (`asar: false`) so local MCP clients can run its helper with the included executable in Node mode. The exported Claude extension bundles its helper and dependencies separately. Runtime dependencies and their licences remain alongside the compiled app. Font licences are included explicitly.
 
 References: [electron-vite distribution](https://electron-vite.org/guide/distribution), [electron-builder configuration](https://www.electron.build/configuration/) and [Vite HTML transforms](https://vite.dev/guide/api-plugin#transformindexhtml). The project uses MIT; preserve bundled third-party licences.

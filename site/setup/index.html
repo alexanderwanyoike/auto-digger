@@ -73,116 +73,103 @@ open "/Applications/Auto Digger.app"</code></pre>
           </p>
         </section>
         <section id="mcp" aria-labelledby="mcp-title">
-          <h2 id="mcp-title">MCP setup</h2>
-          <ol>
-            <li>
-              Install <a href="https://nodejs.org/en/download">Node.js 22 or newer</a>. Your MCP
-              client must be able to run <code>node</code>.
-            </li>
-            <li>Open Auto Digger and connect your Discogs account for release searches.</li>
-            <li>
-              Open <strong>Settings → AI mix research</strong> and choose
-              <strong>Enable research access</strong>.
-            </li>
-          </ol>
+          <h2 id="mcp-title">Connect your AI assistant</h2>
+          <p>This lets your assistant find the records in a mix and save them to a crate.</p>
           <p>
-            Keep Auto Digger open. Access starts disabled after every restart. While enabled, your
-            client can read and edit your crates.
+            Open <strong>Settings → AI mix research</strong> in Auto Digger and choose
+            <strong>Enable research access</strong>. Then follow the steps for your assistant below.
           </p>
           <p>
-            Use the configuration shown in Settings: it contains the correct paths for your
-            installation. The client must run locally on the same computer. This connection has no
-            public server URL.
+            Set this up once on the same computer. Keep Auto Digger open while using it. No separate
+            Node installation is needed for MCP.
           </p>
         </section>
         <section id="claude-desktop" aria-labelledby="claude-desktop-title">
           <h2 id="claude-desktop-title">Claude Desktop</h2>
           <ol>
-            <li>In Auto Digger, select <strong>JSON client configuration</strong> and copy it.</li>
             <li>
-              Open Claude Desktop's <code>claude_desktop_config.json</code> using the path below.
-              Launch Claude Desktop once first if its folder does not exist.
+              In Auto Digger, choose <strong>Save Claude extension</strong>. Save the file in
+              Downloads.
             </li>
             <li>
-              Add the copied <code>auto_digger</code> entry to the existing
-              <code>mcpServers</code> object. Preserve other servers. For an empty file, paste the
-              complete copied JSON.
+              In Claude Desktop, open
+              <strong>Settings → Desktop app → Extensions → Advanced settings</strong>.
             </li>
             <li>
-              Fully quit Claude Desktop and reopen it. Look for <code>auto_digger</code> in its
-              local MCP servers or chat tools.
+              Choose <strong>Install Extension</strong>, select
+              <strong>Auto Digger.mcpb</strong> from Downloads and follow the prompts.
             </li>
           </ol>
-          <dl class="setup-paths">
-            <div>
-              <dt>macOS</dt>
-              <dd><code>~/Library/Application Support/Claude/claude_desktop_config.json</code></dd>
-            </div>
-            <div>
-              <dt>Windows</dt>
-              <dd><code>%APPDATA%\Claude\claude_desktop_config.json</code></dd>
-            </div>
-          </dl>
           <p>
-            Use local MCP configuration, not the remote custom-connector URL field. Current versions
-            list local servers in <strong>Settings → Desktop app → Extensions</strong>; older
-            layouts use <strong>Settings → Developer</strong>.
+            That is the setup. Claude runs the extension for you. You do not need to open a terminal
+            or edit a configuration file.
           </p>
           <p class="setup-reference">
             <a
               href="https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop"
-              >Claude local MCP help</a
+              >Claude extension installation help</a
             >
-            ·
-            <a href="https://py.sdk.modelcontextprotocol.io/get-started/real-host/"
-              >Config-file reference</a
-            >
-          </p>
-        </section>
-        <section id="claude-code" aria-labelledby="claude-code-title">
-          <h2 id="claude-code-title">Claude Code</h2>
-          <p>
-            Replace both example paths with the absolute paths shown in Auto Digger's configuration,
-            then run:
-          </p>
-          <pre
-            role="region"
-            tabindex="0"
-            aria-label="Claude Code MCP registration"
-          ><code>claude mcp add --transport stdio --scope user auto_digger -- node "/path/from/settings/mcp.js" --connection "/path/from/settings/mcp-connection.json"</code></pre>
-          <p>
-            Open Claude Code and use <code>/mcp</code> to check that <code>auto_digger</code> is
-            connected. <a href="https://code.claude.com/docs/en/mcp">Claude Code MCP reference</a>.
           </p>
         </section>
         <section id="codex" aria-labelledby="codex-title">
           <h2 id="codex-title">Codex</h2>
           <ol>
             <li>
-              In Auto Digger, select <strong>Codex TOML configuration</strong> and copy the block.
+              In Auto Digger, expand <strong>Codex and other local clients</strong> and select
+              <strong>Codex TOML configuration</strong>.
             </li>
             <li>
-              Add it to <code>~/.codex/config.toml</code>. Preserve other settings; replace an
-              existing <code>[mcp_servers.auto_digger]</code> block instead of duplicating it.
+              In Codex, open <strong>Settings → MCP servers → Add server</strong>. Name it
+              <code>auto_digger</code> and choose <strong>STDIO</strong>.
             </li>
             <li>
-              Restart your Codex client. In desktop MCP settings, the equivalent is a
-              <strong>STDIO</strong> server named <code>auto_digger</code>, using the displayed
-              command and three arguments.
+              Copy the displayed <code>command</code> into Command. Add each item in
+              <code>args</code> as a separate argument, without the surrounding quotes.
+            </li>
+            <li>
+              Add the environment variable <code>ELECTRON_RUN_AS_NODE</code> with value
+              <code>1</code>. Save and restart Codex.
             </li>
           </ol>
-          <p>CLI alternative, with both example paths replaced by the values from Auto Digger:</p>
-          <pre
-            role="region"
-            tabindex="0"
-            aria-label="Codex MCP registration"
-          ><code>codex mcp add auto_digger -- node "/path/from/settings/mcp.js" --connection "/path/from/settings/mcp-connection.json"
-codex mcp list</code></pre>
-          <p>
-            Use <code>/mcp</code> to check available tools.
-            <a href="https://learn.chatgpt.com/docs/extend/mcp?surface=cli"
-              >Official OpenAI MCP documentation</a
-            >.
+          <p>Auto Digger supplies the runtime. Keep all three arguments in the order shown.</p>
+          <details>
+            <summary>Codex configuration file</summary>
+            <p>
+              For Codex CLI, paste the complete block from Auto Digger into
+              <code>~/.codex/config.toml</code>. Replace an existing
+              <code>[mcp_servers.auto_digger]</code> block. Preserve your other settings.
+            </p>
+            <pre
+              role="region"
+              tabindex="0"
+              aria-label="Codex MCP registration"
+            ><code>[mcp_servers.auto_digger]
+command = "copy the command from Auto Digger"
+args = ["copy the first argument", "--connection", "copy the last argument"]
+env = { ELECTRON_RUN_AS_NODE = "1" }</code></pre>
+          </details>
+          <p class="setup-reference">
+            <a href="https://learn.chatgpt.com/docs/extend/mcp?surface=cli">Codex MCP help</a>
+          </p>
+        </section>
+        <section id="claude-code" aria-labelledby="claude-code-title">
+          <h2 id="claude-code-title">Claude Code</h2>
+          <p>Claude Code uses the same local connection. Its setup command is below.</p>
+          <details>
+            <summary>Claude Code command</summary>
+            <p>
+              Use the executable and paths displayed in Auto Digger. Replace the example paths and
+              quote any path containing spaces:
+            </p>
+            <pre
+              role="region"
+              tabindex="0"
+              aria-label="Claude Code MCP registration"
+            ><code>claude mcp add --transport stdio --scope user auto_digger --env ELECTRON_RUN_AS_NODE=1 -- "EXECUTABLE_FROM_SETTINGS" "FIRST_ARGUMENT_FROM_SETTINGS" --connection "LAST_ARGUMENT_FROM_SETTINGS"</code></pre>
+            <p>Open Claude Code and use <code>/mcp</code> to check the connection.</p>
+          </details>
+          <p class="setup-reference">
+            <a href="https://code.claude.com/docs/en/mcp">Claude Code MCP help</a>
           </p>
         </section>
         <section id="try-it" aria-labelledby="try-title">
@@ -209,32 +196,30 @@ codex mcp list</code></pre>
           <h2 id="troubleshooting-title">Troubleshooting</h2>
           <dl class="setup-problems">
             <div>
-              <dt>The client cannot find Node</dt>
+              <dt>My assistant cannot connect</dt>
               <dd>
-                Use <code>command -v node</code> on macOS/Linux or <code>where.exe node</code> on
-                Windows. Put the full Node executable path in the client's
-                <code>command</code> field; leave the arguments unchanged.
+                Open Auto Digger and choose <strong>Enable research access</strong>. Do this each
+                time you reopen the app. Restart your assistant if its tools have not appeared.
               </dd>
             </div>
             <div>
-              <dt>The app is closed or access is disabled</dt>
+              <dt>Search does not work</dt>
               <dd>
-                Reopen Auto Digger, enable research access and reconnect the client. Disabling
-                access or closing the app revokes the connection.
+                Check that Discogs is connected in Auto Digger. Your Discogs token stays in the app.
               </dd>
             </div>
             <div>
-              <dt>A file path no longer exists</dt>
+              <dt>I moved or updated Auto Digger</dt>
               <dd>
-                Copy fresh configuration after moving or updating Auto Digger. Linux AppImage mount
-                paths can change between launches, so refresh the client configuration if needed.
+                Copy fresh Codex configuration if its paths changed. This can also happen when
+                running a Linux AppImage. The Claude extension keeps its own copy of the helper.
               </dd>
             </div>
             <div>
-              <dt>Search fails but crate tools work</dt>
+              <dt>Claude refuses the extension</dt>
               <dd>
-                Check the Discogs connection in Auto Digger. Keep the token in the app; it is not
-                part of MCP client configuration.
+                Update Claude Desktop and try saving the extension again. Work accounts may need an
+                administrator to allow custom extensions.
               </dd>
             </div>
           </dl>
