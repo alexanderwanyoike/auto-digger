@@ -24,3 +24,21 @@
   display: flex;
   flex-direction: column;
 }
+.filter-panel > .desk-panel-scroll {
+  scrollbar-width: none;
+}
+@media (min-height: 901px) {
+  .filter-panel fieldset > label {
+    margin-bottom: 4px;
+  }
+  .filter-panel .input-wrap {
+    margin-top: 4px;
+    margin-bottom: 6px;
+  }
+  .filter-panel .taxonomy-field {
+    margin: 8px 0;
+  }
+  .filter-panel .format-row {
+    margin: 10px 0;
+  }
+}
