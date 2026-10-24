@@ -26,7 +26,9 @@ test('keeps a restore warning and the unreadable preference until a crate is exp
   };
   try {
     const { result } = renderHook(() => useCatalogue(bridge));
-    await waitFor(() => expect(result.current.ready).toBe(true));
+    await waitFor(() => {
+      expect(result.current.ready).toBe(true);
+    });
     expect(result.current.view).toEqual(view);
     expect(result.current.error?.message).toContain('could not be restored');
     read.mockRestore();
