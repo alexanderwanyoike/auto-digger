@@ -1,6 +1,7 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import sharp from 'sharp';
+import { contrast } from '../contrast';
 
 (['Light', 'Dark'] as const).forEach((mode) => {
   test(`renders neutral satin aluminium with fine grain in ${mode.toLowerCase()} mode`, async () => {
@@ -34,18 +35,36 @@ import sharp from 'sharp';
         let brightness = 0;
         let tint = 0;
         let grain = 0;
+        const background = [0, 0, 0];
         for (let y = 0; y < info.height; y += 1) {
           for (let x = 0; x < info.width; x += 1) {
             const offset = (y * info.width + x) * info.channels;
             const red = data[offset] ?? 0;
             const green = data[offset + 1] ?? 0;
             const blue = data[offset + 2] ?? 0;
+            background[0] = (background[0] ?? 0) + red;
+            background[1] = (background[1] ?? 0) + green;
+            background[2] = (background[2] ?? 0) + blue;
             brightness += (red + green + blue) / 3;
             tint += Math.max(red, green, blue) - Math.min(red, green, blue);
             if (x > 0) grain += Math.abs(red - (data[offset - info.channels] ?? 0));
           }
         }
         const pixels = info.width * info.height;
+        const surface = `#${background
+          .map((channel) =>
+            Math.round(channel / pixels)
+              .toString(16)
+              .padStart(2, '0'),
+          )
+          .join('')}`;
+        const muted = await page
+          .locator(selector)
+          .evaluate((element) => getComputedStyle(element).getPropertyValue('--muted').trim());
+        expect(
+          contrast(muted, surface),
+          `${selector}: small text on painted metal`,
+        ).toBeGreaterThanOrEqual(4.5);
         expect(tint / pixels, `${selector}: neutral metal`).toBeLessThanOrEqual(4);
         expect(brightness / pixels, `${selector}: silver or space grey`).toBeGreaterThan(
           mode === 'Light' ? 190 : 40,
