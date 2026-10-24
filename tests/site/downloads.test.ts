@@ -30,11 +30,14 @@ test('links to all four installers from a complete published release', async () 
         }),
       }),
     );
-    await promisify(execFile)('yarn', ['site:build', '--outDir', directory], {
+    await promisify(execFile)('yarn', ['site:build', '--outDir', join(directory, 'dist')], {
       timeout: 30_000,
       env: { ...process.env, AUTO_DIGGER_RELEASE_JSON: releaseFile },
     });
-    document.documentElement.innerHTML = await readFile(resolve(directory, 'index.html'), 'utf8');
+    document.documentElement.innerHTML = await readFile(
+      resolve(directory, 'dist/index.html'),
+      'utf8',
+    );
     expect(document.querySelectorAll('[data-download] a')).toHaveLength(4);
     expect(document.querySelector('[data-download="macos-arm64"] a')?.getAttribute('href')).toBe(
       `${base}AutoDigger-0.1.1-macos-arm64.dmg`,
