@@ -7,13 +7,20 @@ import { _electron as electron } from '@playwright/test';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { expect, test } from 'vitest';
+import metadata from '../../package.json';
 
 test.skipIf(process.platform !== 'linux')(
   'packaged Linux app opens and serves MCP from installed files',
   async () => {
-    await promisify(execFile)('yarn', ['package:dir'], { timeout: 120_000 });
-    const binary = resolve('release/linux-unpacked/auto-digger');
-    const resources = resolve('release/linux-unpacked/resources/app');
+    await promisify(execFile)('yarn', ['package:make', '--linux', '--x64'], { timeout: 120_000 });
+    const extracted = await mkdtemp(join(tmpdir(), 'auto-digger-appimage-'));
+    await promisify(execFile)(
+      resolve(`release/AutoDigger-${metadata.version}-linux-x64.AppImage`),
+      ['--appimage-extract'],
+      { cwd: extracted, timeout: 30_000 },
+    );
+    const binary = join(extracted, 'squashfs-root/auto-digger');
+    const resources = join(extracted, 'squashfs-root/resources/app');
     await Promise.all(
       [
         'out/main/index.js',
@@ -58,6 +65,7 @@ test.skipIf(process.platform !== 'linux')(
       await client.close();
       await desktop.close();
       await rm(profile, { recursive: true, force: true });
+      await rm(extracted, { recursive: true, force: true });
     }
   },
 );
