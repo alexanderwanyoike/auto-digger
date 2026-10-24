@@ -162,10 +162,6 @@ export function useAudioLibrary(
         ]);
         const first = result.value.tracks[0];
         if (first) play(first);
-        if (result.value.failed || result.value.cancelled)
-          setError(
-            `${result.value.tracks.length.toString()} saved, ${result.value.failed.toString()} failed, ${result.value.cancelled.toString()} cancelled. Completed tracks have been kept. Retry the others in the download queue.`,
-          );
       }
       return result;
     } finally {
