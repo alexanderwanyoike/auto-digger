@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ArrowRight, SlidersHorizontal } from 'lucide-react';
 import { TaxonomySelect } from './TaxonomySelect';
 import { GenreStyleFilters } from './GenreStyleFilters';
@@ -13,6 +14,7 @@ const fields = [
 ] as const;
 
 export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs> }) {
+  const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
   return (
     <aside className="filter-panel" aria-labelledby="filters-heading">
       <div className="panel-heading">
@@ -68,6 +70,8 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
             <GenreStyleFilters disabled={!session.account || session.busy} />
             <TaxonomySelect
               name="format"
+              value={selectedFormats}
+              onChange={setSelectedFormats}
               label="Release type"
               options={releaseTypes}
               placeholder="All release types"
