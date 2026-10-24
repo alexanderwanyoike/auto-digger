@@ -158,6 +158,8 @@ export function createDownloadJobs(
         );
       if (pending() >= 100)
         return audioFailure('busy', 'The download queue is full. Let some tracks finish first.');
+      entries.splice(entries.indexOf(entry), 1);
+      entries.push(entry);
       entry.job = { ...entry.job, ...downloadStage('queued'), track: null, error: null };
       pump();
       return { ok: true, value: snapshot(entry) };
