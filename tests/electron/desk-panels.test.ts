@@ -1,7 +1,42 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 import { resolve } from 'node:path';
+import sharp from 'sharp';
 import { loadedRelease } from '../discogsFixtures';
+
+async function expectPanelOutline(panel: Locator, name: string) {
+  const expected = await panel.evaluate((element) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Missing canvas colour context');
+    context.fillStyle = getComputedStyle(element).getPropertyValue('--line').trim();
+    context.fillRect(0, 0, 1, 1);
+    return Array.from(context.getImageData(0, 0, 1, 1).data).slice(0, 3);
+  });
+  const { data, info } = await sharp(await panel.screenshot({ scale: 'css' }))
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const middleX = Math.floor(info.width / 2);
+  const middleY = Math.floor(info.height / 2);
+  const edges = [
+    { edge: 'top', x: middleX, y: 0 },
+    { edge: 'bottom', x: middleX, y: info.height - 1 },
+    { edge: 'left', x: 0, y: middleY },
+    { edge: 'right', x: info.width - 1, y: middleY },
+    { edge: 'top left', x: 0, y: 0 },
+    { edge: 'top right', x: info.width - 1, y: 0 },
+    { edge: 'bottom left', x: 0, y: info.height - 1 },
+    { edge: 'bottom right', x: info.width - 1, y: info.height - 1 },
+  ];
+  edges.forEach(({ edge, x, y }) => {
+    const offset = (y * info.width + x) * info.channels;
+    expect(Array.from(data.subarray(offset, offset + 3)), `${name}: ${edge} border`).toEqual(
+      expected,
+    );
+  });
+}
 
 async function expectPanelEnds(panel: Locator, heading: string, footer: string) {
   const frame = await panel.boundingBox();
@@ -20,6 +55,7 @@ async function expectPanelEnds(panel: Locator, heading: string, footer: string) 
     ratio: 1,
   });
   await expect(panel.getByText(footer, { exact: true })).toBeInViewport({ ratio: 1 });
+  await expectPanelOutline(panel, heading);
 }
 
 [
