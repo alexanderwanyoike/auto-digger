@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+const fs = require('node:fs');
+const path = require('node:path');
+const args = process.argv.slice(2);
+const url = args.at(-1);
+const id = new URL(url).searchParams.get('v');
+if (id === 'xxxxxxxxxxx') {
+  process.stderr.write('ERROR: Private video');
+  process.exit(1);
+}
+if (args.includes('--dump-single-json')) {
+  process.stdout.write(JSON.stringify({ id, title: 'Low Tide - Quiet Orbit', is_live: false }));
+} else {
+  const target = args[args.indexOf('--output') + 1].replace('%(ext)s', 'mp3');
+  fs.copyFileSync(path.join(__dirname, 'tone.mp3'), target);
+}
