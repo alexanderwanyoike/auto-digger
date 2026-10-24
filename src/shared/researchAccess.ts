@@ -25,7 +25,11 @@ export const researchConnectionSchema = z
   .strict();
 export const researchAccessSchema = z.object({
   enabled: z.boolean(),
-  configuration: z.object({ command: z.literal('node'), args: z.array(z.string()).length(3) }),
+  configuration: z.object({
+    command: z.string().min(1),
+    args: z.array(z.string()).length(3),
+    env: z.object({ ELECTRON_RUN_AS_NODE: z.literal('1') }),
+  }),
 });
 export type ResearchAccess = z.infer<typeof researchAccessSchema>;
 export interface ResearchAccessBridge {

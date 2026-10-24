@@ -40,7 +40,7 @@ export function ResearchSettings() {
   const config = access?.configuration;
   const json = config ? JSON.stringify({ mcpServers: { auto_digger: config } }, null, 2) : '';
   const toml = config
-    ? `[mcp_servers.auto_digger]\ncommand = ${JSON.stringify(config.command)}\nargs = ${JSON.stringify(config.args)}`
+    ? `[mcp_servers.auto_digger]\ncommand = ${JSON.stringify(config.command)}\nargs = ${JSON.stringify(config.args)}\nenv = { ELECTRON_RUN_AS_NODE = "1" }`
     : '';
   return (
     <div className="settings-card research-settings">
