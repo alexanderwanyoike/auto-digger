@@ -151,3 +151,22 @@ test('persists independent track picks and personal tags per crate without chang
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('allows concurrent first opens and backs up an existing empty legacy crate', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-catalogue-'));
+  const legacy = join(directory, 'crate.json');
+  const original = JSON.stringify({ version: 1, releases: [] });
+  await writeFile(legacy, original);
+  const file = join(directory, 'catalog.sqlite');
+  const first = createCatalogueStore(file, legacy);
+  const second = createCatalogueStore(file, legacy);
+  try {
+    const views = await Promise.all([first.view(), second.view()]);
+    expect(views.every((result) => result.ok)).toBe(true);
+    expect(await readFile(`${legacy}.bak`, 'utf8')).toBe(original);
+  } finally {
+    await first.close();
+    await second.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
