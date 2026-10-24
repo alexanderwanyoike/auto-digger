@@ -84,7 +84,11 @@ export function createDownloadIndex(connection: () => Promise<CatalogueResult<Da
           .prepare(
             'INSERT INTO downloads(id,directory,metadata) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET directory=excluded.directory,metadata=excluded.metadata',
           )
-          .run(parsed.data.track.id, parsed.data.directory, JSON.stringify(parsed.data.track));
+          .run(
+            parsed.data.track.id,
+            parsed.data.directory,
+            JSON.stringify(localTrackSchema.omit({ missing: true }).parse(parsed.data.track)),
+          );
         return { ok: true, value: undefined };
       });
     },

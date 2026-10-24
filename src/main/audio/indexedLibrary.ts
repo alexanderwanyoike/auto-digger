@@ -1,7 +1,9 @@
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import type { createCatalogueStore } from '../catalogue/store';
 import type { createDownloader } from './downloader';
 import { createAudioLibrary } from './library';
+import { createLibraryFiles } from './libraryFiles';
+import { fileAvailable } from './fileAvailable';
 import { filenamePart } from './filenamePart';
 import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
@@ -32,7 +34,18 @@ export function createIndexedLibrary(
     if (!directories.ok) return audioFailure('storage', directories.error.message);
     if (!records.ok) return audioFailure('storage', records.error.message);
     const tracks = new Map(
-      records.value.map((record) => [record.track.id, { ...record.track, missing: true }]),
+      await Promise.all(
+        records.value.map(
+          async (record) =>
+            [
+              record.track.id,
+              {
+                ...record.track,
+                missing: !(await fileAvailable(join(record.directory, record.track.filename))),
+              },
+            ] as const,
+        ),
+      ),
     );
     const scanned = await Promise.all(
       directories.value.map(async (directory) => ({
@@ -76,8 +89,12 @@ export function createIndexedLibrary(
   async function locate(id: string): Promise<AudioResult<{ track: LocalTrack; file: string }>> {
     const record = await location(id);
     if (!record.ok) return record;
-    const valid = await library(dirname(record.value.file)).find(id);
-    return valid.ok ? { ok: true, value: { track: valid.value, file: record.value.file } } : valid;
+    return (await fileAvailable(record.value.file))
+      ? record
+      : audioFailure(
+          'storage',
+          'This audio file is missing or unavailable. Restore it at its recorded location, or download the source again.',
+        );
   }
   return {
     list,
@@ -116,6 +133,18 @@ export function createIndexedLibrary(
         const existing = records.value.find(
           (record) => record.track.id === `${release.id.toString()}-${sourceId}`,
         );
+        const available = current.value.some(
+          (track) => track.id === existing?.track.id && !track.missing,
+        );
+        if (existing && available) {
+          if (
+            parsed.data.trackIndex === undefined ||
+            parsed.data.trackIndex === existing.track.trackIndex
+          )
+            return { ok: true, value: existing.track };
+          const recovered = await createLibraryFiles(existing.directory).save(existing.track);
+          if (!recovered.ok) return recovered;
+        }
         const root = preferences.value.directory ?? defaultDirectory;
         const target =
           preferences.value.layout === 'release'
