@@ -1,0 +1,13 @@
+:root input:where(:not([type='range'], [type='checkbox'], [type='radio'])):focus-visible,
+:root select:focus-visible,
+:root textarea:focus-visible,
+.taxonomy__control.taxonomy__control--is-focused {
+  border-color: var(--blue);
+  outline: none;
+  outline-offset: 0;
+  box-shadow: 0 0 0 1px var(--blue);
+}
+.taxonomy__input-container input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
