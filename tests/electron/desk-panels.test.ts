@@ -73,22 +73,22 @@ async function expectPanelEnds(panel: Locator, heading: string, footer: string) 
       await filters.getByText(filterFooter, { exact: true }).scrollIntoViewIfNeeded();
       await expectPanelEnds(filters, 'The starting point', filterFooter);
       await page.screenshot({ path: `test-results/panel-ends-${width.toString()}-empty.png` });
-      await page.evaluate(
-        async (release) =>
-          Promise.all(
-            Array.from({ length: 20 }, (_value, index) =>
-              window.catalogue?.add({
-                crateId: 'default',
-                release: {
-                  ...release,
-                  id: 1000 + index,
-                  title: `Archive record ${(index + 1).toString()}`,
-                },
-              }),
-            ),
+      await page.evaluate(async (release) => {
+        const { catalogue } = window;
+        if (!catalogue) throw new Error('Missing desktop catalogue');
+        return Promise.all(
+          Array.from({ length: 20 }, (_value, index) =>
+            catalogue.add({
+              crateId: 'default',
+              release: {
+                ...release,
+                id: 1000 + index,
+                title: `Archive record ${(index + 1).toString()}`,
+              },
+            }),
           ),
-        loadedRelease,
-      );
+        );
+      }, loadedRelease);
       await page.reload();
       await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).waitFor();
       await expect(crate.getByLabel('20 saved releases', { exact: true })).toBeVisible();
@@ -105,8 +105,8 @@ async function expectPanelEnds(panel: Locator, heading: string, footer: string) 
       expect(
         await page.evaluate(
           () =>
-            document.documentElement.scrollHeight <= innerHeight &&
-            document.documentElement.scrollWidth <= innerWidth,
+            document.documentElement.scrollHeight <= window.innerHeight &&
+            document.documentElement.scrollWidth <= window.innerWidth,
         ),
       ).toBe(true);
     } finally {
