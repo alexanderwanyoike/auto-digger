@@ -1,4 +1,6 @@
+import { genres, styles } from 'discogs-dataset-genres-styles';
 import { ArrowRight, SlidersHorizontal } from 'lucide-react';
+import { TaxonomySelect } from './TaxonomySelect';
 import type { DigFilters } from '../../shared/search';
 import type { useDiscogs } from '../discogs/useDiscogs';
 
@@ -6,8 +8,6 @@ const fields = [
   ['label', 'Label', 'Any label'],
   ['artist', 'Artist', 'Any artist'],
   ['year', 'Year', 'Any year'],
-  ['genre', 'Genre', 'All genres'],
-  ['style', 'Style', 'All styles'],
   ['title', 'Release title', 'Any release title'],
 ] as const;
 
@@ -28,12 +28,18 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
             const field = data.get(name);
             return typeof field === 'string' ? field.trim() : '';
           };
+          const selected = (name: string) =>
+            data
+              .getAll(name)
+              .flatMap((field) =>
+                typeof field === 'string' && field.trim() ? [field.trim()] : [],
+              );
           const filters: DigFilters = {
             label: value('label'),
             artist: value('artist'),
             year: value('year'),
-            genre: value('genre') ? [value('genre')] : [],
-            style: value('style') ? [value('style')] : [],
+            genre: selected('genre'),
+            style: selected('style'),
             title: value('title'),
           };
           session.search(filters).catch(() => undefined);
@@ -56,6 +62,18 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
               </span>
             </label>
           ))}
+          <TaxonomySelect
+            name="genre"
+            label="Genre"
+            options={genres}
+            disabled={!session.account || session.busy}
+          />
+          <TaxonomySelect
+            name="style"
+            label="Style"
+            options={styles}
+            disabled={!session.account || session.busy}
+          />
           <div className="format-row">
             <span>Format</span>
             <span className="format-tag">EP</span>
@@ -66,7 +84,7 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
         </fieldset>
       </form>
       <p className="phase-note">
-        Use any Discogs genre or style. Leave fields blank to search widely.
+        Select any genres and styles. Matches any selection in each field.
       </p>
       <div className="source-card">
         <span className="eyebrow">THE SOURCE</span>
