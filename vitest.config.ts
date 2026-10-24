@@ -9,6 +9,13 @@ export default defineConfig({
     projects: [
       {
         test: {
+          name: 'site',
+          environment: 'jsdom',
+          include: ['tests/site/**/*.test.ts'],
+        },
+      },
+      {
+        test: {
           name: 'main',
           environment: 'node',
           include: ['src/{main,shared,preload}/**/*.test.ts'],
