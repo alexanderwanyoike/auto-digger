@@ -1,9 +1,13 @@
 const { safeStorage, app } = require('electron');
 const { pathToFileURL } = require('node:url');
 const { resolve } = require('node:path');
+const { mkdirSync } = require('node:fs');
 const { createHash, createCipheriv, createDecipheriv, randomBytes } = require('node:crypto');
 
 const key = createHash('sha256').update('auto-digger synthetic credential fixture').digest();
+const music = resolve(app.getPath('userData'), 'Music');
+mkdirSync(music, { recursive: true });
+app.setPath('music', music);
 safeStorage.isAsyncEncryptionAvailable = () => Promise.resolve(true);
 safeStorage.getSelectedStorageBackend = () => 'gnome_libsecret';
 safeStorage.encryptStringAsync = (value) => {

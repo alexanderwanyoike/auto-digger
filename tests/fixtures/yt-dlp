@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-const fs = require('node:fs');
-const path = require('node:path');
+import fs from 'node:fs';
+import path from 'node:path';
 const args = process.argv.slice(2);
 const url = args.at(-1);
 const id = new URL(url).searchParams.get('v');
@@ -12,5 +12,5 @@ if (args.includes('--dump-single-json')) {
   process.stdout.write(JSON.stringify({ id, title: 'Low Tide - Quiet Orbit', is_live: false }));
 } else {
   const target = args[args.indexOf('--output') + 1].replace('%(ext)s', 'mp3');
-  fs.copyFileSync(path.join(__dirname, 'tone.mp3'), target);
+  fs.copyFileSync(path.join(import.meta.dirname, 'tone.mp3'), target);
 }
