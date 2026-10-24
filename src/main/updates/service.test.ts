@@ -37,3 +37,28 @@ test('offers a new version, reports measured download progress and only installs
   expect(await updates.install()).toMatchObject({ ok: true });
   expect(install).toHaveBeenCalledOnce();
 });
+
+test('opens a manual installer without claiming to download or install it in the app', async () => {
+  let finish: () => void = () => {
+    throw new Error('No installer request');
+  };
+  const install = vi.fn();
+  const updates = createUpdateService({
+    manual: true,
+    check: () => Promise.resolve({ ok: true, value: '0.2.0' }),
+    download: () =>
+      new Promise((resolve) => {
+        finish = () => {
+          resolve({ ok: true, value: undefined });
+        };
+      }),
+    install,
+  });
+  await updates.check();
+  const opening = updates.download();
+  expect(updates.status()).toEqual({ stage: 'available', version: '0.2.0', manual: true });
+  finish();
+  await opening;
+  expect(await updates.install()).toMatchObject({ ok: false });
+  expect(install).not.toHaveBeenCalled();
+});
