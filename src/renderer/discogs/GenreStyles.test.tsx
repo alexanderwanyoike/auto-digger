@@ -81,3 +81,26 @@ test('allows explicit newer styles absent from the reference without guessing th
   await user.click(screen.getByRole('button', { name: 'Search releases' }));
   expect(search.mock.lastCall?.[0].filters.style).toEqual(['Drill']);
 });
+
+test.each([
+  { genre: 'Rock', style: 'Brit Pop' },
+  { genre: 'Funk / Soul', style: 'Gogo' },
+  { genre: 'Folk, World, & Country', style: 'Min’yō' },
+])(
+  'keeps selected reference style $style when the last genre is cleared',
+  async ({ genre, style }) => {
+    const search = renderDesk();
+    const user = userEvent.setup();
+    await screen.findByRole('button', { name: 'Connected as quiet-digger' });
+    await user.type(screen.getByLabelText('Genre'), genre);
+    await user.click(screen.getByRole('option', { name: genre }));
+    await user.type(screen.getByLabelText('Style'), style);
+    await user.click(screen.getByRole('option', { name: style }));
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByLabelText(`Remove ${genre}`));
+    expect(screen.getByLabelText(`Remove ${style}`)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Search releases' }));
+    expect(search.mock.lastCall?.[0].filters.genre).toEqual([]);
+    expect(search.mock.lastCall?.[0].filters.style).toEqual([style]);
+  },
+);
