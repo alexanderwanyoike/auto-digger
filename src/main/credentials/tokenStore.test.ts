@@ -29,3 +29,27 @@ test('remembers only encrypted bytes, restores the token and forgets it', async 
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('preserves the previous credential when encryption fails and never leaks errors', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-credentials-'));
+  const encryption = {
+    available: () => Promise.resolve(true),
+    encrypt: vi
+      .fn<(token: string) => Promise<Buffer>>()
+      .mockResolvedValueOnce(Buffer.from([1, 2, 3]))
+      .mockRejectedValueOnce(new Error('private-token')),
+    decrypt: () => Promise.resolve({ result: 'old-token', shouldReEncrypt: false }),
+  };
+  try {
+    const path = join(directory, 'token.bin');
+    const store = createTokenStore(path, encryption);
+    await store.save('old-token');
+    const result = await store.save('private-token');
+    expect(result).toMatchObject({ ok: false, error: { code: 'credential-storage' } });
+    expect(JSON.stringify(result)).not.toContain('private-token');
+    expect(await readFile(path)).toEqual(Buffer.from([1, 2, 3]));
+    expect(await store.load()).toEqual({ ok: true, value: 'old-token' });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
