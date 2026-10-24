@@ -146,7 +146,9 @@ test('explains an unavailable source and lets the user retry without losing the 
 });
 
 test('retains a freshly downloaded track when an older library snapshot finishes late', async () => {
-  let complete = (_value: import('../../shared/audio').AudioResult<LocalTrack[]>) => {};
+  let complete: (value: import('../../shared/audio').AudioResult<LocalTrack[]>) => void = () => {
+    throw new Error('Library request has not started');
+  };
   const initial = new Promise<import('../../shared/audio').AudioResult<LocalTrack[]>>(
     (resolveList) => {
       complete = resolveList;
@@ -215,7 +217,7 @@ test('ignores an old play rejection after another downloaded track is selected',
     return media;
   }
   vi.stubGlobal('Audio', TestAudio);
-  let rejectPlay = (_error: unknown) => {
+  let rejectPlay: (error: unknown) => void = () => {
     throw new Error('Playback has not started');
   };
   const oldPlay = new Promise<void>((_resolve, reject) => {
