@@ -97,6 +97,7 @@ export function App({
         </div>
         {section === 'Crates' && (
           <CratesPage
+            disabled={session.busy}
             crate={crate}
             onOpen={(release) => {
               session.openSavedRelease(release);
