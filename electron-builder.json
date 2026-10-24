@@ -42,7 +42,7 @@
     "executableName": "auto-digger",
     "icon": "resources/icons/icon.png",
     "category": "AudioVideo",
-    "artifactName": "AutoDigger-${version}-linux-${arch}.${ext}",
+    "artifactName": "AutoDigger-${version}-linux-x64.${ext}",
     "desktop": {
       "entry": {
         "StartupWMClass": "auto-digger"
