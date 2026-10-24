@@ -6,11 +6,23 @@ import { readCatalogueView } from './readView';
 import { catalogueMutations } from './mutations';
 
 export function createCatalogueStore(file: string, legacyFile?: string) {
-  const ready = openCatalogue(file, legacyFile);
+  let ready: Promise<CatalogueResult<DatabaseSync>> | undefined;
+  let closed = false;
+  async function getConnection(): Promise<CatalogueResult<DatabaseSync>> {
+    if (closed)
+      return catalogueFailure(
+        'unavailable',
+        'The catalogue is closed. Please restart Auto Digger.',
+      );
+    ready ??= openCatalogue(file, legacyFile);
+    const result = await ready;
+    if (!result.ok) ready = undefined;
+    return result;
+  }
   async function change(
     operation: (mutations: ReturnType<typeof catalogueMutations>) => CatalogueResult<CatalogueView>,
   ): Promise<CatalogueResult<CatalogueView>> {
-    const database = await ready;
+    const database = await getConnection();
     if (!database.ok) return database;
     const connection: DatabaseSync = database.value;
     if (!connection.isOpen)
@@ -48,7 +60,7 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
     add: (input: unknown) => change((mutations) => mutations.add(input)),
     remove: (input: unknown) => change((mutations) => mutations.remove(input)),
     async view(crateId?: string): Promise<CatalogueResult<CatalogueView>> {
-      const database = await ready;
+      const database = await getConnection();
       if (!database.ok) return database;
       if (crateId !== undefined && (!crateId.trim() || crateId.length > 100))
         return catalogueFailure('invalid-input', 'Choose an existing crate.');
@@ -64,6 +76,8 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
       }
     },
     async close(): Promise<CatalogueResult<undefined>> {
+      closed = true;
+      if (!ready) return { ok: true, value: undefined };
       const database = await ready;
       if (!database.ok) return database;
       try {
