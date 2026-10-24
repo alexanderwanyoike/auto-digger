@@ -196,3 +196,49 @@ test('versions track sidecars and preserves unsupported metadata', async () => {
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('preserves the saved MP3 if publishing a corrected sidecar fails after tagging', async () => {
+  const { mkdir, readFile, rename } = await import('node:fs/promises');
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-audio-'));
+  let blockPublication = false;
+  const request: typeof fetch = async () => {
+    if (blockPublication) {
+      await rename(join(directory, '12-abcdefghijk.json'), join(directory, 'metadata-backup.json'));
+      await mkdir(join(directory, '12-abcdefghijk.json'));
+    }
+    return new Response('unavailable', { status: 404 });
+  };
+  try {
+    const library = createAudioLibrary(
+      directory,
+      {
+        probe: () =>
+          Promise.resolve({ ok: true, value: { videoId: 'abcdefghijk', title: 'Unknown upload' } }),
+        download: async (_id, file) => {
+          await writeFile(file, 'audio');
+          return { ok: true, value: undefined };
+        },
+      },
+      request,
+    );
+    const original = await library.download({
+      release: loadedRelease,
+      videoIndex: 0,
+      trackIndex: null,
+    });
+    if (!original.ok) throw new Error('Expected saved audio');
+    const file = join(directory, original.value.filename);
+    const bytes = await readFile(file);
+    blockPublication = true;
+    expect(
+      await library.download({
+        release: { ...loadedRelease, artworkUrl: 'https://i.discogs.com/cover.jpg' },
+        videoIndex: 0,
+        trackIndex: 0,
+      }),
+    ).toMatchObject({ ok: false, error: { code: 'storage' } });
+    expect(await readFile(file)).toEqual(bytes);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
