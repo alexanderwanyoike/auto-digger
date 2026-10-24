@@ -1,4 +1,5 @@
-import { accountSchema, discogsFailure } from '../../shared/discogs';
+import { accountSchema } from '../../shared/discogs';
+import { discogsFailure } from '../../shared/discogsFailure';
 import type { DiscogsAccount, DiscogsRelease, DiscogsResult } from '../../shared/discogs';
 import { releaseMetadataSchema } from './releaseMetadata';
 import { requestDiscogs } from './request';

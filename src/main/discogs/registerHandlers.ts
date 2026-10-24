@@ -1,6 +1,7 @@
 import { ipcMain, shell } from 'electron';
 import type { BrowserWindow } from 'electron';
-import { discogsChannels, discogsFailure } from '../../shared/discogs';
+import { discogsChannels } from '../../shared/discogs';
+import { discogsFailure } from '../../shared/discogsFailure';
 import type { DiscogsResult } from '../../shared/discogs';
 import type { createDiscogsSession } from './session';
 

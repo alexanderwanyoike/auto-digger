@@ -7,3 +7,5 @@ Use the user-token authentication and identity-verification pattern documented b
 Use [Electron's request/response IPC pattern](https://www.electronjs.org/docs/latest/tutorial/ipc) with a sandboxed CommonJS preload, a small contextBridge API and sender validation. Keep network calls and the session token in the main process. Do not expose ipcRenderer or arbitrary URLs to the renderer. The token is deliberately session-only; encrypted credential persistence and OAuth are separate future decisions.
 
 Expected failures use the shared Result union. Busy UI controls serialize connection, lookup and disconnect actions, while main-process session revisions prevent late network completions from reviving a disconnected session. The browser-only preview offers no privileged fallback API.
+
+Keep the pure Result failure factory separate from runtime schemas so the renderer imports domain types without bundling Zod. Runtime validation belongs to the main and preload boundaries.

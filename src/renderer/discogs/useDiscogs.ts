@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { discogsFailure } from '../../shared/discogs';
+import { discogsFailure } from '../../shared/discogsFailure';
 import type {
   DiscogsAccount,
   DiscogsBridge,

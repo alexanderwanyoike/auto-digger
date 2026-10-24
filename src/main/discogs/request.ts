@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import { discogsFailure } from '../../shared/discogs';
+import { discogsFailure } from '../../shared/discogsFailure';
 import type { DiscogsResult } from '../../shared/discogs';
 
 export async function requestDiscogs<T>(

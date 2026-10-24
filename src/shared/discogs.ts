@@ -23,10 +23,6 @@ export const discogsErrorSchema = z.object({
 export type DiscogsError = z.infer<typeof discogsErrorSchema>;
 export type DiscogsResult<T> = Result<T, DiscogsError>;
 
-export function discogsFailure(code: DiscogsError['code'], message: string): DiscogsResult<never> {
-  return { ok: false, error: { code, message } };
-}
-
 export const releaseSchema = z.object({
   id: z.number().int().positive(),
   title: z.string().min(1),
