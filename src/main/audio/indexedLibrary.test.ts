@@ -53,6 +53,10 @@ test('imports legacy downloads, applies future destination/layout settings and r
       value: [{ id: legacy.value.id, missing: true }, { id: saved.value.id }],
     });
     expect((await library.locate(legacy.value.id)).ok).toBe(false);
+    expect(await library.location(legacy.value.id)).toMatchObject({
+      ok: true,
+      value: { file: join(oldRoot, legacy.value.filename) },
+    });
     await catalogue.close();
     const reopened = createCatalogueStore(file);
     try {
