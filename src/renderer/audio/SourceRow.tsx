@@ -30,6 +30,8 @@ export function SourceRow({
   const suggestion = saved ? saved.trackIndex : matchTrack(release, sourceTitle);
   const selected = manual === undefined ? suggestion : manual;
   const changed = saved && selected !== saved.trackIndex;
+  let actionLabel = saved ? 'Update tags' : 'Download audio';
+  if (pending) actionLabel = 'Saving audio…';
   async function download() {
     setPending(true);
     setError(null);
@@ -44,8 +46,8 @@ export function SourceRow({
         <strong>{video.title || 'Untitled YouTube source'}</strong>
         <span className="source-provider">YouTube</span>
       </div>
-      <div className="source-assignment">
-        <label htmlFor={id}>Discogs track</label>
+      <label className="source-assignment" htmlFor={id}>
+        <span>Discogs track</span>
         <select
           id={id}
           value={selected === null ? '' : selected.toString()}
@@ -61,7 +63,7 @@ export function SourceRow({
             </option>
           ))}
         </select>
-      </div>
+      </label>
       <p className="source-match">
         {selected === null
           ? 'No confident match. Choose a track above, or keep the video title.'
@@ -93,7 +95,7 @@ export function SourceRow({
             }}
           >
             <Download size={12} aria-hidden="true" />
-            {pending ? 'Saving audio…' : saved ? 'Update tags' : 'Download audio'}
+            {actionLabel}
           </button>
         )}
         {saved && (

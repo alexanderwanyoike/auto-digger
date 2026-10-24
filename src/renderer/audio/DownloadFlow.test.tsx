@@ -30,9 +30,10 @@ const track: LocalTrack = {
 
 test('shows all sources, suggests track matches, accepts corrections and loads downloaded audio into the bottom player', async () => {
   const audio = new Audio();
-  vi.stubGlobal('Audio', function TestAudio() {
+  function TestAudio() {
     return audio;
-  });
+  }
+  vi.stubGlobal('Audio', TestAudio);
   const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
   vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
   const bridge: AudioBridge = {
@@ -59,10 +60,12 @@ test('shows all sources, suggests track matches, accepts corrections and loads d
   const sources = screen.getByRole('region', { name: 'Audio sources' });
   const rows = within(sources).getAllByRole('listitem');
   expect(rows).toHaveLength(2);
-  expect(within(rows[0]!).getByLabelText('Discogs track')).toHaveValue('0');
-  expect(within(rows[1]!).getByLabelText('Discogs track')).toHaveValue('');
-  await user.selectOptions(within(rows[1]!).getByLabelText('Discogs track'), '1');
-  await user.click(await within(rows[1]!).findByRole('button', { name: 'Download audio' }));
+  const [first, second] = rows;
+  if (!first || !second) throw new Error('Expected two sources');
+  expect(within(first).getByLabelText('Discogs track')).toHaveValue('0');
+  expect(within(second).getByLabelText('Discogs track')).toHaveValue('');
+  await user.selectOptions(within(second).getByLabelText('Discogs track'), '1');
+  await user.click(await within(second).findByRole('button', { name: 'Download audio' }));
   expect(bridge.download).toHaveBeenCalledWith({ release, videoIndex: 1, trackIndex: 1 });
   const player = screen.getByRole('contentinfo', { name: 'Playback' });
   expect(await within(player).findByText('Evening Mix')).toBeInTheDocument();

@@ -10,7 +10,7 @@ export function useSources(release: DiscogsRelease, bridge: AudioBridge | undefi
     setResults({});
     async function check(index: number): Promise<void> {
       const video = release.videos[index];
-      if (!active || !video || !bridge) return;
+      if (!video || !bridge) return;
       let result: AudioResult<AudioSource>;
       try {
         result = await bridge.probe(video.url);

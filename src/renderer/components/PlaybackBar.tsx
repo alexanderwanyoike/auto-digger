@@ -104,9 +104,9 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
           <FolderOpen size={17} aria-hidden="true" />
         </button>
       </div>
-      {(player.error || audio.error) && (
+      {(player.error ?? audio.error) && (
         <p role="alert" className="playback-notice">
-          {player.error || audio.error}
+          {player.error ?? audio.error}
         </p>
       )}
     </footer>
