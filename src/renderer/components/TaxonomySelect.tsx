@@ -29,7 +29,9 @@ export function TaxonomySelect({
         instanceId={id}
         name={name}
         value={value.map((item) => ({ value: item, label: item }))}
-        onChange={(selected) => onChange(selected.map((item) => item.value))}
+        onChange={(selected) => {
+          onChange(selected.map((item) => item.value));
+        }}
         isMulti
         isClearable
         isDisabled={disabled}
