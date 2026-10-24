@@ -1,6 +1,7 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
+import { z } from 'zod';
 import { resolve } from 'node:path';
 import { catalogueViewSchema } from '../../src/shared/catalogue';
 import { researchResultSchema } from '../../src/shared/researchCommands';
@@ -68,18 +69,22 @@ test('researches verified release tracks through MCP and preserves visible prove
     expect(
       await client.callTool({ name: 'get_release', arguments: { releaseId: 12 } }),
     ).toMatchObject({ isError: false });
-    const created = researchResultSchema.parse(
-      (await client.callTool({ name: 'create_crate', arguments: { name: 'H-Foundation picks' } }))
-        .structuredContent?.result,
-    );
+    const created = z
+      .object({ result: researchResultSchema })
+      .parse(
+        (await client.callTool({ name: 'create_crate', arguments: { name: 'H-Foundation picks' } }))
+          .structuredContent,
+      ).result;
     if (!created.ok) throw new Error('No crate');
     const view = catalogueViewSchema.parse(created.value);
     const crateId = view.crateId;
     if (!crateId) throw new Error('No crate ID');
-    const added = researchResultSchema.parse(
-      (await client.callTool({ name: 'add_release', arguments: { crateId, releaseId: 12 } }))
-        .structuredContent?.result,
-    );
+    const added = z
+      .object({ result: researchResultSchema })
+      .parse(
+        (await client.callTool({ name: 'add_release', arguments: { crateId, releaseId: 12 } }))
+          .structuredContent,
+      ).result;
     if (!added.ok) throw new Error('No release');
     const trackKey = catalogueViewSchema.parse(added.value).entries[0]?.tracks[0]?.key;
     if (!trackKey) throw new Error('No saved track');
