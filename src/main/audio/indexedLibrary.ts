@@ -1,7 +1,8 @@
 import { dirname, join } from 'node:path';
 import type { createCatalogueStore } from '../catalogue/store';
 import type { createDownloader } from './downloader';
-import { createAudioLibrary, filenamePart } from './library';
+import { createAudioLibrary } from './library';
+import { filenamePart } from './filenamePart';
 import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';

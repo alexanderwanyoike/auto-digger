@@ -8,18 +8,8 @@ import { matchTrack } from '../../shared/matchTrack';
 import type { createDownloader } from './downloader';
 import { createLibraryFiles } from './libraryFiles';
 import { tagDownload } from './tagging';
+import { filenamePart } from './filenamePart';
 import { reassignTrack } from './reassign';
-
-export function filenamePart(value: string): string {
-  let safe = Array.from(value)
-    .filter((character) => (character.codePointAt(0) ?? 0) >= 32)
-    .join('')
-    .replace(/[<>:"/\\|?*]/g, '')
-    .trim()
-    .replace(/\.+$/g, '');
-  while (Buffer.byteLength(safe) > 70) safe = safe.slice(0, -1);
-  return safe || 'Unknown';
-}
 
 export function createAudioLibrary(
   directory: string,
