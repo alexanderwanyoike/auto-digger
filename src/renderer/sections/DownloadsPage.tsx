@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FolderOpen, Play } from 'lucide-react';
 import type { useAudioLibrary } from '../audio/useAudioLibrary';
+import { DownloadQueue } from '../audio/DownloadQueue';
 import { RecordArtwork } from '../components/RecordArtwork';
 
 export function DownloadsPage({ audio }: { audio: ReturnType<typeof useAudioLibrary> }) {
@@ -14,6 +15,7 @@ export function DownloadsPage({ audio }: { audio: ReturnType<typeof useAudioLibr
         <span className="eyebrow">ON THIS DEVICE / {audio.tracks.length} TRACKS</span>
         <p>The records you committed to. Ready to play offline.</p>
       </div>
+      <DownloadQueue audio={audio} />
       <div className="library-toolbar">
         <label htmlFor="search-downloads">
           Search downloads
