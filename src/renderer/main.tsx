@@ -11,6 +11,8 @@ import './styles/panels.css';
 import './styles/record.css';
 import './styles/playback.css';
 import './styles/compact.css';
+import './styles/connection.css';
+import './styles/release.css';
 
 const container = document.getElementById('root');
 

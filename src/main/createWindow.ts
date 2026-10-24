@@ -1,6 +1,10 @@
 import { BrowserWindow } from 'electron';
 import { join } from 'node:path';
 import type { Result } from '../shared/result';
+import { createDiscogsSession } from './discogs/session';
+import { registerDiscogsHandlers } from './discogs/registerHandlers';
+
+const discogsSession = createDiscogsSession();
 
 export async function createWindow(): Promise<Result<undefined, string>> {
   let window: BrowserWindow | undefined;
@@ -15,12 +19,14 @@ export async function createWindow(): Promise<Result<undefined, string>> {
       backgroundColor: '#25292e',
       autoHideMenuBar: true,
       webPreferences: {
+        preload: join(import.meta.dirname, '../preload/index.cjs'),
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: true,
         webSecurity: true,
       },
     });
+    registerDiscogsHandlers(window, discogsSession);
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event) => {
       event.preventDefault();

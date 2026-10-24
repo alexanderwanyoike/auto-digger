@@ -49,6 +49,7 @@ module.exports = {
               '**/*.test.tsx',
               'tests/**',
               'src/main/**',
+              'src/preload/**',
             ],
           },
         ],

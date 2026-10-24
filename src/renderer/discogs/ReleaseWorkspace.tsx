@@ -1,0 +1,62 @@
+import { useState } from 'react';
+import { Disc3 } from 'lucide-react';
+import type { useDiscogs } from './useDiscogs';
+import { ReleaseDetails } from './ReleaseDetails';
+
+export function ReleaseWorkspace({ session }: { session: ReturnType<typeof useDiscogs> }) {
+  const [id, setId] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
+  return (
+    <section className="release-workspace" aria-label="Discogs releases">
+      <form
+        className="release-lookup"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setFormError(null);
+          session.loadRelease(Number(id)).catch(() => {
+            setFormError('Could not load this release. Please try again.');
+          });
+        }}
+      >
+        <label htmlFor="release-id">
+          Discogs release ID
+          <input
+            id="release-id"
+            inputMode="numeric"
+            pattern="[0-9]+"
+            placeholder="e.g. 1"
+            required
+            value={id}
+            disabled={session.busy}
+            onChange={(event) => {
+              setId(event.target.value);
+            }}
+          />
+        </label>
+        <button type="submit" className="secondary-button" disabled={session.busy}>
+          {session.busy ? 'Loading…' : 'Load release'}
+        </button>
+      </form>
+      {formError && (
+        <p role="alert" className="dialog-error">
+          {formError}
+        </p>
+      )}
+      {session.busy && (
+        <div className="release-placeholder" role="status">
+          <Disc3 size={32} aria-hidden="true" />
+          <p>Loading release metadata…</p>
+        </div>
+      )}
+      {!session.busy && session.release && <ReleaseDetails release={session.release} />}
+      {!session.busy && !session.release && (
+        <div className="release-placeholder">
+          <Disc3 size={40} strokeWidth={1} aria-hidden="true" />
+          <h2>Follow a record.</h2>
+          <p>Enter a Discogs release ID to take a closer look.</p>
+          <span>Filters and random discovery come next.</span>
+        </div>
+      )}
+    </section>
+  );
+}
