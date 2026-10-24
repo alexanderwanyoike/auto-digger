@@ -29,9 +29,7 @@ export function TrackRow({
           <div className="library-track-copy">
             <strong title={title}>{title}</strong>
             {job ? <DownloadState job={job} /> : null}
-            {track?.missing && (
-              <span className="library-missing">File missing or unavailable</span>
-            )}
+            {track?.missing && <span className="library-missing">File missing or unavailable</span>}
             {note && <TrackNotice text={note} title={title} />}
           </div>
         </div>
