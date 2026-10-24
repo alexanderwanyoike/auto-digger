@@ -6,7 +6,16 @@ export default defineConfig({
   plugins: [siteDownloads()],
   root: resolve(import.meta.dirname, 'site'),
   base: '/auto-digger/',
-  build: { outDir: 'dist', emptyOutDir: true },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    rolldownOptions: {
+      input: {
+        home: resolve(import.meta.dirname, 'site/index.html'),
+        setup: resolve(import.meta.dirname, 'site/setup/index.html'),
+      },
+    },
+  },
   server: { host: '127.0.0.1', port: 4321, strictPort: true },
   preview: { host: '127.0.0.1', port: 4321, strictPort: true },
 });

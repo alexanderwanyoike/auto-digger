@@ -28,3 +28,35 @@ test('builds a self-contained Pages artifact with working project-prefixed asset
   expect(css).not.toContain('https://fonts.googleapis.com');
   expect(css).toContain('.woff2');
 });
+
+test('builds a separate setup guide with working Pages links and local assets', async () => {
+  await promisify(execFile)('yarn', ['site:build'], { timeout: 30_000 });
+  const home = await readFile(resolve('site/dist/index.html'), 'utf8');
+  document.documentElement.innerHTML = home;
+  expect(
+    document.querySelector('a[href="/auto-digger/setup/#mcp"], a[href="setup/#mcp"]'),
+  ).not.toBeNull();
+  expect(
+    document.querySelector('a[href="/auto-digger/setup/#macos"], a[href="setup/#macos"]'),
+  ).not.toBeNull();
+  document.documentElement.innerHTML = await readFile(
+    resolve('site/dist/setup/index.html'),
+    'utf8',
+  );
+  expect(document.querySelector('h1')?.textContent).toBe('Setup');
+  const pageUrl = new URL('https://alexanderwanyoike.github.io/auto-digger/setup/');
+  await Promise.all(
+    Array.from(document.querySelectorAll('a[href], link[href], img[src]')).map(async (element) => {
+      const value = element.getAttribute('href') ?? element.getAttribute('src') ?? '';
+      const url = new URL(value, pageUrl);
+      if (url.origin !== pageUrl.origin) return;
+      expect(url.pathname).toMatch(/^\/auto-digger\//);
+      const relative = url.pathname.slice('/auto-digger/'.length);
+      await access(
+        resolve('site/dist', relative.endsWith('/') ? `${relative}index.html` : relative),
+      );
+      if (url.pathname === pageUrl.pathname && url.hash)
+        expect(document.getElementById(url.hash.slice(1))).not.toBeNull();
+    }),
+  );
+});

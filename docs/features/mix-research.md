@@ -1,11 +1,11 @@
 # Experimental mix research
 
-The user approved an MCP workflow in which a host such as Codex or Claude researches a mix, identifies its recordings, and saves whole Discogs releases with the relevant track picks and personal tags into a named crate. SQLite stores the resulting research beside the crate. The host supplies its own research capabilities; Auto Digger is the local catalogue and Discogs boundary.
+An MCP client such as Codex or Claude researches a mix, identifies its recordings, and saves whole Discogs releases with the relevant track picks and personal tags into a named crate. SQLite stores the resulting research beside the crate. The host supplies its own research capabilities; Auto Digger is the local catalogue and Discogs boundary.
 
 ## Workflow
 
 1. Enable research access in Settings and copy the client configuration. Access starts disabled and ends on disable or app exit. No host configuration is changed automatically.
-2. The host identifies the requested mix and its tracklist from source evidence. Search Discogs across all formats, then inspect specific release IDs. Ordinary random digging remains EP-only and its applied filters/history are independent.
+2. The host identifies the requested mix and its tracklist from source evidence. Search Discogs across all formats, then inspect specific release IDs. Ordinary random digging uses the selected release types and keeps its applied filters/history independent.
 3. Prefer original single/EP releases while preserving exact mix/version identity and alternatives. Add releases using IDs fetched through the app's authenticated Discogs session. Arbitrary client-supplied release snapshots are rejected.
 4. Read stable track keys, pick the matching tracks and set personal tags within the chosen crate. Updates appear in the open app without switching the user's active crate.
 5. Save mix URL, supporting source URLs, track number, timestamp, certainty and notes. Confirmed evidence requires a saved release and track key. Ambiguous matches remain candidates and unidentified items remain unresolved. Reuse a note's ID when updating it. The host supplies certainty; the app validates references and metadata rather than proving a recording match.
@@ -17,10 +17,10 @@ The tools are `list_crates`, `get_crate`, `create_crate`, `search_releases`, `ge
 
 The official MCP TypeScript SDK v2 serves stdio in a separate Node process. It supports current and legacy protocol negotiation through `serveStdio`. The app owns SQLite and the encrypted Discogs credential. An ephemeral authenticated loopback bridge forwards only typed research operations to the running app. It rejects browser-origin requests, unexpected hosts and oversized bodies. A private owner-readable connection file keeps its random session key out of user-facing configuration; disabling access revokes it and aborts pending requests. A single desktop instance owns each profile's connection.
 
-This is a local development prototype. The client needs Node.js 22 or newer on PATH, the built app files and access to the same local profile. Moving the app folder requires copying its updated configuration. Installer packaging and remote/cloud MCP access are outside this phase. External mix pages and recording names are untrusted source material, not instructions.
+This is a local experimental connection. The client needs Node.js 22 or newer on PATH, the installed or built app files and access to the same local profile. Moving or updating the app requires copying its updated configuration; AppImage mount paths can change between launches. Remote/cloud MCP access is not supported. See the [client setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#mcp) for Claude Desktop, Claude Code and Codex. External mix pages and recording names are untrusted source material, not instructions.
 
 ## Verification and provenance
 
 Use the [official MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk) and its stdio factory pattern, independently composed with this app's Result and IPC boundaries. The installed SDK packages declare Apache-2.0; no upstream application code or assets are copied. [Electron's single-instance pattern](https://www.electronjs.org/docs/latest/api/app#apprequestsingleinstancelockadditionaldata) informs desktop ownership. The Settings TOML follows [official Codex MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
 
-Tests use synthetic mix/release fixtures, not a claim to have researched a real H-Foundation mix. Check storage migration and restart persistence, all-format search isolation, verified-ID additions, source opening, live picks/tags, a real SDK stdio client, access revocation and duplicate desktop starts. Run both full project verification commands before delivery. Depends on #15 through #20 in order, targets dev and remains unmerged.
+Tests use synthetic mix/release fixtures, not a claim to have researched a real H-Foundation mix. Check storage migration and restart persistence, all-format search isolation, verified-ID additions, source opening, live picks/tags, a real SDK stdio client, access revocation and duplicate desktop starts. Run both full project verification commands before delivery.
