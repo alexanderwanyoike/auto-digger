@@ -76,6 +76,7 @@ test('shows all sources, suggests track matches, accepts corrections and loads d
   expect(within(player).getByRole('button', { name: 'Pause' })).toBeEnabled();
   await user.click(within(player).getByRole('button', { name: 'Show track in folder' }));
   expect(bridge.reveal).toHaveBeenCalledWith(track.id);
+  await user.click(screen.getByText('Tagging note'));
   expect(screen.getByText(track.warning ?? '')).toBeVisible();
   expect(document.querySelector('iframe')).toBeNull();
 });

@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import { Download, Play } from 'lucide-react';
+import { Download, FolderOpen, Play } from 'lucide-react';
 import type { AudioResult, AudioSource, LocalTrack } from '../../shared/audio';
 import type { DiscogsRelease } from '../../shared/discogs';
 import { matchTrack } from '../../shared/matchTrack';
@@ -26,12 +26,16 @@ export function SourceRow({
   const [pending, setPending] = useState(false);
   const video = release.videos[index];
   if (!video) return null;
-  const sourceTitle = checked?.ok ? checked.value.title : video.title;
+  const sourceTitle = checked?.ok ? checked.value.title : (saved?.sourceTitle ?? video.title);
   const suggestion = saved ? saved.trackIndex : matchTrack(release, sourceTitle);
   const selected = manual === undefined ? suggestion : manual;
   const changed = saved && selected !== saved.trackIndex;
   let actionLabel = saved ? 'Update tags' : 'Download audio';
-  if (pending) actionLabel = 'Saving audio…';
+  if (pending) actionLabel = 'Saving…';
+  let matchLabel = 'Suggested match';
+  if (selected === null) matchLabel = 'Unassigned';
+  else if (saved && !changed) matchLabel = 'Saved';
+  else if (manual !== undefined) matchLabel = 'Your choice';
   async function download() {
     setPending(true);
     setError(null);
@@ -41,11 +45,6 @@ export function SourceRow({
   }
   return (
     <li className="audio-source">
-      <div className="source-heading">
-        <span className="source-number">{(index + 1).toString().padStart(2, '0')}</span>
-        <strong>{video.title || 'Untitled YouTube source'}</strong>
-        <span className="source-provider">YouTube</span>
-      </div>
       <label className="source-assignment" htmlFor={id}>
         <span>Discogs track</span>
         <select
@@ -56,7 +55,7 @@ export function SourceRow({
             setManual(event.target.value === '' ? null : Number(event.target.value));
           }}
         >
-          <option value="">Keep video title</option>
+          <option value="">Unassigned · keep video title</option>
           {release.tracks.map((track, trackIndex) => (
             <option key={`${track.position}-${track.title}`} value={trackIndex}>
               {track.position} · {track.title}
@@ -64,11 +63,15 @@ export function SourceRow({
           ))}
         </select>
       </label>
-      <p className="source-match">
-        {selected === null
-          ? 'No confident match. Choose a track above, or keep the video title.'
-          : 'Discogs tags will use this track. You can change the match.'}
-      </p>
+      <div className="source-upload">
+        <span>YouTube video</span>
+        <p title={sourceTitle}>{sourceTitle || 'Untitled upload'}</p>
+      </div>
+      <div className="source-state">
+        <span className={selected === null ? 'source-unassigned' : 'source-matched'}>
+          {matchLabel}
+        </span>
+      </div>
       <div className="source-actions">
         {saved && (
           <button
@@ -101,15 +104,17 @@ export function SourceRow({
         {saved && (
           <button
             type="button"
-            className="source-folder"
+            className="source-folder source-reveal"
+            aria-label="Show track in folder"
+            title="Show track in folder"
             onClick={() => {
               audio.reveal(saved.id).catch(() => undefined);
             }}
           >
-            Show in folder
+            <FolderOpen size={13} aria-hidden="true" />
           </button>
         )}
-        {!saved && !checked && audio.available && <span role="status">Checking availability…</span>}
+        {!saved && !checked && audio.available && <span role="status">Checking…</span>}
         {!audio.available && <span>Open the desktop app to download audio.</span>}
         {!saved && checked && !checked.ok && (
           <button
@@ -133,7 +138,12 @@ export function SourceRow({
           {error}
         </p>
       )}
-      {saved?.warning && <p className="source-notice">{saved.warning}</p>}
+      {saved?.warning && (
+        <details className="source-tagging-note">
+          <summary>Tagging note</summary>
+          <p className="source-notice">{saved.warning}</p>
+        </details>
+      )}
     </li>
   );
 }

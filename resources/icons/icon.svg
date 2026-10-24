@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="0.4" y2="1">
+      <stop stop-color="#f5f7fa" />
+      <stop offset="0.5" stop-color="#dce2e8" />
+      <stop offset="1" stop-color="#adb7c3" />
+    </linearGradient>
+    <linearGradient id="vinyl" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#323c4b" />
+      <stop offset="0.5" stop-color="#171e29" />
+      <stop offset="1" stop-color="#293442" />
+    </linearGradient>
+    <linearGradient id="label" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#4b8df0" />
+      <stop offset="1" stop-color="#225bba" />
+    </linearGradient>
+  </defs>
+  <rect
+    x="52"
+    y="52"
+    width="920"
+    height="920"
+    rx="214"
+    fill="url(#metal)"
+    stroke="#a9b2be"
+    stroke-width="4"
+  />
+  <rect
+    x="63"
+    y="63"
+    width="898"
+    height="898"
+    rx="204"
+    fill="none"
+    stroke="#fff"
+    stroke-opacity="0.65"
+    stroke-width="4"
+  />
+  <circle cx="485" cy="526" r="329" fill="#8694a3" opacity="0.3" />
+  <circle cx="485" cy="512" r="329" fill="url(#vinyl)" />
+  <g fill="none" stroke="#8190a2" stroke-opacity="0.25" stroke-width="3">
+    <circle cx="485" cy="512" r="286" />
+    <circle cx="485" cy="512" r="267" />
+    <circle cx="485" cy="512" r="246" />
+    <circle cx="485" cy="512" r="224" />
+  </g>
+  <path
+    d="M280 337a269 269 0 0 1 130-79M556 771a269 269 0 0 0 128-80"
+    fill="none"
+    stroke="#dce6f3"
+    stroke-opacity="0.22"
+    stroke-width="12"
+    stroke-linecap="round"
+  />
+  <circle cx="485" cy="512" r="105" fill="url(#label)" />
+  <circle
+    cx="485"
+    cy="512"
+    r="81"
+    fill="none"
+    stroke="#dbeaff"
+    stroke-opacity="0.2"
+    stroke-width="3"
+  />
+  <circle cx="485" cy="512" r="17" fill="#dce4ed" />
+  <path
+    d="M795 254v188l-83 129"
+    fill="none"
+    stroke="#111c2c"
+    stroke-opacity="0.22"
+    stroke-width="44"
+    stroke-linecap="round"
+    transform="translate(0 9)"
+  />
+  <path
+    d="M795 254v188l-83 129"
+    fill="none"
+    stroke="#f1f5fa"
+    stroke-width="31"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle cx="795" cy="254" r="29" fill="#a2aebe" stroke="#f5f8fc" stroke-width="9" />
+  <path d="m715 558-26 39" stroke="#4b8df0" stroke-width="39" stroke-linecap="round" />
+</svg>

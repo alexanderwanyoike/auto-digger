@@ -19,6 +19,13 @@ import { resolve } from 'node:path';
     try {
       const page = await desktop.firstWindow();
       await expect(page.getByRole('heading', { name: 'Digging desk' })).toBeVisible();
+      await expect(page.locator('.wordmark img')).toBeVisible();
+      expect(
+        await desktop.evaluate(
+          ({ nativeImage }, path) => nativeImage.createFromPath(path).isEmpty(),
+          resolve('resources/icons/icon.png'),
+        ),
+      ).toBe(false);
       expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
       await page.getByRole('button', { name: 'Dark', exact: true }).click();
       await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
