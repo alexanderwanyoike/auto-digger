@@ -5,6 +5,7 @@ import { TaxonomySelect } from './TaxonomySelect';
 
 export function GenreStyleFilters({ disabled }: { disabled: boolean }) {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   return (
     <>
       <TaxonomySelect
@@ -12,7 +13,11 @@ export function GenreStyleFilters({ disabled }: { disabled: boolean }) {
         label="Genre"
         options={genres}
         value={selectedGenres}
-        onChange={setSelectedGenres}
+        onChange={(values) => {
+          setSelectedGenres(values);
+          const allowed = stylesForGenres(values);
+          setSelectedStyles((current) => current.filter((style) => allowed.includes(style)));
+        }}
         disabled={disabled}
       />
       <TaxonomySelect
@@ -20,6 +25,8 @@ export function GenreStyleFilters({ disabled }: { disabled: boolean }) {
         label="Style"
         options={stylesForGenres(selectedGenres)}
         knownOptions={styles}
+        value={selectedStyles}
+        onChange={setSelectedStyles}
         disabled={disabled}
       />
     </>
