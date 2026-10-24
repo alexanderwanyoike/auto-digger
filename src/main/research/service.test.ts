@@ -66,3 +66,60 @@ test('builds a researched crate from verified releases, picked tracks and source
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('rejects invented snapshots, mismatched IDs and writes from a revoked lookup', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-research-boundary-'));
+  const catalogue = createCatalogueStore(join(directory, 'catalog.sqlite'));
+  const loadRelease = vi
+    .fn<() => Promise<import('../../shared/discogs').DiscogsResult<typeof loadedRelease>>>()
+    .mockResolvedValue({ ok: true, value: { ...loadedRelease, id: 999 } });
+  const changed = vi.fn();
+  const service = createResearchService(
+    catalogue,
+    { loadRelease, researchSearch: vi.fn() },
+    changed,
+  );
+  try {
+    const created = await catalogue.create('Research boundary');
+    if (!created.ok || !created.value.crateId) throw new Error('No crate');
+    const { crateId } = created.value;
+    expect(await service.execute({ name: 'delete_everything', arguments: {} })).toMatchObject({
+      ok: false,
+      error: { code: 'invalid-input' },
+    });
+    expect(
+      await service.execute({
+        name: 'add_release',
+        arguments: { crateId, releaseId: 12, release: loadedRelease },
+      }),
+    ).toMatchObject({ ok: false, error: { code: 'invalid-input' } });
+    expect(loadRelease).not.toHaveBeenCalled();
+    expect(
+      await service.execute({ name: 'add_release', arguments: { crateId, releaseId: 12 } }),
+    ).toMatchObject({ ok: false, error: { code: 'invalid-data' } });
+    let finish: (
+      result: import('../../shared/discogs').DiscogsResult<typeof loadedRelease>,
+    ) => void = () => {
+      throw new Error('Lookup has not started');
+    };
+    loadRelease.mockImplementationOnce(
+      () =>
+        new Promise((resolveLookup) => {
+          finish = resolveLookup;
+        }),
+    );
+    const controller = new AbortController();
+    const pending = service.execute(
+      { name: 'add_release', arguments: { crateId, releaseId: 12 } },
+      controller.signal,
+    );
+    controller.abort();
+    finish({ ok: true, value: loadedRelease });
+    expect(await pending).toMatchObject({ ok: false, error: { code: 'unavailable' } });
+    expect(await catalogue.view(crateId)).toMatchObject({ ok: true, value: { entries: [] } });
+    expect(changed).not.toHaveBeenCalled();
+  } finally {
+    await catalogue.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
