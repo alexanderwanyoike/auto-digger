@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { researchNoteSchema } from './researchNotes';
 import { releaseSchema } from './discogs';
 import type { CrateError } from './crate';
 import type { Result } from './result';
@@ -34,6 +35,7 @@ export const catalogueViewSchema = z.object({
   crates: z.array(crateSummarySchema),
   crateId: z.string().nullable(),
   entries: z.array(crateEntrySchema),
+  research: z.array(researchNoteSchema).optional(),
 });
 export type CatalogueView = z.infer<typeof catalogueViewSchema>;
 export type CatalogueResult<T> = Result<T, CrateError>;

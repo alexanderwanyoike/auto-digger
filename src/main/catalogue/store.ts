@@ -1,4 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { createResearchStore } from '../research/store';
 import { createDownloadIndex } from '../audio/downloadIndex';
 import { createPreferencesStore } from '../settings/store';
 import { catalogueFailure } from '../../shared/catalogueFailure';
@@ -57,6 +58,7 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
   return {
     preferences: createPreferencesStore(getConnection),
     downloads: createDownloadIndex(getConnection),
+    research: createResearchStore(getConnection),
     annotate: (input: unknown) => change((mutations) => mutations.annotate(input)),
     create: (name: unknown) => change((mutations) => mutations.create(name)),
     rename: (input: unknown) => change((mutations) => mutations.rename(input)),
