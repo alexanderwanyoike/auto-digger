@@ -34,3 +34,21 @@ test('cancels an individual source resolution without waiting for its timeout', 
   abort.abort();
   expect(await pending).toMatchObject({ ok: false, error: { code: 'cancelled' } });
 });
+
+test('streams complete output lines while preserving chunk boundaries and the final line', async () => {
+  const lines: string[] = [];
+  const runner = createCommandRunner(process.execPath);
+  const result = await runner.execute(
+    [
+      '-e',
+      'process.stdout.write("first\\nsec"); setTimeout(() => process.stdout.write("ond"), 10)',
+    ],
+    1000,
+    undefined,
+    (line) => {
+      lines.push(line);
+    },
+  );
+  expect(result.ok).toBe(true);
+  expect(lines).toEqual(['first', 'second']);
+});
