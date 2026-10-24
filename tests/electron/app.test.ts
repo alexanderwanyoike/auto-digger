@@ -85,17 +85,39 @@ test('connects and loads metadata through the isolated Discogs bridge', async ()
       },
       { identityResponse, releaseResponse },
     );
-    const account = await page.evaluate(async () => window.discogs?.connect('test-session-token'));
-    expect(account).toEqual({ ok: true, value: identityResponse });
-    const release = await page.evaluate(async () => window.discogs?.loadRelease(12));
-    expect(release?.ok).toBe(true);
-    if (release?.ok) expect(release.value.title).toBe('Quiet Orbit EP');
-    expect(JSON.stringify(release)).not.toContain('test-session-token');
-    expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
-    expect(await page.evaluate(async () => window.discogs?.disconnect())).toEqual({
-      ok: true,
-      value: undefined,
+    await page.route('https://i.discogs.com/**', async (route) => {
+      await route.fulfill({
+        contentType: 'image/svg+xml',
+        body: '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#bccddd"/><circle cx="150" cy="150" r="85" fill="#294f78"/></svg>',
+      });
     });
+    await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.getByLabel('Personal token').fill('test-session-token');
+    await page.getByRole('button', { name: 'Connect account', exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }),
+    ).toBeEnabled();
+    await expect(page.getByLabel('Personal token')).toHaveCount(0);
+    await page.getByLabel('Discogs release ID').fill('12');
+    await page.getByRole('button', { name: 'Load release', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
+    await expect(page.getByText('Low Tide', { exact: true })).toBeVisible();
+    await expect(page.getByText('Quiet Orbit', { exact: true })).toBeVisible();
+    expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
+    await page.setViewportSize({ width: 1180, height: 780 });
+    await expect(page.getByText('Built for the long way round.', { exact: true })).toBeInViewport({
+      ratio: 1,
+    });
+    await page.screenshot({ path: 'test-results/phase-2-release-light.png', fullPage: true });
+    await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    await page.screenshot({ path: 'test-results/phase-2-release-dark.png', fullPage: true });
+    await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).click();
+    await page.getByRole('button', { name: 'Disconnect', exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Discogs not connected', exact: true }),
+    ).toBeEnabled();
+    await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toHaveCount(0);
     expect(await page.evaluate(async () => window.discogs?.account())).toEqual({
       ok: true,
       value: null,
