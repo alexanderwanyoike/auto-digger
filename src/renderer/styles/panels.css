@@ -42,21 +42,6 @@ fieldset label {
   background: var(--line);
   margin: 1px 0 12px;
 }
-.format-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 14px 0;
-  font-size: 10px;
-  font-weight: 600;
-}
-.format-tag {
-  color: var(--blue);
-  background: var(--blue-soft);
-  padding: 3px 9px;
-  font-size: 9px;
-  border-radius: 4px;
-}
 .primary-button {
   display: flex;
   justify-content: space-between;
