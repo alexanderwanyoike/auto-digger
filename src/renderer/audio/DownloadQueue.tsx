@@ -29,7 +29,7 @@ export function DownloadQueue({
   const finished = new Set(['complete', 'failed', 'cancelled']);
   const jobs = [
     ...all.filter((job) => !finished.has(job.stage)),
-    ...all.filter((job) => finished.has(job.stage)).slice(-10),
+    ...all.filter((job) => finished.has(job.stage)),
   ];
   if (!jobs.length && !audio.queue.error) return null;
   return (
