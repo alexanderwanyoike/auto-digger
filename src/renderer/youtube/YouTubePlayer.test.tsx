@@ -10,7 +10,9 @@ test('shows official player events, retries errors and destroys replaced players
   const instances: YouTubeOptions[] = [];
   class Player {
     destroy = destroy;
+
     pauseVideo = pauseVideo;
+
     constructor(_element: HTMLElement, options: YouTubeOptions) {
       instances.push(options);
     }
