@@ -24,60 +24,62 @@ import { contrast } from '../contrast';
       await page.evaluate(async () => {
         await document.fonts.ready;
       });
-      for (const selector of ['.app-header', '.playback-bar']) {
-        const { data, info } = await sharp(
-          await page.locator(selector).screenshot({ scale: 'css' }),
-        )
-          .extract({ left: 8, top: 10, width: 12, height: 40 })
-          .removeAlpha()
-          .raw()
-          .toBuffer({ resolveWithObject: true });
-        let brightness = 0;
-        let tint = 0;
-        let grain = 0;
-        const background = [0, 0, 0];
-        for (let y = 0; y < info.height; y += 1) {
-          for (let x = 0; x < info.width; x += 1) {
-            const offset = (y * info.width + x) * info.channels;
-            const red = data[offset] ?? 0;
-            const green = data[offset + 1] ?? 0;
-            const blue = data[offset + 2] ?? 0;
-            background[0] = (background[0] ?? 0) + red;
-            background[1] = (background[1] ?? 0) + green;
-            background[2] = (background[2] ?? 0) + blue;
-            brightness += (red + green + blue) / 3;
-            tint += Math.max(red, green, blue) - Math.min(red, green, blue);
-            if (x > 0) grain += Math.abs(red - (data[offset - info.channels] ?? 0));
-          }
-        }
-        const pixels = info.width * info.height;
-        const surface = `#${background
-          .map((channel) =>
-            Math.round(channel / pixels)
-              .toString(16)
-              .padStart(2, '0'),
+      await Promise.all(
+        ['.app-header', '.playback-bar'].map(async (selector) => {
+          const { data, info } = await sharp(
+            await page.locator(selector).screenshot({ scale: 'css' }),
           )
-          .join('')}`;
-        const muted = await page
-          .locator(selector)
-          .evaluate((element) => getComputedStyle(element).getPropertyValue('--muted').trim());
-        expect(
-          contrast(muted, surface),
-          `${selector}: small text on painted metal`,
-        ).toBeGreaterThanOrEqual(4.5);
-        expect(tint / pixels, `${selector}: neutral metal`).toBeLessThanOrEqual(4);
-        expect(brightness / pixels, `${selector}: silver or space grey`).toBeGreaterThan(
-          mode === 'Light' ? 190 : 40,
-        );
-        expect(brightness / pixels, `${selector}: restrained reflection`).toBeLessThan(
-          mode === 'Light' ? 230 : 85,
-        );
-        expect(
-          grain / pixels,
-          `${selector}: speckled finish rather than ruled stripes`,
-        ).toBeGreaterThan(0.05);
-        expect(grain / pixels, `${selector}: quiet texture`).toBeLessThan(3);
-      }
+            .extract({ left: 8, top: 10, width: 12, height: 40 })
+            .removeAlpha()
+            .raw()
+            .toBuffer({ resolveWithObject: true });
+          let brightness = 0;
+          let tint = 0;
+          let grain = 0;
+          const background = [0, 0, 0];
+          for (let y = 0; y < info.height; y += 1) {
+            for (let x = 0; x < info.width; x += 1) {
+              const offset = (y * info.width + x) * info.channels;
+              const red = data[offset] ?? 0;
+              const green = data[offset + 1] ?? 0;
+              const blue = data[offset + 2] ?? 0;
+              background[0] = (background[0] ?? 0) + red;
+              background[1] = (background[1] ?? 0) + green;
+              background[2] = (background[2] ?? 0) + blue;
+              brightness += (red + green + blue) / 3;
+              tint += Math.max(red, green, blue) - Math.min(red, green, blue);
+              if (x > 0) grain += Math.abs(red - (data[offset - info.channels] ?? 0));
+            }
+          }
+          const pixels = info.width * info.height;
+          const surface = `#${background
+            .map((channel) =>
+              Math.round(channel / pixels)
+                .toString(16)
+                .padStart(2, '0'),
+            )
+            .join('')}`;
+          const muted = await page
+            .locator(selector)
+            .evaluate((element) => getComputedStyle(element).getPropertyValue('--muted').trim());
+          expect(
+            contrast(muted, surface),
+            `${selector}: small text on painted metal`,
+          ).toBeGreaterThanOrEqual(4.5);
+          expect(tint / pixels, `${selector}: neutral metal`).toBeLessThanOrEqual(4);
+          expect(brightness / pixels, `${selector}: silver or space grey`).toBeGreaterThan(
+            mode === 'Light' ? 190 : 40,
+          );
+          expect(brightness / pixels, `${selector}: restrained reflection`).toBeLessThan(
+            mode === 'Light' ? 230 : 85,
+          );
+          expect(
+            grain / pixels,
+            `${selector}: speckled finish rather than ruled stripes`,
+          ).toBeGreaterThan(0.05);
+          expect(grain / pixels, `${selector}: quiet texture`).toBeLessThan(3);
+        }),
+      );
       await page.screenshot({ path: `test-results/aluminium-${mode.toLowerCase()}-desk.png` });
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
       const preview = page.locator('.material-thumbnail[data-material="aluminium"]');
