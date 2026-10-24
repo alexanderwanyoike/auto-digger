@@ -29,6 +29,7 @@ export function createRememberedSession(
   }
   return {
     loadRelease: (input: unknown) => authorized(() => session.loadRelease(input)),
+    researchSearch: (input: unknown) => authorized(() => session.researchSearch(input)),
     search: (input: unknown) => authorized(() => session.search(input)),
     dig: (input: unknown) => authorized(() => session.dig(input)),
     account: () =>
