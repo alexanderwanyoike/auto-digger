@@ -91,7 +91,13 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
                 JSON.stringify({
                   pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
                   results: [
-                    { id: 12, title: 'Low Tide - Quiet Orbit EP', year: '1998', format: ['EP'] },
+                    {
+                      id: 12,
+                      title: 'Low Tide - Quiet Orbit EP',
+                      year: '1998',
+                      format: ['EP'],
+                      cover_image: 'https://i.discogs.com/example.jpg',
+                    },
                   ],
                 }),
               ),
@@ -138,12 +144,22 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     await page.getByLabel('Style', { exact: true }).press('Escape');
     await page.getByRole('button', { name: 'Search EPs', exact: true }).click();
     await expect(page.getByText('1 matching releases', { exact: true })).toBeVisible();
+    const results = page.getByRole('region', { name: 'Matching EPs' });
+    await expect(results.locator('img')).toHaveAttribute(
+      'src',
+      'https://i.discogs.com/example.jpg',
+    );
+    await expect(results.locator('img')).toBeInViewport();
+    await page.screenshot({ path: 'test-results/artwork-search-light.png' });
     await page.getByRole('button', { name: /Low Tide - Quiet Orbit EP/ }).click();
     await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
     await expect(page.getByText('Low Tide', { exact: true })).toBeVisible();
     await expect(page.getByText('Quiet Orbit', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Dig a random EP', exact: true }).click();
     await expect(page.getByText('1 found · 1 accessible matches', { exact: true })).toBeVisible();
+    await expect(
+      page.getByRole('img', { name: 'Quiet Orbit EP record sleeve', exact: true }),
+    ).toBeInViewport();
     await expect(page.getByText('Ready. Press play in the video.', { exact: true })).toBeVisible();
     await expect(page.getByTitle('YouTube video player')).toHaveAttribute(
       'src',
@@ -155,6 +171,11 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
       ratio: 1,
     });
     await page.screenshot({ path: 'test-results/phase-2-release-light.png', fullPage: true });
+    await page.getByRole('button', { name: 'Save EP to crate', exact: true }).click();
+    await expect(
+      page.getByRole('complementary', { name: 'Your crate' }).locator('img'),
+    ).toHaveAttribute('src', 'https://i.discogs.com/example.jpg');
+    await page.screenshot({ path: 'test-results/artwork-record-and-crate-light.png' });
     await page.getByRole('button', { name: 'Dark', exact: true }).click();
     await page.screenshot({ path: 'test-results/phase-2-release-dark.png', fullPage: true });
     await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).click();
