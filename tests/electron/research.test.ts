@@ -51,13 +51,16 @@ test('enables a real stdio MCP client, reflects created crates and revokes its t
     const duplicate = spawn(
       desktop.process().spawnfile,
       [
+        '--no-sandbox',
         resolve('tests/encryptedDesktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       { env: environment(), stdio: 'ignore' },
     );
     try {
-      await expect.poll(() => duplicate.exitCode).toBe(0);
+      await expect
+        .poll(() => ({ code: duplicate.exitCode, signal: duplicate.signalCode }))
+        .toEqual({ code: 0, signal: null });
       expect(await client.callTool({ name: 'list_crates', arguments: {} })).toMatchObject({
         isError: false,
       });
