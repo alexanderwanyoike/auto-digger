@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { AudioBridge, AudioResult, DownloadInput, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
 
 export function useAudioLibrary(bridge: AudioBridge | undefined) {
+  const actions = useRef(0);
   const [tracks, setTracks] = useState<LocalTrack[]>([]);
   const [playback, setPlayback] = useState<{ track: LocalTrack | null; request: number }>({
     track: null,
@@ -12,13 +13,18 @@ export function useAudioLibrary(bridge: AudioBridge | undefined) {
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
+    const version = actions.current;
     bridge
       ?.list()
       .then((result) => {
         if (!active) return;
         if (result.ok) {
-          setTracks(result.value);
-          setPlayback({ track: result.value[0] ?? null, request: 0 });
+          setTracks((previous) => [
+            ...result.value.filter((saved) => !previous.some((track) => track.id === saved.id)),
+            ...previous,
+          ]);
+          if (version === actions.current)
+            setPlayback({ track: result.value[0] ?? null, request: 0 });
         } else setError(result.error.message);
       })
       .catch(() => {
@@ -30,6 +36,7 @@ export function useAudioLibrary(bridge: AudioBridge | undefined) {
     };
   }, [bridge]);
   function play(track: LocalTrack) {
+    actions.current += 1;
     setPlayback((previous) => ({ track, request: previous.request + 1 }));
   }
   async function download(input: DownloadInput): Promise<AudioResult<LocalTrack>> {
