@@ -2,20 +2,13 @@ import { z } from 'zod';
 import type { AudioResult, AudioSource } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
 import { videoId } from '../../shared/youtubeVideoId';
+import { ytDlpArguments } from './ytDlpArguments';
 
-export type Execute = (args: string[], timeout: number) => Promise<AudioResult<string>>;
-const common = [
-  '--js-runtimes',
-  'node',
-  '--ignore-config',
-  '--no-plugin-dirs',
-  '--no-playlist',
-  '--no-warnings',
-  '--socket-timeout',
-  '20',
-  '--retries',
-  '2',
-];
+export type Execute = (
+  args: string[],
+  timeout: number,
+  signal?: AbortSignal,
+) => Promise<AudioResult<string>>;
 const metadataSchema = z.object({
   id: z.string(),
   title: z.string().min(1),
@@ -30,7 +23,7 @@ export function createDownloader(execute: Execute) {
         return audioFailure('invalid-input', 'This record does not have a supported YouTube link.');
       const result = await execute(
         [
-          ...common,
+          ...ytDlpArguments,
           '--dump-single-json',
           '--skip-download',
           '--',
@@ -58,7 +51,7 @@ export function createDownloader(execute: Execute) {
         return audioFailure('invalid-input', 'This download could not be prepared.');
       const result = await execute(
         [
-          ...common,
+          ...ytDlpArguments,
           '--no-progress',
           '--no-overwrites',
           '--format',

@@ -73,6 +73,21 @@ export function SourceRow({
         </span>
       </div>
       <div className="source-actions">
+        {!saved && (
+          <button
+            type="button"
+            className="secondary-button source-preview"
+            disabled={!checked?.ok || audio.previewing}
+            onClick={() => {
+              audio
+                .preview({ release, videoIndex: index, trackIndex: selected })
+                .catch(() => undefined);
+            }}
+          >
+            <Play size={12} aria-hidden="true" />
+            {audio.previewing ? 'Preparing…' : 'Preview'}
+          </button>
+        )}
         {saved && (
           <button
             type="button"

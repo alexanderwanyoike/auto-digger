@@ -19,7 +19,7 @@ test('opens a digging desk with honest empty states and inactive upcoming featur
   expect(screen.getByRole('button', { name: 'Search EPs' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Play' })).toBeDisabled();
   expect(screen.getByText('Connect your Discogs account.')).toBeInTheDocument();
-  expect(screen.getByText('Download a source to listen here.')).toBeInTheDocument();
+  expect(screen.getByText('Preview a source to listen here.')).toBeInTheDocument();
 });
 
 test('switches appearance, remembers the choice and follows changes to the system theme', async () => {
