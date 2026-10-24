@@ -31,13 +31,13 @@ test('manages named crates and track annotations in the UI and browses downloads
     await expect(page.getByLabel('Active crate')).toHaveValue(/.+/);
     await page.getByLabel('Active crate').selectOption({ label: 'My crate (1)' });
     await page.getByLabel('Pick Quiet Orbit').check();
-    await page.getByLabel('Tags for Quiet Orbit').fill('dub, warm-up');
+    await page.getByLabel('Tags for Quiet Orbit', { exact: true }).fill('dub, warm-up');
     await page.getByRole('button', { name: 'Save tags for Quiet Orbit' }).click();
     await page.getByRole('button', { name: 'Downloads', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Downloads', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Crates', exact: true }).click();
     await expect(page.getByLabel('Pick Quiet Orbit')).toBeChecked();
-    await expect(page.getByLabel('Tags for Quiet Orbit')).toHaveValue('dub, warm-up');
+    await expect(page.getByLabel('Tags for Quiet Orbit', { exact: true })).toHaveValue('dub, warm-up');
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Digging desk' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Saved to crate', exact: true })).toBeDisabled();
