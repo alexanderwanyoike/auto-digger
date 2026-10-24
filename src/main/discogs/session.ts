@@ -80,7 +80,6 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
         );
       const started = revision;
       const result = await searchDiscogs(parsed.data, acceptedToken, request, {
-        epOnly: false,
         query: parsed.data.query,
         ...(signal ? { signal } : {}),
       });

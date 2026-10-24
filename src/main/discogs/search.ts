@@ -45,16 +45,14 @@ export async function searchDiscogs(
   input: z.infer<typeof searchInputSchema>,
   token: string,
   request: typeof fetch,
-  options: { epOnly: boolean; query?: string; signal?: AbortSignal } = { epOnly: true },
+  options: { query?: string; signal?: AbortSignal } = {},
 ): Promise<DiscogsResult<SearchPage>> {
   const { filters, page } = input;
   const query = new URLSearchParams({
     type: 'release',
-    format: 'EP',
     per_page: '50',
     page: page.toString(),
   });
-  if (!options.epOnly) query.delete('format');
   if (options.query) query.set('q', options.query);
   Object.entries(filters).forEach(([key, value]) => {
     if (Array.isArray(value)) {

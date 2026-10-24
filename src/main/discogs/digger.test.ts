@@ -10,6 +10,7 @@ const filters: DigFilters = {
   year: '',
   genre: [],
   style: ['Deep House'],
+  format: [],
   title: '',
 };
 test('draws without repetition across a partially filled final page and resets explicitly', async () => {

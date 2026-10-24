@@ -41,6 +41,7 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
               year: value('year'),
               genre: selected('genre'),
               style: selected('style'),
+              format: [],
               title: value('title'),
             };
             session.search(filters).catch(() => undefined);
