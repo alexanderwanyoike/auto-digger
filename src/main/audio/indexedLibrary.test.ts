@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { expect, test, vi } from 'vitest';
@@ -66,6 +66,12 @@ test('imports legacy downloads, applies future destination/layout settings and r
     expect(await library.location(legacy.value.id)).toMatchObject({
       ok: true,
       value: { file: join(oldRoot, legacy.value.filename) },
+    });
+    await rename(oldRoot, `${oldRoot}-offline`);
+    await writeFile(oldRoot, 'unavailable destination');
+    expect(await library.list()).toMatchObject({
+      ok: true,
+      value: [{ missing: true }, { id: saved.value.id, missing: false }],
     });
     await catalogue.close();
     const reopened = createCatalogueStore(file);
