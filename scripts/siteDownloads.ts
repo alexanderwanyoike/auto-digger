@@ -19,16 +19,12 @@ export function siteDownloads(): Plugin {
             const url = links[target];
             if (!url) return match;
             const label =
-              target === 'macos-arm64'
-                ? 'Apple silicon'
-                : target === 'macos-x64'
-                  ? 'Intel'
-                  : 'Download';
-            return `${start}<a href="${url}">${label}</a>${end}`;
+              target === 'macos-arm64' ? 'Apple silicon' : target === 'macos-x64' ? 'Intel' : 'x64';
+            return `${start}<a class="download-button" href="${url}" aria-label="Download ${target}">${label} <span aria-hidden="true">↓</span></a>${end}`;
           },
         )
         .replace(
-          /(<p data-release-status>)[\s\S]*?(<\/p>)/,
+          /(<p[^>]* data-release-status>)[\s\S]*?(<\/p>)/,
           `$1Version ${version}. <a href="${links.checksums}">SHA-256 checksums</a>.$2`,
         );
     },
