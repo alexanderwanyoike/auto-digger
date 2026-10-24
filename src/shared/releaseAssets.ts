@@ -38,11 +38,10 @@ export function publishedDownloads(
   ];
   const links: Record<string, string> = {};
   const complete = files.every(([target, name]) => {
-    const matches = release.assets.filter(
-      (asset) => asset.name === name && asset.browser_download_url === `${prefix}${name}`,
-    );
+    const matches = release.assets.filter((asset) => asset.name === name);
     const asset = matches[0];
-    if (matches.length !== 1 || !asset) return false;
+    if (matches.length !== 1 || !asset || asset.browser_download_url !== `${prefix}${name}`)
+      return false;
     links[target] = asset.browser_download_url;
     return true;
   });
