@@ -31,22 +31,14 @@ test('researches verified release tracks through MCP and preserves visible prove
       (_electron, fixture) => {
         globalThis.fetch = (input) => {
           const url = input instanceof Request ? input.url : input.toString();
-          return Promise.resolve(
-            new Response(
-              JSON.stringify(
-                url.endsWith('/oauth/identity')
-                  ? fixture.identity
-                  : url.includes('/database/search')
-                    ? {
-                        pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
-                        results: [
-                          { id: 12, title: 'Low Tide - Quiet Orbit', format: ['Vinyl', 'EP'] },
-                        ],
-                      }
-                    : fixture.release,
-              ),
-            ),
-          );
+          let value: unknown = fixture.release;
+          if (url.endsWith('/oauth/identity')) value = fixture.identity;
+          else if (url.includes('/database/search'))
+            value = {
+              pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
+              results: [{ id: 12, title: 'Low Tide - Quiet Orbit', format: ['Vinyl', 'EP'] }],
+            };
+          return Promise.resolve(new Response(JSON.stringify(value)));
         };
       },
       { identity: identityResponse, release: releaseResponse },
@@ -77,7 +69,7 @@ test('researches verified release tracks through MCP and preserves visible prove
       ).result;
     if (!created.ok) throw new Error('No crate');
     const view = catalogueViewSchema.parse(created.value);
-    const crateId = view.crateId;
+    const { crateId } = view;
     if (!crateId) throw new Error('No crate ID');
     const added = z
       .object({ result: researchResultSchema })
@@ -138,10 +130,12 @@ test('researches verified release tracks through MCP and preserves visible prove
     await expect(research.getByText('Unresolved', { exact: true })).toBeVisible();
     await expect(research.getByText('00:31:20', { exact: true }).first()).toBeVisible();
     await desktop.evaluate(({ shell }) => {
-      shell.openExternal = (url) => {
-        process.env.AUTO_DIGGER_OPENED_EVIDENCE = url;
-        return Promise.resolve();
-      };
+      Object.assign(shell, {
+        openExternal: (url: string) => {
+          process.env.AUTO_DIGGER_OPENED_EVIDENCE = url;
+          return Promise.resolve();
+        },
+      });
     });
     await research
       .getByRole('button', { name: 'Open mix source for Quiet Orbit', exact: true })
