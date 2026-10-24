@@ -38,15 +38,13 @@ import { resolve } from 'node:path';
       await expect(mode).toBeInViewport();
       await expect(accent).toBeInViewport();
       await expect(material).toBeInViewport();
-      const previews = await appearance
-        .locator('.material-thumbnail')
-        .evaluateAll((elements) =>
-          elements.map((element) => ({
-            width: element.getBoundingClientRect().width,
-            height: element.getBoundingClientRect().height,
-            surface: getComputedStyle(element).getPropertyValue('--surface').trim(),
-          })),
-        );
+      const previews = await appearance.locator('.material-thumbnail').evaluateAll((elements) =>
+        elements.map((element) => ({
+          width: element.getBoundingClientRect().width,
+          height: element.getBoundingClientRect().height,
+          surface: getComputedStyle(element).getPropertyValue('--surface').trim(),
+        })),
+      );
       expect(previews).toHaveLength(3);
       expect(previews.every((preview) => preview.width > 190 && preview.height >= 80)).toBe(true);
       expect(new Set(previews.map((preview) => preview.surface)).size).toBe(3);
