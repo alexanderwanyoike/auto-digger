@@ -14,6 +14,7 @@ if (args.includes('--dump-single-json')) {
       id,
       title: id === 'lmnopqrstuv' ? 'Unknown upload' : 'Low Tide - Quiet Orbit',
       is_live: false,
+      url: 'https://fixture.googlevideo.com/audio',
     }),
   );
 } else {

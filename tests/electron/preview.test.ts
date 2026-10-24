@@ -1,5 +1,6 @@
 import { _electron as electron, expect, test } from '@playwright/test';
-import { resolve } from 'node:path';
+import { resolve, join } from 'node:path';
+import { readdir } from 'node:fs/promises';
 import { loadedRelease } from '../discogsFixtures';
 
 test('starts a progressive preview before delivery completes and leaves the downloads folder empty', async () => {
@@ -42,13 +43,8 @@ test('starts a progressive preview before delivery completes and leaves the down
     await seek.press('ArrowRight');
     await player.getByRole('button', { name: 'Stop preview' }).click();
     await expect(player.getByText('Nothing on the deck')).toBeVisible();
-    expect(
-      await desktop.evaluate(async ({ app }) => {
-        const { readdir } = await import('node:fs/promises');
-        const { join } = await import('node:path');
-        return readdir(join(app.getPath('music'), 'Auto Digger'));
-      }),
-    ).toEqual([]);
+    const music = await desktop.evaluate(({ app }) => app.getPath('music'));
+    expect(await readdir(join(music, 'Auto Digger'))).toEqual([]);
   } finally {
     await desktop.close();
   }

@@ -11,6 +11,9 @@ function timecode(value: number) {
 export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrary> }) {
   const { track, request } = audio.playback;
   const player = useLocalPlayer(track, request);
+  let description = audio.previewing ? 'Preparing preview…' : 'Preview a source to listen here.';
+  if (track)
+    description = `${track.source === 'preview' ? 'Preview · ' : ''}${track.artist} · ${track.album}`;
   return (
     <footer className="playback-bar" aria-label="Playback">
       <div className="now-playing">
@@ -22,13 +25,7 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
         />
         <div className="playing-info">
           <strong>{track?.title ?? 'Nothing on the deck'}</strong>
-          <span>
-            {track
-              ? `${track.source === 'preview' ? 'Preview · ' : ''}${track.artist} · ${track.album}`
-              : audio.previewing
-                ? 'Preparing preview…'
-                : 'Preview a source to listen here.'}
-          </span>
+          <span>{description}</span>
         </div>
       </div>
       <button

@@ -23,7 +23,7 @@ const audioCommands = createCommandRunner();
 const downloader = createDownloader((args, timeout) => audioCommands.execute(args, timeout));
 const previews = createPreviewSession(
   createPreviewResolver((args, timeout) => audioCommands.execute(args, timeout)),
-  (input, options) => net.fetch(input, options),
+  (input, options) => net.fetch(input instanceof URL ? input.href : input, options),
 );
 app.on('before-quit', () => {
   audioCommands.cancelAll();
