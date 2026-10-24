@@ -1,6 +1,6 @@
-import { genres, styles } from 'discogs-dataset-genres-styles';
 import { ArrowRight, SlidersHorizontal } from 'lucide-react';
 import { TaxonomySelect } from './TaxonomySelect';
+import { GenreStyleFilters } from './GenreStyleFilters';
 import type { DigFilters } from '../../shared/search';
 import { releaseTypes } from '../../shared/releaseTypes';
 import type { useDiscogs } from '../discogs/useDiscogs';
@@ -65,18 +65,7 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
                 </span>
               </label>
             ))}
-            <TaxonomySelect
-              name="genre"
-              label="Genre"
-              options={genres}
-              disabled={!session.account || session.busy}
-            />
-            <TaxonomySelect
-              name="style"
-              label="Style"
-              options={styles}
-              disabled={!session.account || session.busy}
-            />
+            <GenreStyleFilters disabled={!session.account || session.busy} />
             <TaxonomySelect
               name="format"
               label="Release type"

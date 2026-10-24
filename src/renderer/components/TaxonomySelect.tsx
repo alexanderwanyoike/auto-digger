@@ -6,12 +6,18 @@ export function TaxonomySelect({
   label,
   options,
   disabled,
+  value = undefined,
+  onChange = undefined,
+  knownOptions = options,
   placeholder = name === 'genre' ? 'All genres' : 'All styles',
 }: {
   name: string;
   label: string;
   options: readonly string[];
   disabled: boolean;
+  value?: readonly string[];
+  onChange?: (values: string[]) => void;
+  knownOptions?: readonly string[];
   placeholder?: string;
 }) {
   const id = useId();
@@ -22,6 +28,8 @@ export function TaxonomySelect({
         inputId={id}
         instanceId={id}
         name={name}
+        value={value?.map((item) => ({ value: item, label: item }))}
+        onChange={(selected) => onChange?.(selected.map((item) => item.value))}
         isMulti
         isClearable
         isDisabled={disabled}
@@ -40,6 +48,7 @@ export function TaxonomySelect({
           Boolean(input.trim()) &&
           input.trim().length <= 160 &&
           !input.includes('|') &&
+          !knownOptions.some((option) => option.toLowerCase() === input.trim().toLowerCase()) &&
           !available.some((option) => option.label?.toLowerCase() === input.trim().toLowerCase())
         }
       />
