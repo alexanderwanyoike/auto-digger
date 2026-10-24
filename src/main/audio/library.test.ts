@@ -130,3 +130,44 @@ test('preserves an existing audio file when publishing a new download collides',
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('corrects a saved source offline without redownloading and can restore the video title', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-audio-'));
+  const release = {
+    ...loadedRelease,
+    videos: [{ title: 'Unidentified upload', url: 'https://youtu.be/abcdefghijk' }],
+  };
+  const probe = vi
+    .fn<ReturnType<typeof import('./downloader').createDownloader>['probe']>()
+    .mockResolvedValue({
+      ok: true,
+      value: { videoId: 'abcdefghijk', title: 'Unidentified upload' },
+    });
+  const download = vi
+    .fn<ReturnType<typeof import('./downloader').createDownloader>['download']>()
+    .mockImplementation(async (_id, file) => {
+      await writeFile(file, 'audio');
+      return { ok: true, value: undefined };
+    });
+  try {
+    const library = createAudioLibrary(directory, { probe, download });
+    const original = await library.download({ release, videoIndex: 0, trackIndex: null });
+    expect(original).toMatchObject({ ok: true, value: { title: 'Unidentified upload' } });
+    probe.mockResolvedValue({ ok: false, error: { code: 'network', message: 'offline' } });
+    const corrected = await library.download({ release, videoIndex: 0, trackIndex: 0 });
+    expect(corrected).toMatchObject({ ok: true, value: { title: 'Quiet Orbit', trackIndex: 0 } });
+    if (!corrected.ok) throw new Error('Expected corrected tags');
+    expect(await NodeID3.Promise.read(join(directory, corrected.value.filename))).toMatchObject({
+      title: 'Quiet Orbit',
+      trackNumber: '1',
+    });
+    expect(await library.download({ release, videoIndex: 0, trackIndex: null })).toMatchObject({
+      ok: true,
+      value: { title: 'Unidentified upload', trackIndex: null },
+    });
+    expect(download).toHaveBeenCalledTimes(1);
+    expect(probe).toHaveBeenCalledTimes(1);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
