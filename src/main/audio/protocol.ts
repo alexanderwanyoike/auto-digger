@@ -3,6 +3,7 @@ import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { createAudioLibrary } from './library';
+import type { createPreviewSession } from './previewSession';
 
 export function registerAudioScheme() {
   protocol.registerSchemesAsPrivileged([
@@ -16,9 +17,11 @@ export function registerAudioScheme() {
 export function registerAudioProtocol(
   library: ReturnType<typeof createAudioLibrary>,
   directory: string,
+  previews: ReturnType<typeof createPreviewSession>,
 ) {
   protocol.handle('auto-digger-audio', async (request) => {
     const url = new URL(request.url);
+    if (url.hostname === 'preview') return previews.serve(request);
     if (url.hostname !== 'track' || !['GET', 'HEAD'].includes(request.method))
       return new Response(null, { status: 404 });
     const track = await library.find(url.pathname.slice(1));

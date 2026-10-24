@@ -111,7 +111,7 @@
   padding: 7px 8px;
   margin: 0;
 }
-.source-actions .source-download {
+.source-actions .source-preview {
   color: var(--blue);
   background: var(--blue-soft);
 }

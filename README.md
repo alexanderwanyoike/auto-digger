@@ -17,7 +17,7 @@ yarn dev
 2. Paste the token into the desktop app and choose **Connect account**.
 3. Enter any combination of filters and choose **Search EPs**. Genre and style are searchable multi-selects. Releases match any selected genre and any selected style; year accepts one four-digit year. Blank filters search widely.
 4. Browse sleeve cards, open a match or choose **Dig a random EP**, then **Dig again**. Draft edits take effect when you submit Search EPs. Reset digging starts fresh with the applied filters.
-5. In **Audio sources**, check the suggested Discogs track for each video. Choose another track or **Keep video title** when needed, then **Download audio**. The bottom player starts the saved track. Each attached video is independently downloadable. Private, removed or restricted sources show a readable error and **Check again**.
+5. In **Audio sources**, check the suggested Discogs track for each video. Choose another track or **Keep video title** when needed, then **Preview** to listen without saving. Choose **Download audio** to keep it. The bottom player switches to the saved track after download. Each attached video is independently downloadable. Private, removed or restricted sources show a readable error and **Check again**.
 6. Choose **Save EP to crate**. Open saved EPs from the right-hand list or remove them with the adjacent button. Saved metadata, sleeve thumbnails and video links remain available after restart without reconnecting Discogs.
 
 You can also enter a numeric Discogs release ID to load a record directly. The crate supports EPs. Click the connected username to disconnect when finished.
@@ -34,7 +34,7 @@ Each compact source row labels the **Discogs track** separately from the **YouTu
 
 Files live in your operating system's **Music/Auto Digger** folder, with names such as `Artist - Track [release-video].yt.mp3`. Each has a versioned JSON sidecar holding library information. Use **Show in folder** beside a source or the folder button in the player to find it. Keep sidecars alongside their MP3s and back up the folder before manual repairs. Existing files are preserved on name collisions.
 
-The bottom bar controls local audio with play/pause, seeking and volume. Its download selector reopens tracks after restart. Browsing another record or disconnecting Discogs keeps the current track playing. Downloading or choosing a saved track starts playback; a browser autoplay restriction shows a prompt to press play. No YouTube frame or hidden streaming player remains. Internet is needed for downloading and fetching new cover art; saved audio plays offline.
+The bottom bar controls local audio with play/pause, seeking and volume. Its download selector reopens tracks after restart. Browsing another record or disconnecting Discogs keeps the current track playing. Downloading or choosing a saved track starts playback; a browser autoplay restriction shows a prompt to press play. Use **Preview** to stream a source through the bottom player before committing to a download. Preview shows preparing/buffering states and can be stopped; it creates no saved file or library entry. No YouTube frame remains. Internet is needed for downloading and fetching new cover art; saved audio plays offline.
 
 ## Remembered account
 
