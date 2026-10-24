@@ -50,3 +50,54 @@ test('connects, clears the submitted token, shows release metadata and disconnec
   expect(screen.queryByRole('heading', { name: 'Quiet Orbit EP' })).not.toBeInTheDocument();
   expect(bridge.disconnect).toHaveBeenCalledOnce();
 });
+
+test('invalid credentials leave the token field empty and keep the dialog open', async () => {
+  const bridge = mockBridge();
+  vi.mocked(bridge.connect).mockResolvedValue({
+    ok: false,
+    error: { code: 'unauthorized', message: 'Discogs rejected this token.' },
+  });
+  const user = userEvent.setup();
+  render(<App discogs={bridge} />);
+  const connect = screen.getByRole('button', { name: 'Discogs not connected' });
+  await waitFor(() => {
+    expect(connect).toBeEnabled();
+  });
+  await user.click(connect);
+  await user.type(screen.getByLabelText('Personal token'), 'wrong-token');
+  await user.click(screen.getByRole('button', { name: 'Connect account' }));
+  expect(await screen.findByRole('alert')).toHaveTextContent('Discogs rejected this token.');
+  expect(screen.getByLabelText('Personal token')).toHaveValue('');
+  expect(screen.getByRole('dialog')).toBeInTheDocument();
+});
+
+test('shows a rate limit error without losing the account and allows retry', async () => {
+  const bridge = mockBridge();
+  vi.mocked(bridge.account).mockResolvedValue({ ok: true, value: identityResponse });
+  vi.mocked(bridge.loadRelease).mockResolvedValueOnce({
+    ok: false,
+    error: { code: 'rate-limited', message: 'Please wait a minute and try again.' },
+  });
+  const user = userEvent.setup();
+  render(<App discogs={bridge} />);
+  await user.type(await screen.findByLabelText('Discogs release ID'), '12');
+  await user.click(screen.getByRole('button', { name: 'Load release' }));
+  expect(await screen.findByRole('alert')).toHaveTextContent('Please wait a minute');
+  expect(screen.getByRole('button', { name: 'Connected as quiet-digger' })).toBeEnabled();
+  await user.click(screen.getByRole('button', { name: 'Load release' }));
+  expect(await screen.findByRole('heading', { name: 'Quiet Orbit EP' })).toBeInTheDocument();
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+});
+
+test('falls back to the sleeve placeholder if remote artwork fails', async () => {
+  const { fireEvent } = await import('@testing-library/react');
+  const { ReleaseDetails } = await import('./ReleaseDetails');
+  render(
+    <ReleaseDetails
+      release={{ ...loadedRelease, artworkUrl: 'https://i.discogs.com/unavailable.jpg' }}
+    />,
+  );
+  fireEvent.error(screen.getByRole('img', { name: 'Quiet Orbit EP record sleeve' }));
+  expect(await screen.findByText('No artwork available')).toBeInTheDocument();
+  expect(screen.queryByRole('img')).not.toBeInTheDocument();
+});
