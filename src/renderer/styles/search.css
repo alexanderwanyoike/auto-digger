@@ -44,3 +44,7 @@
   padding: 7px;
   cursor: pointer;
 }
+.filter-panel {
+  max-height: max(516px, calc(100vh - 260px));
+  overflow-y: auto;
+}
