@@ -3,13 +3,13 @@ import type { BrowserWindow } from 'electron';
 import { discogsChannels } from '../../shared/discogs';
 import { discogsFailure } from '../../shared/discogsFailure';
 import type { DiscogsResult } from '../../shared/discogs';
-import type { createDiscogsSession } from './session';
+import type { createRememberedSession } from './rememberedSession';
 
 type Operation = (input: unknown) => DiscogsResult<unknown> | Promise<DiscogsResult<unknown>>;
 
 export function registerDiscogsHandlers(
   window: BrowserWindow,
-  session: ReturnType<typeof createDiscogsSession>,
+  session: ReturnType<typeof createRememberedSession>,
 ) {
   const handle = (channel: string, operation: Operation) => {
     ipcMain.removeHandler(channel);
