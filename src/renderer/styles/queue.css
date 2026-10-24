@@ -93,3 +93,8 @@
 .release-download small {
   color: var(--muted);
 }
+
+.download-queue ul {
+  max-height: 256px;
+  overflow-y: auto;
+}

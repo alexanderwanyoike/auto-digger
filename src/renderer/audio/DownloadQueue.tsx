@@ -23,9 +23,14 @@ export function DownloadQueue({
   audio: ReturnType<typeof useAudioLibrary>;
   releaseId?: number;
 }) {
-  const jobs = audio.queue.jobs
-    .filter((job) => releaseId === undefined || job.releaseId === releaseId)
-    .slice(-20);
+  const all = audio.queue.jobs.filter(
+    (job) => releaseId === undefined || job.releaseId === releaseId,
+  );
+  const finished = new Set(['complete', 'failed', 'cancelled']);
+  const jobs = [
+    ...all.filter((job) => !finished.has(job.stage)),
+    ...all.filter((job) => finished.has(job.stage)).slice(-10),
+  ];
   if (!jobs.length && !audio.queue.error) return null;
   return (
     <section className="download-queue" aria-label="Download queue">
@@ -33,7 +38,7 @@ export function DownloadQueue({
       {audio.queue.error && <p role="alert">{audio.queue.error}</p>}
       <ul>
         {jobs.map((job) => {
-          const active = !['complete', 'failed', 'cancelled'].includes(job.stage);
+          const active = !finished.has(job.stage);
           return (
             <li key={job.id}>
               <div className="queue-copy">
