@@ -3,7 +3,7 @@ import type { Appearance } from '../theme/preferences';
 import type { usePreferences } from './usePreferences';
 import { ResearchSettings } from './ResearchSettings';
 import { DownloadSettings } from './DownloadSettings';
-import { SettingsSelect } from './SettingsSelect';
+import { AppearanceSettings } from './AppearanceSettings';
 
 export function SettingsPage({
   session,
@@ -20,10 +20,11 @@ export function SettingsPage({
 }) {
   return (
     <section className="section-page settings-page" aria-label="App settings">
-      <div className="section-intro">
-        <span className="eyebrow">MAKE YOURSELF AT HOME.</span>
-        <p>Your account and the way your desk feels.</p>
-      </div>
+      <AppearanceSettings
+        preferences={preferences}
+        appearance={appearance}
+        onAppearance={onAppearance}
+      />
       <div className="settings-card">
         <h2>Discogs account</h2>
         <p>
@@ -40,37 +41,6 @@ export function SettingsPage({
         >
           {session.account ? 'Manage account' : 'Connect Discogs'}
         </button>
-      </div>
-      <div className="settings-card">
-        <h2>Appearance</h2>
-        <p>Follow your system, or choose a light or dark desk.</p>
-        <div className="settings-choices">
-          <SettingsSelect
-            label="Mode"
-            value={appearance}
-            options={['system', 'light', 'dark']}
-            disabled={false}
-            onSelect={onAppearance}
-          />
-          <SettingsSelect
-            label="Material"
-            value={preferences.value.material}
-            options={['aluminium', 'ceramic', 'slate']}
-            disabled={preferences.busy || !preferences.available}
-            onSelect={(material) => {
-              preferences.save({ material }).catch(() => undefined);
-            }}
-          />
-          <SettingsSelect
-            label="Accent"
-            value={preferences.value.accent}
-            options={['blue', 'teal', 'amber']}
-            disabled={preferences.busy || !preferences.available}
-            onSelect={(accent) => {
-              preferences.save({ accent }).catch(() => undefined);
-            }}
-          />
-        </div>
       </div>
       <DownloadSettings preferences={preferences} />
       <ResearchSettings />

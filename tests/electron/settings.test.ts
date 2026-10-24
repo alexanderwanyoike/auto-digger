@@ -30,8 +30,8 @@ test('persists settings and finds old and per-release downloads after a native r
       );
     }, chosen);
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await page.getByRole('combobox', { name: 'Material', exact: true }).selectOption('slate');
-    await page.getByRole('combobox', { name: 'Accent', exact: true }).selectOption('teal');
+    await page.getByRole('radio', { name: 'Slate', exact: true }).check();
+    await page.getByRole('radio', { name: 'Teal', exact: true }).check();
     await page
       .getByRole('combobox', { name: 'Download organisation', exact: true })
       .selectOption('release');
@@ -93,20 +93,26 @@ test('keeps small text and accent actions readable across supported materials, a
     const page = await desktop.firstWindow();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     const choices = ['light', 'dark'].flatMap((mode) =>
-      ['aluminium', 'ceramic', 'slate'].flatMap((material) =>
-        ['blue', 'teal', 'amber'].map((accent) => ({ mode, material, accent })),
+      ['aluminium', 'ceramic', 'slate', 'graphite', 'paper', 'copper'].flatMap((material) =>
+        ['blue', 'teal', 'amber', 'coral', 'sage', 'lilac', 'rose'].map((accent) => ({
+          mode,
+          material,
+          accent,
+        })),
       ),
     );
     await choices.reduce<Promise<void>>(
       (previous, choice) =>
         previous.then(async () => {
-          await page.getByRole('combobox', { name: 'Mode', exact: true }).selectOption(choice.mode);
+          await page.getByRole('radio', { name: new RegExp(`^${choice.mode}$`, 'i') }).check();
           await page
-            .getByRole('combobox', { name: 'Material', exact: true })
-            .selectOption(choice.material);
+            .getByRole('group', { name: 'Material', exact: true })
+            .getByRole('radio', { name: new RegExp(choice.material, 'i') })
+            .check();
           await page
-            .getByRole('combobox', { name: 'Accent', exact: true })
-            .selectOption(choice.accent);
+            .getByRole('group', { name: 'Accent colour', exact: true })
+            .getByRole('radio', { name: new RegExp(choice.accent, 'i') })
+            .check();
           await expect(page.locator('html')).toHaveAttribute('data-accent', choice.accent);
           const colors = await page.evaluate(() => {
             const style = getComputedStyle(document.documentElement);
