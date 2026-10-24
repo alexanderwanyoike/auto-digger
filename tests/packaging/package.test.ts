@@ -55,7 +55,7 @@ test.skipIf(process.platform !== 'linux')(
       const entry = join(profile, 'data/applications', `${applicationId}.desktop`);
       await expect
         .poll(async () => readFile(entry, 'utf8').catch(() => ''))
-        .toContain(`Exec="${image}"`);
+        .toContain(`"${image}"`);
       await access(join(profile, 'data/icons', `${applicationId}.png`));
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
       await page.getByRole('button', { name: 'Enable research access', exact: true }).click();

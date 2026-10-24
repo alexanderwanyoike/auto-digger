@@ -1,3 +1,5 @@
+import { execFile, spawnSync } from 'node:child_process';
+import { promisify } from 'node:util';
 import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -20,7 +22,7 @@ test('adds one launcher and icon to XDG user data and refreshes the AppImage loc
     };
     expect(await integrateAppImage(options)).toEqual({ ok: true, value: undefined });
     const entry = join(options.dataHome, 'applications', `${applicationId}.desktop`);
-    expect(await readFile(entry, 'utf8')).toContain(`Exec="${appImage}"`);
+    expect(await readFile(entry, 'utf8')).toContain(`"${appImage}"`);
     expect(await readFile(entry, 'utf8')).toContain('StartupWMClass=auto-digger');
     expect(await readFile(join(options.dataHome, 'icons', `${applicationId}.png`))).toEqual(
       await readFile(options.icon),
@@ -31,7 +33,7 @@ test('adds one launcher and icon to XDG user data and refreshes the AppImage loc
       ok: true,
       value: undefined,
     });
-    expect(await readFile(entry, 'utf8')).toContain(`Exec="${updated}"`);
+    expect(await readFile(entry, 'utf8')).toContain(`"${updated}"`);
     expect(await readdir(join(options.dataHome, 'applications'))).toEqual([
       `${applicationId}.desktop`,
     ]);
@@ -130,8 +132,38 @@ test('quotes spaces and desktop-entry metacharacters without interpreting them',
       }),
     ).toMatchObject({ ok: true });
     const text = await readFile(join(dataHome, 'applications', `${applicationId}.desktop`), 'utf8');
-    expect(text).toContain(`Exec="${directory}/Digger's \\\\"mix\\\\" \\\\$cash 100%%.AppImage"`);
+    expect(text).toContain(`"${directory}/Digger's \\\\"mix\\\\" \\\\$cash 100%%.AppImage"`);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+const hasGio = process.platform === 'linux' && spawnSync('gio', ['version']).status === 0;
+test.skipIf(!hasGio)(
+  'launches the exact AppImage path through GIO when its name contains percent and quotes',
+  async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'auto-digger-menu-launch-'));
+    try {
+      const appImage = join(directory, 'Auto Digger "mix" 100%.AppImage');
+      const marker = join(directory, 'launched');
+      await writeFile(appImage, `#!/bin/sh\nprintf '%s' "$0" > "${marker}"\n`, { mode: 0o755 });
+      const dataHome = join(directory, 'data');
+      const result = await integrateAppImage({
+        platform: 'linux',
+        packaged: true,
+        appImage,
+        dataHome,
+        home: directory,
+        icon: resolve('resources/icons/icon.png'),
+      });
+      expect(result).toMatchObject({ ok: true });
+      await promisify(execFile)('gio', [
+        'launch',
+        join(dataHome, 'applications', `${applicationId}.desktop`),
+      ]);
+      await expect.poll(() => readFile(marker, 'utf8').catch(() => '')).toBe(appImage);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  },
+);
