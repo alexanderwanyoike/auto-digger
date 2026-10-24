@@ -2,13 +2,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CatalogueBridge, CatalogueView, CatalogueViewResult } from '../../shared/catalogue';
 import type { CrateError } from '../../shared/crate';
 import { catalogueFailure } from '../../shared/catalogueFailure';
+import { readCrateSelection, saveCrateSelection } from './selection';
 
 export function useCatalogue(bridge: CatalogueBridge | undefined) {
+  const [remembered] = useState(readCrateSelection);
   const [view, setView] = useState<CatalogueView>({ crates: [], crateId: null, entries: [] });
   const [busy, setBusy] = useState(Boolean(bridge));
   const [ready, setReady] = useState(false);
-  const [error, setError] = useState<CrateError | null>(null);
-  const selection = useRef<string | undefined>(undefined);
+  const [error, setError] = useState<CrateError | null>(remembered.ok ? null : remembered.error);
+  const selection = useRef<string | undefined>(remembered.ok ? remembered.value : undefined);
   const version = useRef(0);
   const perform = useCallback(
     async (operation: (api: CatalogueBridge) => Promise<CatalogueViewResult>) => {
@@ -29,6 +31,8 @@ export function useCatalogue(bridge: CatalogueBridge | undefined) {
           selection.current = result.value.crateId ?? undefined;
           setView(result.value);
           setReady(true);
+          const saved = saveCrateSelection(result.value.crateId);
+          if (!saved.ok) setError(saved.error);
         } else setError(result.error);
         setBusy(false);
       }
