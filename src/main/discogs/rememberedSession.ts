@@ -1,3 +1,4 @@
+import { discogsFailure } from '../../shared/discogsFailure';
 import type { DiscogsAccount, DiscogsResult } from '../../shared/discogs';
 import type { createTokenStore } from '../credentials/tokenStore';
 import type { createDiscogsSession } from './session';
@@ -15,8 +16,21 @@ export function createRememberedSession(
     );
     return pending;
   }
+  function authorized<T>(operation: () => Promise<DiscogsResult<T>>): Promise<DiscogsResult<T>> {
+    return serialize(async () => {
+      const result = await operation();
+      if (!result.ok && result.error.code === 'unauthorized') {
+        const removed = await tokens.clear();
+        if (!removed.ok)
+          return discogsFailure('unauthorized', `${result.error.message} ${removed.error.message}`);
+      }
+      return result;
+    });
+  }
   return {
-    ...session,
+    loadRelease: (input: unknown) => authorized(() => session.loadRelease(input)),
+    search: (input: unknown) => authorized(() => session.search(input)),
+    dig: (input: unknown) => authorized(() => session.dig(input)),
     account: () =>
       serialize<DiscogsAccount | null>(async () => {
         const current = session.account();
