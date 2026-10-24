@@ -14,7 +14,7 @@ export function DigControls({ session }: { session: ReturnType<typeof useDiscogs
         }}
       >
         <Shuffle size={14} aria-hidden="true" />
-        {session.digging ? 'Dig again' : 'Dig a random EP'}
+        {session.digging ? 'Dig again' : 'Dig a random release'}
       </button>
       <button
         type="button"

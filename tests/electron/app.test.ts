@@ -163,9 +163,9 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     await page.getByLabel('Style', { exact: true }).fill('Techno');
     await page.getByRole('option', { name: 'Techno', exact: true }).click();
     await page.getByLabel('Style', { exact: true }).press('Escape');
-    await page.getByRole('button', { name: 'Search EPs', exact: true }).click();
+    await page.getByRole('button', { name: 'Search releases', exact: true }).click();
     await expect(page.getByText('1 matching releases', { exact: true })).toBeVisible();
-    const results = page.getByRole('region', { name: 'Matching EPs' });
+    const results = page.getByRole('region', { name: 'Matching releases' });
     await expect(results.locator('img')).toHaveAttribute(
       'src',
       'https://i.discogs.com/example.jpg',
@@ -183,7 +183,7 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
     await expect(page.getByText('Low Tide', { exact: true })).toBeVisible();
     await expect(page.getByText('Quiet Orbit', { exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'Dig a random EP', exact: true }).click();
+    await page.getByRole('button', { name: 'Dig a random release', exact: true }).click();
     await expect(page.getByText('1 found · 1 accessible matches', { exact: true })).toBeVisible();
     await expect(
       page.getByRole('img', { name: 'Quiet Orbit EP record sleeve', exact: true }),

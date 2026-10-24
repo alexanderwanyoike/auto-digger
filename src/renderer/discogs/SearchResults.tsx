@@ -5,14 +5,14 @@ export function SearchResults({ session }: { session: ReturnType<typeof useDisco
   const { matches, filters } = session;
   if (!matches || !filters) return null;
   return (
-    <section className="search-results" aria-label="Matching EPs">
+    <section className="search-results" aria-label="Matching releases">
       <h2>{matches.items} matching releases</h2>
       {matches.items > 10000 && (
         <p>
           Discogs makes the first 10,000 matches available. Narrow the filters to explore further.
         </p>
       )}
-      {!matches.releases.length && <p>No matching EPs. Try a broader label, year or style.</p>}
+      {!matches.releases.length && <p>No matching releases. Try a broader label, year or style.</p>}
       <ul>
         {matches.releases.map((release) => (
           <li key={release.id}>

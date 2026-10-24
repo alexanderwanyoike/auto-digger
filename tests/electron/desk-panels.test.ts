@@ -117,10 +117,10 @@ async function expectPanelEnds(panel: Locator, heading: string, footer: string) 
       const crateFooter = 'Records, saved on this device.';
       await expectPanelEnds(filters, 'The starting point', filterFooter);
       await expectPanelEnds(crate, 'Your crate', crateFooter);
-      await filters.getByRole('button', { name: 'Search EPs', exact: true }).focus();
-      await expect(filters.getByRole('button', { name: 'Search EPs', exact: true })).toBeInViewport(
-        { ratio: 1 },
-      );
+      await filters.getByRole('button', { name: 'Search releases', exact: true }).focus();
+      await expect(
+        filters.getByRole('button', { name: 'Search releases', exact: true }),
+      ).toBeInViewport({ ratio: 1 });
       await expectPanelEnds(filters, 'The starting point', filterFooter);
       await filterViewport.hover();
       await page.mouse.wheel(0, -1000);

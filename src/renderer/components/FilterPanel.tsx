@@ -2,6 +2,7 @@ import { genres, styles } from 'discogs-dataset-genres-styles';
 import { ArrowRight, SlidersHorizontal } from 'lucide-react';
 import { TaxonomySelect } from './TaxonomySelect';
 import type { DigFilters } from '../../shared/search';
+import { releaseTypes } from '../../shared/releaseTypes';
 import type { useDiscogs } from '../discogs/useDiscogs';
 
 const fields = [
@@ -41,7 +42,7 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
               year: value('year'),
               genre: selected('genre'),
               style: selected('style'),
-              format: [],
+              format: selected('format'),
               title: value('title'),
             };
             session.search(filters).catch(() => undefined);
@@ -76,18 +77,19 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
               options={styles}
               disabled={!session.account || session.busy}
             />
-            <div className="format-row">
-              <span>Format</span>
-              <span className="format-tag">EP</span>
-            </div>
+            <TaxonomySelect
+              name="format"
+              label="Release type"
+              options={releaseTypes}
+              placeholder="All release types"
+              disabled={!session.account || session.busy}
+            />
             <button className="primary-button" type="submit">
-              Search EPs <ArrowRight size={15} aria-hidden="true" />
+              Search releases <ArrowRight size={15} aria-hidden="true" />
             </button>
           </fieldset>
         </form>
-        <p className="phase-note">
-          Select any genres and styles. Matches any selection in each field.
-        </p>
+        <p className="phase-note">Match any selected type, genre or style within each field.</p>
       </div>
       <div className="source-card">
         <span className="eyebrow">THE SOURCE</span>
