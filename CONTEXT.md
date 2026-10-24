@@ -1,7 +1,13 @@
 # Auto Digger
 
-Auto Digger is a desktop music discovery tool. A digging session will use Discogs metadata to find random EPs matching label, year, genre, style, artist, and optionally release title. Discogs calls subgenres styles.
+Auto Digger is a desktop music discovery tool. A digging session finds random EPs from Discogs releases matching optional label, year, genre, style, artist and release-title filters. Discogs calls subgenres styles. Filters are free text so the full Discogs genre/style vocabulary is available. Applied filters are distinct from draft edits.
 
-A release is a specific Discogs release. An EP is the initial supported format. A crate is a saved playlist of releases for later listening, distinct from a Discogs collection or wantlist. Playback will use YouTube videos associated with a release.
+A release is a specific Discogs pressing, identified by release ID. An EP is the initial supported format. Digging avoids repeating release IDs within a session, verifies EP format and stays within Discogs' accessible search window. Changing applied criteria, explicitly resetting or reconnecting starts fresh.
 
-Phase 1 provides the desktop shell, theme controls and honest empty states. Phase 2 adds a session-only Discogs account connection and loading release metadata by numeric ID. Search filters, random discovery, playback and saved crates remain later phases. A connected account means Discogs has verified the personal token for the current application session.
+A crate is a local saved playlist of whole EP releases, distinct from a Discogs collection or wantlist. It preserves insertion order and unique release IDs. Saved metadata and YouTube links can be reopened after restart without connecting Discogs. It does not store credentials or audio.
+
+Playback uses visible official YouTube players for videos associated with a release. It requires internet and video availability. Selection does not autoplay; hidden players pause and replaced players are destroyed.
+
+A connected account means Discogs verified a personal token for the current app session. Tokens live only in main-process memory. Disconnect clears account, loaded record, search results and digging history, while the saved crate persists.
+
+Phases 1 through 6 cover desktop foundation, connection/metadata, filtered search, random discovery, YouTube playback and local crate persistence. Installer packaging, cloud sync, named crates and export are outside this prototype.
