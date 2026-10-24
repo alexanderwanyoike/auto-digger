@@ -213,3 +213,21 @@ test('returns typed failures for invalid crate selection and operations after cl
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('retries a failed initial open after the legacy file is repaired', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-catalogue-'));
+  const legacy = join(directory, 'crate.json');
+  await writeFile(legacy, 'broken');
+  const store = createCatalogueStore(join(directory, 'catalog.sqlite'), legacy);
+  try {
+    expect((await store.view()).ok).toBe(false);
+    await writeFile(legacy, JSON.stringify({ version: 1, releases: [loadedRelease] }));
+    expect(await store.view()).toMatchObject({
+      ok: true,
+      value: { entries: [{ release: { id: 12 } }] },
+    });
+  } finally {
+    await store.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
