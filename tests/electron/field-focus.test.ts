@@ -6,6 +6,7 @@ import { contrast } from '../contrast';
 async function expectFlushFocus(field: Locator) {
   await expect(field).toHaveCSS('outline-style', 'none');
   await expect(field).toHaveCSS('outline-offset', '0px');
+  await expect(field).toHaveCSS('box-shadow', / 0px 0px 0px 1px$/);
   const frame = await field.evaluate((element) => {
     const style = getComputedStyle(element);
     const canvas = document.createElement('canvas');
@@ -63,8 +64,12 @@ async function expectFlushFocus(field: Locator) {
     try {
       const page = await desktop.firstWindow();
       await page.setViewportSize({ width: 1180, height: 1000 });
+      await page.getByRole('button', { name: mode, exact: true }).click();
       await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
-      await page.getByLabel('Personal token').fill('focus-fixture');
+      const token = page.getByLabel('Personal token');
+      await token.focus();
+      await expectFlushFocus(token);
+      await token.fill('focus-fixture');
       await page.getByRole('button', { name: 'Connect account', exact: true }).click();
       await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).waitFor();
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
@@ -94,7 +99,7 @@ async function expectFlushFocus(field: Locator) {
         .locator('.taxonomy__control');
       await expectFlushFocus(control);
       await page.screenshot({ path: `test-results/field-focus-${mode.toLowerCase()}-select.png` });
-      const cratePicker = page.getByLabel('Active crate', { exact: true });
+      const cratePicker = page.getByRole('combobox', { name: 'Active crate', exact: true });
       await page.keyboard.press('Tab');
       await cratePicker.focus();
       await expectFlushFocus(cratePicker);
@@ -107,12 +112,12 @@ async function expectFlushFocus(field: Locator) {
       await crateName.focus();
       await expectFlushFocus(crateName);
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
-      const layout = page.getByLabel('Download organisation', { exact: true });
+      const layout = page.getByRole('combobox', { name: 'Download organisation', exact: true });
       await page.keyboard.press('Tab');
       await layout.focus();
       await expectFlushFocus(layout);
       await page.getByRole('button', { name: 'Enable research access', exact: true }).click();
-      const config = page.getByLabel('MCP client configuration', { exact: true });
+      const config = page.getByRole('textbox', { name: 'MCP client configuration', exact: true });
       await config.focus();
       await expectFlushFocus(config);
       await page.getByRole('button', { name: 'Disable research access', exact: true }).click();
