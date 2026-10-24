@@ -395,3 +395,9 @@ a.download-button:hover {
     flex-wrap: wrap;
   }
 }
+
+.platform-name .platform-help {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 11px;
+}
