@@ -6,6 +6,7 @@ import { audioFailure } from '../../shared/audioFailure';
 import { matchTrack } from '../../shared/matchTrack';
 import type { ResolvedPreview } from './previewResolver';
 import { isPreviewUrl } from './previewResolver';
+import { previewBody } from './previewBody';
 
 export function createPreviewSession(
   resolve: (url: string) => Promise<AudioResult<ResolvedPreview>>,
@@ -84,8 +85,10 @@ export function createPreviewSession(
           signal: AbortSignal.any([controller.signal, input.signal]),
           redirect: 'error',
           credentials: 'omit',
+          cache: 'no-store',
         });
         if (!response.ok) {
+          await response.body?.cancel();
           controllers.delete(controller);
           return new Response(null, { status: 502 });
         }
@@ -94,7 +97,10 @@ export function createPreviewSession(
           const value = response.headers.get(name);
           if (value) headers.set(name, value);
         });
-        return new Response(input.method === 'HEAD' ? null : response.body, {
+        const body = previewBody(input.method === 'HEAD' ? null : response.body, () => {
+          controllers.delete(controller);
+        });
+        return new Response(body, {
           status: response.status,
           headers,
         });
