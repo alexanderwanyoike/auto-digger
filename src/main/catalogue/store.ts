@@ -1,4 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { createPreferencesStore } from '../settings/store';
 import { catalogueFailure } from '../../shared/catalogueFailure';
 import type { CatalogueResult, CatalogueView } from '../../shared/catalogue';
 import { openCatalogue } from './database';
@@ -53,6 +54,7 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
     }
   }
   return {
+    preferences: createPreferencesStore(getConnection),
     annotate: (input: unknown) => change((mutations) => mutations.annotate(input)),
     create: (name: unknown) => change((mutations) => mutations.create(name)),
     rename: (input: unknown) => change((mutations) => mutations.rename(input)),
