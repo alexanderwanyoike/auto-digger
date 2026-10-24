@@ -50,7 +50,7 @@ test('keeps named crates independent, accepts albums and preserves unique releas
   try {
     const created = await store.create('H-Foundation picks');
     if (!created.ok || !created.value.crateId) throw new Error('Expected a named crate');
-    const {crateId} = created.value;
+    const { crateId } = created.value;
     const album = { ...loadedRelease, formats: ['CD, Album, Mixed'] };
     expect(await store.add({ crateId, release: album })).toMatchObject({
       ok: true,
@@ -98,7 +98,7 @@ test('persists independent track picks and personal tags per crate without chang
     await store.add({ crateId: 'default', release: loadedRelease });
     const other = await store.create('Warm-up');
     if (!other.ok || !other.value.crateId) throw new Error('Expected another crate');
-    const {crateId} = other.value;
+    const { crateId } = other.value;
     const added = await store.add({ crateId, release: loadedRelease });
     if (!added.ok) throw new Error('Expected saved release');
     const track = added.value.entries[0]?.tracks[0];
@@ -194,6 +194,22 @@ test('preserves corrupt legacy data and rejects unsupported database versions', 
     }
   } finally {
     await corrupt.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('returns typed failures for invalid crate selection and operations after close', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-catalogue-'));
+  const store = createCatalogueStore(join(directory, 'catalog.sqlite'));
+  try {
+    expect(await store.view('')).toMatchObject({ ok: false, error: { code: 'invalid-input' } });
+    await store.close();
+    expect(await store.create('After close')).toMatchObject({
+      ok: false,
+      error: { code: 'unavailable' },
+    });
+  } finally {
+    await store.close();
     await rm(directory, { recursive: true, force: true });
   }
 });
