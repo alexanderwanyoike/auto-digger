@@ -18,6 +18,7 @@ export const discogsErrorSchema = z.object({
     'invalid-response',
     'unavailable',
     'cancelled',
+    'exhausted',
   ]),
   message: z.string(),
 });
