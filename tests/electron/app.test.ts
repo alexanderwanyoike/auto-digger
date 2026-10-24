@@ -150,6 +150,13 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
       'https://i.discogs.com/example.jpg',
     );
     await expect(results.locator('img')).toBeInViewport();
+    await expect
+      .poll(() =>
+        results
+          .locator('img')
+          .evaluate((image) => (image instanceof HTMLImageElement ? image.naturalWidth : 0)),
+      )
+      .toBeGreaterThan(0);
     await page.screenshot({ path: 'test-results/artwork-search-light.png' });
     await page.getByRole('button', { name: /Low Tide - Quiet Orbit EP/ }).click();
     await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
@@ -176,6 +183,9 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
       page.getByRole('complementary', { name: 'Your crate' }).locator('img'),
     ).toHaveAttribute('src', 'https://i.discogs.com/example.jpg');
     await page.screenshot({ path: 'test-results/artwork-record-and-crate-light.png' });
+    await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    await page.screenshot({ path: 'test-results/artwork-record-and-crate-dark.png' });
+    await page.getByRole('button', { name: 'Light', exact: true }).click();
     await page.getByRole('button', { name: 'Dark', exact: true }).click();
     await page.screenshot({ path: 'test-results/phase-2-release-dark.png', fullPage: true });
     await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).click();
