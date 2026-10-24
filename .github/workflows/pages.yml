@@ -29,6 +29,21 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn format:check
       - run: yarn site:verify
+      - name: Find the latest published installers
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          metadata="$RUNNER_TEMP/auto-digger-release.json"
+          status=$(curl --silent --show-error --output "$metadata" --write-out '%{http_code}' --header "Authorization: Bearer $GH_TOKEN" --header 'Accept: application/vnd.github+json' "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest")
+          case "$status" in
+            200) echo "AUTO_DIGGER_RELEASE_JSON=$metadata" >> "$GITHUB_ENV" ;;
+            404) echo 'No stable release published yet.' ;;
+            *) echo "Release lookup failed with HTTP $status" >&2; exit 1 ;;
+          esac
+      - run: yarn site:build
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:
