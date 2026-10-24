@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Auto Digger | A quiet desk for finding records</title>
+    <meta
+      name="description"
+      content="Follow a label, explore a sound and find your next record. Discover with Discogs, preview tracks and keep the releases you love in local crates."
+    />
+    <meta name="theme-color" content="#eff0f1" />
+    <link rel="canonical" href="https://alexanderwanyoike.github.io/auto-digger/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Auto Digger | A quiet desk for finding records" />
+    <meta
+      property="og:description"
+      content="Discogs discovery, a player for listening and crates for your next session. An open-source desktop preview."
+    />
+    <meta property="og:url" content="https://alexanderwanyoike.github.io/auto-digger/" />
+    <meta
+      property="og:image"
+      content="https://alexanderwanyoike.github.io/auto-digger/images/digging-desk.jpg"
+    />
+    <meta property="og:image:width" content="1440" />
+    <meta property="og:image:height" content="1000" />
+    <meta
+      property="og:image:alt"
+      content="Auto Digger's digging desk with a demo record, source previews and a named crate"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header wrap">
+      <a class="brand" href="#main" aria-label="Auto Digger home"
+        ><img src="icon.svg" alt="" width="36" height="36" />auto digger<span>.</span></a
+      >
+      <nav aria-label="Main navigation">
+        <a href="#digging">The desk</a>
+        <a href="#crates">Crates</a>
+        <a href="#get-started">Get started</a>
+        <a href="https://github.com/alexanderwanyoike/auto-digger"
+          >GitHub <span aria-hidden="true">↗</span></a
+        >
+      </nav>
+    </header>
+    <main id="main" tabindex="-1">
+      <section class="hero wrap" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <div>
+            <p class="eyebrow">
+              <span class="status-dot" aria-hidden="true"></span> A desktop for discovery
+            </p>
+            <h1 id="hero-title">Good records.<br />Still out there<span class="accent">.</span></h1>
+          </div>
+          <div class="hero-note">
+            <p>
+              Follow a label. Explore a sound. Leave a little room for the unexpected. Auto Digger
+              brings Discogs discovery, listening and your next crate into one quiet desk.
+            </p>
+            <div class="actions">
+              <a class="button" href="#get-started"
+                >Meet Auto Digger <span aria-hidden="true">↓</span></a
+              ><a class="text-link" href="#digging"
+                >Take a look <span aria-hidden="true">↘</span></a
+              >
+            </div>
+            <p class="small-note">Desktop preview · MIT licensed · Yours to explore</p>
+          </div>
+        </div>
+        <figure class="app-figure">
+          <img
+            src="images/digging-desk.jpg"
+            width="1440"
+            height="1000"
+            alt="The Auto Digger desk showing a fictional Low Tide EP, Discogs filters, audio previews and an After hours crate"
+            fetchpriority="high"
+          />
+          <figcaption>
+            <span>01 / The digging desk</span
+            ><span>The actual app, with fictional records and original artwork</span>
+          </figcaption>
+        </figure>
+      </section>
+      <section class="workflow wrap" id="digging" aria-labelledby="digging-title">
+        <div class="section-heading">
+          <p class="eyebrow">A direction, not a destination</p>
+          <h2 id="digging-title">Start with a sound.<br />See where it goes.</h2>
+          <p>
+            A favourite label. A particular year. That style you keep coming back to. Set the
+            boundaries, then dig into random matching releases.
+          </p>
+        </div>
+        <div class="steps">
+          <article>
+            <span class="index">01</span>
+            <div>
+              <h3>Find a thread.</h3>
+              <p>
+                Combine artists, labels, years, genres, styles and release types. Pick several, or
+                keep things open. Artwork helps you recognise the records along the way.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span class="index">02</span>
+            <div>
+              <h3>Listen before you keep it.</h3>
+              <p>
+                Preview an available YouTube source in the player. Download the tracks you want, or
+                review a whole release. Discogs supplies tags and cover art where available.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span class="index">03</span>
+            <div>
+              <h3>Make a crate of it.</h3>
+              <p>
+                Save the release, pick the tracks that stand out and add your own tags. Come back to
+                a named crate when it is time to listen again.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+      <section class="crate-section" id="crates" aria-labelledby="crates-title">
+        <div class="wrap">
+          <div class="split-heading">
+            <div>
+              <p class="eyebrow">The ones worth coming back to</p>
+              <h2 id="crates-title">A place for<br />your finds.</h2>
+            </div>
+            <p>
+              Crates are your playlists of releases. Keep a late-night selection, a label rabbit
+              hole or records for the next set. Your picks, tags and source notes stay with them.
+            </p>
+          </div>
+          <figure class="app-figure secondary-figure">
+            <img
+              src="images/crates.jpg"
+              width="1440"
+              height="1000"
+              alt="A named Auto Digger crate containing demo releases, marked tracks and personal tags"
+              loading="lazy"
+            />
+            <figcaption>
+              <span>02 / Crates, picks and personal tags</span
+              ><span>Saved in a local SQLite catalogue</span>
+            </figcaption>
+          </figure>
+          <div class="detail-strip">
+            <div>
+              <h3>Listen on your desktop.</h3>
+              <p>
+                A searchable Downloads list, one player and a folder button when you need the files.
+              </p>
+            </div>
+            <div>
+              <h3>Keep your place.</h3>
+              <p>
+                Your active crate returns when you reopen the app. Saved records can be browsed
+                offline.
+              </p>
+            </div>
+            <div>
+              <h3>Follow it further.</h3>
+              <p>
+                Jump to Discogs sellers, or search Beatport, Traxsource and Bandcamp for the record.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="appearance wrap" aria-labelledby="appearance-title">
+        <div class="section-heading">
+          <p class="eyebrow">Set your own tone</p>
+          <h2 id="appearance-title">A familiar desk.<br />A different finish.</h2>
+          <p>
+            Satin aluminium, ceramic, slate, graphite, warm paper or copper. Six materials, seven
+            quiet accents, and light, dark or system appearance.
+          </p>
+          <div
+            class="swatches"
+            aria-label="Accents: Blue, Teal, Amber, Coral, Sage, Lilac and Rose"
+          >
+            <i style="--swatch: #2465dd"></i><i style="--swatch: #136c61"></i
+            ><i style="--swatch: #805a13"></i><i style="--swatch: #934d3a"></i
+            ><i style="--swatch: #45683f"></i><i style="--swatch: #70518a"></i
+            ><i style="--swatch: #8b465d"></i>
+          </div>
+          <p class="small-note">Choose your finish and download organisation in Settings.</p>
+        </div>
+        <figure class="settings-figure">
+          <img
+            src="images/appearance.jpg"
+            width="1440"
+            height="1000"
+            alt="Auto Digger Appearance settings in light mode showing six material previews and seven accent colours"
+            loading="lazy"
+          />
+          <figcaption>03 / A little personal space</figcaption>
+        </figure>
+      </section>
+      <section class="research wrap" aria-labelledby="research-title">
+        <div>
+          <p class="eyebrow">An experimental way in</p>
+          <h2 id="research-title">Bring a mix back<br />to its records.</h2>
+          <p>
+            Connect a compatible AI client through local MCP tools. Ask it to research a mix, verify
+            the releases and save its findings into a crate, with track picks and sources for you to
+            check.
+          </p>
+          <a
+            class="text-link"
+            href="https://github.com/alexanderwanyoike/auto-digger/blob/main/docs/features/mix-research.md"
+            >Explore mix research <span aria-hidden="true">↗</span></a
+          >
+        </div>
+        <blockquote>
+          <span class="prompt-label">A starting point</span>
+          <p>
+            “Research this mix. Find the original releases, put them in an After hours crate and
+            mark the tracks. Keep the sources and flag anything uncertain.”
+          </p>
+          <footer>Your AI client researches. You make the final picks.</footer>
+        </blockquote>
+      </section>
+      <section class="getting-started wrap" id="get-started" aria-labelledby="start-title">
+        <div>
+          <p class="eyebrow">For your next digging session</p>
+          <h2 id="start-title">Pull up a chair.</h2>
+          <p>
+            Auto Digger is an open-source desktop preview. The first release is being prepared. You
+            can run the app from source today and follow releases for updates.
+          </p>
+          <div class="actions">
+            <a class="button" href="https://github.com/alexanderwanyoike/auto-digger#quick-start"
+              >Run from source <span aria-hidden="true">↗</span></a
+            ><a class="text-link" href="https://github.com/alexanderwanyoike/auto-digger/releases"
+              >Follow releases <span aria-hidden="true">↗</span></a
+            >
+          </div>
+        </div>
+        <dl class="requirements">
+          <div>
+            <dt>Desktop</dt>
+            <dd>Electron, React and TypeScript</dd>
+          </div>
+          <div>
+            <dt>Discovery</dt>
+            <dd>Your own Discogs personal token</dd>
+          </div>
+          <div>
+            <dt>Listening</dt>
+            <dd>Current yt-dlp, FFmpeg and FFprobe</dd>
+          </div>
+          <div>
+            <dt>Availability</dt>
+            <dd>Source preview. Native installers are not published yet.</dd>
+          </div>
+        </dl>
+      </section>
+    </main>
+    <footer class="site-footer wrap">
+      <a class="brand" href="#main"
+        ><img src="icon.svg" alt="" width="28" height="28" />auto digger<span>.</span></a
+      >
+      <p>A little curiosity goes a long way.</p>
+      <div>
+        <a href="https://github.com/alexanderwanyoike/auto-digger/issues">Feedback</a
+        ><a href="https://github.com/alexanderwanyoike/auto-digger/blob/main/LICENSE"
+          >MIT licence</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>
