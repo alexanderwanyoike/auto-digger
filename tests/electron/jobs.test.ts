@@ -112,7 +112,12 @@ test('reviews album source coverage, downloads one source per track and shows qu
     await expect(
       sources.getByRole('button', { name: 'Preview', exact: true }).last(),
     ).toBeEnabled();
-    await sources.getByRole('listitem').nth(2).getByLabel('Discogs track').selectOption('1');
+    await sources
+      .getByRole('list', { name: 'YouTube audio sources' })
+      .getByRole('listitem')
+      .nth(2)
+      .getByLabel('Discogs track')
+      .selectOption('1');
     await page.getByText('Review track coverage', { exact: true }).click();
     await page.getByLabel('Source for A1 Quiet Orbit', { exact: true }).selectOption('0');
     await expect(page.getByText('No source available', { exact: true })).toBeVisible();
