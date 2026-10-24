@@ -34,7 +34,7 @@ export function ReleaseDetails({ release }: { release: DiscogsRelease }) {
               release.labels.map((label) => (
                 <p key={`${label.name}-${label.catalogueNumber}`}>
                   <strong>{label.name}</strong>
-                  <span>{label.catalogueNumber}</span>
+                  <span>{label.catalogueNumber || 'Catalogue number not listed'}</span>
                 </p>
               ))
             ) : (
