@@ -1,0 +1,57 @@
+:root[data-material='aluminium'],
+.material-thumbnail[data-material='aluminium'] {
+  --surface: #f3f3f4;
+  --surface-raised: #f8f8f9;
+  --surface-inset: #e7e8ea;
+  --metal-top: #dedfe1;
+  --metal-bottom: #c5c6c8;
+  --metal-panel-top: #f1f1f2;
+  --metal-panel-bottom: #e3e4e6;
+  --metal-highlight: #ffffff73;
+  --line: #c0c2c5;
+  --muted: #555b63;
+  --metal-finish:
+    url('../assets/aluminium-grain.svg'),
+    linear-gradient(115deg, transparent 5%, #ffffff1f 45%, transparent 80%),
+    linear-gradient(var(--metal-top), var(--metal-bottom));
+  --metal-panel-finish:
+    url('../assets/aluminium-grain.svg'),
+    linear-gradient(var(--metal-panel-top), var(--metal-panel-bottom));
+}
+
+:root[data-theme='dark'][data-material='aluminium'],
+:root[data-theme='dark'] .material-thumbnail[data-material='aluminium'] {
+  --surface: #25292e;
+  --surface-raised: #313235;
+  --surface-inset: #202224;
+  --metal-top: #4b4c4e;
+  --metal-bottom: #37383a;
+  --metal-panel-top: #353639;
+  --metal-panel-bottom: #2b2c2f;
+  --metal-highlight: #ffffff14;
+  --line: #4a4c4f;
+  --muted: #afb2b8;
+}
+
+:root[data-material='aluminium'] .app-header,
+:root[data-material='aluminium'] .playback-bar,
+:root[data-material='aluminium'] .status-bar,
+.material-thumbnail[data-material='aluminium'] .material-mini-header {
+  background: var(--metal-finish);
+  background-size:
+    128px 128px,
+    100% 100%,
+    100% 100%;
+  box-shadow: inset 0 1px var(--metal-highlight);
+}
+
+:root[data-material='aluminium'] .filter-panel,
+:root[data-material='aluminium'] .crate-panel,
+:root[data-material='aluminium'] .section-nav,
+.material-thumbnail[data-material='aluminium'] .material-mini-sidebar {
+  background: var(--metal-panel-finish);
+  background-size:
+    128px 128px,
+    100% 100%;
+  box-shadow: inset 0 1px var(--metal-highlight);
+}

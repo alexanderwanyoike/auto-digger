@@ -9,7 +9,7 @@ const materials = [
   {
     value: 'aluminium',
     title: 'Brushed aluminium',
-    description: 'Cool metal with a fine horizontal grain.',
+    description: 'Satin metal with a fine, bead-blasted grain.',
   },
   {
     value: 'ceramic',
