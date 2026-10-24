@@ -1,0 +1,47 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { CatalogueBridge, CatalogueView, CatalogueViewResult } from '../../shared/catalogue';
+import type { CrateError } from '../../shared/crate';
+import { catalogueFailure } from '../../shared/catalogueFailure';
+
+export function useCatalogue(bridge: CatalogueBridge | undefined) {
+  const [view, setView] = useState<CatalogueView>({ crates: [], crateId: null, entries: [] });
+  const [busy, setBusy] = useState(Boolean(bridge));
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState<CrateError | null>(null);
+  const selection = useRef<string | undefined>(undefined);
+  const version = useRef(0);
+  const perform = useCallback(
+    async (operation: (api: CatalogueBridge) => Promise<CatalogueViewResult>) => {
+      version.current += 1;
+      const request = version.current;
+      setBusy(true);
+      setError(null);
+      let result: CatalogueViewResult;
+      try {
+        result = bridge
+          ? await operation(bridge)
+          : catalogueFailure('unavailable', 'Use the desktop app to manage crates.');
+      } catch {
+        result = catalogueFailure('unavailable', 'Your crates could not be reached. Please retry.');
+      }
+      if (request === version.current) {
+        if (result.ok) {
+          selection.current = result.value.crateId ?? undefined;
+          setView(result.value);
+          setReady(true);
+        } else setError(result.error);
+        setBusy(false);
+      }
+      return result;
+    },
+    [bridge],
+  );
+  const reload = useCallback(() => perform((api) => api.view(selection.current)), [perform]);
+  useEffect(() => {
+    if (bridge) reload().catch(() => undefined);
+    return () => {
+      version.current += 1;
+    };
+  }, [bridge, reload]);
+  return { view, busy, ready, error, perform, reload, available: Boolean(bridge) };
+}

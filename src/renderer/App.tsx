@@ -1,5 +1,9 @@
 import { useState } from 'react';
 import { Radio } from 'lucide-react';
+import type { CatalogueBridge } from '../shared/catalogue';
+import { CratesPage } from './sections/CratesPage';
+import { DownloadsPage } from './sections/DownloadsPage';
+import { SettingsPage } from './sections/SettingsPage';
 import type { CrateBridge } from '../shared/crate';
 import { useCrate } from './crate/useCrate';
 import type { DiscogsBridge } from '../shared/discogs';
@@ -20,13 +24,16 @@ export function App({
   discogs = window.discogs,
   crate: crateBridge = window.crate,
   audioLibrary: audioBridge = window.audioLibrary,
+  catalogue = window.catalogue,
 }: {
   discogs?: DiscogsBridge;
   crate?: CrateBridge;
   audioLibrary?: AudioBridge;
+  catalogue?: CatalogueBridge;
 }) {
+  const [section, setSection] = useState('Digging desk');
   const audio = useAudioLibrary(audioBridge);
-  const crate = useCrate(crateBridge);
+  const crate = useCrate(crateBridge, catalogue);
   const session = useDiscogs(discogs);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const { appearance, selectAppearance, storageAvailable } = useAppearance();
@@ -64,24 +71,63 @@ export function App({
           Appearance works for this session, but could not be saved on this device.
         </p>
       )}
+      <nav className="section-nav" aria-label="Main sections">
+        {['Digging desk', 'Crates', 'Downloads', 'Settings'].map((item) => (
+          <button
+            type="button"
+            key={item}
+            aria-current={section === item ? 'page' : undefined}
+            onClick={() => {
+              setSection(item);
+              if (item === 'Crates' && crate.catalogue.available)
+                crate.reload().catch(() => undefined);
+            }}
+          >
+            {item}
+          </button>
+        ))}
+      </nav>
       <main>
         <div className="desk-toolbar">
           <div className="desk-title">
             <Radio size={17} aria-hidden="true" />
-            <h1>Digging desk</h1>
-            <span className="preview-badge">PHASE 06</span>
+            <h1>{section}</h1>
           </div>
           <span className="toolbar-note">A fresh pair of ears.</span>
         </div>
-        <div className="workspace">
-          <FilterPanel session={session} />
-          {session.account || session.release ? (
-            <ReleaseWorkspace session={session} crate={crate} audio={audio} />
-          ) : (
-            <DiscoveryPanel />
-          )}
-          <CratePanel crate={crate} disabled={session.busy} onOpen={session.openSavedRelease} />
-        </div>
+        {section === 'Crates' && (
+          <CratesPage
+            disabled={session.busy}
+            crate={crate}
+            onOpen={(release) => {
+              session.openSavedRelease(release);
+              setSection('Digging desk');
+            }}
+          />
+        )}
+        {section === 'Downloads' && <DownloadsPage audio={audio} />}
+        {section === 'Settings' && (
+          <SettingsPage
+            session={session}
+            appearance={appearance}
+            onAppearance={selectAppearance}
+            onConnect={() => {
+              session.clearError();
+              setConnectionOpen(true);
+            }}
+          />
+        )}
+        {section === 'Digging desk' && (
+          <div className="workspace">
+            <FilterPanel session={session} />
+            {session.account || session.release ? (
+              <ReleaseWorkspace session={session} crate={crate} audio={audio} />
+            ) : (
+              <DiscoveryPanel />
+            )}
+            <CratePanel crate={crate} disabled={session.busy} onOpen={session.openSavedRelease} />
+          </div>
+        )}
       </main>
       {session.error && !connectionOpen && (
         <p role="alert" className="request-error">

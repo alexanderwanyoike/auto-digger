@@ -33,7 +33,9 @@ export function createCommandRunner(executable = 'yt-dlp') {
         terminateProcess(child);
       });
     },
-    execute(args: string[], timeout: number): Promise<AudioResult<string>> {
+    execute(args: string[], timeout: number, signal?: AbortSignal): Promise<AudioResult<string>> {
+      if (signal?.aborted)
+        return Promise.resolve(audioFailure('cancelled', 'This operation was cancelled.'));
       return new Promise((resolve) => {
         const child = spawn(executable, args, {
           shell: false,
@@ -42,6 +44,10 @@ export function createCommandRunner(executable = 'yt-dlp') {
           stdio: ['ignore', 'pipe', 'pipe'],
         });
         active.add(child);
+        const abort = () => {
+          terminateProcess(child);
+        };
+        signal?.addEventListener('abort', abort, { once: true });
         let stdout = '';
         let stderr = '';
         let expired = false;
@@ -61,6 +67,7 @@ export function createCommandRunner(executable = 'yt-dlp') {
         child.once('error', () => {
           clearTimeout(timer);
           active.delete(child);
+          signal?.removeEventListener('abort', abort);
           resolve(
             audioFailure(
               'tools',
@@ -71,7 +78,9 @@ export function createCommandRunner(executable = 'yt-dlp') {
         child.once('close', (code) => {
           clearTimeout(timer);
           active.delete(child);
-          if (expired)
+          signal?.removeEventListener('abort', abort);
+          if (signal?.aborted) resolve(audioFailure('cancelled', 'This operation was cancelled.'));
+          else if (expired)
             resolve(
               audioFailure(
                 'network',
