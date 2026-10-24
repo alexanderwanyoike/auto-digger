@@ -49,3 +49,39 @@ test('chooses a material, mode and accent visually while preserving download set
     delete window.preferences;
   }
 });
+
+test('shows a pending material choice immediately and restores the saved choice if storage rejects it', async () => {
+  let complete: (value: import('../../shared/preferences').PreferencesResult) => void = () => {
+    throw new Error('No pending save');
+  };
+  window.preferences = {
+    read: () => Promise.resolve({ ok: true, value: defaultPreferences }),
+    save: () =>
+      new Promise((resolveSave) => {
+        complete = resolveSave;
+      }),
+    chooseDirectory: vi.fn(),
+  };
+  const user = userEvent.setup();
+  try {
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'Settings', exact: true }));
+    const appearance = screen.getByRole('region', { name: 'Appearance settings' });
+    await user.click(within(appearance).getByRole('radio', { name: 'Slate', exact: true }));
+    expect(within(appearance).getByRole('radio', { name: 'Slate', exact: true })).toBeChecked();
+    const { act } = await import('@testing-library/react');
+    await act(async () => {
+      complete({
+        ok: false,
+        error: { code: 'storage', message: 'The change could not be saved.' },
+      });
+    });
+    expect(await screen.findByRole('alert')).toHaveTextContent('could not be saved');
+    expect(
+      within(appearance).getByRole('radio', { name: 'Brushed aluminium', exact: true }),
+    ).toBeChecked();
+    expect(document.documentElement).toHaveAttribute('data-material', 'aluminium');
+  } finally {
+    delete window.preferences;
+  }
+});
