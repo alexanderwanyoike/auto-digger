@@ -1,5 +1,5 @@
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import type { Preferences } from '../../shared/preferences';
 import type { Appearance } from '../theme/preferences';
 import type { usePreferences } from './usePreferences';
@@ -45,6 +45,7 @@ export function AppearanceSettings({
   appearance: Appearance;
   onAppearance: (value: Appearance) => void;
 }) {
+  const id = useId();
   const disabled = !preferences.available;
   const [selection, setSelection] = useState({
     material: preferences.value.material,
@@ -77,7 +78,9 @@ export function AppearanceSettings({
             {materials.map((material) => (
               <MaterialChoice
                 key={material.value}
-                {...material}
+                value={material.value}
+                title={material.title}
+                description={material.description}
                 checked={selection.material === material.value}
                 disabled={disabled}
                 busy={preferences.busy}
@@ -93,8 +96,9 @@ export function AppearanceSettings({
             <legend>Appearance mode</legend>
             <div className="mode-options">
               {modes.map(({ value, label, Icon }) => (
-                <label key={value} className="mode-choice">
+                <label key={value} className="mode-choice" htmlFor={`${id}-mode-${value}`}>
                   <input
+                    id={`${id}-mode-${value}`}
                     type="radio"
                     name="appearance-mode"
                     value={value}
@@ -116,8 +120,14 @@ export function AppearanceSettings({
             <legend>Accent colour</legend>
             <div className="accent-options">
               {accents.map(({ value, label }) => (
-                <label key={value} className="accent-choice" title={label}>
+                <label
+                  key={value}
+                  className="accent-choice"
+                  title={label}
+                  htmlFor={`${id}-accent-${value}`}
+                >
                   <input
+                    id={`${id}-accent-${value}`}
                     type="radio"
                     name="appearance-accent"
                     value={value}
