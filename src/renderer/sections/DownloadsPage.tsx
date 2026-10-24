@@ -1,88 +1,83 @@
 import { useState } from 'react';
-import { FolderOpen, Play } from 'lucide-react';
+import { FolderOpen, Search } from 'lucide-react';
 import type { useAudioLibrary } from '../audio/useAudioLibrary';
-import { DownloadQueue } from '../audio/DownloadQueue';
-import { RecordArtwork } from '../components/RecordArtwork';
+import { libraryRows } from '../library/rows';
+import { TrackRow } from '../library/TrackRow';
 
 export function DownloadsPage({ audio }: { audio: ReturnType<typeof useAudioLibrary> }) {
   const [query, setQuery] = useState('');
-  const tracks = audio.tracks.filter((track) =>
-    `${track.title} ${track.artist} ${track.album}`.toLowerCase().includes(query.toLowerCase()),
-  );
+  const rows = libraryRows(audio.tracks, audio.queue.jobs, query);
   return (
     <section className="section-page downloads-page" aria-label="Downloaded library">
-      <div className="section-intro">
-        <span className="eyebrow">ON THIS DEVICE / {audio.tracks.length} TRACKS</span>
-        <p>The records you committed to. Ready to play offline.</p>
-      </div>
-      <DownloadQueue audio={audio} />
       <div className="library-toolbar">
-        <label htmlFor="search-downloads">
-          Search downloads
+        <label className="library-search" htmlFor="search-downloads">
+          <span className="sr-only">Search downloads</span>
+          <Search size={15} aria-hidden="true" />
           <input
             id="search-downloads"
             type="search"
             value={query}
-            placeholder="Artist, track or release"
+            placeholder="Search tracks, artists or releases"
             onChange={(event) => {
               setQuery(event.target.value);
             }}
           />
         </label>
+        <span className="library-count">
+          {rows.length} {rows.length === 1 ? 'track' : 'tracks'}
+        </span>
         <button
           type="button"
-          className="secondary-button"
+          className="icon-button library-folder"
+          aria-label="Open downloads folder"
+          title="Open downloads folder"
           disabled={!audio.available}
           onClick={() => {
             audio.reveal().catch(() => undefined);
           }}
         >
-          <FolderOpen size={14} aria-hidden="true" /> Open downloads folder
+          <FolderOpen size={17} aria-hidden="true" />
         </button>
       </div>
-      {!tracks.length && (
-        <p className="section-empty">
-          {query
-            ? 'No downloaded tracks match this search.'
-            : 'Nothing downloaded yet. Preview a record on the digging desk, then save the tracks you want.'}
+      {audio.queue.error && (
+        <p role="alert" className="library-error">
+          {audio.queue.error}
         </p>
       )}
-      <ul className="downloaded-list">
-        {tracks.map((track) => (
-          <li key={track.id}>
-            <RecordArtwork url={track.artworkUrl} title={track.album} decorative />
-            <div>
-              <strong>{track.title}</strong>
-              <span>
-                {track.artist} · {track.album}
-              </span>
-              {track.missing && <small>File missing or unavailable</small>}
-              {track.warning && <small>{track.warning}</small>}
-            </div>
-            <button
-              type="button"
-              className="icon-button"
-              aria-label={`Play ${track.title}`}
-              disabled={track.missing === true}
-              onClick={() => {
-                audio.play(track);
-              }}
-            >
-              <Play size={16} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className="icon-button"
-              aria-label={`Show ${track.title} in folder`}
-              onClick={() => {
-                audio.reveal(track.id).catch(() => undefined);
-              }}
-            >
-              <FolderOpen size={16} aria-hidden="true" />
-            </button>
-          </li>
-        ))}
-      </ul>
+      <div className="library-scroll">
+        <table className="library-table downloaded-list" aria-label="Tracks">
+          <colgroup>
+            <col className="column-track" />
+            <col className="column-artist" />
+            <col />
+            <col className="column-actions" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th scope="col">Track</th>
+              <th scope="col">Artist</th>
+              <th scope="col">Release</th>
+              <th scope="col">
+                <span className="sr-only">Actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <TrackRow key={row.id} row={row} audio={audio} />
+            ))}
+            {!rows.length && (
+              <tr>
+                <td colSpan={4} className="library-empty">
+                  {query.trim()
+                    ? 'No tracks match this search.'
+                    : 'No downloads yet. Preview a source on the digging desk, then save a track.'}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
