@@ -46,7 +46,7 @@ test('applies filters, browses another page and opens a matching release', async
   await user.click(screen.getByRole('button', { name: 'Search EPs' }));
   expect(await screen.findByText('51 matching releases')).toBeInTheDocument();
   expect(search).toHaveBeenLastCalledWith({
-    filters: { label: '', artist: '', year: '', genre: '', style: 'Deep House', title: '' },
+    filters: { label: '', artist: '', year: '', genre: [], style: ['Deep House'], title: '' },
     page: 1,
   });
   await user.click(screen.getByRole('button', { name: 'Next page' }));
@@ -64,7 +64,7 @@ test('applies filters, browses another page and opens a matching release', async
   await user.type(screen.getByLabelText('Style'), ' draft');
   await user.click(screen.getByRole('button', { name: 'Dig again' }));
   expect(dig).toHaveBeenLastCalledWith({
-    filters: { label: '', artist: '', year: '', genre: '', style: 'Deep House', title: '' },
+    filters: { label: '', artist: '', year: '', genre: [], style: ['Deep House'], title: '' },
     reset: false,
   });
 });

@@ -32,8 +32,8 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
             label: value('label'),
             artist: value('artist'),
             year: value('year'),
-            genre: value('genre'),
-            style: value('style'),
+            genre: value('genre') ? [value('genre')] : [],
+            style: value('style') ? [value('style')] : [],
             title: value('title'),
           };
           session.search(filters).catch(() => undefined);

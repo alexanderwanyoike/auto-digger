@@ -8,8 +8,8 @@ const filters: DigFilters = {
   label: '',
   artist: '',
   year: '',
-  genre: '',
-  style: 'Deep House',
+  genre: [],
+  style: ['Deep House'],
   title: '',
 };
 test('draws without repetition across a partially filled final page and resets explicitly', async () => {
