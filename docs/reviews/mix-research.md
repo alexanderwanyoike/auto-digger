@@ -15,3 +15,7 @@ Reviewed the full phase through a00874d. Standards reported no remaining documen
 The real SDK stdio client exercises tool discovery, verified Discogs additions, live picks/tags, evidence links, access revocation, duplicate app starts and restart persistence. Synthetic fixtures do not claim to identify a real H-Foundation mix. The flat Downloads and compact crate controls retain their native regression coverage.
 
 Final validation: `yarn verify` passes all 132 tests, formatting, lint, strict types, icons and the production build. `xvfb-run --auto-servernum yarn test:electron` passes all 21 native tests. PRs target dev and remain unmerged.
+
+## CI launcher correction
+
+The first GitHub run passed 20 native cases but the manually spawned duplicate did not exit normally on the runner. Its launcher omitted the sandbox flag that Playwright uses for the primary test app. The duplicate fixture now uses the same flag and reports both exit code and termination signal. The full local verification and all 21 native tests pass again. This changes test startup only.
