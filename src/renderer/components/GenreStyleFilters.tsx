@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { genres, styles } from 'discogs-dataset-genres-styles';
-import { stylesForGenres } from '../../shared/genreStyles';
+import { genres } from 'discogs-dataset-genres-styles';
+import { mappedStyles, stylesForGenres } from '../../shared/genreStyles';
 import { TaxonomySelect } from './TaxonomySelect';
 
 export function GenreStyleFilters({ disabled }: { disabled: boolean }) {
@@ -16,7 +16,9 @@ export function GenreStyleFilters({ disabled }: { disabled: boolean }) {
         onChange={(values) => {
           setSelectedGenres(values);
           const allowed = stylesForGenres(values);
-          setSelectedStyles((current) => current.filter((style) => allowed.includes(style)));
+          setSelectedStyles((current) =>
+            current.filter((style) => allowed.includes(style) || !mappedStyles.includes(style)),
+          );
         }}
         disabled={disabled}
       />
@@ -24,7 +26,7 @@ export function GenreStyleFilters({ disabled }: { disabled: boolean }) {
         name="style"
         label="Style"
         options={stylesForGenres(selectedGenres)}
-        knownOptions={styles}
+        knownOptions={mappedStyles}
         value={selectedStyles}
         onChange={setSelectedStyles}
         disabled={disabled}
