@@ -16,11 +16,20 @@ _The real desktop app, shown with fictional records and original demo artwork._
 
 Auto Digger is a desktop app for discovering records on Discogs. Connect an MCP client to research mixes and save the original releases to named crates, with matching tracks, tags and source notes. You can also browse releases, preview audio and keep downloaded tracks in a local library.
 
-## Status
+## Download
 
-Auto Digger is a desktop preview. The first release is being prepared, and the app can be run from source today. Native installers have not been published. Release notes and downloads belong on [GitHub Releases](https://github.com/alexanderwanyoike/auto-digger/releases).
+[Auto Digger 0.1.1](https://github.com/alexanderwanyoike/auto-digger/releases/tag/v0.1.1) is a desktop preview.
 
-The project site publishes from `main` after its Pages workflow is merged. Installer CI builds Windows x64, macOS Apple silicon and Intel, and Linux x64 packages. PR artifacts are available for testing. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized. Interactive Windows and macOS testing remains necessary. The experimental MCP workflow is covered by automated tests with synthetic sources; real mix research through a configured AI host still needs a manual check.
+| Platform            | Package                                                                                                                       |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Windows x64         | [Installer](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-windows-x64-setup.exe) |
+| macOS Apple silicon | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-macos-arm64.dmg)      |
+| macOS Intel         | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-macos-x64.dmg)        |
+| Linux x64           | [AppImage](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-linux-x64.AppImage)     |
+
+[SHA-256 checksums](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/SHA256SUMS) accompany the installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized.
+
+Audio previews and downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on your `PATH`. MCP clients need Node.js 22 or newer. These tools are not bundled. Connect a Discogs personal token in the app to start discovering records.
 
 ## What you can do
 
@@ -34,6 +43,8 @@ The project site publishes from `main` after its Pages workflow is merged. Insta
 | Appearance       | Six materials, seven accents and light, dark or system appearance.                                                               |
 
 ## Quick start
+
+To run from source:
 
 ### Requirements
 
@@ -110,7 +121,7 @@ tests/         Unit/integration fixtures, site checks and native tests
 docs/          User guides, architecture decisions and feature specifications
 ```
 
-Tests use controlled external-service fixtures and isolated profiles, without live credentials or user libraries. Native checks cover playback, downloads, restarts, storage migration, research revocation, keyboard use, layout and appearance contrast.
+Tests use controlled external-service fixtures and isolated profiles, without live credentials or user libraries. Native checks cover playback, downloads, restarts, storage migration, research revocation, keyboard use, layout and appearance contrast. Installer CI checks Windows installation, both macOS disk images and an extracted Linux AppImage with a real MCP client. Interactive Windows/macOS playback and research through a configured AI host remain manual checks.
 
 ## Contributing
 
