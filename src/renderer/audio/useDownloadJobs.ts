@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { AudioResult, DownloadInput, LocalTrack } from '../../shared/audio';
+import type { AudioError, AudioResult, DownloadInput, LocalTrack } from '../../shared/audio';
 import type { DownloadJob, DownloadJobsBridge } from '../../shared/downloadJobs';
 import { audioFailure } from '../../shared/audioFailure';
 import { jobOutcome } from './jobOutcome';
@@ -12,6 +12,13 @@ export function useDownloadJobs(bridge: DownloadJobsBridge | undefined) {
   const waiters = useRef(new Map<string, (result: AudioResult<LocalTrack>) => void>());
   useEffect(() => {
     let active = true;
+    const pending = waiters.current;
+    function failPending(error: AudioError) {
+      pending.forEach((resolve) => {
+        resolve({ ok: false, error });
+      });
+      pending.clear();
+    }
     let timer: ReturnType<typeof setTimeout> | undefined;
     async function poll() {
       if (!bridge) return;
@@ -30,9 +37,16 @@ export function useDownloadJobs(bridge: DownloadJobsBridge | undefined) {
               resolve(outcome);
             }
           });
-        } else setLoadError(result.error.message);
+        } else {
+          setLoadError(result.error.message);
+          failPending(result.error);
+        }
       } catch {
-        if (active) setLoadError('The download queue could not be reached. Please retry.');
+        if (active) {
+          const message = 'The download queue could not be reached. Please retry.';
+          setLoadError(message);
+          failPending({ code: 'unavailable', message });
+        }
       }
       if (active)
         timer = setTimeout(() => {
@@ -40,7 +54,6 @@ export function useDownloadJobs(bridge: DownloadJobsBridge | undefined) {
         }, 400);
     }
     poll().catch(() => undefined);
-    const pending = waiters.current;
     return () => {
       active = false;
       clearTimeout(timer);
