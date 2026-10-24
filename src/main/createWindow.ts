@@ -20,6 +20,9 @@ import { createDownloader } from './audio/downloader';
 import { registerAudioHandlers } from './audio/registerHandlers';
 import { registerAudioProtocol } from './audio/protocol';
 import { createPreviewSession } from './audio/previewSession';
+import { createResearchService } from './research/service';
+import { createResearchRuntime } from './research/runtime';
+import { registerResearchHandlers } from './research/registerHandlers';
 import { createPreviewResolver } from './audio/previewResolver';
 
 let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
@@ -35,6 +38,7 @@ const previews = createPreviewSession(
   createPreviewResolver((args, timeout, signal) => audioCommands.execute(args, timeout, signal)),
   (input, options) => net.fetch(input instanceof URL ? input.href : input, options),
 );
+let researchRuntime: ReturnType<typeof createResearchRuntime> | undefined;
 let closingCatalogue = false;
 app.on('before-quit', (event) => {
   audioCommands.cancelAll();
@@ -42,7 +46,8 @@ app.on('before-quit', (event) => {
   if (catalogueStore && !closingCatalogue) {
     event.preventDefault();
     closingCatalogue = true;
-    Promise.resolve(downloadJobs?.close())
+    Promise.resolve(researchRuntime?.stop())
+      .then(() => downloadJobs?.close())
       .then(() => catalogueStore?.close())
       .then((result) => {
         if (result && !result.ok) process.stderr.write(`${result.error.message}\n`);
@@ -100,6 +105,17 @@ export async function createWindow(): Promise<Result<undefined, string>> {
       createDiscogsSession(),
       createTokenStore(join(app.getPath('userData'), 'discogs-token.bin'), electronEncryption),
     );
+    const research = createResearchService(catalogueStore, discogsSession, () => {
+      BrowserWindow.getAllWindows().forEach((open) => {
+        if (!open.isDestroyed()) open.webContents.send('catalogue:changed');
+      });
+    });
+    researchRuntime ??= createResearchRuntime(
+      join(app.getPath('userData'), 'mcp-connection.json'),
+      join(import.meta.dirname, 'mcp.js'),
+      (input, signal) => research.execute(input, signal),
+    );
+    registerResearchHandlers(window, researchRuntime);
     registerCrateHandlers(window, crateStore);
     const downloadsDirectory = join(app.getPath('music'), 'Auto Digger');
     if (!audioLibrary) {

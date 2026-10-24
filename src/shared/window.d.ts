@@ -1,3 +1,4 @@
+import type { ResearchAccessBridge } from './researchAccess';
 import type { DownloadJobsBridge } from './downloadJobs';
 import type { PreferencesBridge } from './preferences';
 import type { StoreLinksBridge } from './storeLinks';
@@ -8,6 +9,7 @@ import type { AudioBridge } from './audio';
 
 declare global {
   interface Window {
+    researchAccess?: ResearchAccessBridge;
     downloadJobs?: DownloadJobsBridge;
     preferences?: PreferencesBridge;
     storeLinks?: StoreLinksBridge;

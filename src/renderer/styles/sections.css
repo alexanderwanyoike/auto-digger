@@ -266,3 +266,22 @@ main {
   display: grid;
   place-items: center;
 }
+
+.research-settings h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.research-settings label {
+  width: min(100%, 720px);
+}
+.research-settings textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 12px;
+  background: var(--surface-inset);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: 10px/1.7 var(--font-mono);
+}

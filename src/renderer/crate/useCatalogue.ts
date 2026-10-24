@@ -43,5 +43,12 @@ export function useCatalogue(bridge: CatalogueBridge | undefined) {
       version.current += 1;
     };
   }, [bridge, reload]);
+  useEffect(
+    () =>
+      bridge?.onChanged?.(() => {
+        reload().catch(() => undefined);
+      }),
+    [bridge, reload],
+  );
   return { view, busy, ready, error, perform, reload, available: Boolean(bridge) };
 }
