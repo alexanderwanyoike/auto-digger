@@ -96,8 +96,8 @@ export function ResearchSettings() {
           </button>
           {saved && <p role="status">Extension saved. Install it in Claude Desktop.</p>}
           <p>
-            In Claude, open Settings → Desktop app → Extensions → Advanced settings → Install
-            Extension. Choose the saved file.
+            In Claude, open Settings → Desktop app. Choose Manage beside Extensions, then Advanced
+            settings → Install Extension. Choose the saved file.
           </p>
           <details>
             <summary>Codex and other local clients</summary>

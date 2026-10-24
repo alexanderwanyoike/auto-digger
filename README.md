@@ -104,7 +104,9 @@ Auto Digger lets Claude or Codex research a mix and save its records to a crate.
 
 1. In Auto Digger, open **Settings → AI mix research** and choose **Enable research access**.
 2. Choose **Save Claude extension** and save the file in Downloads.
-3. In Claude Desktop, open **Settings → Desktop app → Extensions → Advanced settings → Install Extension**. Select the saved **Auto Digger.mcpb** file and follow the prompts.
+3. In Claude Desktop, open **Settings → Desktop app**, choose **Manage** beside **Extensions**, then **Advanced settings → Install Extension**. Select the saved **Auto Digger.mcpb** file and follow the prompts.
+
+On Linux, use Claude Desktop's official beta for Ubuntu 22.04+ or Debian 12+. Install the file through Claude's settings using the steps above. [Linux installation help](https://support.claude.com/en/articles/10065433-install-claude-desktop).
 
 No terminal commands, configuration files or separate Node installation are needed. Claude supplies the extension's runtime. [Claude's extension installation help](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop).
 
