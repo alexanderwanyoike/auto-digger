@@ -97,7 +97,7 @@ test('loads validated release metadata for the connected account without returni
   expect(JSON.stringify(result)).not.toContain('private-token');
 });
 
-test('allows sparse metadata and ignores artwork and video URLs outside supported hosts', async () => {
+test('allows sparse metadata and ignores unsafe or unsupported media URLs', async () => {
   const request = vi
     .fn<typeof fetch>()
     .mockResolvedValueOnce(new Response(JSON.stringify({ id: 42, username: 'quiet-digger' })))
@@ -108,7 +108,7 @@ test('allows sparse metadata and ignores artwork and video URLs outside supporte
           title: 'Untitled',
           year: 0,
           images: [{ uri: 'https://unknown.example/cover.jpg' }],
-          videos: [{ title: 'Other', uri: 'javascript:alert(1)' }],
+          videos: [{ title: 'Other', uri: 'http://www.youtube.com/watch?v=abcdefghijk' }],
         }),
       ),
     );
