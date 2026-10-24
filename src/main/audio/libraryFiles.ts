@@ -9,7 +9,7 @@ import { audioFailure } from '../../shared/audioFailure';
 const sidecarSchema = z.object({ version: z.literal(1), track: localTrackSchema });
 
 export function createLibraryFiles(directory: string) {
-  async function read(id: string): Promise<AudioResult<LocalTrack>> {
+  async function read(id: string, allowMissing = false): Promise<AudioResult<LocalTrack>> {
     if (!trackIdSchema.safeParse(id).success)
       return audioFailure('invalid-input', 'This saved track could not be found.');
     try {
@@ -18,15 +18,24 @@ export function createLibraryFiles(directory: string) {
         return audioFailure('storage', 'This saved track could not be read.');
       const data: unknown = JSON.parse(await readFile(metadata, 'utf8'));
       const track = sidecarSchema.safeParse(data);
-      if (
-        !track.success ||
-        track.data.track.id !== id ||
-        !(await lstat(join(directory, track.data.track.filename))).isFile()
-      )
+      if (!track.success || track.data.track.id !== id)
         return audioFailure(
           'storage',
           'This saved track is missing or unreadable. Its files have been preserved.',
         );
+      let available = false;
+      try {
+        available = (await lstat(join(directory, track.data.track.filename))).isFile();
+      } catch {
+        /* Missing audio leaves its catalogue entry available for recovery. */
+      }
+      if (!available)
+        return allowMissing
+          ? { ok: true, value: { ...track.data.track, missing: true } }
+          : audioFailure(
+              'storage',
+              'This audio file is missing or unavailable. Restore it at its recorded location, or download the source again.',
+            );
       return { ok: true, value: track.data.track };
     } catch {
       return audioFailure(
@@ -45,7 +54,7 @@ export function createLibraryFiles(directory: string) {
             (name) => trackIdSchema.safeParse(name.slice(0, -5)).success && name.endsWith('.json'),
           )
           .sort();
-        const results = await Promise.all(names.map((name) => read(name.slice(0, -5))));
+        const results = await Promise.all(names.map((name) => read(name.slice(0, -5), true)));
         const failed = results.find((result) => !result.ok);
         if (failed) return failed;
         return { ok: true, value: results.flatMap((result) => (result.ok ? [result.value] : [])) };

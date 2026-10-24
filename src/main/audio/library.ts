@@ -10,7 +10,7 @@ import { createLibraryFiles } from './libraryFiles';
 import { tagDownload } from './tagging';
 import { reassignTrack } from './reassign';
 
-function filenamePart(value: string): string {
+export function filenamePart(value: string): string {
   let safe = Array.from(value)
     .filter((character) => (character.codePointAt(0) ?? 0) >= 32)
     .join('')
@@ -54,7 +54,7 @@ export function createAudioLibrary(
         if (!sourceId) return audioFailure('invalid-input', 'Choose a supported YouTube source.');
         const id = `${release.id.toString()}-${sourceId}`;
         const saved = existing.value.find((track) => track.id === id);
-        if (saved) {
+        if (saved && !saved.missing) {
           if (trackIndex === undefined || trackIndex === saved.trackIndex)
             return { ok: true, value: saved };
           return await reassignTrack(directory, files, saved, release, trackIndex, request);
