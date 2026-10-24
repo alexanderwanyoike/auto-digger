@@ -42,9 +42,9 @@ The encrypted token is stored separately from the crate, in `discogs-token.bin` 
 
 ## Local crate
 
-The crate is a versioned `crate.json` file in Electron's `userData` directory. It stores validated release metadata and attached video links, never credentials. Saves prevent duplicate release IDs and preserve insertion order. Writes are serialized and replace the file atomically. Read/write errors are shown explicitly; a corrupt or unsupported file is preserved instead of silently replaced. Back up this file before manual repairs.
+The catalogue is `catalog.sqlite` under Electron's `userData` directory. It supports independent named crates, release membership, track picks and personal tags through isolated desktop operations. The existing single-crate screen uses the first crate until the new crate screens land. Existing `crate.json` data is validated, backed up to `crate.json.bak` and imported exactly once. Corrupt or unsupported files are preserved and reported.
 
-Saved release metadata can be reopened while disconnected. Remote sleeve images and new YouTube downloads need internet. Cloud sync, named crates, export and native installers are outside this prototype.
+Saved release metadata can be reopened while disconnected. Credentials remain separately encrypted; audio files remain in Music/Auto Digger. Close the app before backing up the SQLite database and any WAL/SHM companion files. See the [catalogue decision](docs/adr/0006-sqlite-catalogue.md).
 
 ## Build and preview
 

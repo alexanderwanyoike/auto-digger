@@ -1,7 +1,16 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { createCrateBridge } from './crateBridge';
 import { createDiscogsBridge } from './bridge';
+import { createCatalogueBridge } from './catalogueBridge';
 import { createAudioBridge } from './audioBridge';
+
+contextBridge.exposeInMainWorld(
+  'catalogue',
+  createCatalogueBridge(async (channel, input) => {
+    const result: unknown = await ipcRenderer.invoke(channel, input);
+    return result;
+  }),
+);
 
 contextBridge.exposeInMainWorld(
   'audioLibrary',
