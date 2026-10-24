@@ -135,6 +135,7 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     await page.getByRole('option', { name: 'Deep House', exact: true }).click();
     await page.getByLabel('Style', { exact: true }).fill('Techno');
     await page.getByRole('option', { name: 'Techno', exact: true }).click();
+    await page.getByLabel('Style', { exact: true }).press('Escape');
     await page.getByRole('button', { name: 'Search EPs', exact: true }).click();
     await expect(page.getByText('1 matching releases', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: /Low Tide - Quiet Orbit EP/ }).click();

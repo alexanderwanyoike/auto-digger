@@ -49,6 +49,7 @@ test('applies filters, browses another page and opens a matching release', async
   await user.click(screen.getByRole('option', { name: 'Deep House' }));
   await user.type(screen.getByLabelText('Style'), 'Techno');
   await user.click(screen.getByRole('option', { name: 'Techno' }));
+  await user.keyboard('{Escape}');
   await user.click(screen.getByRole('button', { name: 'Search EPs' }));
   expect(await screen.findByText('51 matching releases')).toBeInTheDocument();
   expect(search).toHaveBeenLastCalledWith({
