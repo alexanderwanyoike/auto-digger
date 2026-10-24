@@ -10,7 +10,7 @@ const recordSchema = z.object({ directory: directorySchema, track: localTrackSch
 export type DownloadRecord = z.infer<typeof recordSchema>;
 
 export function createDownloadIndex(connection: () => Promise<CatalogueResult<DatabaseSync>>) {
-  async function useDatabase<T>(
+  async function accessDatabase<T>(
     operation: (database: DatabaseSync) => CatalogueResult<T>,
   ): Promise<CatalogueResult<T>> {
     const result = await connection();
@@ -26,7 +26,7 @@ export function createDownloadIndex(connection: () => Promise<CatalogueResult<Da
   }
   return {
     directories: () =>
-      useDatabase<string[]>((database) => {
+      accessDatabase<string[]>((database) => {
         const parsed = z.array(directorySchema).safeParse(
           database
             .prepare('SELECT path FROM download_directories ORDER BY path')
@@ -46,7 +46,7 @@ export function createDownloadIndex(connection: () => Promise<CatalogueResult<Da
         return Promise.resolve(
           catalogueFailure<undefined>('invalid-input', 'Choose an absolute downloads directory.'),
         );
-      return useDatabase<undefined>((database) => {
+      return accessDatabase<undefined>((database) => {
         database
           .prepare('INSERT OR IGNORE INTO download_directories(path) VALUES(?)')
           .run(parsed.data);
@@ -54,7 +54,7 @@ export function createDownloadIndex(connection: () => Promise<CatalogueResult<Da
       });
     },
     list: () =>
-      useDatabase<DownloadRecord[]>((database) => {
+      accessDatabase<DownloadRecord[]>((database) => {
         const rows = database
           .prepare('SELECT id,directory,metadata FROM downloads ORDER BY id')
           .all();
@@ -79,7 +79,7 @@ export function createDownloadIndex(connection: () => Promise<CatalogueResult<Da
             'Choose a valid downloaded track and location.',
           ),
         );
-      return useDatabase<undefined>((database) => {
+      return accessDatabase<undefined>((database) => {
         database
           .prepare(
             'INSERT INTO downloads(id,directory,metadata) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET directory=excluded.directory,metadata=excluded.metadata',
