@@ -20,10 +20,6 @@ export function SettingsPage({
 }) {
   return (
     <section className="section-page settings-page" aria-label="App settings">
-      <div className="section-intro">
-        <span className="eyebrow">MAKE YOURSELF AT HOME.</span>
-        <p>Your account and the way your desk feels.</p>
-      </div>
       <AppearanceSettings
         preferences={preferences}
         appearance={appearance}

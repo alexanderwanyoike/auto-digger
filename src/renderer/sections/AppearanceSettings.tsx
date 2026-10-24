@@ -17,6 +17,9 @@ const materials = [
     description: 'Soft neutral surfaces with a little warmth.',
   },
   { value: 'slate', title: 'Slate', description: 'Muted blue-grey with a quieter finish.' },
+  { value: 'graphite', title: 'Graphite', description: 'Soft greys with a matte finish.' },
+  { value: 'paper', title: 'Warm paper', description: 'Cream tones and a soft paper grain.' },
+  { value: 'copper', title: 'Copper', description: 'Warm metal with a brushed finish.' },
 ] as const;
 const modes = [
   { value: 'light', label: 'Light', Icon: Sun },
@@ -27,6 +30,10 @@ const accents = [
   { value: 'blue', label: 'Blue' },
   { value: 'teal', label: 'Teal' },
   { value: 'amber', label: 'Amber' },
+  { value: 'coral', label: 'Coral' },
+  { value: 'sage', label: 'Sage' },
+  { value: 'lilac', label: 'Lilac' },
+  { value: 'rose', label: 'Rose' },
 ] as const;
 
 export function AppearanceSettings({
@@ -122,7 +129,7 @@ export function AppearanceSettings({
                       select({ accent: value }).catch(() => undefined);
                     }}
                   />
-                  <span className={`accent-swatch accent-${value}`} aria-hidden="true" />
+                  <span className="accent-swatch" data-accent={value} aria-hidden="true" />
                 </label>
               ))}
               <span className="accent-name">
