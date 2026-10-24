@@ -40,7 +40,24 @@ export function useCatalogue(bridge: CatalogueBridge | undefined) {
     },
     [bridge],
   );
-  const reload = useCallback(() => perform((api) => api.view(selection.current)), [perform]);
+  const reload = useCallback(
+    () =>
+      perform(async (api) => {
+        const requested = selection.current;
+        let fallback = requested === undefined;
+        let result = await api.view(requested);
+        if (!result.ok && result.error.code === 'invalid-input' && requested !== undefined) {
+          result = await api.view();
+          fallback = true;
+        }
+        if (result.ok && fallback && !result.value.entries.length) {
+          const populated = result.value.crates.find((crate) => crate.releaseCount > 0);
+          if (populated) return api.view(populated.id);
+        }
+        return result;
+      }),
+    [perform],
+  );
   useEffect(() => {
     if (bridge) reload().catch(() => undefined);
     return () => {
