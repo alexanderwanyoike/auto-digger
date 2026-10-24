@@ -1,0 +1,76 @@
+import { _electron as electron, expect, test } from '@playwright/test';
+import { mkdir, rm } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
+import { loadedRelease } from '../discogsFixtures';
+
+test('persists settings and finds old and per-release downloads after a native restart', async () => {
+  const profile = test.info().outputPath('profile');
+  const chosen = test.info().outputPath('chosen-music');
+  await mkdir(chosen, { recursive: true });
+  const options = {
+    args: [resolve('tests/encryptedDesktop.cjs'), `--user-data-dir=${profile}`],
+    env: Object.fromEntries(
+      Object.entries(process.env).filter(
+        (entry): entry is [string, string] =>
+          typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
+      ),
+    ),
+  };
+  let desktop = await electron.launch(options);
+  try {
+    let page = await desktop.firstWindow();
+    await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
+    await page.evaluate(
+      async (release) => window.audioLibrary?.download({ release, videoIndex: 0 }),
+      loadedRelease,
+    );
+    await desktop.evaluate(({ dialog }, directory) => {
+      Reflect.set(dialog, 'showOpenDialog', () =>
+        Promise.resolve({ canceled: false, filePaths: [directory] }),
+      );
+    }, chosen);
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Material', exact: true }).selectOption('slate');
+    await page.getByRole('combobox', { name: 'Accent', exact: true }).selectOption('teal');
+    await page
+      .getByRole('combobox', { name: 'Download organisation', exact: true })
+      .selectOption('release');
+    await page.getByRole('button', { name: 'Choose downloads folder', exact: true }).click();
+    await expect(page.getByText(chosen, { exact: true })).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('data-material', 'slate');
+    await expect(page.locator('html')).toHaveAttribute('data-accent', 'teal');
+    await page.evaluate(
+      async (release) => window.audioLibrary?.download({ release, videoIndex: 0 }),
+      { ...loadedRelease, id: 13 },
+    );
+    await desktop.close();
+    desktop = await electron.launch(options);
+    page = await desktop.firstWindow();
+    await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
+    await expect(page.locator('html')).toHaveAttribute('data-material', 'slate');
+    const music = await desktop.evaluate(({ app }) => app.getPath('music'));
+    const tracks = await page.evaluate(async () => window.audioLibrary?.list());
+    if (!tracks?.ok || !tracks.value[0] || !tracks.value[1])
+      throw new Error('Expected both downloads');
+    await rm(join(music, 'Auto Digger', tracks.value[0].filename));
+    await page.reload();
+    await page.getByRole('button', { name: 'Downloads', exact: true }).click();
+    await expect(page.getByText('File missing or unavailable', { exact: true })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Play Quiet Orbit', exact: true }).last(),
+    ).toBeEnabled();
+    const file = join(chosen, `Low Tide - Quiet Orbit EP [r13]`, tracks.value[1].filename);
+    expect(dirname(dirname(file))).toBe(chosen);
+    const status = await page.evaluate(async (id) => {
+      const response = await fetch(`auto-digger-audio://track/${id}`, {
+        headers: { Range: 'bytes=0-63' },
+      });
+      return response.status;
+    }, tracks.value[1].id);
+    expect(status).toBe(206);
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.screenshot({ path: 'test-results/settings-material.png' });
+  } finally {
+    await desktop.close();
+  }
+});
