@@ -40,6 +40,14 @@ test('manages named crates and track annotations in the UI and browses downloads
     await expect(page.getByLabel('Tags for Quiet Orbit', { exact: true })).toHaveValue(
       'dub, warm-up',
     );
+    await page.getByText('Manage My crate', { exact: true }).click();
+    await page.getByRole('button', { name: 'Delete crate', exact: true }).click();
+    await page.getByLabel('Active crate').selectOption({ label: 'Night drive (0)' });
+    await page.getByText('Manage Night drive', { exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Confirm delete crate', exact: true }),
+    ).toHaveCount(0);
+    await page.getByLabel('Active crate').selectOption({ label: 'My crate (1)' });
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Digging desk' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Saved to crate', exact: true })).toBeDisabled();
