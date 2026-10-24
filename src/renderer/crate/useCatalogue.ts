@@ -11,9 +11,13 @@ export function useCatalogue(bridge: CatalogueBridge | undefined) {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<CrateError | null>(remembered.ok ? null : remembered.error);
   const selection = useRef<string | undefined>(remembered.ok ? remembered.value : undefined);
+  const restoreError = useRef<CrateError | null>(remembered.ok ? null : remembered.error);
   const version = useRef(0);
   const perform = useCallback(
-    async (operation: (api: CatalogueBridge) => Promise<CatalogueViewResult>) => {
+    async (
+      operation: (api: CatalogueBridge) => Promise<CatalogueViewResult>,
+      explicitSelection = true,
+    ) => {
       version.current += 1;
       const request = version.current;
       setBusy(true);
@@ -31,8 +35,12 @@ export function useCatalogue(bridge: CatalogueBridge | undefined) {
           selection.current = result.value.crateId ?? undefined;
           setView(result.value);
           setReady(true);
-          const saved = saveCrateSelection(result.value.crateId);
-          if (!saved.ok) setError(saved.error);
+          if (explicitSelection) restoreError.current = null;
+          if (restoreError.current) setError(restoreError.current);
+          else {
+            const saved = saveCrateSelection(result.value.crateId);
+            if (!saved.ok) setError(saved.error);
+          }
         } else setError(result.error);
         setBusy(false);
       }
@@ -55,7 +63,7 @@ export function useCatalogue(bridge: CatalogueBridge | undefined) {
           if (populated) return api.view(populated.id);
         }
         return result;
-      }),
+      }, false),
     [perform],
   );
   useEffect(() => {
