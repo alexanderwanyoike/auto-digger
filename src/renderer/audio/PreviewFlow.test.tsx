@@ -12,20 +12,18 @@ test('previews through the shared transport without saving, then stops the tempo
     return media;
   }
   vi.stubGlobal('Audio', TestAudio);
-  const preview = vi
-    .fn()
-    .mockResolvedValue({
-      ok: true,
-      value: {
-        id: 'temporary-preview',
-        title: 'Quiet Orbit',
-        artist: 'Low Tide',
-        album: 'Quiet Orbit EP',
-        artworkUrl: null,
-        source: 'preview',
-        url: 'auto-digger-audio://preview/temporary-preview',
-      },
-    });
+  const preview = vi.fn().mockResolvedValue({
+    ok: true,
+    value: {
+      id: 'temporary-preview',
+      title: 'Quiet Orbit',
+      artist: 'Low Tide',
+      album: 'Quiet Orbit EP',
+      artworkUrl: null,
+      source: 'preview',
+      url: 'auto-digger-audio://preview/temporary-preview',
+    },
+  });
   const stopPreview = vi.fn().mockResolvedValue({ ok: true, value: undefined });
   const bridge: AudioBridge = {
     list: () => Promise.resolve({ ok: true, value: [] }),

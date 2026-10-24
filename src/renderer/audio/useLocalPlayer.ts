@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AudioResult, LocalTrack } from '../../shared/audio';
+import type { AudioResult } from '../../shared/audio';
+import type { PlaybackItem } from '../../shared/playback';
 import { audioFailure } from '../../shared/audioFailure';
 
 const unavailableAudio =
   'This saved audio could not be played. It may have been moved or removed. Check its folder and try again.';
 
-export function useLocalPlayer(track: LocalTrack | null, request: number) {
+export function useLocalPlayer(track: PlaybackItem | null, request: number) {
   const [media] = useState(() => new Audio());
   const [playing, setPlaying] = useState(false);
   const [position, setPosition] = useState(0);
@@ -84,7 +85,7 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
     setError(null);
     setPlaying(false);
     requested.current = request;
-    if (track) media.src = `auto-digger-audio://track/${track.id}`;
+    if (track) media.src = track.url;
     else media.removeAttribute('src');
     if (track && request > handled.current && media.readyState >= 3) {
       handled.current = request;

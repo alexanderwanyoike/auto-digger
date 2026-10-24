@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeImage } from 'electron';
+import { app, BrowserWindow, nativeImage, net } from 'electron';
 import { join } from 'node:path';
 import type { Result } from '../shared/result';
 import { createCrateStore } from './crate/store';
@@ -13,14 +13,21 @@ import { createCommandRunner } from './audio/command';
 import { createDownloader } from './audio/downloader';
 import { registerAudioHandlers } from './audio/registerHandlers';
 import { registerAudioProtocol } from './audio/protocol';
+import { createPreviewSession } from './audio/previewSession';
+import { createPreviewResolver } from './audio/previewResolver';
 
 let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
 let crateStore: ReturnType<typeof createCrateStore> | undefined;
 let audioLibrary: ReturnType<typeof createAudioLibrary> | undefined;
 const audioCommands = createCommandRunner();
 const downloader = createDownloader((args, timeout) => audioCommands.execute(args, timeout));
+const previews = createPreviewSession(
+  createPreviewResolver((args, timeout) => audioCommands.execute(args, timeout)),
+  (input, options) => net.fetch(input, options),
+);
 app.on('before-quit', () => {
   audioCommands.cancelAll();
+  previews.stop();
 });
 
 export async function createWindow(): Promise<Result<undefined, string>> {
@@ -66,10 +73,13 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     const downloadsDirectory = join(app.getPath('music'), 'Auto Digger');
     if (!audioLibrary) {
       audioLibrary = createAudioLibrary(downloadsDirectory, downloader);
-      registerAudioProtocol(audioLibrary, downloadsDirectory);
+      registerAudioProtocol(audioLibrary, downloadsDirectory, previews);
     }
-    registerAudioHandlers(window, audioLibrary, downloader, downloadsDirectory);
+    registerAudioHandlers(window, audioLibrary, downloader, downloadsDirectory, previews);
     registerDiscogsHandlers(window, discogsSession);
+    window.on('closed', () => {
+      previews.stop();
+    });
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event) => {
       event.preventDefault();

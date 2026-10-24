@@ -1,4 +1,4 @@
-import { FolderOpen, Pause, Play, Volume2 } from 'lucide-react';
+import { FolderOpen, Pause, Play, Square, Volume2 } from 'lucide-react';
 import type { useAudioLibrary } from '../audio/useAudioLibrary';
 import { useLocalPlayer } from '../audio/useLocalPlayer';
 import { RecordArtwork } from './RecordArtwork';
@@ -23,7 +23,11 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
         <div className="playing-info">
           <strong>{track?.title ?? 'Nothing on the deck'}</strong>
           <span>
-            {track ? `${track.artist} · ${track.album}` : 'Download a source to listen here.'}
+            {track
+              ? `${track.source === 'preview' ? 'Preview · ' : ''}${track.artist} · ${track.album}`
+              : audio.previewing
+                ? 'Preparing preview…'
+                : 'Preview a source to listen here.'}
           </span>
         </div>
       </div>
@@ -73,6 +77,18 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
         />
       </div>
       <div className="player-library">
+        {(track?.source === 'preview' || audio.previewing) && (
+          <button
+            type="button"
+            className="icon-button"
+            aria-label="Stop preview"
+            onClick={() => {
+              audio.stopPreview().catch(() => undefined);
+            }}
+          >
+            <Square size={13} aria-hidden="true" />
+          </button>
+        )}
         <select
           aria-label="Downloaded track"
           value={track?.id ?? ''}
@@ -82,6 +98,7 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
             if (selected) audio.play(selected);
           }}
         >
+          {track?.source === 'preview' && <option value={track.id}>Preview · {track.title}</option>}
           <option value="" disabled>
             Downloads
           </option>
@@ -94,11 +111,15 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
         <button
           type="button"
           className="icon-button"
-          aria-label={track ? 'Show track in folder' : 'Open downloads folder'}
+          aria-label={
+            track?.source === 'download' ? 'Show track in folder' : 'Open downloads folder'
+          }
           title="Music / Auto Digger"
           disabled={!audio.available}
           onClick={() => {
-            audio.reveal(track?.id).catch(() => undefined);
+            audio
+              .reveal(track?.source === 'download' ? track.id : undefined)
+              .catch(() => undefined);
           }}
         >
           <FolderOpen size={17} aria-hidden="true" />
