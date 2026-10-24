@@ -14,10 +14,11 @@ test('imports legacy downloads, applies future destination/layout settings and r
   const file = join(directory, 'catalog.sqlite');
   const catalogue = createCatalogueStore(file);
   const downloader = {
-    probe: async () => ({
-      ok: true as const,
-      value: { videoId: 'abcdefghijk', title: 'Quiet Orbit' },
-    }),
+    probe: () =>
+      Promise.resolve({
+        ok: true as const,
+        value: { videoId: 'abcdefghijk', title: 'Quiet Orbit' },
+      }),
     download: vi.fn(async (_id: string, path: string) => {
       await writeFile(path, 'audio');
       return { ok: true as const, value: undefined };
