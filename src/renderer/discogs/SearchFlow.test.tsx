@@ -42,11 +42,25 @@ test('applies filters, browses another page and opens a matching release', async
   const user = userEvent.setup();
   render(<App discogs={bridge} />);
   await screen.findByRole('button', { name: 'Connected as quiet-digger' });
+  await user.click(screen.getByLabelText('Genre'));
+  await user.click(screen.getByRole('option', { name: 'Electronic' }));
+  await user.click(screen.getByRole('option', { name: 'Jazz' }));
   await user.type(screen.getByLabelText('Style'), 'Deep House');
+  await user.click(screen.getByRole('option', { name: 'Deep House' }));
+  await user.type(screen.getByLabelText('Style'), 'Techno');
+  await user.click(screen.getByRole('option', { name: 'Techno' }));
+  await user.keyboard('{Escape}');
   await user.click(screen.getByRole('button', { name: 'Search EPs' }));
   expect(await screen.findByText('51 matching releases')).toBeInTheDocument();
   expect(search).toHaveBeenLastCalledWith({
-    filters: { label: '', artist: '', year: '', genre: '', style: 'Deep House', title: '' },
+    filters: {
+      label: '',
+      artist: '',
+      year: '',
+      genre: ['Electronic', 'Jazz'],
+      style: ['Deep House', 'Techno'],
+      title: '',
+    },
     page: 1,
   });
   await user.click(screen.getByRole('button', { name: 'Next page' }));
@@ -64,7 +78,14 @@ test('applies filters, browses another page and opens a matching release', async
   await user.type(screen.getByLabelText('Style'), ' draft');
   await user.click(screen.getByRole('button', { name: 'Dig again' }));
   expect(dig).toHaveBeenLastCalledWith({
-    filters: { label: '', artist: '', year: '', genre: '', style: 'Deep House', title: '' },
+    filters: {
+      label: '',
+      artist: '',
+      year: '',
+      genre: ['Electronic', 'Jazz'],
+      style: ['Deep House', 'Techno'],
+      title: '',
+    },
     reset: false,
   });
 });

@@ -48,7 +48,9 @@ export async function searchDiscogs(
     page: page.toString(),
   });
   Object.entries(filters).forEach(([key, value]) => {
-    if (value) query.set(key === 'title' ? 'release_title' : key, value);
+    if (Array.isArray(value)) {
+      if (value.length) query.set(key, value.join('|'));
+    } else if (value) query.set(key === 'title' ? 'release_title' : key, value);
   });
   return requestDiscogs(`/database/search?${query.toString()}`, token, responseSchema, request);
 }

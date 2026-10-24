@@ -1,6 +1,18 @@
 import { z } from 'zod';
 
 const text = z.string().trim().max(160).default('');
+const selection = z
+  .array(
+    z
+      .string()
+      .trim()
+      .min(1)
+      .max(160)
+      .regex(/^[^|]+$/),
+  )
+  .max(1000)
+  .default([])
+  .transform((values) => [...new Set(values)].sort());
 export const filtersSchema = z.object({
   label: text,
   artist: text,
@@ -9,8 +21,8 @@ export const filtersSchema = z.object({
     .trim()
     .regex(/^(|[0-9]{4})$/)
     .default(''),
-  genre: text,
-  style: text,
+  genre: selection,
+  style: selection,
   title: text,
 });
 export type DigFilters = z.infer<typeof filtersSchema>;

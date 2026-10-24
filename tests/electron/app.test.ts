@@ -79,7 +79,13 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
           const url = input instanceof Request ? input.url : input.toString();
           if (url.endsWith('/oauth/identity'))
             return Promise.resolve(new Response(JSON.stringify(fixtures.identityResponse)));
-          if (url.includes('/database/search?'))
+          if (url.includes('/database/search?')) {
+            const query = new URL(url).searchParams;
+            if (
+              query.get('genre') !== 'Electronic|Jazz' ||
+              query.get('style') !== 'Deep House|Techno'
+            )
+              return Promise.resolve(new Response('{}', { status: 400 }));
             return Promise.resolve(
               new Response(
                 JSON.stringify({
@@ -90,6 +96,7 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
                 }),
               ),
             );
+          }
           if (url.endsWith('/releases/12'))
             return Promise.resolve(new Response(JSON.stringify(fixtures.releaseResponse)));
           return Promise.resolve(new Response('{}', { status: 404 }));
@@ -120,7 +127,15 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
       page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }),
     ).toBeEnabled();
     await expect(page.getByLabel('Personal token')).toHaveCount(0);
+    await page.getByLabel('Genre', { exact: true }).fill('Electronic');
+    await page.getByRole('option', { name: 'Electronic', exact: true }).click();
+    await page.getByLabel('Genre', { exact: true }).fill('Jazz');
+    await page.getByRole('option', { name: 'Jazz', exact: true }).click();
     await page.getByLabel('Style', { exact: true }).fill('Deep House');
+    await page.getByRole('option', { name: 'Deep House', exact: true }).click();
+    await page.getByLabel('Style', { exact: true }).fill('Techno');
+    await page.getByRole('option', { name: 'Techno', exact: true }).click();
+    await page.getByLabel('Style', { exact: true }).press('Escape');
     await page.getByRole('button', { name: 'Search EPs', exact: true }).click();
     await expect(page.getByText('1 matching releases', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: /Low Tide - Quiet Orbit EP/ }).click();
