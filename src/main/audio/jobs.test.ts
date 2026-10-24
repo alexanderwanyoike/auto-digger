@@ -85,3 +85,27 @@ test('rejects invalid and duplicate pending sources atomically, and stops accept
   await jobs.close();
   expect(jobs.start([input])).toMatchObject({ ok: false, error: { code: 'unavailable' } });
 });
+
+test('does not retry an old job while a newer job targets the same pending source', async () => {
+  const jobs = createDownloadJobs(
+    (_input, options) =>
+      new Promise<AudioResult<LocalTrack>>((resolve) => {
+        options.signal?.addEventListener('abort', () => {
+          resolve({ ok: false, error: { code: 'cancelled', message: 'Cancelled' } });
+        });
+      }),
+  );
+  try {
+    const started = jobs.start([
+      { release: { ...loadedRelease, id: 99 }, videoIndex: 0 },
+      { release: loadedRelease, videoIndex: 0 },
+    ]);
+    if (!started.ok || !started.value[1]) throw new Error('No queued job');
+    const old = started.value[1];
+    jobs.cancel(old.id);
+    expect(jobs.start([{ release: loadedRelease, videoIndex: 0 }])).toMatchObject({ ok: true });
+    expect(jobs.retry(old.id)).toMatchObject({ ok: false, error: { code: 'busy' } });
+  } finally {
+    await jobs.close();
+  }
+});
