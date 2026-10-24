@@ -9,9 +9,20 @@ import { electronEncryption } from './credentials/electronEncryption';
 import { createDiscogsSession } from './discogs/session';
 import { registerPlayerIdentity } from './youtube/registerIdentity';
 import { registerDiscogsHandlers } from './discogs/registerHandlers';
+import { createAudioLibrary } from './audio/library';
+import { createCommandRunner } from './audio/command';
+import { createDownloader } from './audio/downloader';
+import { registerAudioHandlers } from './audio/registerHandlers';
+import { registerAudioProtocol } from './audio/protocol';
 
 let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
 let crateStore: ReturnType<typeof createCrateStore> | undefined;
+let audioLibrary: ReturnType<typeof createAudioLibrary> | undefined;
+const audioCommands = createCommandRunner();
+const downloader = createDownloader((args, timeout) => audioCommands.execute(args, timeout));
+app.on('before-quit', () => {
+  audioCommands.cancelAll();
+});
 
 export async function createWindow(): Promise<Result<undefined, string>> {
   let window: BrowserWindow | undefined;
@@ -39,6 +50,12 @@ export async function createWindow(): Promise<Result<undefined, string>> {
       createTokenStore(join(app.getPath('userData'), 'discogs-token.bin'), electronEncryption),
     );
     registerCrateHandlers(window, crateStore);
+    const downloadsDirectory = join(app.getPath('music'), 'Auto Digger');
+    if (!audioLibrary) {
+      audioLibrary = createAudioLibrary(downloadsDirectory, downloader);
+      registerAudioProtocol(audioLibrary, downloadsDirectory);
+    }
+    registerAudioHandlers(window, audioLibrary, downloader, downloadsDirectory);
     registerDiscogsHandlers(window, discogsSession);
     registerPlayerIdentity(window.webContents.session);
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));

@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog } from 'electron';
 import { applicationId } from './youtube/identity';
 import { createWindow } from './createWindow';
+import { registerAudioScheme } from './audio/protocol';
 
 function reportStartupFailure(error: unknown) {
   dialog.showErrorBox(
@@ -19,6 +20,7 @@ async function openWindow() {
 }
 
 app.setName('Auto Digger');
+registerAudioScheme();
 app.setAppUserModelId(applicationId);
 app.whenReady().then(openWindow).catch(reportStartupFailure);
 
