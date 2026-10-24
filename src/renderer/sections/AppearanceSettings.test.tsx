@@ -23,29 +23,27 @@ test('chooses a material, mode and accent visually while preserving download set
   const user = userEvent.setup();
   try {
     render(<App />);
-    await user.click(screen.getByRole('button', { name: 'Settings', exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
     const appearance = screen.getByRole('region', { name: 'Appearance settings' });
-    const material = within(appearance).getByRole('group', { name: 'Material', exact: true });
+    const material = within(appearance).getByRole('group', { name: 'Material' });
     expect(within(material).getAllByRole('radio')).toHaveLength(6);
-    expect(
-      await within(material).findByRole('radio', { name: 'Brushed aluminium', exact: true }),
-    ).toBeChecked();
-    await user.click(within(material).getByRole('radio', { name: 'Copper', exact: true }));
+    expect(await within(material).findByRole('radio', { name: 'Brushed aluminium' })).toBeChecked();
+    await user.click(within(material).getByRole('radio', { name: 'Copper' }));
     expect(save).toHaveBeenCalledWith({ material: 'copper', accent: 'blue', layout: 'release' });
     expect(document.documentElement).toHaveAttribute('data-material', 'copper');
     const mode = within(appearance).getByRole('group', { name: 'Appearance mode' });
-    await user.click(within(mode).getByRole('radio', { name: 'Dark', exact: true }));
+    await user.click(within(mode).getByRole('radio', { name: 'Dark' }));
     expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
     expect(window.localStorage.getItem('auto-digger.appearance')).toBe('dark');
     const accent = within(appearance).getByRole('group', { name: 'Accent colour' });
     expect(within(accent).getAllByRole('radio')).toHaveLength(7);
-    await user.click(within(accent).getByRole('radio', { name: 'Rose', exact: true }));
+    await user.click(within(accent).getByRole('radio', { name: 'Rose' }));
     expect(save).toHaveBeenLastCalledWith({
       material: 'copper',
       accent: 'rose',
       layout: 'release',
     });
-    expect(within(accent).getByRole('radio', { name: 'Rose', exact: true })).toBeChecked();
+    expect(within(accent).getByRole('radio', { name: 'Rose' })).toBeChecked();
     expect(document.documentElement).toHaveAttribute('data-accent', 'rose');
   } finally {
     delete window.preferences;
@@ -67,10 +65,10 @@ test('shows a pending material choice immediately and restores the saved choice 
   const user = userEvent.setup();
   try {
     render(<App />);
-    await user.click(screen.getByRole('button', { name: 'Settings', exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
     const appearance = screen.getByRole('region', { name: 'Appearance settings' });
-    await user.click(within(appearance).getByRole('radio', { name: 'Slate', exact: true }));
-    expect(within(appearance).getByRole('radio', { name: 'Slate', exact: true })).toBeChecked();
+    await user.click(within(appearance).getByRole('radio', { name: 'Slate' }));
+    expect(within(appearance).getByRole('radio', { name: 'Slate' })).toBeChecked();
     const { act } = await import('@testing-library/react');
     await act(async () => {
       complete({
@@ -80,9 +78,7 @@ test('shows a pending material choice immediately and restores the saved choice 
       await Promise.resolve();
     });
     expect(await screen.findByRole('alert')).toHaveTextContent('could not be saved');
-    expect(
-      within(appearance).getByRole('radio', { name: 'Brushed aluminium', exact: true }),
-    ).toBeChecked();
+    expect(within(appearance).getByRole('radio', { name: 'Brushed aluminium' })).toBeChecked();
     expect(document.documentElement).toHaveAttribute('data-material', 'aluminium');
   } finally {
     delete window.preferences;
