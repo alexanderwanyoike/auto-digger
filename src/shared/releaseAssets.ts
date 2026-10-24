@@ -36,7 +36,7 @@ export function publishedDownloads(
     ),
     ['checksums', 'SHA256SUMS'] as const,
   ];
-  const links: Record<string, string> & { checksums: string } = {};
+  const links: Record<string, string> & { checksums: string } = { checksums: '' };
   const complete = files.every(([target, name]) => {
     const matches = release.assets.filter((asset) => asset.name === name);
     const asset = matches[0];
