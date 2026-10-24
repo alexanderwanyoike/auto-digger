@@ -16,10 +16,6 @@
   color: var(--text);
   font-size: 10px;
 }
-.taxonomy__control--is-focused {
-  outline: 2px solid var(--blue);
-  outline-offset: 2px;
-}
 .taxonomy__control--is-disabled {
   opacity: 0.55;
 }
