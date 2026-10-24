@@ -23,18 +23,16 @@ test('proxies a revocable preview progressively, forwarding range requests witho
       };
     },
   });
-  const fetchMedia = vi
-    .fn<typeof fetch>()
-    .mockResolvedValue(
-      new Response(body, {
-        status: 206,
-        headers: {
-          'Content-Type': 'audio/webm',
-          'Content-Range': 'bytes 0-3/4',
-          'Accept-Ranges': 'bytes',
-        },
-      }),
-    );
+  const fetchMedia = vi.fn<typeof fetch>().mockResolvedValue(
+    new Response(body, {
+      status: 206,
+      headers: {
+        'Content-Type': 'audio/webm',
+        'Content-Range': 'bytes 0-3/4',
+        'Accept-Ranges': 'bytes',
+      },
+    }),
+  );
   const session = createPreviewSession(
     () => Promise.resolve({ ok: true, value: source }),
     fetchMedia,
@@ -68,4 +66,19 @@ test('ignores a replaced source resolution and aborts active streams when stoppe
   session.stop();
   resolveSource({ ok: true, value: source });
   expect(await started).toMatchObject({ ok: false });
+});
+
+test('keeps a long mix seekable beyond one hour while respecting source expiry', async () => {
+  const now = Date.now();
+  const clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+  const session = createPreviewSession(
+    () => Promise.resolve({ ok: true, value: source }),
+    () => Promise.resolve(new Response(new Uint8Array([1]))),
+  );
+  const started = await session.start({ release: loadedRelease, videoIndex: 0 });
+  if (!started.ok) throw new Error('Expected preview');
+  clock.mockReturnValue(now + 2 * 60 * 60 * 1000);
+  expect((await session.serve(new Request(started.value.url))).status).toBe(200);
+  clock.mockReturnValue(now + 7 * 60 * 60 * 1000);
+  expect((await session.serve(new Request(started.value.url))).status).toBe(404);
 });
