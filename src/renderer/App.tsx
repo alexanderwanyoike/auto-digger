@@ -1,3 +1,4 @@
+import { UpdateNotice } from './components/UpdateNotice';
 import { useState } from 'react';
 import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
 import { usePreferences } from './sections/usePreferences';
@@ -164,7 +165,7 @@ export function App({
         <span>
           <span className="blue-dot" /> DISCOGS DISCOVERY
         </span>
-        <span>Built for the long way round.</span>
+        <UpdateNotice />
       </div>
       {connectionOpen && (
         <ConnectionDialog

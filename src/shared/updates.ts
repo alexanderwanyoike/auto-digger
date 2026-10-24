@@ -3,6 +3,7 @@ import type { Result } from './result';
 
 const version = z.string().regex(/^\d+\.\d+\.\d+$/);
 export const updateStateSchema = z.discriminatedUnion('stage', [
+  z.object({ stage: z.literal('disabled') }),
   z.object({ stage: z.literal('idle') }),
   z.object({ stage: z.literal('checking') }),
   z.object({ stage: z.literal('available'), version, manual: z.boolean() }),

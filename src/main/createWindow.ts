@@ -1,4 +1,6 @@
 import { app, BrowserWindow, nativeImage, net } from 'electron';
+import { createApplicationUpdates } from './updates/runtime';
+import { registerUpdateHandlers } from './updates/registerHandlers';
 import { join } from 'node:path';
 import { registerStoreLinkHandlers } from './links/registerHandlers';
 import type { Result } from '../shared/result';
@@ -40,20 +42,34 @@ const previews = createPreviewSession(
 );
 let researchRuntime: ReturnType<typeof createResearchRuntime> | undefined;
 let closingCatalogue = false;
+let shutdown: Promise<Result<undefined, string>> | undefined;
+let updates: ReturnType<typeof createApplicationUpdates>;
+
+function closeServices(): Promise<Result<undefined, string>> {
+  shutdown ??= (async () => {
+    audioCommands.cancelAll();
+    previews.stop();
+    const research = await researchRuntime?.stop();
+    if (research && !research.ok) process.stderr.write(`${research.error.message}\n`);
+    await downloadJobs?.close();
+    const closed = await catalogueStore?.close();
+    closingCatalogue = true;
+    return closed && !closed.ok
+      ? { ok: false, error: closed.error.message }
+      : { ok: true, value: undefined };
+  })();
+  return shutdown;
+}
 app.on('before-quit', (event) => {
-  audioCommands.cancelAll();
-  previews.stop();
   if (catalogueStore && !closingCatalogue) {
     event.preventDefault();
-    closingCatalogue = true;
-    Promise.resolve(researchRuntime?.stop())
-      .then(() => downloadJobs?.close())
-      .then(() => catalogueStore?.close())
+    closeServices()
       .then((result) => {
-        if (result && !result.ok) process.stderr.write(`${result.error.message}\n`);
+        if (!result.ok) process.stderr.write(`${result.error}\n`);
         app.quit();
       })
       .catch(() => {
+        closingCatalogue = true;
         app.quit();
       });
   }
@@ -101,6 +117,12 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     registerCatalogueHandlers(window, catalogueStore);
     registerPreferencesHandlers(window, catalogueStore.preferences);
     registerStoreLinkHandlers(window);
+    updates ??= createApplicationUpdates(async () => {
+      const result = await closeServices();
+      if (result.ok) app.releaseSingleInstanceLock();
+      return result;
+    });
+    registerUpdateHandlers(window, updates);
     discogsSession ??= createRememberedSession(
       createDiscogsSession(),
       createTokenStore(join(app.getPath('userData'), 'discogs-token.bin'), electronEncryption),

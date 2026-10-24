@@ -1,3 +1,4 @@
+import { createUpdatesBridge } from './updatesBridge';
 import { contextBridge, ipcRenderer } from 'electron';
 import { createResearchAccessBridge } from './researchAccessBridge';
 import { createDownloadJobsBridge } from './downloadJobsBridge';
@@ -76,6 +77,14 @@ contextBridge.exposeInMainWorld(
   'crate',
   createCrateBridge(async (channel, input) => {
     const result: unknown = await ipcRenderer.invoke(channel, input);
+    return result;
+  }),
+);
+
+contextBridge.exposeInMainWorld(
+  'updates',
+  createUpdatesBridge(async (channel) => {
+    const result: unknown = await ipcRenderer.invoke(channel);
     return result;
   }),
 );
