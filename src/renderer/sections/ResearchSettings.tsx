@@ -7,7 +7,8 @@ export function ResearchSettings() {
   const [access, setAccess] = useState<ResearchAccess | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [format, setFormat] = useState('json');
+  const [format, setFormat] = useState('toml');
+  const [saved, setSaved] = useState(false);
   useEffect(() => {
     let active = true;
     bridge
@@ -33,6 +34,20 @@ export function ResearchSettings() {
       else setError(result.error.message);
     } catch {
       setError('Research access could not be changed. Please retry.');
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function saveExtension() {
+    setBusy(true);
+    setError(null);
+    setSaved(false);
+    try {
+      const result = await bridge?.saveExtension();
+      if (result?.ok) setSaved(Boolean(result.value));
+      else setError(result ? result.error.message : 'Open the desktop app to save the extension.');
+    } catch {
+      setError('The extension could not be saved. Please retry.');
     } finally {
       setBusy(false);
     }
@@ -66,31 +81,54 @@ export function ResearchSettings() {
         <>
           <p>
             Access ends when you disable it or close Auto Digger. Keep the app open and connect
-            Discogs for searches. Node.js 22 or newer must be available to your MCP client.
+            Discogs for searches. No separate Node.js installation is needed for MCP.
           </p>
-          <label htmlFor="research-config-format">
-            Client format
-            <select
-              id="research-config-format"
-              value={format}
-              onChange={(event) => {
-                setFormat(event.target.value);
-              }}
-            >
-              <option value="json">JSON client configuration</option>
-              <option value="toml">Codex TOML configuration</option>
-            </select>
-          </label>
-          <label htmlFor="research-config">
-            MCP client configuration
-            <textarea
-              id="research-config"
-              readOnly
-              rows={7}
-              spellCheck={false}
-              value={format === 'json' ? json : toml}
-            />
-          </label>
+          <h3>Claude Desktop</h3>
+          <button
+            className="secondary-button"
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              saveExtension().catch(() => undefined);
+            }}
+          >
+            Save Claude extension
+          </button>
+          {saved && <p role="status">Extension saved. Install it in Claude Desktop.</p>}
+          <p>
+            In Claude, open Settings → Desktop app → Extensions → Advanced settings → Install
+            Extension. Choose the saved file.
+          </p>
+          <details>
+            <summary>Codex and other local clients</summary>
+            <p>
+              For Codex, choose STDIO and use the command, arguments and environment shown below.
+              Claude Code can use the same local server.
+            </p>
+            <label htmlFor="research-config-format">
+              Client format
+              <select
+                id="research-config-format"
+                value={format}
+                onChange={(event) => {
+                  setFormat(event.target.value);
+                }}
+              >
+                <option value="json">JSON client configuration</option>
+                <option value="toml">Codex TOML configuration</option>
+              </select>
+            </label>
+            <label htmlFor="research-config">
+              MCP client configuration
+              <textarea
+                id="research-config"
+                readOnly
+                rows={7}
+                spellCheck={false}
+                value={format === 'json' ? json : toml}
+              />
+            </label>
+          </details>
         </>
       )}
       {error && <p role="alert">{error}</p>}

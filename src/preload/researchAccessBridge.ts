@@ -25,6 +25,20 @@ export function createResearchAccessBridge(
     return catalogueFailure('unavailable', 'Research settings could not be read. Please retry.');
   };
   return {
+    saveExtension: async () => {
+      try {
+        const parsed = z
+          .discriminatedUnion('ok', [
+            z.object({ ok: z.literal(true), value: z.string().nullable() }),
+            z.object({ ok: z.literal(false), error: crateErrorSchema }),
+          ])
+          .safeParse(await invoke(researchAccessChannels.saveExtension));
+        if (parsed.success) return parsed.data;
+      } catch {
+        return catalogueFailure('unavailable', 'The extension could not be saved. Please retry.');
+      }
+      return catalogueFailure('unavailable', 'The extension could not be saved. Please retry.');
+    },
     openSource: async (input) => {
       try {
         const result = z

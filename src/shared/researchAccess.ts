@@ -33,6 +33,7 @@ export const researchAccessSchema = z.object({
 });
 export type ResearchAccess = z.infer<typeof researchAccessSchema>;
 export interface ResearchAccessBridge {
+  saveExtension: () => Promise<CatalogueResult<string | null>>;
   openSource: (input: {
     crateId: string;
     noteId: string;
@@ -44,6 +45,7 @@ export interface ResearchAccessBridge {
 }
 export const researchAccessChannels = {
   status: 'research:status',
+  saveExtension: 'research:save-extension',
   start: 'research:start',
   stop: 'research:stop',
   openSource: 'research:open-source',
