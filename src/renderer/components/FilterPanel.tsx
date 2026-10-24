@@ -1,6 +1,7 @@
-import { genres, styles } from 'discogs-dataset-genres-styles';
+import { useState } from 'react';
 import { ArrowRight, SlidersHorizontal } from 'lucide-react';
 import { TaxonomySelect } from './TaxonomySelect';
+import { GenreStyleFilters } from './GenreStyleFilters';
 import type { DigFilters } from '../../shared/search';
 import { releaseTypes } from '../../shared/releaseTypes';
 import type { useDiscogs } from '../discogs/useDiscogs';
@@ -13,6 +14,7 @@ const fields = [
 ] as const;
 
 export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs> }) {
+  const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
   return (
     <aside className="filter-panel" aria-labelledby="filters-heading">
       <div className="panel-heading">
@@ -65,20 +67,11 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
                 </span>
               </label>
             ))}
-            <TaxonomySelect
-              name="genre"
-              label="Genre"
-              options={genres}
-              disabled={!session.account || session.busy}
-            />
-            <TaxonomySelect
-              name="style"
-              label="Style"
-              options={styles}
-              disabled={!session.account || session.busy}
-            />
+            <GenreStyleFilters disabled={!session.account || session.busy} />
             <TaxonomySelect
               name="format"
+              value={selectedFormats}
+              onChange={setSelectedFormats}
               label="Release type"
               options={releaseTypes}
               placeholder="All release types"
