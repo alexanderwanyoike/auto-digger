@@ -58,9 +58,14 @@ test('draws without repetition across a partially filled final page and resets e
   });
 });
 
-test.each([['Album'], ['Compilation'], ['Vinyl'], []])(
-  'random digging accepts release formats %j without an EP restriction',
-  async (formats) => {
+test.each([
+  { formats: ['Album'] },
+  { formats: ['Compilation'] },
+  { formats: ['Vinyl'] },
+  { formats: [] },
+])(
+  'random digging accepts release formats $formats without an EP restriction',
+  async ({ formats }) => {
     const release = { ...loadedRelease, formats };
     const search = vi.fn<Search>().mockResolvedValue({
       ok: true,
@@ -69,7 +74,7 @@ test.each([['Album'], ['Compilation'], ['Vinyl'], []])(
         pages: 1,
         perPage: 50,
         items: 1,
-        releases: [{ ...release, year: '1998' }],
+        releases: [{ ...release, year: '1998', labels: ['Still Records'] }],
       },
     });
     const load = vi.fn<Load>().mockResolvedValue({ ok: true, value: release });
