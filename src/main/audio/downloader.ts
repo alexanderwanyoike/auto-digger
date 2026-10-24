@@ -3,7 +3,11 @@ import type { AudioResult, AudioSource } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
 import { videoId } from '../../shared/youtubeVideoId';
 
-export type Execute = (args: string[], timeout: number) => Promise<AudioResult<string>>;
+export type Execute = (
+  args: string[],
+  timeout: number,
+  signal?: AbortSignal,
+) => Promise<AudioResult<string>>;
 const common = [
   '--js-runtimes',
   'node',

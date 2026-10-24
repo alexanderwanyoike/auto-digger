@@ -34,7 +34,7 @@ export function isPreviewUrl(value: string): boolean {
 }
 
 export function createPreviewResolver(execute: Execute) {
-  return async (url: string): Promise<AudioResult<ResolvedPreview>> => {
+  return async (url: string, signal?: AbortSignal): Promise<AudioResult<ResolvedPreview>> => {
     const id = videoId(url);
     if (!id) return audioFailure('invalid-input', 'Choose a supported YouTube source to preview.');
     const result = await execute(
@@ -57,6 +57,7 @@ export function createPreviewResolver(execute: Execute) {
         `https://www.youtube.com/watch?v=${id}`,
       ],
       45_000,
+      signal,
     );
     if (!result.ok) return result;
     try {

@@ -9,14 +9,17 @@ import { isPreviewUrl } from './previewResolver';
 import { previewBody } from './previewBody';
 
 export function createPreviewSession(
-  resolve: (url: string) => Promise<AudioResult<ResolvedPreview>>,
+  resolve: (url: string, signal?: AbortSignal) => Promise<AudioResult<ResolvedPreview>>,
   request: typeof fetch = fetch,
 ) {
   let revision = 0;
+  let resolving: AbortController | undefined;
   let active: { id: string; source: ResolvedPreview; expires: number } | undefined;
   const controllers = new Set<AbortController>();
   function stop(): AudioResult<undefined> {
     revision += 1;
+    resolving?.abort();
+    resolving = undefined;
     active = undefined;
     controllers.forEach((controller) => {
       controller.abort();
@@ -36,7 +39,10 @@ export function createPreviewSession(
       const video = release.videos[videoIndex];
       if (!video || (typeof trackIndex === 'number' && !release.tracks[trackIndex]))
         return audioFailure('invalid-input', 'Choose a valid source to preview.');
-      const result = await resolve(video.url);
+      const controller = new AbortController();
+      resolving = controller;
+      const result = await resolve(video.url, controller.signal);
+      if (resolving === controller) resolving = undefined;
       if (version !== revision)
         return audioFailure('unavailable', 'Another source replaced this preview.');
       if (!result.ok) return result;

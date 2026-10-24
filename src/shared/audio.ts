@@ -5,7 +5,15 @@ import type { Result } from './result';
 import type { PlaybackItem } from './playback';
 
 export const audioErrorSchema = z.object({
-  code: z.enum(['invalid-input', 'unavailable', 'tools', 'network', 'storage', 'busy']),
+  code: z.enum([
+    'invalid-input',
+    'unavailable',
+    'tools',
+    'network',
+    'storage',
+    'busy',
+    'cancelled',
+  ]),
   message: z.string(),
 });
 export type AudioError = z.infer<typeof audioErrorSchema>;

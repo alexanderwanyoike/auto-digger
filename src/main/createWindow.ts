@@ -22,7 +22,7 @@ let audioLibrary: ReturnType<typeof createAudioLibrary> | undefined;
 const audioCommands = createCommandRunner();
 const downloader = createDownloader((args, timeout) => audioCommands.execute(args, timeout));
 const previews = createPreviewSession(
-  createPreviewResolver((args, timeout) => audioCommands.execute(args, timeout)),
+  createPreviewResolver((args, timeout, signal) => audioCommands.execute(args, timeout, signal)),
   (input, options) => net.fetch(input instanceof URL ? input.href : input, options),
 );
 app.on('before-quit', () => {
