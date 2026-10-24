@@ -22,6 +22,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:electron": "playwright test",
+    "site:dev": "vite --config site.vite.config.ts",
+    "site:build": "vite build --config site.vite.config.ts",
+    "site:preview": "vite preview --config site.vite.config.ts",
+    "site:verify": "vitest run --project site",
+    "site:screenshots": "yarn build && node --experimental-strip-types scripts/capture-project-site.ts",
     "verify": "yarn icons:check && yarn format:check && yarn lint && yarn typecheck && yarn test && yarn build",
     "icons:generate": "node --experimental-strip-types scripts/generate-icons.ts",
     "icons:check": "node --experimental-strip-types scripts/generate-icons.ts --check"
