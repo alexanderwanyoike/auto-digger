@@ -1,95 +1,125 @@
-# Auto Digger
+<div align="center">
+  <img src="resources/icons/icon-128.png" alt="" width="72" height="72" />
+  <h1>Auto Digger</h1>
+  <p>Discogs discovery and MCP mix research.</p>
+  <p>
+    <a href="https://alexanderwanyoike.github.io/auto-digger/">Project site</a> ·
+    <a href="#quick-start">Quick start</a> ·
+    <a href="docs/user-guide.md">User guide</a> ·
+    <a href="https://github.com/alexanderwanyoike/auto-digger/issues">Feedback</a>
+  </p>
+</div>
 
-A compact desktop desk for discovering records. Electron, React and TypeScript, with brushed aluminium, blue accents and light, dark or system appearance.
+![Auto Digger's digging desk in satin aluminium dark, with a fictional record and a populated crate](site/public/images/digging-desk.jpg)
 
-Connect Discogs, combine label, artist, year, genre, style and release-title filters, then dig through random matching releases. Download audio from attached YouTube sources, listen in the bottom player and save releases into named crates with track picks and personal tags.
+_The real desktop app, shown with fictional records and original demo artwork._
 
-## Run
+Auto Digger is a desktop app for discovering records on Discogs. Connect an MCP client to research mixes and save the original releases to named crates, with matching tracks, tags and source notes. You can also browse releases, preview audio and keep downloaded tracks in a local library.
 
-Use Node.js 22.16 or later within Node 22, and Yarn 1.22.22. Audio downloads also need current [yt-dlp](https://github.com/yt-dlp/yt-dlp#installation), FFmpeg and FFprobe on your system PATH. Node provides yt-dlp's JavaScript runtime. Older distribution versions of yt-dlp may need updating.
+## Status
+
+Auto Digger is a desktop preview. The first release is being prepared, and the app can be run from source today. Native installers have not been published. Release notes and future downloads belong on [GitHub Releases](https://github.com/alexanderwanyoike/auto-digger/releases).
+
+The project site publishes from `main` after its Pages workflow is merged. Native automated checks run on Linux; Windows and macOS distribution still need packaging and platform validation. The experimental MCP workflow is covered by automated tests with synthetic sources; real mix research through a configured AI host still needs a manual check.
+
+## What you can do
+
+| Feature          | Details                                                                                                                          |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| MCP mix research | Let an AI host research a mix, look up Discogs releases and add them to a crate with picked tracks, tags and source notes.       |
+| Discovery        | Combine label, artist, year and title with multi-select genres, styles and release types. Browse artwork or draw random matches. |
+| Audio            | Preview YouTube sources before downloading. Save tracks or whole releases with progress, retry and best-effort Discogs metadata. |
+| Crates           | Keep named collections of releases with track picks and personal tags. The active crate returns after restart.                   |
+| Downloads        | Search saved tracks, play them locally and open their folders. Choose flat or per-release file organisation.                     |
+| Appearance       | Six materials, seven accents and light, dark or system appearance.                                                               |
+
+## Quick start
+
+### Requirements
+
+- **Node.js 22.16 or later within Node 22**, and **Yarn 1.22.22**.
+- A **Discogs personal token** for discovery. The app links to the token settings when you connect.
+- Current **[yt-dlp](https://github.com/yt-dlp/yt-dlp#installation)**, **[FFmpeg and FFprobe](https://ffmpeg.org/download.html)** on your `PATH` for previews and audio downloads. Node supplies yt-dlp's JavaScript runtime.
+- A desktop session with Electron's system libraries. Headless Linux checks also need Xvfb.
 
 ```sh
+git clone https://github.com/alexanderwanyoike/auto-digger.git
+cd auto-digger
 yarn install --frozen-lockfile
 yarn dev
 ```
 
-1. Click **Discogs not connected**, open the linked Discogs settings, and generate a personal token under **Developers**.
-2. Paste the token into the desktop app and choose **Connect account**.
-3. Enter any combination of filters and choose **Search releases**. Release type, genre and style are searchable multi-selects. Releases match any selection within each field; year accepts one four-digit year. Style suggestions follow the selected genres; changing genres removes known incompatible style selections. Clear all genres to browse the full style list. Newer styles absent from the bundled hierarchy can be entered explicitly. Leave release type empty to include all types. Blank filters search widely.
-4. Browse sleeve cards, open a match or choose **Dig a random release**, then **Dig again**. Draft edits take effect when you submit Search releases. Reset digging starts fresh with the applied filters.
-5. In **Audio sources**, check the suggested Discogs track for each video. Choose another track or **Keep video title** when needed, then **Preview** to listen without saving. Choose **Download audio** to keep it. The bottom player switches to the saved track after download. Each attached video is independently downloadable. Download actions enter the shared queue, showing measured progress, conversion and tagging stages. Cancel or retry from the record or Downloads. Use **Download release** to review source coverage, choose one upload per track, skip tracks and save the available selection. Existing saved sources are reused. Private, removed or restricted sources show a readable error and **Check again**.
-6. Choose an active crate and save the release. In **Crates**, create or rename playlists, choose track picks and save comma-separated personal tags. Saved metadata, artwork references and video links remain available after restart without reconnecting Discogs. **Downloads** is one searchable track list with artist/release columns, play and folder actions. Current download progress and retry controls appear inline; completed history does not duplicate saved tracks. **Settings** manages your Discogs connection and appearance.
+1. Choose **Discogs not connected**, generate a personal token using the linked settings, and connect in the app.
+2. Set your filters and choose **Search releases**, then browse a sleeve or **Dig a random release**.
+3. Open a record, check its source-to-track assignments and choose **Preview**. Download the tracks you want to keep.
+4. Choose a crate and save the release. Open **Crates** to mark tracks and add tags; use **Downloads** for saved audio.
 
-You can also enter a numeric Discogs release ID to load a record directly. Crates accept EPs, albums and other releases. Reopening the app restores your selected crate. Older profiles without a saved choice open a populated crate when available. Click the connected username to disconnect when finished.
+The token is remembered using operating-system encryption. Disconnecting deletes the saved token. Enter credentials in the app, never in issues, screenshots or project files. No YouTube API key is needed.
 
-After one successful connection, the app remembers your token using operating-system credential encryption and reconnects automatically on launch. Disconnect deletes the saved token. Token fields clear after submission, including unsuccessful attempts. Enter credentials in the app, not chat or project files. No YouTube API key is needed.
+See the [user guide](docs/user-guide.md) for source matching, whole-release downloads, account recovery and storage details.
 
-## Discovery and listening
+## Your data stays on your desktop
 
-Search uses Discogs' specific release search and optional format descriptions for release types. Pagination and random digging operate within the first 10,000 matching results exposed by search. Narrow broad criteria to explore further. A digging session avoids repeated release IDs and checks loaded metadata against any selected release type. This history and cached search pages stay in memory.
+| Data                                                                    | Storage                                                                                   |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Crates, releases, picks, tags, research notes, settings and audio index | `catalog.sqlite` in Electron's `userData` directory                                       |
+| Discogs credential                                                      | Separately encrypted `discogs-token.bin` in `userData`                                    |
+| Downloaded audio                                                        | Initially `Music/Auto Digger`; future destination and layout are configurable in Settings |
+| Audio recovery metadata                                                 | A versioned JSON sidecar beside each downloaded MP3                                       |
+| Active crate and appearance mode                                        | Device UI preferences                                                                     |
 
-Auto Digger checks YouTube source availability through yt-dlp and extracts MP3 with FFmpeg. Downloads use Discogs artist, album, year, genre/style and matched track tags, plus front cover art where available. Automatic matching uses unambiguous complete track titles. You can correct a match before downloading or choose **Update tags** afterward, including while offline. Several videos can map to the same track. Missing tags or cover art leave usable audio with a notice.
+Saved record metadata and downloaded audio work offline. New Discogs lookups, artwork retrieval and previews need the internet. Close the app before backing up the catalogue and its WAL/SHM companion files; keep audio recovery sidecars with their tracks. Existing `crate.json` data is validated, backed up and imported once.
 
-Each compact source row labels the **Discogs track** separately from the **YouTube video** upload title. The suggested match can be changed; **Tagging note** expands optional metadata notices.
-
-Files initially live in your operating system's **Music/Auto Digger** folder, with names such as `Artist - Track [release-video].yt.mp3`. Each has a versioned JSON recovery sidecar; SQLite indexes its metadata and recorded location. Use **Show in folder** beside a source or the folder button in the player to find it. Keep sidecars alongside their MP3s and back up the folder before manual repairs. Existing files are preserved on name collisions.
-
-The bottom bar controls local audio with play/pause, seeking and volume. Its download selector reopens tracks after restart. Browsing another record or disconnecting Discogs keeps the current track playing. Downloading or choosing a saved track starts playback; a browser autoplay restriction shows a prompt to press play. Use **Preview** to stream a source through the bottom player before committing to a download. Preview shows preparing/buffering states and can be stopped; it creates no saved file or library entry. No YouTube frame remains. Internet is needed for downloading and fetching new cover art; saved audio plays offline.
-
-## Settings
-
-Open the cog at the right of the navigation bar. Choose aluminium, ceramic or slate material and blue, teal or amber accents independently of light/dark/system mode. Use the native folder picker to choose a downloads destination and choose flat storage or a folder per release. These choices apply to future downloads; existing files stay at their recorded locations. Unavailable MP3s remain individual library rows while healthy tracks still play. See [library settings and recovery](docs/features/library-settings.md).
-
-## Remembered account
-
-The encrypted token is stored separately from the crate, in `discogs-token.bin` under Electron’s `userData` directory. The decrypted value stays in the main process and is never returned to the renderer. If the network is temporarily unavailable, **Reconnect saved account** retries the saved token. **Forget saved token** removes it even when the keyring cannot unlock it. Unlock your desktop keyring if credential storage is unavailable; the app does not use plaintext fallback storage.
-
-## Local crate
-
-The catalogue is `catalog.sqlite` under Electron's `userData` directory. It supports independent named crates, release membership, track picks and personal tags through isolated desktop operations. The desk selector chooses where to save; the Crates section manages playlists, track picks and personal tags. Existing `crate.json` data is validated, backed up to `crate.json.bak` and imported exactly once. Corrupt or unsupported files are preserved and reported.
-
-Saved release metadata can be reopened while disconnected. Credentials remain separately encrypted; audio files stay in their recorded directories. Close the app before backing up the SQLite database and any WAL/SHM companion files. See the [catalogue decision](docs/adr/0006-sqlite-catalogue.md).
-
-## Build and preview
-
-```sh
-yarn build
-yarn start
-```
-
-Runnable files are written to `out/`. For a renderer preview use `yarn dev:web`. The browser preview has no desktop bridge, so it cannot connect to Discogs or save a crate. Both development commands use port 5173; run one at a time.
-
-The original app icon is in `resources/icons/icon.svg`. `yarn icons:generate` regenerates PNG sizes, Windows `icon.ico` and macOS `icon.icns`; `yarn icons:check` verifies committed exports and runs in CI. Native windows, the macOS Dock and the app header use this identity. Installer packaging must include `resources/icons` alongside `out`, use the platform icon files and register the stable app identity `io.github.alexanderwanyoike.auto-digger`. Native runtime checks run on Linux; Windows/macOS bundle and installer testing belongs to release packaging.
-
-## Checks
-
-```sh
-yarn verify
-xvfb-run --auto-servernum yarn test:electron
-```
-
-`verify` runs formatting, Airbnb-based TypeScript-aware linting, strict types, unit/integration tests and the production build. On a desktop with a display, use `yarn test:electron` directly. CI runs both commands on every PR. Tests control external HTTP and the yt-dlp executable boundary and require no live credentials. Native tests exercise actual preload/IPC, persisted crate and audio restarts, actual local playback/seek/volume, renderer isolation, blocked popups, theme persistence and compact layouts. Screenshots are saved under `test-results/`; fixtures are not bundled catalogue data.
-
-Use `yarn format` or `yarn test:watch` while developing. EditorConfig and VS Code format-on-save settings are included.
-
-## Project notes
-
-See the [completed handoff and PR merge order](docs/handoff.md).
-
-- [Domain language](CONTEXT.md)
-- Phase scopes: [1](docs/phase-1.md), [2](docs/phase-2.md), [3](docs/phase-3.md), [4](docs/phase-4.md), [5](docs/phase-5.md), [6](docs/phase-6.md)
-- [Downloaded audio behavior](docs/features/local-audio.md) and [upstream patterns](docs/adr/0004-downloaded-audio.md)
-- [Desktop foundation](docs/adr/0001-desktop-foundation.md) and [Discogs boundary](docs/adr/0002-discogs-boundary.md)
-- Review and fix records: [Phase 2](docs/reviews/phase-2.md), [Phase 3](docs/reviews/phase-3.md), [Phase 4](docs/reviews/phase-4.md), [Phase 5](docs/reviews/phase-5.md), [Phase 6](docs/reviews/phase-6.md)
-
-The renderer remains sandboxed and isolated with no Node access. Narrow preload operations validate responses, and main-process handlers validate the sender and inputs. Fonts and icons stay local. Remote renderer images are restricted to Discogs artwork. Audio is served through a restricted local protocol; the renderer cannot pass file paths or execute commands.
+Auto Digger does not provide cloud sync. The renderer is sandboxed, credentials stay in the main process, and desktop operations use narrow validated IPC boundaries. See [SQLite catalogue ownership](docs/adr/0006-sqlite-catalogue.md) and [account storage](docs/adr/0003-remembered-discogs-account.md).
 
 ## Experimental mix research
 
-Build with `yarn build`, start the app and open Settings using the cog. Enable **AI mix research** and copy the displayed MCP configuration into your local client. Choose JSON configuration for a compatible desktop host, or Codex TOML for the [documented `mcp_servers` configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli). Node.js 22 or newer must be available on that client's PATH. The app must stay open; searches also require a connected Discogs account. Copy the configuration again if the app folder moves.
+In **Settings → AI mix research**, enable access and copy the provided configuration into a compatible MCP client. The app must stay open, the client needs Node.js 22 or newer, and Discogs searches need a connected account.
 
-Then ask the host to research a specific mix, verify its tracklist and versions, create a named crate, add the original single/EP releases where possible, pick the matching tracks and retain source links, timestamps and unresolved candidates. The host needs its own web/source research capabilities. Auto Digger supplies catalogue and Discogs tools; it does not identify an entire mix automatically.
+> Research this mix. Find the original releases, put them in an After hours crate and mark the tracks. Keep the sources and flag anything uncertain.
 
-Crates displays the host's evidence and uncertainty alongside the saved records. Picks, tags and source notes persist in SQLite. Disable research access or close the app to revoke client access. Access starts disabled after every restart. No client configuration is installed automatically, and the displayed configuration contains no Discogs token. See [the feature specification](docs/features/mix-research.md) for the tool set, local boundary and prototype limits.
+The AI host performs source research and recording-match judgement. Auto Digger supplies verified Discogs and catalogue operations. It does not identify a whole mix automatically. Evidence and unresolved candidates appear beside the saved records. Access starts disabled on every restart and can be revoked in Settings.
 
-The Appearance section uses live material thumbnails, a Light/Dark/System selector and seven accent swatches. Materials include Brushed aluminium, Ceramic, Slate, Graphite, Warm paper and Copper. Choose Blue, Teal, Amber, Coral, Sage, Lilac or Rose; settings persist alongside the existing download options.
+See [mix research setup and tools](docs/features/mix-research.md).
+
+## Development
+
+The app uses Electron, React, strict TypeScript and SQLite. Yarn is the package manager.
+
+| Command                                           | Purpose                                                                  |
+| ------------------------------------------------- | ------------------------------------------------------------------------ |
+| `yarn dev`                                        | Run the desktop app with live development updates                        |
+| `yarn build` / `yarn start`                       | Build and open the production desktop bundle                             |
+| `yarn verify`                                     | Check icons, formatting, lint, strict types, tests and production builds |
+| `xvfb-run --auto-servernum yarn test:electron`    | Run native Electron checks on headless Linux                             |
+| `yarn site:verify` / `yarn site:build`            | Verify and build the GitHub Pages site                                   |
+| `yarn site:dev` / `yarn site:preview`             | Develop or preview the site at `/auto-digger/`                           |
+| `xvfb-run --auto-servernum yarn site:screenshots` | Capture the real app using an isolated fictional collection              |
+| `yarn format`                                     | Format maintained code and documentation                                 |
+
+`yarn dev:web` offers a renderer-only preview. It has no desktop bridge, so it cannot connect to Discogs or save crates. The app bundle is written to `out/`; the static site is written to `site/dist/`.
+
+```text
+src/main/       Desktop services, SQLite, credentials and downloads
+src/preload/    Validated desktop bridge
+src/renderer/   React desk, player and library sections
+src/shared/     Domain types, schemas and typed Results
+src/mcp/        Local MCP client entry point
+site/          Static project site, screenshots and font licences
+tests/         Unit/integration fixtures, site checks and native tests
+docs/          User guides, architecture decisions and feature specifications
+```
+
+Tests use controlled external-service fixtures and isolated profiles, without live credentials or user libraries. Native checks cover playback, downloads, restarts, storage migration, research revocation, keyboard use, layout and appearance contrast.
+
+## Contributing
+
+Start a focused feature branch from `dev` and open its PR against `dev`. Promote `dev` to `main` through a release PR. Use merge commits; squash merging is disabled. Follow the [repository instructions](AGENTS.md), including test-first changes with separate test and implementation commits.
+
+Useful starting points: [domain language](CONTEXT.md), [architecture decisions](docs/adr/), [site publication](docs/project-site.md), and [release preparation](docs/releasing.md).
+
+## Licence and credits
+
+Auto Digger is [MIT licensed](LICENSE). Copyright © 2026 Alexander Wanyoike.
+
+Built on [Discogs](https://www.discogs.com/developers), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [FFmpeg](https://ffmpeg.org/), [Electron](https://www.electronjs.org/), [React](https://react.dev/) and the [Model Context Protocol SDK](https://github.com/modelcontextprotocol/typescript-sdk). Manrope and IBM Plex Mono are distributed under their retained [font licences](site/public/licenses/). Auto Digger is an independent project and is not affiliated with Discogs or YouTube.
