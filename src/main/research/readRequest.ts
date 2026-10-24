@@ -22,8 +22,8 @@ export function readResearchRequest(request: IncomingMessage): Promise<Catalogue
         resolve(catalogueFailure('invalid-input', 'Send a valid research request.'));
       }
     });
-    request.on('error', () =>
-      resolve(catalogueFailure('unavailable', 'The research request was interrupted.')),
-    );
+    request.on('error', () => {
+      resolve(catalogueFailure('unavailable', 'The research request was interrupted.'));
+    });
   });
 }

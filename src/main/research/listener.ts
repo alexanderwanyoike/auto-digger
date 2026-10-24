@@ -92,11 +92,11 @@ export function createResearchListener(
   return {
     listen: () =>
       new Promise<CatalogueResult<string>>((resolve) => {
-        server.once('error', () =>
+        server.once('error', () => {
           resolve(
             catalogueFailure('unavailable', 'Research access could not start. Please retry.'),
-          ),
-        );
+          );
+        });
         server.listen(0, '127.0.0.1', () => {
           const address = server.address();
           resolve(
@@ -108,9 +108,13 @@ export function createResearchListener(
       }),
     async close() {
       accepting = false;
-      controllers.forEach((controller) => controller.abort());
+      controllers.forEach((controller) => {
+        controller.abort();
+      });
       const closed = new Promise<void>((resolve) => {
-        server.close(() => resolve());
+        server.close(() => {
+          resolve();
+        });
       });
       server.closeAllConnections();
       await Promise.allSettled([...tasks]);

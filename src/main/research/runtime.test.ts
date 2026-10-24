@@ -21,7 +21,7 @@ test('only serves authorized local requests while enabled and revokes access on 
       },
     });
     const connection = researchConnectionSchema.parse(JSON.parse(await readFile(file, 'utf8')));
-    if (process.platform !== 'win32') expect((await stat(file)).mode & 0o077).toBe(0);
+    if (process.platform !== 'win32') expect((await stat(file)).mode % 0o100).toBe(0);
     const input = { name: 'list_crates', arguments: {} };
     const request = (headers: Record<string, string>, body = JSON.stringify(input)) =>
       fetch(connection.url, { method: 'POST', headers, body });

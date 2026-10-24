@@ -14,7 +14,7 @@ export async function callResearchApp(
     if (
       !info.isFile() ||
       info.size > 4096 ||
-      (process.platform !== 'win32' && (info.mode & 0o077) !== 0)
+      (process.platform !== 'win32' && info.mode % 0o100 !== 0)
     )
       return catalogueFailure('unavailable', 'Enable research access in Auto Digger to connect.');
     const value: unknown = JSON.parse(await readFile(file, 'utf8'));
