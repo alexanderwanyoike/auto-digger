@@ -8,6 +8,7 @@ import { matchTrack } from '../../shared/matchTrack';
 import type { createDownloader } from './downloader';
 import { createLibraryFiles } from './libraryFiles';
 import { tagDownload } from './tagging';
+import { reassignTrack } from './reassign';
 
 function filenamePart(value: string): string {
   let safe = Array.from(value)
@@ -56,19 +57,7 @@ export function createAudioLibrary(
         if (saved) {
           if (trackIndex === undefined || trackIndex === saved.trackIndex)
             return { ok: true, value: saved };
-          const tagged = await tagDownload(
-            join(directory, saved.filename),
-            release,
-            saved.sourceTitle,
-            { request, trackIndex },
-          );
-          if (!tagged.ok) return tagged;
-          return await files.save({
-            ...saved,
-            title: tagged.value.title,
-            warning: tagged.value.warning,
-            trackIndex,
-          });
+          return await reassignTrack(directory, files, saved, release, trackIndex, request);
         }
         const source = await downloader.probe(video.url);
         if (!source.ok) return source;
