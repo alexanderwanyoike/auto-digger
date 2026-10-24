@@ -7,15 +7,24 @@ import { isEp } from '../../shared/isEp';
 import { readCrate, writeCrate } from './file';
 
 export function createCrateStore(file: string) {
-  async function mutate(
+  let queue: Promise<void> = Promise.resolve();
+  async function writeChange(
     change: (releases: DiscogsRelease[]) => DiscogsRelease[],
   ): Promise<CrateResult> {
     const loaded = await readCrate(file);
     if (!loaded.ok) return loaded;
     return writeCrate(file, change(loaded.value));
   }
+  function mutate(change: (releases: DiscogsRelease[]) => DiscogsRelease[]): Promise<CrateResult> {
+    const result = queue.then(() => writeChange(change));
+    queue = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    return result;
+  }
   return {
-    list: () => readCrate(file),
+    list: () => queue.then(() => readCrate(file)),
     save: (input: unknown): Promise<CrateResult> => {
       const parsed = releaseSchema.safeParse(input);
       if (!parsed.success || !isEp(parsed.data.formats))
