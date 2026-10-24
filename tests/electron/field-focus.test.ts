@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { contrast } from '../contrast';
 
 async function expectFlushFocus(field: Locator) {
-  await expect(field).toHaveCSS('outline-style', 'solid');
+  await expect(field).toHaveCSS('outline-style', 'none');
   await expect(field).toHaveCSS('outline-offset', '0px');
   const frame = await field.evaluate((element) => {
     const style = getComputedStyle(element);
@@ -22,16 +22,21 @@ async function expectFlushFocus(field: Locator) {
         .join('')}`;
     };
     return {
-      outline: parseFloat(style.outlineWidth),
+      shadow: style.boxShadow,
       border: parseFloat(style.borderTopWidth),
-      color: hex(style.outlineColor),
-      borderColor: hex(style.borderTopColor),
+      color: hex(style.borderTopColor),
+      borderColor: style.borderTopColor,
       background: hex(style.backgroundColor),
     };
   });
-  expect(frame.outline + frame.border, 'One compact focus frame').toBeLessThanOrEqual(2);
-  expect(frame.outline + frame.border).toBeGreaterThanOrEqual(2);
-  expect(frame.color).toBe(frame.borderColor);
+  expect(frame.shadow.match(/-?[\d.]+px/g), 'One compact focus frame').toEqual([
+    '0px',
+    '0px',
+    '0px',
+    '1px',
+  ]);
+  expect(frame.border).toBe(1);
+  expect(frame.shadow).toContain(frame.borderColor);
   expect(
     contrast(frame.color, frame.background),
     'Focus remains distinguishable',
@@ -82,12 +87,35 @@ async function expectFlushFocus(field: Locator) {
       const genre = page.getByLabel('Genre', { exact: true });
       await genre.focus();
       await expect(genre).toHaveCSS('outline-style', 'none');
+      await expect(genre).toHaveCSS('box-shadow', 'none');
       const control = page
         .locator('.taxonomy-field')
         .filter({ has: genre })
         .locator('.taxonomy__control');
       await expectFlushFocus(control);
       await page.screenshot({ path: `test-results/field-focus-${mode.toLowerCase()}-select.png` });
+      const cratePicker = page.getByLabel('Active crate', { exact: true });
+      await page.keyboard.press('Tab');
+      await cratePicker.focus();
+      await expectFlushFocus(cratePicker);
+      await page.getByRole('button', { name: 'Downloads', exact: true }).click();
+      const downloads = page.getByLabel('Search downloads', { exact: true });
+      await downloads.focus();
+      await expectFlushFocus(downloads);
+      await page.getByRole('button', { name: 'Crates', exact: true }).click();
+      const crateName = page.getByLabel('New crate name', { exact: true });
+      await crateName.focus();
+      await expectFlushFocus(crateName);
+      await page.getByRole('button', { name: 'Settings', exact: true }).click();
+      const layout = page.getByLabel('Download organisation', { exact: true });
+      await page.keyboard.press('Tab');
+      await layout.focus();
+      await expectFlushFocus(layout);
+      await page.getByRole('button', { name: 'Enable research access', exact: true }).click();
+      const config = page.getByLabel('MCP client configuration', { exact: true });
+      await config.focus();
+      await expectFlushFocus(config);
+      await page.getByRole('button', { name: 'Disable research access', exact: true }).click();
     } finally {
       await desktop.close();
     }
