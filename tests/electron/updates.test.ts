@@ -4,14 +4,17 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { join, resolve } from 'node:path';
 
+test.skip(process.platform !== 'linux', 'AppImage update fixture');
+
 test('downloads a verified update from the footer, replaces the AppImage and preserves crates', async () => {
   const profile = test.info().outputPath('profile');
   await mkdir(profile, { recursive: true });
   const image = join(profile, 'AutoDigger.AppImage');
   const marker = join(profile, 'updated');
   await writeFile(image, 'old AppImage fixture', { mode: 0o755 });
+  const escapedMarker = marker.replaceAll("'", "'\\''");
   const payload = Buffer.from(
-    `#!/usr/bin/env node\nrequire('node:fs').writeFileSync(${JSON.stringify(marker)}, 'installed');\n/*${'x'.repeat(1_000_000)}*/\n`,
+    `#!/bin/sh\nprintf '%s' installed > '${escapedMarker}'\n#${'x'.repeat(1_000_000)}\n`,
   );
   const sha512 = createHash('sha512').update(payload).digest('base64');
   const server = createServer((request, response) => {
