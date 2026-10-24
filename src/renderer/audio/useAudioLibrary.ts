@@ -1,8 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import type { AudioBridge, AudioResult, DownloadInput, LocalTrack } from '../../shared/audio';
-import { downloadedPlayback } from '../../shared/playback';
 import type { PlaybackItem } from '../../shared/playback';
 import { audioFailure } from '../../shared/audioFailure';
+
+export function downloadedPlayback(track: LocalTrack): PlaybackItem {
+  return {
+    id: track.id,
+    title: track.title,
+    artist: track.artist,
+    album: track.album,
+    artworkUrl: track.artworkUrl,
+    url: `auto-digger-audio://track/${track.id}`,
+    source: 'download',
+  };
+}
 
 export function useAudioLibrary(bridge: AudioBridge | undefined) {
   const actions = useRef(0);
