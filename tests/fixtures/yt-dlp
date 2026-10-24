@@ -9,7 +9,13 @@ if (id === 'xxxxxxxxxxx') {
   process.exit(1);
 }
 if (args.includes('--dump-single-json')) {
-  process.stdout.write(JSON.stringify({ id, title: 'Low Tide - Quiet Orbit', is_live: false }));
+  process.stdout.write(
+    JSON.stringify({
+      id,
+      title: id === 'lmnopqrstuv' ? 'Unknown upload' : 'Low Tide - Quiet Orbit',
+      is_live: false,
+    }),
+  );
 } else {
   const target = args[args.indexOf('--output') + 1].replace('%(ext)s', 'mp3');
   fs.copyFileSync(path.join(import.meta.dirname, 'tone.mp3'), target);

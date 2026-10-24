@@ -79,3 +79,68 @@ test('shows all sources, suggests track matches, accepts corrections and loads d
   expect(screen.getByText(track.warning ?? '')).toBeVisible();
   expect(document.querySelector('iframe')).toBeNull();
 });
+
+test('keeps saved sources playable offline and lets their track assignment be corrected', async () => {
+  const saved = { ...track, title: 'Unknown upload', trackIndex: null };
+  const bridge: AudioBridge = {
+    list: () => Promise.resolve({ ok: true, value: [saved] }),
+    probe: () => Promise.resolve({ ok: false, error: { code: 'network', message: 'Offline' } }),
+    download: vi.fn<AudioBridge['download']>().mockResolvedValue({ ok: true, value: track }),
+    reveal: vi.fn(),
+  };
+  const crate: CrateBridge = {
+    list: () => Promise.resolve({ ok: true, value: [release] }),
+    save: vi.fn(),
+    remove: vi.fn(),
+  };
+  const user = userEvent.setup();
+  render(<App crate={crate} audioLibrary={bridge} />);
+  await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
+  const rows = within(screen.getByRole('region', { name: 'Audio sources' })).getAllByRole(
+    'listitem',
+  );
+  const row = rows[1];
+  if (!row) throw new Error('Expected second source');
+  expect(within(row).getByRole('button', { name: 'Play track' })).toBeEnabled();
+  expect(within(row).getByLabelText('Discogs track')).toHaveValue('');
+  await user.selectOptions(within(row).getByLabelText('Discogs track'), '1');
+  await user.click(within(row).getByRole('button', { name: 'Update tags' }));
+  expect(bridge.download).toHaveBeenCalledWith({ release, videoIndex: 1, trackIndex: 1 });
+  expect(
+    within(screen.getByRole('contentinfo', { name: 'Playback' })).getByText('Evening Mix'),
+  ).toBeVisible();
+});
+
+test('explains an unavailable source and lets the user retry without losing the release', async () => {
+  const probe = vi
+    .fn<AudioBridge['probe']>()
+    .mockResolvedValueOnce({
+      ok: false,
+      error: {
+        code: 'unavailable',
+        message: 'This video is private or no longer available. Try another source.',
+      },
+    })
+    .mockResolvedValue({
+      ok: true,
+      value: { videoId: 'abcdefghijk', title: 'Low Tide - Quiet Orbit' },
+    });
+  const bridge: AudioBridge = {
+    list: () => Promise.resolve({ ok: true, value: [] }),
+    probe,
+    download: vi.fn(),
+    reveal: vi.fn(),
+  };
+  const crate: CrateBridge = {
+    list: () => Promise.resolve({ ok: true, value: [loadedRelease] }),
+    save: vi.fn(),
+    remove: vi.fn(),
+  };
+  const user = userEvent.setup();
+  render(<App crate={crate} audioLibrary={bridge} />);
+  await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
+  expect(await screen.findByRole('alert')).toHaveTextContent('private or no longer available');
+  expect(screen.getByRole('button', { name: 'Download audio' })).toBeDisabled();
+  await user.click(screen.getByRole('button', { name: 'Check again' }));
+  expect(await screen.findByRole('button', { name: 'Download audio' })).toBeEnabled();
+});
