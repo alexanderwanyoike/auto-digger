@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import type { DiscogsBridge } from '../../shared/discogs';
@@ -20,6 +20,7 @@ test('applies filters, browses another page and opens a matching release', async
           year: '1998',
           labels: ['Still Records'],
           formats: ['EP'],
+          artworkUrl: 'https://i.discogs.com/quiet-orbit.jpg',
         },
       ],
     },
@@ -52,6 +53,9 @@ test('applies filters, browses another page and opens a matching release', async
   await user.keyboard('{Escape}');
   await user.click(screen.getByRole('button', { name: 'Search EPs' }));
   expect(await screen.findByText('51 matching releases')).toBeInTheDocument();
+  expect(
+    within(screen.getByRole('region', { name: 'Matching EPs' })).getByAltText(''),
+  ).toHaveAttribute('src', 'https://i.discogs.com/quiet-orbit.jpg');
   expect(search).toHaveBeenLastCalledWith({
     filters: {
       label: '',
