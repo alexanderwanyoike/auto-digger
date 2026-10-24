@@ -20,6 +20,15 @@ import { resolve } from 'node:path';
       const page = await desktop.firstWindow();
       await expect(page.getByRole('heading', { name: 'Digging desk' })).toBeVisible();
       await expect(page.locator('.wordmark img')).toBeVisible();
+      const settings = page.getByRole('button', { name: 'Settings', exact: true });
+      const cog = await settings.boundingBox();
+      const navigation = await page
+        .getByRole('navigation', { name: 'Main sections' })
+        .boundingBox();
+      if (!cog || !navigation) throw new Error('Missing settings navigation');
+      expect(cog.x).toBeGreaterThan(navigation.x + navigation.width - 80);
+      expect(await settings.innerText()).toBe('');
+      await expect(settings).toHaveAttribute('title', 'Settings');
       expect(
         await desktop.evaluate(
           ({ nativeImage }, path) => nativeImage.createFromPath(path).isEmpty(),

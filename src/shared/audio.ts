@@ -2,9 +2,19 @@ import { z } from 'zod';
 import { releaseSchema } from './discogs';
 import type { DiscogsRelease } from './discogs';
 import type { Result } from './result';
+import type { PlaybackItem } from './playback';
 
 export const audioErrorSchema = z.object({
-  code: z.enum(['invalid-input', 'unavailable', 'tools', 'network', 'storage', 'busy']),
+  code: z.enum([
+    'invalid-data',
+    'invalid-input',
+    'unavailable',
+    'tools',
+    'network',
+    'storage',
+    'busy',
+    'cancelled',
+  ]),
   message: z.string(),
 });
 export type AudioError = z.infer<typeof audioErrorSchema>;
@@ -33,6 +43,7 @@ export const localTrackSchema = z.object({
       Array.from(value).every((character) => (character.codePointAt(0) ?? 0) >= 32),
     ),
   warning: z.string().nullable(),
+  missing: z.boolean().optional(),
 });
 export type LocalTrack = z.infer<typeof localTrackSchema>;
 export const downloadInputSchema = z.object({
@@ -46,12 +57,16 @@ export interface DownloadInput {
   trackIndex?: number | null;
 }
 export const audioChannels = {
+  preview: 'audio:preview',
+  stopPreview: 'audio:stop-preview',
   list: 'audio:list',
   probe: 'audio:probe',
   download: 'audio:download',
   reveal: 'audio:reveal',
 } as const;
 export interface AudioBridge {
+  preview: (input: DownloadInput) => Promise<AudioResult<PlaybackItem>>;
+  stopPreview: () => Promise<AudioResult<undefined>>;
   list: () => Promise<AudioResult<LocalTrack[]>>;
   probe: (url: string) => Promise<AudioResult<AudioSource>>;
   download: (input: DownloadInput) => Promise<AudioResult<LocalTrack>>;

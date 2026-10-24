@@ -2,7 +2,7 @@
 
 A compact desktop desk for discovering records. Electron, React and TypeScript, with brushed aluminium, blue accents and light, dark or system appearance.
 
-Connect Discogs, combine label, artist, year, genre, style and release-title filters, then dig through random matching EPs. Download audio from attached YouTube sources, listen in the bottom player and save whole EPs in a local crate for later.
+Connect Discogs, combine label, artist, year, genre, style and release-title filters, then dig through random matching EPs. Download audio from attached YouTube sources, listen in the bottom player and save releases into named crates with track picks and personal tags.
 
 ## Run
 
@@ -17,10 +17,10 @@ yarn dev
 2. Paste the token into the desktop app and choose **Connect account**.
 3. Enter any combination of filters and choose **Search EPs**. Genre and style are searchable multi-selects. Releases match any selected genre and any selected style; year accepts one four-digit year. Blank filters search widely.
 4. Browse sleeve cards, open a match or choose **Dig a random EP**, then **Dig again**. Draft edits take effect when you submit Search EPs. Reset digging starts fresh with the applied filters.
-5. In **Audio sources**, check the suggested Discogs track for each video. Choose another track or **Keep video title** when needed, then **Download audio**. The bottom player starts the saved track. Each attached video is independently downloadable. Private, removed or restricted sources show a readable error and **Check again**.
-6. Choose **Save EP to crate**. Open saved EPs from the right-hand list or remove them with the adjacent button. Saved metadata, sleeve thumbnails and video links remain available after restart without reconnecting Discogs.
+5. In **Audio sources**, check the suggested Discogs track for each video. Choose another track or **Keep video title** when needed, then **Preview** to listen without saving. Choose **Download audio** to keep it. The bottom player switches to the saved track after download. Each attached video is independently downloadable. Download actions enter the shared queue, showing measured progress, conversion and tagging stages. Cancel or retry from the record or Downloads. Use **Download release** to review source coverage, choose one upload per track, skip tracks and save the available selection. Existing saved sources are reused. Private, removed or restricted sources show a readable error and **Check again**.
+6. Choose an active crate and save the release. In **Crates**, create or rename playlists, choose track picks and save comma-separated personal tags. Saved metadata, artwork references and video links remain available after restart without reconnecting Discogs. **Downloads** searches and plays your saved audio independently of crate membership. **Settings** manages your Discogs connection and appearance.
 
-You can also enter a numeric Discogs release ID to load a record directly. The crate supports EPs. Click the connected username to disconnect when finished.
+You can also enter a numeric Discogs release ID to load a record directly. Crates accept EPs, albums and other releases. Click the connected username to disconnect when finished.
 
 After one successful connection, the app remembers your token using operating-system credential encryption and reconnects automatically on launch. Disconnect deletes the saved token. Token fields clear after submission, including unsuccessful attempts. Enter credentials in the app, not chat or project files. No YouTube API key is needed.
 
@@ -32,9 +32,13 @@ Auto Digger checks YouTube source availability through yt-dlp and extracts MP3 w
 
 Each compact source row labels the **Discogs track** separately from the **YouTube video** upload title. The suggested match can be changed; **Tagging note** expands optional metadata notices.
 
-Files live in your operating system's **Music/Auto Digger** folder, with names such as `Artist - Track [release-video].yt.mp3`. Each has a versioned JSON sidecar holding library information. Use **Show in folder** beside a source or the folder button in the player to find it. Keep sidecars alongside their MP3s and back up the folder before manual repairs. Existing files are preserved on name collisions.
+Files initially live in your operating system's **Music/Auto Digger** folder, with names such as `Artist - Track [release-video].yt.mp3`. Each has a versioned JSON recovery sidecar; SQLite indexes its metadata and recorded location. Use **Show in folder** beside a source or the folder button in the player to find it. Keep sidecars alongside their MP3s and back up the folder before manual repairs. Existing files are preserved on name collisions.
 
-The bottom bar controls local audio with play/pause, seeking and volume. Its download selector reopens tracks after restart. Browsing another record or disconnecting Discogs keeps the current track playing. Downloading or choosing a saved track starts playback; a browser autoplay restriction shows a prompt to press play. No YouTube frame or hidden streaming player remains. Internet is needed for downloading and fetching new cover art; saved audio plays offline.
+The bottom bar controls local audio with play/pause, seeking and volume. Its download selector reopens tracks after restart. Browsing another record or disconnecting Discogs keeps the current track playing. Downloading or choosing a saved track starts playback; a browser autoplay restriction shows a prompt to press play. Use **Preview** to stream a source through the bottom player before committing to a download. Preview shows preparing/buffering states and can be stopped; it creates no saved file or library entry. No YouTube frame remains. Internet is needed for downloading and fetching new cover art; saved audio plays offline.
+
+## Settings
+
+Open the cog at the right of the navigation bar. Choose aluminium, ceramic or slate material and blue, teal or amber accents independently of light/dark/system mode. Use the native folder picker to choose a downloads destination and choose flat storage or a folder per release. These choices apply to future downloads; existing files stay at their recorded locations. Unavailable MP3s remain individual library rows while healthy tracks still play. See [library settings and recovery](docs/features/library-settings.md).
 
 ## Remembered account
 
@@ -42,9 +46,9 @@ The encrypted token is stored separately from the crate, in `discogs-token.bin` 
 
 ## Local crate
 
-The crate is a versioned `crate.json` file in Electron's `userData` directory. It stores validated release metadata and attached video links, never credentials. Saves prevent duplicate release IDs and preserve insertion order. Writes are serialized and replace the file atomically. Read/write errors are shown explicitly; a corrupt or unsupported file is preserved instead of silently replaced. Back up this file before manual repairs.
+The catalogue is `catalog.sqlite` under Electron's `userData` directory. It supports independent named crates, release membership, track picks and personal tags through isolated desktop operations. The desk selector chooses where to save; the Crates section manages playlists, track picks and personal tags. Existing `crate.json` data is validated, backed up to `crate.json.bak` and imported exactly once. Corrupt or unsupported files are preserved and reported.
 
-Saved release metadata can be reopened while disconnected. Remote sleeve images and new YouTube downloads need internet. Cloud sync, named crates, export and native installers are outside this prototype.
+Saved release metadata can be reopened while disconnected. Credentials remain separately encrypted; audio files stay in their recorded directories. Close the app before backing up the SQLite database and any WAL/SHM companion files. See the [catalogue decision](docs/adr/0006-sqlite-catalogue.md).
 
 ## Build and preview
 

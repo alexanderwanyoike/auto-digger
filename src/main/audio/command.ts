@@ -33,7 +33,14 @@ export function createCommandRunner(executable = 'yt-dlp') {
         terminateProcess(child);
       });
     },
-    execute(args: string[], timeout: number): Promise<AudioResult<string>> {
+    execute(
+      args: string[],
+      timeout: number,
+      signal?: AbortSignal,
+      onLine?: (line: string) => void,
+    ): Promise<AudioResult<string>> {
+      if (signal?.aborted)
+        return Promise.resolve(audioFailure('cancelled', 'This operation was cancelled.'));
       return new Promise((resolve) => {
         const child = spawn(executable, args, {
           shell: false,
@@ -42,7 +49,12 @@ export function createCommandRunner(executable = 'yt-dlp') {
           stdio: ['ignore', 'pipe', 'pipe'],
         });
         active.add(child);
+        const abort = () => {
+          terminateProcess(child);
+        };
+        signal?.addEventListener('abort', abort, { once: true });
         let stdout = '';
+        let pendingLine = '';
         let stderr = '';
         let expired = false;
         const timer = setTimeout(() => {
@@ -53,7 +65,15 @@ export function createCommandRunner(executable = 'yt-dlp') {
           if (stdout.length + data.length > 4_000_000) {
             expired = true;
             terminateProcess(child);
-          } else stdout += data.toString();
+          } else {
+            const chunk = data.toString();
+            stdout += chunk;
+            if (onLine) {
+              const lines = (pendingLine + chunk).split(/\r?\n/);
+              pendingLine = lines.pop() ?? '';
+              lines.forEach(onLine);
+            }
+          }
         });
         child.stderr.on('data', (data: Buffer) => {
           stderr = (stderr + data.toString()).slice(-16000);
@@ -61,6 +81,7 @@ export function createCommandRunner(executable = 'yt-dlp') {
         child.once('error', () => {
           clearTimeout(timer);
           active.delete(child);
+          signal?.removeEventListener('abort', abort);
           resolve(
             audioFailure(
               'tools',
@@ -69,9 +90,12 @@ export function createCommandRunner(executable = 'yt-dlp') {
           );
         });
         child.once('close', (code) => {
+          if (pendingLine) onLine?.(pendingLine);
           clearTimeout(timer);
           active.delete(child);
-          if (expired)
+          signal?.removeEventListener('abort', abort);
+          if (signal?.aborted) resolve(audioFailure('cancelled', 'This operation was cancelled.'));
+          else if (expired)
             resolve(
               audioFailure(
                 'network',

@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import type { CrateBridge, CrateError, CrateResult } from '../../shared/crate';
 import type { DiscogsRelease } from '../../shared/discogs';
+import type { CatalogueBridge } from '../../shared/catalogue';
+import { useCatalogue } from './useCatalogue';
 import { crateFailure } from '../../shared/crateFailure';
 
-export function useCrate(bridge: CrateBridge | undefined) {
+export function useCrate(bridge: CrateBridge | undefined, catalogue?: CatalogueBridge) {
+  const named = useCatalogue(catalogue);
   const [releases, setReleases] = useState<DiscogsRelease[]>([]);
   const [busy, setBusy] = useState(Boolean(bridge));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<CrateError | null>(null);
   useEffect(() => {
-    if (!bridge) return undefined;
+    if (!bridge || catalogue) return undefined;
     let active = true;
     bridge
       .list()
@@ -30,7 +33,7 @@ export function useCrate(bridge: CrateBridge | undefined) {
     return () => {
       active = false;
     };
-  }, [bridge]);
+  }, [bridge, catalogue]);
   async function perform(
     operation: (api: CrateBridge) => Promise<CrateResult>,
   ): Promise<CrateResult> {
@@ -52,13 +55,20 @@ export function useCrate(bridge: CrateBridge | undefined) {
     return result;
   }
   return {
-    releases,
-    busy,
-    ready,
-    error,
-    available: Boolean(bridge),
-    reload: () => perform((api) => api.list()),
-    save: (release: DiscogsRelease) => perform((api) => api.save(release)),
-    remove: (id: number) => perform((api) => api.remove(id)),
+    catalogue: named,
+    releases: catalogue ? named.view.entries.map((entry) => entry.release) : releases,
+    busy: catalogue ? named.busy : busy,
+    ready: catalogue ? named.ready : ready,
+    error: catalogue ? named.error : error,
+    available: Boolean(catalogue ?? bridge),
+    reload: () => (catalogue ? named.reload() : perform((api) => api.list())),
+    save: (release: DiscogsRelease) =>
+      catalogue
+        ? named.perform((api) => api.add({ crateId: named.view.crateId ?? '', release }))
+        : perform((api) => api.save(release)),
+    remove: (id: number) =>
+      catalogue
+        ? named.perform((api) => api.remove({ crateId: named.view.crateId ?? '', releaseId: id }))
+        : perform((api) => api.remove(id)),
   };
 }
