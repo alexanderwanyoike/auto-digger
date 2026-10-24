@@ -170,3 +170,30 @@ test('allows concurrent first opens and backs up an existing empty legacy crate'
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('preserves corrupt legacy data and rejects unsupported database versions', async () => {
+  const { DatabaseSync } = await import('node:sqlite');
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-catalogue-'));
+  const legacy = join(directory, 'crate.json');
+  await writeFile(legacy, 'broken catalogue');
+  const corrupt = createCatalogueStore(join(directory, 'catalog.sqlite'), legacy);
+  try {
+    expect(await corrupt.view()).toMatchObject({ ok: false, error: { code: 'invalid-data' } });
+    expect(await readFile(legacy, 'utf8')).toBe('broken catalogue');
+    const file = join(directory, 'future.sqlite');
+    const future = new DatabaseSync(file);
+    future.exec('PRAGMA user_version=99');
+    future.close();
+    const bytes = await readFile(file);
+    const store = createCatalogueStore(file);
+    try {
+      expect(await store.view()).toMatchObject({ ok: false, error: { code: 'invalid-data' } });
+      expect(await readFile(file)).toEqual(bytes);
+    } finally {
+      await store.close();
+    }
+  } finally {
+    await corrupt.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
