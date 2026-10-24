@@ -59,6 +59,35 @@ import siteConfig from '../../site.vite.config';
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       ).toBe(true);
+      await page.getByRole('link', { name: 'macOS install help', exact: true }).click();
+      await expect(
+        page.getByRole('heading', { name: 'macOS installation', exact: true }),
+      ).toBeInViewport();
+      await page.getByRole('link', { name: 'Skip to content', exact: true }).focus();
+      await page.keyboard.press('Enter');
+      await expect(page.getByRole('main')).toBeFocused();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      ).toBe(true);
+      await page.screenshot({ path: `test-results/setup-${width.toString()}.png` });
+      const contents = page.getByRole('navigation', { name: 'On this page' });
+      await contents.getByRole('link', { name: 'Codex', exact: true }).click();
+      await expect(page.getByRole('heading', { name: 'Codex', exact: true })).toBeInViewport();
+      const command = page.getByRole('region', { name: 'Codex MCP registration', exact: true });
+      await command.focus();
+      if (width === 390) {
+        await page.keyboard.press('ArrowRight');
+        await expect
+          .poll(() => command.evaluate((element) => element.scrollLeft))
+          .toBeGreaterThan(0);
+      }
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      ).toBe(true);
+      await contents.getByRole('link', { name: 'Claude Desktop', exact: true }).click();
+      await expect(
+        page.getByRole('heading', { name: 'Claude Desktop', exact: true }),
+      ).toBeInViewport();
     } finally {
       await desktop.close();
       await new Promise<void>((done) => {
