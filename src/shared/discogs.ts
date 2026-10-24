@@ -42,3 +42,19 @@ export const releaseSchema = z.object({
   videos: z.array(z.object({ title: z.string(), url: z.string() })),
 });
 export type DiscogsRelease = z.infer<typeof releaseSchema>;
+
+export interface DiscogsBridge {
+  account: () => Promise<DiscogsResult<DiscogsAccount | null>>;
+  connect: (token: string) => Promise<DiscogsResult<DiscogsAccount>>;
+  loadRelease: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
+  disconnect: () => Promise<DiscogsResult<undefined>>;
+  openSettings: () => Promise<DiscogsResult<undefined>>;
+}
+
+export const discogsChannels = {
+  account: 'discogs:account',
+  connect: 'discogs:connect',
+  loadRelease: 'discogs:load-release',
+  disconnect: 'discogs:disconnect',
+  openSettings: 'discogs:open-settings',
+} as const;
