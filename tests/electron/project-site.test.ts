@@ -6,7 +6,7 @@ import siteConfig from '../../site.vite.config';
 [390, 1280].forEach((width) => {
   test(`project site is readable and navigable at ${width.toString()}px`, async () => {
     const server = await preview({ ...siteConfig, preview: { host: '127.0.0.1', port: 0 } });
-    const address = server.resolvedUrls.local[0];
+    const address = server.resolvedUrls?.local[0];
     if (!address) throw new Error('Site preview did not start');
     const desktop = await electron.launch({
       args: [
