@@ -106,3 +106,27 @@ test('reuses saved audio offline and cleans incomplete downloads without publish
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('preserves an existing audio file when publishing a new download collides', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-audio-'));
+  const filename = 'Low Tide - Quiet Orbit [12-abcdefghijk].yt.mp3';
+  try {
+    await writeFile(join(directory, filename), 'previously recovered audio');
+    const library = createAudioLibrary(directory, {
+      probe: () =>
+        Promise.resolve({ ok: true, value: { videoId: 'abcdefghijk', title: 'Quiet Orbit' } }),
+      download: async (_id, file) => {
+        await writeFile(file, 'new audio');
+        return { ok: true, value: undefined };
+      },
+    });
+    expect(await library.download({ release: loadedRelease, videoIndex: 0 })).toMatchObject({
+      ok: false,
+      error: { code: 'storage' },
+    });
+    expect(await readFile(join(directory, filename), 'utf8')).toBe('previously recovered audio');
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
