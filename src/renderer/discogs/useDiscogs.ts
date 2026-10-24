@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { DigResult } from '../../shared/dig';
 import type { DigFilters, SearchPage } from '../../shared/search';
 import { discogsFailure } from '../../shared/discogsFailure';
 import type {
@@ -12,6 +13,7 @@ import type {
 export function useDiscogs(bridge: DiscogsBridge | undefined) {
   const [account, setAccount] = useState<DiscogsAccount | null>(null);
   const [release, setRelease] = useState<DiscogsRelease | null>(null);
+  const [digging, setDigging] = useState<DigResult | null>(null);
   const [matches, setMatches] = useState<SearchPage | null>(null);
   const [filters, setFilters] = useState<DigFilters | null>(null);
   const [busy, setBusy] = useState(Boolean(bridge));
@@ -63,6 +65,7 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
     else {
       setError(result.error);
       if (result.error.code === 'unauthorized') {
+        setDigging(null);
         setMatches(null);
         setFilters(null);
         setAccount(null);
@@ -76,11 +79,25 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
   return {
     account,
     matches,
+    digging,
+    dig: (reset = false) => {
+      if (!filters)
+        return Promise.resolve(discogsFailure('invalid-input', 'Apply search filters first.'));
+      setRelease(null);
+      return perform(
+        (api) => api.dig({ filters, reset }),
+        (value) => {
+          setDigging(value);
+          setRelease(value.release);
+        },
+      );
+    },
     closeRelease: () => {
       setRelease(null);
     },
     filters,
     search: (criteria: DigFilters, page = 1) => {
+      if (JSON.stringify(criteria) !== JSON.stringify(filters)) setDigging(null);
       setMatches(null);
       setRelease(null);
       return perform(
@@ -107,6 +124,7 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
       perform(
         (api) => api.disconnect(),
         () => {
+          setDigging(null);
           setMatches(null);
           setFilters(null);
           setAccount(null);

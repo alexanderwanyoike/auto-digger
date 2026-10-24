@@ -24,12 +24,10 @@ test('applies filters, browses another page and opens a matching release', async
       ],
     },
   });
-  const dig = vi
-    .fn()
-    .mockResolvedValue({
-      ok: true,
-      value: { release: loadedRelease, seen: 1, total: 51, limited: false },
-    });
+  const dig = vi.fn().mockResolvedValue({
+    ok: true,
+    value: { release: loadedRelease, seen: 1, total: 51, limited: false },
+  });
   const bridge: DiscogsBridge = {
     dig,
     account: () => Promise.resolve({ ok: true, value: identityResponse }),

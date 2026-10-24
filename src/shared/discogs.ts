@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { DigResult } from './dig';
 import type { DigFilters, SearchPage } from './search';
 import type { Result } from './result';
 
@@ -44,6 +45,7 @@ export type DiscogsRelease = z.infer<typeof releaseSchema>;
 export interface DiscogsBridge {
   account: () => Promise<DiscogsResult<DiscogsAccount | null>>;
   connect: (token: string) => Promise<DiscogsResult<DiscogsAccount>>;
+  dig: (input: { filters: DigFilters; reset: boolean }) => Promise<DiscogsResult<DigResult>>;
   search: (input: { filters: DigFilters; page: number }) => Promise<DiscogsResult<SearchPage>>;
   loadRelease: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
   disconnect: () => Promise<DiscogsResult<undefined>>;
@@ -51,6 +53,7 @@ export interface DiscogsBridge {
 }
 
 export const discogsChannels = {
+  dig: 'discogs:dig',
   search: 'discogs:search',
   account: 'discogs:account',
   connect: 'discogs:connect',
