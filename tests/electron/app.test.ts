@@ -18,6 +18,10 @@ import { youtubeApiFixture } from '../youtubeApiFixture';
       await expect(page.getByRole('heading', { name: 'Digging desk' })).toBeVisible();
       expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
       await page.getByRole('button', { name: 'Dark', exact: true }).click();
+      await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
+        'background-color',
+        'rgb(37, 41, 46)',
+      );
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
       await page.reload();
       await expect(page.getByRole('button', { name: 'Dark', exact: true })).toHaveAttribute(
@@ -48,6 +52,10 @@ import { youtubeApiFixture } from '../youtubeApiFixture';
         fullPage: true,
       });
       await page.getByRole('button', { name: 'Dark', exact: true }).click();
+      await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
+        'background-color',
+        'rgb(37, 41, 46)',
+      );
       await page.screenshot({
         path: `test-results/phase-1-${width.toString()}-dark.png`,
         fullPage: true,
@@ -184,9 +192,17 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     ).toHaveAttribute('src', 'https://i.discogs.com/example.jpg');
     await page.screenshot({ path: 'test-results/artwork-record-and-crate-light.png' });
     await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
+      'background-color',
+      'rgb(37, 41, 46)',
+    );
     await page.screenshot({ path: 'test-results/artwork-record-and-crate-dark.png' });
     await page.getByRole('button', { name: 'Light', exact: true }).click();
     await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
+      'background-color',
+      'rgb(37, 41, 46)',
+    );
     await page.screenshot({ path: 'test-results/phase-2-release-dark.png', fullPage: true });
     await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).click();
     await page.getByRole('button', { name: 'Disconnect', exact: true }).click();
