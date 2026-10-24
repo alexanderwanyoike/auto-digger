@@ -102,21 +102,24 @@ export function createDownloadJobs(
         if (index < 0) break;
         entries.splice(index, 1);
       }
-      const created = parsed.data.map((request): Entry => ({
-        input: request,
-        job: {
-          ...downloadStage('queued'),
-          id: randomUUID(),
-          title:
-            request.release.tracks[request.trackIndex ?? -1]?.title ??
-            request.release.videos[request.videoIndex]?.title ??
-            request.release.title,
-          releaseId: request.release.id,
-          videoIndex: request.videoIndex,
-          track: null,
-          error: null,
-        },
-      }));
+      const created = parsed.data.map((request): Entry => {
+        const { trackIndex, ...sourceRequest } = request;
+        return {
+          input: trackIndex === undefined ? sourceRequest : { ...sourceRequest, trackIndex },
+          job: {
+            ...downloadStage('queued'),
+            id: randomUUID(),
+            title:
+              request.release.tracks[request.trackIndex ?? -1]?.title ??
+              request.release.videos[request.videoIndex]?.title ??
+              request.release.title,
+            releaseId: request.release.id,
+            videoIndex: request.videoIndex,
+            track: null,
+            error: null,
+          },
+        };
+      });
       entries.push(...created);
       pump();
       return { ok: true, value: created.map(snapshot) };
@@ -151,8 +154,7 @@ export function createDownloadJobs(
     async close() {
       stopped = true;
       entries.forEach((entry) => {
-        if (entry.job.stage === 'queued')
-          entry.job = { ...entry.job, ...downloadStage('cancelled') };
+        if (entry.job.stage === 'queued') Object.assign(entry.job, downloadStage('cancelled'));
         entry.controller?.abort();
       });
       await running;

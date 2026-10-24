@@ -50,7 +50,6 @@ test('queues serially, exposes measured progress, cancels queued/active items an
   ]);
   if (!started.ok || !started.value[0] || !started.value[1]) throw new Error('No jobs');
   const [first, next] = started.value;
-  if (!first || !next) throw new Error('Missing queued job');
   expect(execute).toHaveBeenCalledTimes(1);
   expect(jobs.list()).toMatchObject({
     ok: true,

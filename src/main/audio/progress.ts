@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { downloadStage } from '../../shared/downloadJobs';
 import type { DownloadProgress } from '../../shared/downloadJobs';
 
-const measure = z.number().finite().nonnegative().nullable().optional();
+const measure = z.number().nonnegative().nullable().optional();
 const progressSchema = z.object({
   downloaded_bytes: measure,
   total_bytes: measure,

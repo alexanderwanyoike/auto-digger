@@ -13,7 +13,7 @@ export const downloadStageSchema = z.enum([
   'cancelled',
   'cancelling',
 ]);
-const measured = z.number().finite().nonnegative().nullable();
+const measured = z.number().nonnegative().nullable();
 export const downloadProgressSchema = z.object({
   stage: downloadStageSchema,
   bytes: measured,
@@ -24,7 +24,7 @@ export const downloadProgressSchema = z.object({
 });
 export type DownloadProgress = z.infer<typeof downloadProgressSchema>;
 export const downloadJobSchema = downloadProgressSchema.extend({
-  id: z.string().uuid(),
+  id: z.uuid(),
   title: z.string(),
   releaseId: z.number().int().positive(),
   videoIndex: z.number().int().nonnegative(),
