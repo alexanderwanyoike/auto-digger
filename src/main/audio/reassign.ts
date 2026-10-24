@@ -14,6 +14,7 @@ export async function reassignTrack(
   release: DiscogsRelease,
   trackIndex: number | null,
   request: typeof fetch,
+  signal?: AbortSignal,
 ): Promise<AudioResult<LocalTrack>> {
   const original = join(directory, saved.filename);
   const staged = join(directory, `${saved.id}-${randomUUID()}.recovery.mp3`);
@@ -22,6 +23,11 @@ export async function reassignTrack(
     await copyFile(original, staged);
     const tagged = await tagDownload(staged, release, saved.sourceTitle, { request, trackIndex });
     if (!tagged.ok) return tagged;
+    if (signal?.aborted)
+      return audioFailure(
+        'cancelled',
+        'This track correction was cancelled. Your original audio has been kept.',
+      );
     const corrected = {
       ...saved,
       title: tagged.value.title,

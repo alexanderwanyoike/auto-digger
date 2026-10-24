@@ -2,7 +2,7 @@ import { useId, useState } from 'react';
 import { Download, FolderOpen, Play } from 'lucide-react';
 import type { AudioResult, AudioSource, LocalTrack } from '../../shared/audio';
 import type { DiscogsRelease } from '../../shared/discogs';
-import { matchTrack } from '../../shared/matchTrack';
+import { sourceAssignment } from './sourceAssignment';
 import type { useAudioLibrary } from './useAudioLibrary';
 
 export function SourceRow({
@@ -12,7 +12,11 @@ export function SourceRow({
   saved,
   checked,
   retry,
+  manual,
+  onAssign,
 }: {
+  manual: number | null | undefined;
+  onAssign: (trackIndex: number | null) => void;
   release: DiscogsRelease;
   index: number;
   audio: ReturnType<typeof useAudioLibrary>;
@@ -21,14 +25,11 @@ export function SourceRow({
   retry: () => Promise<void>;
 }) {
   const id = useId();
-  const [manual, setManual] = useState<number | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const video = release.videos[index];
   if (!video) return null;
-  const sourceTitle = checked?.ok ? checked.value.title : (saved?.sourceTitle ?? video.title);
-  const suggestion = saved ? saved.trackIndex : matchTrack(release, sourceTitle);
-  const selected = manual === undefined ? suggestion : manual;
+  const { sourceTitle, selected } = sourceAssignment(release, index, checked, saved, manual);
   const available = saved && !saved.missing;
   const changed = saved && selected !== saved.trackIndex;
   let actionLabel = available ? 'Update tags' : 'Download audio';
@@ -53,7 +54,7 @@ export function SourceRow({
           value={selected === null ? '' : selected.toString()}
           disabled={audio.busy}
           onChange={(event) => {
-            setManual(event.target.value === '' ? null : Number(event.target.value));
+            onAssign(event.target.value === '' ? null : Number(event.target.value));
           }}
         >
           <option value="">Unassigned · keep video title</option>

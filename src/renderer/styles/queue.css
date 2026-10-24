@@ -1,0 +1,100 @@
+.download-queue,
+.release-download {
+  border: 1px solid var(--line);
+  background: var(--surface-raised);
+  border-radius: 6px;
+  padding: 12px;
+  margin: 14px 0;
+  font-size: 10px;
+}
+.download-queue h3,
+.release-download h4 {
+  font-size: 11px;
+  margin: 0;
+}
+.download-queue ul,
+.release-download ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+}
+.download-queue li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+.queue-copy {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+.queue-copy strong {
+  font-size: 11px;
+}
+.queue-copy span,
+.queue-copy small,
+.queue-copy p {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+.queue-copy progress {
+  width: 100%;
+  height: 5px;
+  accent-color: var(--blue);
+}
+.download-queue .secondary-button {
+  font-size: 10px;
+  padding: 7px 9px;
+}
+.batch-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.batch-heading span,
+.release-download > p {
+  color: var(--muted);
+  font-size: 10px;
+}
+.release-download details {
+  margin: 12px 0;
+}
+.release-download summary {
+  color: var(--blue);
+  cursor: pointer;
+}
+.release-download li {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(140px, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+.release-download li select {
+  width: 100%;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 10px;
+  color: var(--text);
+  background: var(--surface-inset);
+}
+.release-download > p {
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.release-download small {
+  color: var(--muted);
+}
+
+.download-queue ul {
+  max-height: 256px;
+  overflow-y: auto;
+}

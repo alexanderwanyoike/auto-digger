@@ -14,6 +14,8 @@ import { registerDiscogsHandlers } from './discogs/registerHandlers';
 import { createIndexedLibrary } from './audio/indexedLibrary';
 import { registerPreferencesHandlers } from './settings/registerHandlers';
 import { createCommandRunner } from './audio/command';
+import { createDownloadJobs } from './audio/jobs';
+import { registerDownloadJobHandlers } from './audio/registerJobHandlers';
 import { createDownloader } from './audio/downloader';
 import { registerAudioHandlers } from './audio/registerHandlers';
 import { registerAudioProtocol } from './audio/protocol';
@@ -24,8 +26,11 @@ let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
 let crateStore: ReturnType<typeof createLegacyCrateStore> | undefined;
 let catalogueStore: ReturnType<typeof createCatalogueStore> | undefined;
 let audioLibrary: ReturnType<typeof createIndexedLibrary> | undefined;
+let downloadJobs: ReturnType<typeof createDownloadJobs> | undefined;
 const audioCommands = createCommandRunner();
-const downloader = createDownloader((args, timeout) => audioCommands.execute(args, timeout));
+const downloader = createDownloader((args, timeout, signal, onLine) =>
+  audioCommands.execute(args, timeout, signal, onLine),
+);
 const previews = createPreviewSession(
   createPreviewResolver((args, timeout, signal) => audioCommands.execute(args, timeout, signal)),
   (input, options) => net.fetch(input instanceof URL ? input.href : input, options),
@@ -37,10 +42,10 @@ app.on('before-quit', (event) => {
   if (catalogueStore && !closingCatalogue) {
     event.preventDefault();
     closingCatalogue = true;
-    catalogueStore
-      .close()
+    Promise.resolve(downloadJobs?.close())
+      .then(() => catalogueStore?.close())
       .then((result) => {
-        if (!result.ok) process.stderr.write(`${result.error.message}\n`);
+        if (result && !result.ok) process.stderr.write(`${result.error.message}\n`);
         app.quit();
       })
       .catch(() => {
@@ -101,6 +106,9 @@ export async function createWindow(): Promise<Result<undefined, string>> {
       audioLibrary = createIndexedLibrary(downloadsDirectory, catalogueStore, downloader);
       registerAudioProtocol(audioLibrary, previews);
     }
+    const library = audioLibrary;
+    downloadJobs ??= createDownloadJobs((input, options) => library.download(input, options));
+    registerDownloadJobHandlers(window, downloadJobs);
     registerAudioHandlers(window, audioLibrary, downloader, previews);
     registerDiscogsHandlers(window, discogsSession);
     window.on('closed', () => {
