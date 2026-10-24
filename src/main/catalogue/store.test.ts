@@ -43,3 +43,49 @@ test('migrates the original crate once into SQLite with its metadata, order and 
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('keeps named crates independent, accepts albums and preserves unique release membership', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-catalogue-'));
+  const store = createCatalogueStore(join(directory, 'catalog.sqlite'));
+  try {
+    const created = await store.create('H-Foundation picks');
+    if (!created.ok || !created.value.crateId) throw new Error('Expected a named crate');
+    const crateId = created.value.crateId;
+    const album = { ...loadedRelease, formats: ['CD, Album, Mixed'] };
+    expect(await store.add({ crateId, release: album })).toMatchObject({
+      ok: true,
+      value: { entries: [{ release: album }] },
+    });
+    await store.add({ crateId, release: album });
+    expect(await store.view(crateId)).toMatchObject({
+      ok: true,
+      value: {
+        crates: [
+          { name: 'My crate', releaseCount: 0 },
+          { name: 'H-Foundation picks', releaseCount: 1 },
+        ],
+        entries: [{ release: album }],
+      },
+    });
+    expect(await store.view('default')).toMatchObject({ ok: true, value: { entries: [] } });
+    expect(await store.create('h-foundation PICKS')).toMatchObject({
+      ok: false,
+      error: { code: 'invalid-input' },
+    });
+    expect(await store.rename({ crateId, name: 'Night drive' })).toMatchObject({
+      ok: true,
+      value: { crates: [{ name: 'My crate' }, { name: 'Night drive' }] },
+    });
+    expect(await store.remove({ crateId, releaseId: album.id })).toMatchObject({
+      ok: true,
+      value: { entries: [] },
+    });
+    expect(await store.deleteCrate(crateId)).toMatchObject({
+      ok: true,
+      value: { crates: [{ name: 'My crate' }] },
+    });
+  } finally {
+    await store.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
