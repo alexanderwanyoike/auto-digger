@@ -53,3 +53,27 @@ test('preserves the previous credential when encryption fails and never leaks er
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('can forget an encrypted token even when the keyring is unavailable', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-credentials-'));
+  const available = vi
+    .fn<() => Promise<boolean>>()
+    .mockResolvedValueOnce(true)
+    .mockResolvedValue(false);
+  const encryption = {
+    available,
+    encrypt: () => Promise.resolve(Buffer.from([1, 2, 3])),
+    decrypt: () => Promise.resolve({ result: 'token', shouldReEncrypt: false }),
+  };
+  try {
+    const path = join(directory, 'token.bin');
+    const store = createTokenStore(path, encryption);
+    await store.save('token');
+    expect(await store.load()).toMatchObject({ ok: false, error: { code: 'credential-storage' } });
+    expect(await readFile(path)).toEqual(Buffer.from([1, 2, 3]));
+    expect(await store.clear()).toEqual({ ok: true, value: undefined });
+    expect(await store.load()).toEqual({ ok: true, value: null });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
