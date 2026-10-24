@@ -1,0 +1,212 @@
+.discovery-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 23px 27px 0;
+  background:
+    radial-gradient(ellipse at 50% 37%, var(--surface-raised), transparent 70%), var(--surface);
+}
+.section-topline {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  color: var(--muted);
+}
+.catalogue-number {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+}
+.record-stage {
+  width: 290px;
+  height: 270px;
+  position: relative;
+  margin: auto 0 10px;
+}
+.sleeve {
+  position: absolute;
+  top: 32px;
+  left: 5px;
+  width: 205px;
+  height: 205px;
+  padding: 22px 19px;
+  z-index: 1;
+  overflow: hidden;
+  background: linear-gradient(140deg, #dbe3ed, #c0cddd);
+  border: 1px solid #a4b2c26b;
+  border-radius: 2px;
+  box-shadow:
+    0 15px 24px #14223818,
+    inset 0 0 0 5px #ffffff14;
+  transform: rotate(-7deg);
+  color: #264365;
+}
+.sleeve::after {
+  content: '';
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border: 1px solid #526e8c33;
+  border-radius: 50%;
+  bottom: -85px;
+  right: -30px;
+  box-shadow:
+    0 0 0 12px #526e8c0a,
+    0 0 0 24px #526e8c0a,
+    0 0 0 36px #526e8c0a;
+}
+.sleeve-mark {
+  display: block;
+  font-size: 43px;
+  line-height: 0.97;
+  letter-spacing: -3.6px;
+  font-weight: 800;
+}
+.sleeve-caption {
+  display: block;
+  position: absolute;
+  bottom: 28px;
+  font-size: 5px;
+  letter-spacing: 1.3px;
+}
+.sleeve-edition {
+  position: absolute;
+  top: 21px;
+  right: 16px;
+  writing-mode: vertical-rl;
+  font-size: 5px;
+  letter-spacing: 1px;
+}
+.vinyl {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  width: 186px;
+  height: 186px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle, transparent 0 2px, #ffffff0d 2px 3px, transparent 3px 4px),
+    conic-gradient(
+      from 30deg,
+      #181e25,
+      #3c444f 35deg,
+      #14191f 75deg,
+      #252c35 130deg,
+      #13191f 180deg,
+      #48515e 225deg,
+      #171d24 270deg,
+      #181e25
+    );
+  border: 1px solid #121920;
+  box-shadow: 4px 13px 21px #14223826;
+}
+.record-label {
+  width: 65px;
+  height: 65px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: #3471bf;
+  color: #e1ebf8;
+  border: 1px solid #588ac9;
+  border-radius: 50%;
+}
+.record-label > span {
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: -1px;
+}
+.record-label > i {
+  display: block;
+  width: 6px;
+  height: 6px;
+  background: #171e26;
+  border-radius: 50%;
+}
+.record-label > small {
+  font-size: 5px;
+  letter-spacing: 1px;
+}
+.stage-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+.discovery-copy {
+  text-align: center;
+  margin: 20px 0 auto;
+  padding-bottom: 30px;
+}
+.discovery-copy .eyebrow {
+  font-size: 7px;
+  letter-spacing: 1.1px;
+}
+.discovery-copy h2 {
+  font-size: clamp(19px, 2.2vw, 29px);
+  margin: 12px 0;
+  font-weight: 750;
+  letter-spacing: -1px;
+}
+.discovery-copy p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: var(--muted);
+}
+.availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 22px;
+  padding: 7px 11px;
+  font-size: 9px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+.discovery-footnote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 9px;
+}
+.discovery-footnote > svg:last-child {
+  margin-left: auto;
+}
+@media (max-width: 1000px) {
+  .discovery-panel {
+    padding: 23px 20px 0;
+  }
+  .record-stage {
+    width: 250px;
+    transform: scale(0.88);
+    transform-origin: center;
+    margin-bottom: -5px;
+  }
+  .sleeve {
+    left: -15px;
+  }
+  .vinyl {
+    right: -12px;
+  }
+  .discovery-copy {
+    margin-top: 5px;
+  }
+  .desktop-break {
+    display: none;
+  }
+}

@@ -1,0 +1,175 @@
+fieldset {
+  padding: 0;
+  margin: 16px 0 0;
+  border: 0;
+  min-width: 0;
+}
+fieldset label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.input-wrap {
+  display: block;
+  position: relative;
+  margin-top: 6px;
+  margin-bottom: 10px;
+}
+.input-wrap input {
+  width: 100%;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  padding: 0 26px 0 10px;
+  color: var(--muted);
+  font-size: 10px;
+  opacity: 1;
+}
+.input-wrap input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+.input-wrap svg {
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  color: var(--faint);
+}
+.filter-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 1px 0 12px;
+}
+.format-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 14px 0;
+  font-size: 10px;
+  font-weight: 600;
+}
+.format-tag {
+  color: var(--blue);
+  background: var(--blue-soft);
+  padding: 3px 9px;
+  font-size: 9px;
+  border-radius: 4px;
+}
+.primary-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 35px;
+  padding: 0 12px;
+  border-radius: 5px;
+  border: 1px solid color-mix(in srgb, var(--blue) 70%, var(--line));
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 700;
+}
+.phase-note {
+  margin-top: 9px;
+  text-align: center;
+  font-size: 9px;
+  color: var(--muted);
+}
+.source-card {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.source-card .eyebrow {
+  font-size: 8px;
+  color: var(--muted);
+}
+.source-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 750;
+  margin: 10px 0 8px;
+}
+.small-record {
+  width: 13px;
+  height: 13px;
+  border: 4px solid var(--text);
+  border-radius: 50%;
+}
+.source-card p {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.7;
+}
+.count-badge {
+  min-width: 21px;
+  padding: 3px 5px;
+  text-align: center;
+  font-size: 9px;
+  background: var(--surface-inset);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.crate-empty {
+  margin: auto 0;
+  text-align: center;
+  padding: 35px 0 60px;
+}
+.empty-sleeves {
+  height: 80px;
+  width: 92px;
+  margin: 0 auto 28px;
+  position: relative;
+}
+.empty-sleeves span {
+  position: absolute;
+  width: 65px;
+  height: 70px;
+  left: 14px;
+  top: 3px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-inset);
+  transform: rotate(-13deg);
+}
+.empty-sleeves span:nth-child(2) {
+  transform: rotate(9deg);
+}
+.empty-sleeves span:last-child {
+  display: grid;
+  place-items: center;
+  transform: rotate(0);
+  top: 8px;
+  background: linear-gradient(var(--surface-raised), var(--surface-inset));
+  color: var(--faint);
+}
+.crate-empty h3 {
+  font-size: 11px;
+  font-weight: 700;
+}
+.crate-empty p {
+  font-size: 10px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-top: 9px;
+}
+.crate-footer {
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.crate-footer .eyebrow {
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 0.6px;
+}
+.crate-footer p {
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-top: 6px;
+}
