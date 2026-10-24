@@ -77,6 +77,7 @@ test('shows a pending material choice immediately and restores the saved choice 
         ok: false,
         error: { code: 'storage', message: 'The change could not be saved.' },
       });
+      await Promise.resolve();
     });
     expect(await screen.findByRole('alert')).toHaveTextContent('could not be saved');
     expect(
