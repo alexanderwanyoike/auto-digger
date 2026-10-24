@@ -42,13 +42,24 @@ export async function requestDiscogs<T>(
   if (!response.ok) {
     return discogsFailure('network', 'Discogs could not complete the request. Please try again.');
   }
+  let raw: unknown;
   try {
-    const raw: unknown = await response.json();
-    const parsed = schema.safeParse(raw);
-    return parsed.success
-      ? { ok: true, value: parsed.data }
-      : discogsFailure('invalid-response', 'Discogs returned metadata the app could not read.');
-  } catch {
-    return discogsFailure('invalid-response', 'Discogs returned metadata the app could not read.');
+    raw = await response.json();
+  } catch (error) {
+    const malformed =
+      typeof error === 'object' &&
+      error !== null &&
+      'name' in error &&
+      error.name === 'SyntaxError';
+    return malformed
+      ? discogsFailure('invalid-response', 'Discogs returned metadata the app could not read.')
+      : discogsFailure(
+          'network',
+          'Could not read the response from Discogs. Check your connection and try again.',
+        );
   }
+  const parsed = schema.safeParse(raw);
+  return parsed.success
+    ? { ok: true, value: parsed.data }
+    : discogsFailure('invalid-response', 'Discogs returned metadata the app could not read.');
 }
