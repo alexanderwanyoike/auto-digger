@@ -13,3 +13,11 @@ The supplied screenshot informs composition, not new product features or brandin
 Tests cover changing material/mode/accent, pending selection and failed-write restoration, keyboard focus and arrows, reload persistence, System mode, all 84 readable light/dark, material and accent combinations, preview geometry and both 900px and 1180px light/dark layouts. Both full verification commands remain required. The additional requested review of PR #20 found no actionable Standards or Spec findings.
 
 Depends on #15 through #21 in order. Feature PRs target dev and remain unmerged.
+
+## Satin aluminium
+
+The aluminium finish now takes its direction from a MacBook's bead-blasted metal: neutral satin silver in light mode and space grey in dark mode. Soft reflections, a fine speckled grain and a thin edge highlight replace the horizontal stripes. The header, navigation, desk side panels and transport share the finish. Reading surfaces and inputs stay quiet. The settings thumbnail uses the same finish and texture scale as the real header. The saved `aluminium` preference and all other material choices remain compatible.
+
+This follows the existing CSS custom-property material pattern and the standard [SVG feTurbulence texture technique documented by MDN](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/feTurbulence). The small, static, tiled SVG is original source, uses a fixed seed and loads locally. No third-party artwork, copied implementation, package or animation is added.
+
+Native pixel regressions first reproduced the old tinted finish, then verify neutral tones, restrained brightness, fine non-striped texture and matching preview backgrounds in both modes. A separate red/green cycle checks muted text against the painted metal rather than only the flat content surface. Screenshots of both desks and settings are inspected visually. Existing native checks cover material persistence, keyboard selection, compact layouts and all 84 material, accent and mode combinations.
