@@ -1,0 +1,71 @@
+import { DatabaseSync } from 'node:sqlite';
+import { chmod, copyFile, mkdir } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { dirname } from 'node:path';
+import type { CatalogueResult } from '../../shared/catalogue';
+import { catalogueFailure } from '../../shared/catalogueFailure';
+import { readCrate } from '../crate/file';
+import { initialiseCatalogue } from './schema';
+
+export async function openCatalogue(
+  file: string,
+  legacyFile?: string,
+): Promise<CatalogueResult<DatabaseSync>> {
+  let database: DatabaseSync | undefined;
+  try {
+    await mkdir(dirname(file), { recursive: true, mode: 0o700 });
+    database = new DatabaseSync(file, { timeout: 5000, allowExtension: false });
+    await chmod(file, 0o600);
+    const version = database.prepare('PRAGMA user_version').get()?.user_version;
+    if (typeof version !== 'number' || version > 1) {
+      database.close();
+      return catalogueFailure(
+        'invalid-data',
+        'This catalogue has an unsupported version. Its files have been preserved.',
+      );
+    }
+    initialiseCatalogue(database);
+    if (!database.prepare("SELECT value FROM metadata WHERE key='legacy-import'").get()) {
+      const legacy = legacyFile ? await readCrate(legacyFile) : { ok: true as const, value: [] };
+      if (!legacy.ok) {
+        database.close();
+        return legacy;
+      }
+      if (legacyFile && legacy.value.length) {
+        try {
+          await copyFile(legacyFile, `${legacyFile}.bak`, constants.COPYFILE_EXCL);
+        } catch (error) {
+          if (!(error instanceof Error && 'code' in error && error.code === 'EEXIST')) throw error;
+        }
+      }
+      database.exec('BEGIN IMMEDIATE');
+      try {
+        database
+          .prepare("INSERT OR IGNORE INTO crates(id,name,ordinal) VALUES('default','My crate',0)")
+          .run();
+        const release = database.prepare('INSERT OR IGNORE INTO releases(id,metadata) VALUES(?,?)');
+        const entry = database.prepare(
+          "INSERT OR IGNORE INTO entries(crate_id,release_id,ordinal) VALUES('default',?,?)",
+        );
+        legacy.value.forEach((record, index) => {
+          release.run(record.id, JSON.stringify(record));
+          entry.run(record.id, index);
+        });
+        database
+          .prepare("INSERT INTO metadata(key,value) VALUES('legacy-import','complete')")
+          .run();
+        database.exec('COMMIT');
+      } catch (error) {
+        database.exec('ROLLBACK');
+        throw error;
+      }
+    }
+    return { ok: true, value: database };
+  } catch {
+    if (database?.isOpen) database.close();
+    return catalogueFailure(
+      'storage',
+      'The catalogue could not be opened. Existing files have been preserved. Check device storage and retry.',
+    );
+  }
+}
