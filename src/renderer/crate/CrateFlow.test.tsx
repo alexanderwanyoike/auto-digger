@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import type { CrateBridge } from '../../shared/crate';
@@ -82,4 +82,23 @@ test('tries the next saved record artwork after the previous artwork fails', asy
     'src',
     'https://i.discogs.com/second.jpg',
   );
+});
+
+test('shows saved sleeves and places the selected sleeve before playback', async () => {
+  const saved = { ...loadedRelease, artworkUrl: 'https://i.discogs.com/quiet-orbit.jpg' };
+  const crate: CrateBridge = {
+    list: () => Promise.resolve({ ok: true, value: [saved] }),
+    save: vi.fn(),
+    remove: vi.fn(),
+  };
+  const user = userEvent.setup();
+  render(<App crate={crate} />);
+  const open = await screen.findByRole('button', { name: 'Open Quiet Orbit EP' });
+  expect(
+    within(screen.getByRole('complementary', { name: 'Your crate' })).getByAltText(''),
+  ).toHaveAttribute('src', saved.artworkUrl);
+  await user.click(open);
+  const cover = screen.getByRole('img', { name: 'Quiet Orbit EP record sleeve' });
+  const player = screen.getByRole('region', { name: 'Listen on YouTube' });
+  expect(cover.compareDocumentPosition(player)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 });

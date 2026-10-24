@@ -49,6 +49,7 @@ test('combines Discogs filters into an authenticated paged EP search', async () 
           year: '1998',
           labels: ['Still Records'],
           formats: ['Vinyl', 'EP'],
+          artworkUrl: null,
         },
       ],
     },
@@ -67,5 +68,39 @@ test('combines Discogs filters into an authenticated paged EP search', async () 
     genre: 'Electronic|Jazz',
     style: 'Deep House|Techno',
     release_title: 'Quiet Orbit',
+  });
+});
+
+test.each([
+  [
+    'https://i.discogs.com/cover.jpg',
+    'https://i.discogs.com/thumb.jpg',
+    'https://i.discogs.com/cover.jpg',
+  ],
+  ['', 'https://i.discogs.com/thumb.jpg', 'https://i.discogs.com/thumb.jpg'],
+  [
+    'https://untrusted.example/cover.jpg',
+    'https://i.discogs.com/thumb.jpg',
+    'https://i.discogs.com/thumb.jpg',
+  ],
+  ['http://i.discogs.com/cover.jpg', 'https://untrusted.example/thumb.jpg', null],
+])('returns trusted search artwork with a thumbnail fallback', async (cover, thumb, expected) => {
+  const request = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(JSON.stringify(identityResponse)))
+    .mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
+          results: [{ id: 12, title: 'Quiet Orbit EP', cover_image: cover, thumb }],
+        }),
+      ),
+    );
+  const session = createDiscogsSession(request);
+  await session.connect('token');
+  const result = await session.search({ filters: {}, page: 1 });
+  expect(result).toMatchObject({
+    ok: true,
+    value: { releases: [{ id: 12, artworkUrl: expected }] },
   });
 });

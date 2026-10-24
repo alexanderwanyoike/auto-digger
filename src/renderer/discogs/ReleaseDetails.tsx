@@ -1,27 +1,18 @@
-import { useState } from 'react';
-import { Disc3 } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { RecordArtwork } from '../components/RecordArtwork';
 import type { DiscogsRelease } from '../../shared/discogs';
 
-export function ReleaseDetails({ release }: { release: DiscogsRelease }) {
-  const [artworkFailed, setArtworkFailed] = useState(false);
+export function ReleaseDetails({
+  release,
+  children,
+}: {
+  release: DiscogsRelease;
+  children?: ReactNode;
+}) {
   return (
     <article className="release-details" aria-labelledby="release-title">
       <div className="release-overview">
-        {release.artworkUrl && !artworkFailed ? (
-          <img
-            className="release-artwork"
-            onError={() => {
-              setArtworkFailed(true);
-            }}
-            src={release.artworkUrl}
-            alt={`${release.title} record sleeve`}
-          />
-        ) : (
-          <div className="release-artwork missing-artwork">
-            <Disc3 size={50} strokeWidth={1} aria-hidden="true" />
-            <span>No artwork available</span>
-          </div>
-        )}
+        <RecordArtwork url={release.artworkUrl} title={release.title} className="release-artwork" />
         <div className="release-credits">
           <span className="eyebrow blue-text">DISCOGS / r{release.id}</span>
           <h2 id="release-title">{release.title}</h2>
@@ -43,6 +34,7 @@ export function ReleaseDetails({ release }: { release: DiscogsRelease }) {
           </div>
         </div>
       </div>
+      {children}
       <dl className="release-facts">
         <div>
           <dt>Genre</dt>

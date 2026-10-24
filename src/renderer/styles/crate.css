@@ -16,6 +16,8 @@
 }
 .crate-open {
   display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
   min-width: 0;
   gap: 6px;
   border: 0;
@@ -66,4 +68,9 @@
 .save-to-crate span {
   font-size: 10px;
   color: var(--muted);
+}
+
+.crate-copy {
+  display: grid;
+  gap: 6px;
 }

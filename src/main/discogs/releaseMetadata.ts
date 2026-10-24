@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { supportedUrl } from './mediaUrl';
 import type { DiscogsRelease } from '../../shared/discogs';
 
 interface RemoteTrack {
@@ -22,12 +23,6 @@ function flattenTracks(tracks: RemoteTrack[]): DiscogsRelease['tracks'] {
     track,
     ...flattenTracks(children),
   ]);
-}
-
-function supportedUrl(value: string, hosts: string[]): string | null {
-  if (!URL.canParse(value)) return null;
-  const url = new URL(value);
-  return url.protocol === 'https:' && hosts.includes(url.hostname) ? url.href : null;
 }
 
 export const releaseMetadataSchema = z
