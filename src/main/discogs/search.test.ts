@@ -29,8 +29,8 @@ test('combines Discogs filters into an authenticated paged EP search', async () 
       label: ' Still Records ',
       artist: 'Low Tide',
       year: '1998',
-      genre: 'Electronic',
-      style: 'Deep House',
+      genre: [' Electronic ', 'Jazz', 'Electronic'],
+      style: ['Techno', 'Deep House'],
       title: 'Quiet Orbit',
     },
     page: 2,
@@ -64,8 +64,8 @@ test('combines Discogs filters into an authenticated paged EP search', async () 
     label: 'Still Records',
     artist: 'Low Tide',
     year: '1998',
-    genre: 'Electronic',
-    style: 'Deep House',
+    genre: 'Electronic|Jazz',
+    style: 'Deep House|Techno',
     release_title: 'Quiet Orbit',
   });
 });
