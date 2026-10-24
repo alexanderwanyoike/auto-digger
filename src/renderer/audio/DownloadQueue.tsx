@@ -1,16 +1,6 @@
+import { downloadLabels } from './downloadLabels';
 import type { useAudioLibrary } from './useAudioLibrary';
 
-const labels = {
-  queued: 'Queued',
-  preparing: 'Preparing',
-  downloading: 'Downloading',
-  converting: 'Converting to MP3',
-  tagging: 'Writing Discogs tags',
-  complete: 'Saved',
-  failed: 'Could not download',
-  cancelled: 'Cancelled',
-  cancelling: 'Cancelling…',
-};
 function bytes(value: number) {
   return value >= 1_000_000
     ? `${(value / 1_000_000).toFixed(1)} MB`
@@ -44,7 +34,7 @@ export function DownloadQueue({
               <div className="queue-copy">
                 <strong>{job.title}</strong>
                 <span>
-                  {labels[job.stage]}
+                  {downloadLabels[job.stage]}
                   {job.percent !== null ? ` · ${Math.floor(job.percent).toString()}%` : ''}
                 </span>
                 {job.bytes !== null && (
