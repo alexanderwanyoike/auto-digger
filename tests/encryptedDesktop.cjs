@@ -1,10 +1,11 @@
 const { safeStorage, app } = require('electron');
 const { pathToFileURL } = require('node:url');
-const { resolve } = require('node:path');
+const { resolve, delimiter } = require('node:path');
 const { mkdirSync } = require('node:fs');
 const { createHash, createCipheriv, createDecipheriv, randomBytes } = require('node:crypto');
 
 const key = createHash('sha256').update('auto-digger synthetic credential fixture').digest();
+process.env.PATH = `${resolve(__dirname, 'fixtures')}${delimiter}${process.env.PATH || ''}`;
 const music = resolve(app.getPath('userData'), 'Music');
 mkdirSync(music, { recursive: true });
 app.setPath('music', music);

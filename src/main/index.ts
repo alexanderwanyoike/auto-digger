@@ -1,5 +1,5 @@
 import { app, BrowserWindow, dialog } from 'electron';
-import { applicationId } from './youtube/identity';
+import { applicationId } from './applicationId';
 import { createWindow } from './createWindow';
 import { registerAudioScheme } from './audio/protocol';
 

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { videoId } from './videoId';
+import { videoId } from './youtubeVideoId';
 
 test('accepts known HTTPS YouTube forms and rejects untrusted hosts or invalid IDs', () => {
   [
