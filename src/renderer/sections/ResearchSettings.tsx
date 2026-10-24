@@ -105,29 +105,59 @@ export function ResearchSettings() {
               For Codex, choose STDIO and use the command, arguments and environment shown below.
               Claude Code can use the same local server.
             </p>
-            <label htmlFor="research-config-format">
-              Client format
-              <select
-                id="research-config-format"
-                value={format}
-                onChange={(event) => {
-                  setFormat(event.target.value);
-                }}
-              >
-                <option value="json">JSON client configuration</option>
-                <option value="toml">Codex TOML configuration</option>
-              </select>
-            </label>
-            <label htmlFor="research-config">
-              MCP client configuration
-              <textarea
-                id="research-config"
+            <label htmlFor="research-command">
+              Command
+              <input
+                id="research-command"
                 readOnly
-                rows={7}
-                spellCheck={false}
-                value={format === 'json' ? json : toml}
+                value={config?.command ?? ''}
+                onFocus={(event) => {
+                  event.currentTarget.select();
+                }}
               />
             </label>
+            {config?.args.map((argument, index) => (
+              <label key={argument} htmlFor={`research-argument-${index.toString()}`}>
+                Argument {(index + 1).toString()}
+                <input
+                  id={`research-argument-${index.toString()}`}
+                  readOnly
+                  value={argument}
+                  onFocus={(event) => {
+                    event.currentTarget.select();
+                  }}
+                />
+              </label>
+            ))}
+            <p>
+              Environment variable: <code>ELECTRON_RUN_AS_NODE</code> with value <code>1</code>.
+            </p>
+            <details>
+              <summary>Advanced configuration</summary>
+              <label htmlFor="research-config-format">
+                Client format
+                <select
+                  id="research-config-format"
+                  value={format}
+                  onChange={(event) => {
+                    setFormat(event.target.value);
+                  }}
+                >
+                  <option value="json">JSON client configuration</option>
+                  <option value="toml">Codex TOML configuration</option>
+                </select>
+              </label>
+              <label htmlFor="research-config">
+                MCP client configuration
+                <textarea
+                  id="research-config"
+                  readOnly
+                  rows={7}
+                  spellCheck={false}
+                  value={format === 'json' ? json : toml}
+                />
+              </label>
+            </details>
           </details>
         </>
       )}
