@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, nativeImage } from 'electron';
 import { join } from 'node:path';
 import type { Result } from '../shared/result';
 import { createCrateStore } from './crate/store';
@@ -26,7 +26,21 @@ app.on('before-quit', () => {
 export async function createWindow(): Promise<Result<undefined, string>> {
   let window: BrowserWindow | undefined;
   try {
+    const iconFile = join(
+      import.meta.dirname,
+      '../../resources/icons',
+      process.platform === 'win32' ? 'icon.ico' : 'icon.png',
+    );
+    const icon = nativeImage.createFromPath(iconFile);
+    if (icon.isEmpty())
+      return {
+        ok: false,
+        error:
+          'The app icon could not load. Restore the resources/icons folder and restart Auto Digger.',
+      };
+    if (process.platform === 'darwin') app.dock?.setIcon(icon);
     window = new BrowserWindow({
+      icon,
       title: 'Auto Digger',
       width: 1180,
       height: 860,

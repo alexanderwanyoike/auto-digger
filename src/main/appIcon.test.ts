@@ -11,7 +11,10 @@ test('ships the same app icon in Linux PNG, multi-size Windows ICO and macOS ICN
   expect(ico.readUInt16LE(2)).toBe(1);
   const count = ico.readUInt16LE(4);
   expect(count).toBeGreaterThanOrEqual(6);
-  const sizes = Array.from({ length: count }, (_, index) => ico[6 + index * 16] || 256);
+  const sizes = Array.from({ length: count }, (_, index) => {
+    const width = ico[6 + index * 16] ?? 0;
+    return width === 0 ? 256 : width;
+  });
   expect(sizes).toEqual(expect.arrayContaining([16, 32, 48, 256]));
   const icns = await readFile(resolve('resources/icons/icon.icns'));
   expect(icns.subarray(0, 4).toString()).toBe('icns');

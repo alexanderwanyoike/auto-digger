@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Disc3, Radio } from 'lucide-react';
+import { Radio } from 'lucide-react';
 import type { CrateBridge } from '../shared/crate';
 import { useCrate } from './crate/useCrate';
 import type { DiscogsBridge } from '../shared/discogs';
@@ -14,6 +14,7 @@ import { CratePanel } from './components/CratePanel';
 import { PlaybackBar } from './components/PlaybackBar';
 import type { AudioBridge } from '../shared/audio';
 import { useAudioLibrary } from './audio/useAudioLibrary';
+import appIcon from '../../resources/icons/icon.svg';
 
 export function App({
   discogs = window.discogs,
@@ -33,7 +34,7 @@ export function App({
     <div className="app-shell">
       <header className="app-header">
         <div className="wordmark">
-          <Disc3 size={25} strokeWidth={1.5} aria-hidden="true" />
+          <img src={appIcon} width={28} height={28} alt="" aria-hidden="true" />
           <span>
             auto digger<span className="wordmark-period">.</span>
           </span>
