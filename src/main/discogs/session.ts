@@ -69,7 +69,7 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       if (result.ok) digger.apply(parsed.data.filters);
       return result;
     },
-    async researchSearch(input: unknown): Promise<DiscogsResult<SearchPage>> {
+    async researchSearch(input: unknown, signal?: AbortSignal): Promise<DiscogsResult<SearchPage>> {
       if (!acceptedToken)
         return discogsFailure('unauthorized', 'Connect your Discogs account first.');
       const parsed = researchSearchInputSchema.safeParse(input);
@@ -79,16 +79,22 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
           'Use valid Discogs research filters and a query of up to 160 characters.',
         );
       const started = revision;
-      const result = await searchDiscogs(parsed.data, acceptedToken, request, {
-        epOnly: false,
-        query: parsed.data.query,
-      });
+      const result = await searchDiscogs(
+        parsed.data,
+        acceptedToken,
+        request,
+        {
+          epOnly: false,
+          query: parsed.data.query,
+        },
+        signal,
+      );
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();
       return result;
     },
-    async loadRelease(id: unknown): Promise<DiscogsResult<DiscogsRelease>> {
+    async loadRelease(id: unknown, signal?: AbortSignal): Promise<DiscogsResult<DiscogsRelease>> {
       if (!acceptedToken)
         return discogsFailure('unauthorized', 'Connect your Discogs account first.');
       if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1) {
@@ -100,6 +106,7 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
         acceptedToken,
         releaseMetadataSchema,
         request,
+        signal,
       );
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');

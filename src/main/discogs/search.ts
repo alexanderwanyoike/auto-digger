@@ -46,6 +46,7 @@ export async function searchDiscogs(
   token: string,
   request: typeof fetch,
   options: { epOnly: boolean; query?: string } = { epOnly: true },
+  signal?: AbortSignal,
 ): Promise<DiscogsResult<SearchPage>> {
   const { filters, page } = input;
   const query = new URLSearchParams({
@@ -61,5 +62,11 @@ export async function searchDiscogs(
       if (value.length) query.set(key, value.join('|'));
     } else if (value) query.set(key === 'title' ? 'release_title' : key, value);
   });
-  return requestDiscogs(`/database/search?${query.toString()}`, token, responseSchema, request);
+  return requestDiscogs(
+    `/database/search?${query.toString()}`,
+    token,
+    responseSchema,
+    request,
+    signal,
+  );
 }

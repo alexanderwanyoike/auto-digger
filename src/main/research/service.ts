@@ -32,9 +32,9 @@ export function createResearchService(
       case 'create_crate':
         return catalogue.create(command.arguments.name);
       case 'search_releases':
-        return discogs.researchSearch(command.arguments);
+        return discogs.researchSearch(command.arguments, signal);
       case 'get_release': {
-        const result = await discogs.loadRelease(command.arguments.releaseId);
+        const result = await discogs.loadRelease(command.arguments.releaseId, signal);
         if (result.ok && result.value.id !== command.arguments.releaseId)
           return catalogueFailure(
             'invalid-data',
@@ -43,7 +43,7 @@ export function createResearchService(
         return result;
       }
       case 'add_release': {
-        const result = await discogs.loadRelease(command.arguments.releaseId);
+        const result = await discogs.loadRelease(command.arguments.releaseId, signal);
         if (!result.ok) return result;
         if (signal?.aborted)
           return catalogueFailure(

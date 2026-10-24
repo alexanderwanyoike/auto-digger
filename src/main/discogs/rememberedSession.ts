@@ -1,3 +1,4 @@
+import { abortableDiscogs } from './abortable';
 import { discogsFailure } from '../../shared/discogsFailure';
 import type { DiscogsAccount, DiscogsResult } from '../../shared/discogs';
 import type { createTokenStore } from '../credentials/tokenStore';
@@ -16,20 +17,33 @@ export function createRememberedSession(
     );
     return pending;
   }
-  function authorized<T>(operation: () => Promise<DiscogsResult<T>>): Promise<DiscogsResult<T>> {
-    return serialize(async () => {
-      const result = await operation();
-      if (!result.ok && result.error.code === 'unauthorized') {
-        const removed = await tokens.clear();
-        if (!removed.ok)
-          return discogsFailure('unauthorized', `${result.error.message} ${removed.error.message}`);
-      }
-      return result;
-    });
+  function authorized<T>(
+    operation: () => Promise<DiscogsResult<T>>,
+    signal?: AbortSignal,
+  ): Promise<DiscogsResult<T>> {
+    return abortableDiscogs(
+      serialize(async () => {
+        if (signal?.aborted)
+          return discogsFailure('cancelled', 'This Discogs request was cancelled.');
+        const result = await operation();
+        if (!result.ok && result.error.code === 'unauthorized') {
+          const removed = await tokens.clear();
+          if (!removed.ok)
+            return discogsFailure(
+              'unauthorized',
+              `${result.error.message} ${removed.error.message}`,
+            );
+        }
+        return result;
+      }),
+      signal,
+    );
   }
   return {
-    loadRelease: (input: unknown) => authorized(() => session.loadRelease(input)),
-    researchSearch: (input: unknown) => authorized(() => session.researchSearch(input)),
+    loadRelease: (input: unknown, signal?: AbortSignal) =>
+      authorized(() => session.loadRelease(input, signal), signal),
+    researchSearch: (input: unknown, signal?: AbortSignal) =>
+      authorized(() => session.researchSearch(input, signal), signal),
     search: (input: unknown) => authorized(() => session.search(input)),
     dig: (input: unknown) => authorized(() => session.dig(input)),
     account: () =>
