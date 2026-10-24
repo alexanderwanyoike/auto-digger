@@ -28,6 +28,7 @@ export function registerDiscogsHandlers(
       }
     });
   };
+  handle(discogsChannels.search, (input) => session.search(input));
   handle(discogsChannels.account, () => session.account());
   handle(discogsChannels.connect, (input) => session.connect(input));
   handle(discogsChannels.loadRelease, (input) => session.loadRelease(input));

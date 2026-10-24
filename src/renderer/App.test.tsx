@@ -16,7 +16,7 @@ test('opens a digging desk with honest empty states and inactive upcoming featur
   expect(screen.getByLabelText('Year')).toBeDisabled();
   expect(screen.getByLabelText('Genre')).toBeDisabled();
   expect(screen.getByLabelText('Style')).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Start digging' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Search EPs' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Play' })).toBeDisabled();
   expect(screen.getByText('Connect your Discogs account.')).toBeInTheDocument();
   expect(screen.getByText('YouTube playback comes in Phase 5.')).toBeInTheDocument();

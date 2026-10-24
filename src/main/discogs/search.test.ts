@@ -53,7 +53,9 @@ test('combines Discogs filters into an authenticated paged EP search', async () 
       ],
     },
   });
-  const url = new URL(String(request.mock.calls[1]?.[0]));
+  const target = request.mock.calls[1]?.[0];
+  expect(typeof target).toBe('string');
+  const url = new URL(typeof target === 'string' ? target : 'https://invalid.example');
   expect(Object.fromEntries(url.searchParams)).toEqual({
     type: 'release',
     format: 'EP',

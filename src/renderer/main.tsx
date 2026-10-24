@@ -13,6 +13,7 @@ import './styles/playback.css';
 import './styles/compact.css';
 import './styles/connection.css';
 import './styles/release.css';
+import './styles/search.css';
 
 const container = document.getElementById('root');
 
