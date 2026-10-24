@@ -1,0 +1,153 @@
+@import '@fontsource/ibm-plex-mono/400.css';
+
+.site-header nav a[aria-current='page'] {
+  color: var(--blue);
+}
+.setup-layout {
+  display: grid;
+  grid-template-columns: 172px minmax(0, 1fr);
+  gap: 64px;
+  padding-block: 56px 72px;
+}
+.setup-contents nav {
+  position: sticky;
+  top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.setup-contents p {
+  font-size: 11px;
+  margin-bottom: 7px;
+  color: #909aa7;
+}
+.setup-contents a {
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: none;
+}
+.setup-contents a:hover {
+  color: var(--blue);
+}
+.setup-copy {
+  max-width: 720px;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.85;
+}
+.setup-intro {
+  margin-bottom: 40px;
+}
+.setup-intro h1 {
+  font-size: 38px;
+  letter-spacing: -1px;
+}
+.setup-intro p {
+  margin-top: 12px;
+}
+.setup-copy section {
+  padding-block: 30px;
+  border-top: 1px solid var(--line);
+}
+.setup-copy h2 {
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  margin-bottom: 18px;
+}
+.setup-copy p + p,
+.setup-copy p + ol {
+  margin-top: 14px;
+}
+.setup-copy ol {
+  padding-left: 22px;
+  margin-block: 0 18px;
+  color: var(--muted);
+}
+.setup-copy li {
+  padding-left: 6px;
+}
+.setup-copy li + li {
+  margin-top: 10px;
+}
+.setup-copy strong {
+  color: #d8dee7;
+  font-weight: 600;
+}
+.setup-copy code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  color: #c8d5e6;
+  overflow-wrap: anywhere;
+}
+.setup-copy pre {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 17px 18px;
+  margin-block: 20px;
+  background: #181d24;
+  border: 1px solid #303944;
+  border-radius: 4px;
+  line-height: 1.95;
+  tab-size: 2;
+}
+.setup-copy pre:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+.setup-copy pre code {
+  overflow-wrap: normal;
+}
+.setup-copy a {
+  font-size: inherit;
+}
+.setup-paths {
+  padding-block: 8px;
+}
+.setup-paths > div {
+  margin-bottom: 14px;
+}
+.setup-paths dt {
+  color: #d8dee7;
+  font-size: 12px;
+}
+.setup-paths dd,
+.setup-problems dd {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+.setup-copy .setup-reference {
+  margin-top: 20px;
+  font-size: 12px;
+}
+.setup-copy blockquote {
+  margin: 20px 0;
+  padding-left: 20px;
+  border-left: 2px solid #4a5c73;
+  color: #d1d9e5;
+}
+.setup-problems > div + div {
+  margin-top: 22px;
+}
+.setup-problems dt {
+  font-weight: 600;
+  color: #d8dee7;
+}
+@media (max-width: 760px) {
+  .setup-layout {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding-block: 30px 40px;
+  }
+  .setup-contents nav {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+  }
+  .setup-contents p {
+    grid-column: 1 / -1;
+  }
+  .setup-intro {
+    margin-bottom: 28px;
+  }
+}

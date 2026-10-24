@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Setup | Auto Digger</title>
+    <meta
+      name="description"
+      content="Install Auto Digger on macOS and connect Claude Desktop, Claude Code or Codex for MCP mix research."
+    />
+    <meta name="theme-color" content="#111316" />
+    <link rel="canonical" href="https://alexanderwanyoike.github.io/auto-digger/setup/" />
+    <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="./setup.css" />
+  </head>
+  <body class="setup-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header wrap">
+      <a class="brand" href="../" aria-label="Auto Digger home"
+        ><img src="../icon.svg" alt="" width="32" height="32" />Auto Digger</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="../#research">MCP</a><a href="../#features">Features</a
+        ><a href="../#get-started">Downloads</a><a href="./" aria-current="page">Setup</a
+        ><a href="https://github.com/alexanderwanyoike/auto-digger">GitHub</a>
+      </nav>
+    </header>
+    <main id="main" class="setup-layout wrap" tabindex="-1">
+      <aside class="setup-contents">
+        <nav aria-label="On this page">
+          <p>On this page</p>
+          <a href="#macos">macOS installation</a>
+          <a href="#mcp">MCP setup</a>
+          <a href="#claude-desktop">Claude Desktop</a>
+          <a href="#claude-code">Claude Code</a>
+          <a href="#codex">Codex</a>
+          <a href="#try-it">Try a request</a>
+          <a href="#troubleshooting">Troubleshooting</a>
+        </nav>
+      </aside>
+      <article class="setup-copy">
+        <header class="setup-intro">
+          <h1>Setup</h1>
+          <p>Install the app and connect a local MCP client.</p>
+        </header>
+        <section id="macos" aria-labelledby="macos-title">
+          <h2 id="macos-title">macOS installation</h2>
+          <ol>
+            <li>
+              Download the <a href="../#get-started">disk image for your Mac</a>: Apple silicon or
+              Intel.
+            </li>
+            <li>
+              Open the disk image and drag <strong>Auto Digger.app</strong> into
+              <strong>Applications</strong>.
+            </li>
+            <li>Open Auto Digger from Applications.</li>
+          </ol>
+          <p>
+            The preview builds are ad-hoc signed and not notarized. If macOS blocks the official
+            release with an unverified-app or damaged-app message, quit the app and run:
+          </p>
+          <pre
+            tabindex="0"
+            aria-label="macOS installation commands"
+          ><code>xattr -dr com.apple.quarantine "/Applications/Auto Digger.app"
+open "/Applications/Auto Digger.app"</code></pre>
+          <p>
+            This removes the download quarantine attribute from that app bundle. Change the path if
+            you installed it elsewhere.
+          </p>
+        </section>
+        <section id="mcp" aria-labelledby="mcp-title">
+          <h2 id="mcp-title">MCP setup</h2>
+          <ol>
+            <li>
+              Install <a href="https://nodejs.org/en/download">Node.js 22 or newer</a>. Your MCP
+              client must be able to run <code>node</code>.
+            </li>
+            <li>Open Auto Digger and connect your Discogs account for release searches.</li>
+            <li>
+              Open <strong>Settings → AI mix research</strong> and choose
+              <strong>Enable research access</strong>.
+            </li>
+          </ol>
+          <p>
+            Keep Auto Digger open. Access starts disabled after every restart. While enabled, your
+            client can read and edit your crates.
+          </p>
+          <p>
+            Use the configuration shown in Settings: it contains the correct paths for your
+            installation. The client must run locally on the same computer. This connection has no
+            public server URL.
+          </p>
+        </section>
+        <section id="claude-desktop" aria-labelledby="claude-desktop-title">
+          <h2 id="claude-desktop-title">Claude Desktop</h2>
+          <ol>
+            <li>In Auto Digger, select <strong>JSON client configuration</strong> and copy it.</li>
+            <li>
+              Open Claude Desktop's <code>claude_desktop_config.json</code> using the path below.
+              Launch Claude Desktop once first if its folder does not exist.
+            </li>
+            <li>
+              Add the copied <code>auto_digger</code> entry to the existing
+              <code>mcpServers</code> object. Preserve other servers. For an empty file, paste the
+              complete copied JSON.
+            </li>
+            <li>
+              Fully quit Claude Desktop and reopen it. Look for <code>auto_digger</code> in its
+              local MCP servers or chat tools.
+            </li>
+          </ol>
+          <dl class="setup-paths">
+            <div>
+              <dt>macOS</dt>
+              <dd><code>~/Library/Application Support/Claude/claude_desktop_config.json</code></dd>
+            </div>
+            <div>
+              <dt>Windows</dt>
+              <dd><code>%APPDATA%\Claude\claude_desktop_config.json</code></dd>
+            </div>
+          </dl>
+          <p>
+            Use local MCP configuration, not the remote custom-connector URL field. Current versions
+            list local servers in <strong>Settings → Desktop app → Extensions</strong>; older
+            layouts use <strong>Settings → Developer</strong>.
+          </p>
+          <p class="setup-reference">
+            <a
+              href="https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop"
+              >Claude local MCP help</a
+            >
+            ·
+            <a href="https://py.sdk.modelcontextprotocol.io/get-started/real-host/"
+              >Config-file reference</a
+            >
+          </p>
+        </section>
+        <section id="claude-code" aria-labelledby="claude-code-title">
+          <h2 id="claude-code-title">Claude Code</h2>
+          <p>
+            Replace both example paths with the absolute paths shown in Auto Digger's configuration,
+            then run:
+          </p>
+          <pre
+            tabindex="0"
+            aria-label="Claude Code MCP registration"
+          ><code>claude mcp add --transport stdio --scope user auto_digger -- node "/path/from/settings/mcp.js" --connection "/path/from/settings/mcp-connection.json"</code></pre>
+          <p>
+            Open Claude Code and use <code>/mcp</code> to check that <code>auto_digger</code> is
+            connected. <a href="https://code.claude.com/docs/en/mcp">Claude Code MCP reference</a>.
+          </p>
+        </section>
+        <section id="codex" aria-labelledby="codex-title">
+          <h2 id="codex-title">Codex</h2>
+          <ol>
+            <li>
+              In Auto Digger, select <strong>Codex TOML configuration</strong> and copy the block.
+            </li>
+            <li>
+              Add it to <code>~/.codex/config.toml</code>. Preserve other settings; replace an
+              existing <code>[mcp_servers.auto_digger]</code> block instead of duplicating it.
+            </li>
+            <li>
+              Restart your Codex client. In desktop MCP settings, the equivalent is a
+              <strong>STDIO</strong> server named <code>auto_digger</code>, using the displayed
+              command and three arguments.
+            </li>
+          </ol>
+          <p>CLI alternative, with both example paths replaced by the values from Auto Digger:</p>
+          <pre
+            tabindex="0"
+            aria-label="Codex MCP registration"
+          ><code>codex mcp add auto_digger -- node "/path/from/settings/mcp.js" --connection "/path/from/settings/mcp-connection.json"
+codex mcp list</code></pre>
+          <p>
+            Use <code>/mcp</code> to check available tools.
+            <a href="https://learn.chatgpt.com/docs/extend/mcp?surface=cli"
+              >Official OpenAI MCP documentation</a
+            >.
+          </p>
+        </section>
+        <section id="try-it" aria-labelledby="try-title">
+          <h2 id="try-title">Try a request</h2>
+          <p>Start with: <strong>Use Auto Digger to list my crates.</strong></p>
+          <p>For mix research, supply a real mix URL and ask:</p>
+          <blockquote>
+            Research this mix. Find the original Discogs releases, save them to a Mix picks crate
+            and mark the matching tracks. Keep source links and flag uncertain matches.
+          </blockquote>
+          <p>
+            Your AI client researches the sources and judges recording matches. Auto Digger verifies
+            Discogs metadata and saves the results. Check the picks and any uncertain matches in
+            Crates.
+          </p>
+          <p>
+            <a
+              href="https://github.com/alexanderwanyoike/auto-digger/blob/main/docs/features/mix-research.md"
+              >Tools and research details</a
+            >
+          </p>
+        </section>
+        <section id="troubleshooting" aria-labelledby="troubleshooting-title">
+          <h2 id="troubleshooting-title">Troubleshooting</h2>
+          <dl class="setup-problems">
+            <div>
+              <dt>The client cannot find Node</dt>
+              <dd>
+                Use <code>command -v node</code> on macOS/Linux or <code>where.exe node</code> on
+                Windows. Put the full Node executable path in the client's
+                <code>command</code> field; leave the arguments unchanged.
+              </dd>
+            </div>
+            <div>
+              <dt>The app is closed or access is disabled</dt>
+              <dd>
+                Reopen Auto Digger, enable research access and reconnect the client. Disabling
+                access or closing the app revokes the connection.
+              </dd>
+            </div>
+            <div>
+              <dt>A file path no longer exists</dt>
+              <dd>
+                Copy fresh configuration after moving or updating Auto Digger. Linux AppImage mount
+                paths can change between launches, so refresh the client configuration if needed.
+              </dd>
+            </div>
+            <div>
+              <dt>Search fails but crate tools work</dt>
+              <dd>
+                Check the Discogs connection in Auto Digger. Keep the token in the app; it is not
+                part of MCP client configuration.
+              </dd>
+            </div>
+          </dl>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer wrap">
+      <span>Auto Digger</span>
+      <div>
+        <a href="../">Home</a
+        ><a href="https://github.com/alexanderwanyoike/auto-digger/issues">Issues</a
+        ><a href="https://github.com/alexanderwanyoike/auto-digger/blob/main/LICENSE"
+          >MIT licence</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>
