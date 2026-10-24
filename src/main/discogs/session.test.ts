@@ -123,3 +123,19 @@ test('allows sparse metadata and ignores unsafe or unsupported media URLs', asyn
     expect(result.value.tracks).toEqual([]);
   }
 });
+
+test.each([
+  new TypeError('connection reset'),
+  new DOMException('aborted', 'AbortError'),
+  new DOMException('timed out', 'TimeoutError'),
+])('classifies a failed response-body read as a network failure', async (failure) => {
+  const body = new ReadableStream({
+    start(controller) {
+      controller.error(failure);
+    },
+  });
+  const request = vi.fn<typeof fetch>().mockResolvedValue(new Response(body));
+  const result = await createDiscogsSession(request).connect('token');
+  expect(result.ok).toBe(false);
+  if (!result.ok) expect(result.error.code).toBe('network');
+});
