@@ -12,13 +12,16 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const [error, setError] = useState<string | null>(null);
+  const revision = useRef(0);
   const requested = useRef(0);
   const handled = useRef(0);
   const start = useCallback(async (): Promise<AudioResult<undefined>> => {
+    const version = revision.current;
     try {
       await media.play();
       return { ok: true, value: undefined };
     } catch (failure) {
+      if (version !== revision.current) return { ok: true, value: undefined };
       const message =
         failure instanceof DOMException && failure.name === 'NotAllowedError'
           ? 'Ready to listen. Press play to start this saved track.'
@@ -61,6 +64,7 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
     media.addEventListener('canplay', ready);
     media.addEventListener('error', onError);
     return () => {
+      revision.current += 1;
       media.pause();
       media.removeAttribute('src');
       media.removeEventListener('play', onPlay);
@@ -73,6 +77,7 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
     };
   }, [media, start]);
   useEffect(() => {
+    revision.current += 1;
     media.pause();
     setPosition(0);
     setDuration(0);
