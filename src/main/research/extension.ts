@@ -19,7 +19,7 @@ export async function createResearchExtension(
     const manifest = {
       manifest_version: '0.3',
       name: 'auto-digger',
-      display_name: 'Auto Digger',
+      display_name: 'Auto Digger MCP',
       version: metadata.version,
       description: 'Research mixes and save Discogs releases and track picks to your crates.',
       author: { name: metadata.author },

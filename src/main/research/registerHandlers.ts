@@ -32,14 +32,11 @@ export function registerResearchHandlers(
       const access = runtime.status();
       const file = access.configuration.args[2];
       if (!access.enabled || !file)
-        return catalogueFailure(
-          'unavailable',
-          'Enable research access before saving the extension.',
-        );
+        return catalogueFailure('unavailable', 'Enable MCP before saving the extension.');
       try {
         const destination = await dialog.showSaveDialog(window, {
-          title: 'Save Claude extension',
-          defaultPath: join(app.getPath('downloads'), 'Auto Digger.mcpb'),
+          title: 'Save Auto Digger MCP',
+          defaultPath: join(app.getPath('downloads'), 'Auto Digger MCP.mcpb'),
           filters: [{ name: 'Claude extension', extensions: ['mcpb'] }],
         });
         if (destination.canceled || !destination.filePath) return { ok: true, value: null };

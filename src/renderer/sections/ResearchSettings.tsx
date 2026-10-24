@@ -60,7 +60,7 @@ export function ResearchSettings() {
   return (
     <div className="settings-card research-settings">
       <h2>
-        AI mix research <span className="eyebrow">Experimental</span>
+        Auto Digger MCP <span className="eyebrow">Experimental</span>
       </h2>
       <p>
         Let an MCP client research mixes and save releases, track picks and source notes to your
@@ -75,7 +75,7 @@ export function ResearchSettings() {
             change(() => (access?.enabled ? bridge.stop() : bridge.start())).catch(() => undefined);
         }}
       >
-        {access?.enabled ? 'Disable research access' : 'Enable research access'}
+        {access?.enabled ? 'Disable MCP' : 'Enable MCP'}
       </button>
       {access?.enabled && (
         <>
@@ -92,7 +92,7 @@ export function ResearchSettings() {
               saveExtension().catch(() => undefined);
             }}
           >
-            Save Claude extension
+            Save Auto Digger MCP
           </button>
           {saved && <p role="status">Extension saved. Install it in Claude Desktop.</p>}
           <p>
