@@ -102,3 +102,13 @@ test('falls back to the sleeve placeholder if remote artwork fails', async () =>
   expect(await screen.findByText('No artwork available')).toBeInTheDocument();
   expect(screen.queryByRole('img')).not.toBeInTheDocument();
 });
+
+test('shows a catalogue fallback for a label without a catalogue number', async () => {
+  const { ReleaseDetails } = await import('./ReleaseDetails');
+  render(
+    <ReleaseDetails
+      release={{ ...loadedRelease, labels: [{ name: 'Still Records', catalogueNumber: '' }] }}
+    />,
+  );
+  expect(screen.getByText('Catalogue number not listed')).toBeInTheDocument();
+});
