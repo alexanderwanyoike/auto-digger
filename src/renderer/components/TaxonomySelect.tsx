@@ -6,8 +6,8 @@ export function TaxonomySelect({
   label,
   options,
   disabled,
-  value = undefined,
-  onChange = undefined,
+  value,
+  onChange,
   knownOptions = options,
   placeholder = name === 'genre' ? 'All genres' : 'All styles',
 }: {
@@ -33,7 +33,7 @@ export function TaxonomySelect({
         isMulti
         isClearable
         isDisabled={disabled}
-        options={options.map((value) => ({ value, label: value }))}
+        options={options.map((item) => ({ value: item, label: item }))}
         placeholder={placeholder}
         classNamePrefix="taxonomy"
         unstyled
@@ -43,7 +43,7 @@ export function TaxonomySelect({
         menuPosition="fixed"
         maxMenuHeight={200}
         menuShouldScrollIntoView={false}
-        formatCreateLabel={(value) => `Use "${value}"`}
+        formatCreateLabel={(input) => `Use "${input}"`}
         isValidNewOption={(input, _selected, available) =>
           Boolean(input.trim()) &&
           input.trim().length <= 160 &&
