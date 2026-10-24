@@ -13,13 +13,27 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
     const database = await ready;
     if (!database.ok) return database;
     const connection: DatabaseSync = database.value;
+    if (!connection.isOpen)
+      return catalogueFailure(
+        'unavailable',
+        'The catalogue is closed. Please restart Auto Digger.',
+      );
     try {
       connection.exec('BEGIN IMMEDIATE');
       const result = operation(catalogueMutations(connection));
       connection.exec(result.ok ? 'COMMIT' : 'ROLLBACK');
       return result;
     } catch {
-      if (connection.isTransaction) connection.exec('ROLLBACK');
+      if (connection.isOpen && connection.isTransaction) {
+        try {
+          connection.exec('ROLLBACK');
+        } catch {
+          return catalogueFailure(
+            'storage',
+            'The catalogue needs to be reopened before more changes can be saved.',
+          );
+        }
+      }
       return catalogueFailure(
         'storage',
         'The crate change could not be saved. Your catalogue has been preserved.',
@@ -36,6 +50,13 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
     async view(crateId?: string): Promise<CatalogueResult<CatalogueView>> {
       const database = await ready;
       if (!database.ok) return database;
+      if (crateId !== undefined && (!crateId.trim() || crateId.length > 100))
+        return catalogueFailure('invalid-input', 'Choose an existing crate.');
+      if (!database.value.isOpen)
+        return catalogueFailure(
+          'unavailable',
+          'The catalogue is closed. Please restart Auto Digger.',
+        );
       try {
         return readCatalogueView(database.value, crateId);
       } catch {
