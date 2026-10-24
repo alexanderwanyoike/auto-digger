@@ -9,7 +9,7 @@
   --metal-panel-bottom: #e3e4e6;
   --metal-highlight: #ffffff73;
   --line: #c0c2c5;
-  --muted: #555b63;
+  --muted: #4c5158;
   --metal-finish:
     url('../assets/aluminium-grain.svg'),
     linear-gradient(115deg, transparent 5%, #ffffff1f 45%, transparent 80%),
@@ -30,7 +30,7 @@
   --metal-panel-bottom: #2b2c2f;
   --metal-highlight: #ffffff14;
   --line: #4a4c4f;
-  --muted: #afb2b8;
+  --muted: #c3c6cb;
 }
 
 :root[data-material='aluminium'] .app-header,
