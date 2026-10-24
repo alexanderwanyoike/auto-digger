@@ -43,8 +43,13 @@ export function readCatalogueView(
       .all(typeof id === 'string' ? id : '', release.data.id);
     return {
       release: release.data,
-      tracks: release.data.tracks.map((track) => {
-        const key = trackKey(track);
+      tracks: release.data.tracks.map((track, index) => {
+        const occurrence = release.data.tracks
+          .slice(0, index)
+          .filter(
+            (previous) => previous.position === track.position && previous.title === track.title,
+          ).length;
+        const key = trackKey(track, occurrence);
         const mark = marks.find((item) => item.track_key === key);
         return { ...track, key, picked: mark?.picked === 1, tags: mark ? json(mark.tags) : [] };
       }),
