@@ -182,3 +182,29 @@ test('retains a freshly downloaded track when an older library snapshot finishes
   expect(within(player).getByText('Evening Mix')).toBeVisible();
   expect(within(player).getByLabelText('Downloaded track')).toHaveValue(track.id);
 });
+
+test('reports unreadable audio rather than calling a failed track ready to play', async () => {
+  const media = new Audio();
+  function TestAudio() {
+    return media;
+  }
+  vi.stubGlobal('Audio', TestAudio);
+  vi.spyOn(HTMLMediaElement.prototype, 'play').mockRejectedValue(
+    new DOMException('cannot decode', 'NotSupportedError'),
+  );
+  const bridge: AudioBridge = {
+    list: () => Promise.resolve({ ok: true, value: [track] }),
+    probe: vi.fn(),
+    download: vi.fn(),
+    reveal: vi.fn(),
+  };
+  const user = userEvent.setup();
+  render(<App audioLibrary={bridge} />);
+  await screen.findByText('Evening Mix');
+  fireEvent.error(media);
+  await user.click(screen.getByRole('button', { name: 'Play' }));
+  expect(await screen.findByRole('alert')).toHaveTextContent('could not be played');
+  expect(
+    screen.queryByText('Ready to listen. Press play to start this saved track.'),
+  ).not.toBeInTheDocument();
+});
