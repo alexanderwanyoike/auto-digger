@@ -25,8 +25,10 @@ export function SearchResults({ session }: { session: ReturnType<typeof useDisco
               }}
             >
               <RecordArtwork url={release.artworkUrl} title={release.title} decorative />
-              <strong>{release.title}</strong>
-              <span>
+              <strong title={release.title}>{release.title}</strong>
+              <span
+                title={`${release.year || 'Year not listed'} · ${release.labels.join(', ') || 'Label not listed'}`}
+              >
                 {release.year || 'Year not listed'} ·{' '}
                 {release.labels.join(', ') || 'Label not listed'}
               </span>
