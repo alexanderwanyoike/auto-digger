@@ -49,4 +49,9 @@ test('applies filters, browses another page and opens a matching release', async
   await user.click(screen.getByRole('button', { name: /Low Tide - Quiet Orbit EP/ }));
   expect(await screen.findByRole('heading', { name: 'Quiet Orbit EP' })).toBeInTheDocument();
   expect(bridge.loadRelease).toHaveBeenCalledWith(12);
+  expect(
+    screen.queryByRole('button', { name: /Low Tide - Quiet Orbit EP/ }),
+  ).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Back to matches' }));
+  expect(screen.getByRole('button', { name: /Low Tide - Quiet Orbit EP/ })).toBeInTheDocument();
 });
