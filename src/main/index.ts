@@ -1,4 +1,5 @@
 import { app, BrowserWindow, dialog } from 'electron';
+import { applicationId } from './youtube/identity';
 import { createWindow } from './createWindow';
 
 function reportStartupFailure(error: unknown) {
@@ -18,6 +19,7 @@ async function openWindow() {
 }
 
 app.setName('Auto Digger');
+app.setAppUserModelId(applicationId);
 app.whenReady().then(openWindow).catch(reportStartupFailure);
 
 app.on('activate', () => {
