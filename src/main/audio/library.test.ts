@@ -190,7 +190,7 @@ test('versions track sidecars and preserves unsupported metadata', async () => {
     expect(saved).toMatchObject({ version: 1, track: { id: '12-abcdefghijk' } });
     const future = JSON.stringify({ version: 99, track: saved });
     await writeFile(file, future);
-    expect(await library.list()).toMatchObject({ ok: false, error: { code: 'storage' } });
+    expect(await library.list()).toMatchObject({ ok: false, error: { code: 'invalid-data' } });
     expect(await readFile(file, 'utf8')).toBe(future);
   } finally {
     await rm(directory, { recursive: true, force: true });

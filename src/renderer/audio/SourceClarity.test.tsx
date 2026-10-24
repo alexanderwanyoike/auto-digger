@@ -8,6 +8,8 @@ import { App } from '../App';
 
 test('distinguishes the selected Discogs track from the verified YouTube upload title', async () => {
   const bridge: AudioBridge = {
+    preview: vi.fn(),
+    stopPreview: () => Promise.resolve({ ok: true, value: undefined }),
     list: () => Promise.resolve({ ok: true, value: [] }),
     probe: () =>
       Promise.resolve({
@@ -35,10 +37,16 @@ test('distinguishes the selected Discogs track from the verified YouTube upload 
   ).not.toBeInTheDocument();
 });
 
-test.each([true, false])(
-  'uses a fresh upload title when online, and its saved title otherwise: online=%s',
-  async (online) => {
+test.each([
+  { online: true, missing: false },
+  { online: false, missing: false },
+  { online: true, missing: true },
+])(
+  'handles saved upload titles and missing-file recovery: online=$online missing=$missing',
+  async ({ online, missing }) => {
     const bridge: AudioBridge = {
+      preview: vi.fn(),
+      stopPreview: () => Promise.resolve({ ok: true, value: undefined }),
       list: () =>
         Promise.resolve({
           ok: true,
@@ -55,6 +63,7 @@ test.each([true, false])(
               artworkUrl: null,
               filename: 'Quiet Orbit.yt.mp3',
               warning: null,
+              missing,
             },
           ],
         }),
@@ -82,6 +91,9 @@ test.each([true, false])(
       ),
     ).toBeVisible();
     expect(within(row).getByLabelText('Discogs track')).toHaveDisplayValue('A1 · Quiet Orbit');
-    expect(within(row).getByRole('button', { name: 'Play track' })).toBeEnabled();
+    if (missing) {
+      expect(within(row).getByRole('button', { name: 'Download audio' })).toBeEnabled();
+      expect(within(row).queryByRole('button', { name: 'Play track' })).not.toBeInTheDocument();
+    } else expect(within(row).getByRole('button', { name: 'Play track' })).toBeEnabled();
   },
 );

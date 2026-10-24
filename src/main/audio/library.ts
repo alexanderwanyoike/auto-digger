@@ -8,18 +8,8 @@ import { matchTrack } from '../../shared/matchTrack';
 import type { createDownloader } from './downloader';
 import { createLibraryFiles } from './libraryFiles';
 import { tagDownload } from './tagging';
+import { filenamePart } from './filenamePart';
 import { reassignTrack } from './reassign';
-
-function filenamePart(value: string): string {
-  let safe = Array.from(value)
-    .filter((character) => (character.codePointAt(0) ?? 0) >= 32)
-    .join('')
-    .replace(/[<>:"/\\|?*]/g, '')
-    .trim()
-    .replace(/\.+$/g, '');
-  while (Buffer.byteLength(safe) > 70) safe = safe.slice(0, -1);
-  return safe || 'Unknown';
-}
 
 export function createAudioLibrary(
   directory: string,
@@ -54,7 +44,7 @@ export function createAudioLibrary(
         if (!sourceId) return audioFailure('invalid-input', 'Choose a supported YouTube source.');
         const id = `${release.id.toString()}-${sourceId}`;
         const saved = existing.value.find((track) => track.id === id);
-        if (saved) {
+        if (saved && !saved.missing) {
           if (trackIndex === undefined || trackIndex === saved.trackIndex)
             return { ok: true, value: saved };
           return await reassignTrack(directory, files, saved, release, trackIndex, request);

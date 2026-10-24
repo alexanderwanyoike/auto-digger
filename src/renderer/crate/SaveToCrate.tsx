@@ -16,14 +16,20 @@ export function SaveToCrate({
       <button
         type="button"
         className="secondary-button"
-        disabled={!ep || saved || !crate.ready || crate.busy}
+        disabled={
+          (!ep && !crate.catalogue.available) ||
+          saved ||
+          !crate.ready ||
+          crate.busy ||
+          (crate.catalogue.available && !crate.catalogue.view.crateId)
+        }
         onClick={() => {
           crate.save(release).catch(() => undefined);
         }}
       >
-        {saved ? 'Saved to crate' : 'Save EP to crate'}
+        {saved ? 'Saved to crate' : `${ep ? 'Save EP' : 'Save release'} to crate`}
       </button>
-      {!ep && <span>The crate supports EP releases.</span>}
+      {!ep && !crate.catalogue.available && <span>The crate supports EP releases.</span>}
     </div>
   );
 }
