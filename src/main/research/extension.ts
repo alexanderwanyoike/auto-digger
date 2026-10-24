@@ -35,7 +35,7 @@ export async function createResearchExtension(
           args: [`\${__dirname}/server/index.cjs`, '--connection', connectionFile],
         },
       },
-      compatibility: { runtimes: { node: '>=20.0.0' } },
+      compatibility: { runtimes: { node: '>=20.3.0' } },
     };
     return {
       ok: true,
