@@ -4,6 +4,7 @@ import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
 import { videoId } from '../../shared/youtubeVideoId';
+import { matchTrack } from '../../shared/matchTrack';
 import type { createDownloader } from './downloader';
 import { createLibraryFiles } from './libraryFiles';
 import { tagDownload } from './tagging';
@@ -52,7 +53,23 @@ export function createAudioLibrary(
         if (!sourceId) return audioFailure('invalid-input', 'Choose a supported YouTube source.');
         const id = `${release.id.toString()}-${sourceId}`;
         const saved = existing.value.find((track) => track.id === id);
-        if (saved) return { ok: true, value: saved };
+        if (saved) {
+          if (trackIndex === undefined || trackIndex === saved.trackIndex)
+            return { ok: true, value: saved };
+          const tagged = await tagDownload(
+            join(directory, saved.filename),
+            release,
+            saved.sourceTitle,
+            { request, trackIndex },
+          );
+          if (!tagged.ok) return tagged;
+          return await files.save({
+            ...saved,
+            title: tagged.value.title,
+            warning: tagged.value.warning,
+            trackIndex,
+          });
+        }
         const source = await downloader.probe(video.url);
         if (!source.ok) return source;
         temporary = await mkdtemp(join(directory, '.download-'));
@@ -74,6 +91,9 @@ export function createAudioLibrary(
           releaseId: release.id,
           videoId: source.value.videoId,
           title: tagged.value.title,
+          sourceTitle: source.value.title,
+          trackIndex:
+            trackIndex === undefined ? matchTrack(release, source.value.title) : trackIndex,
           artist: release.artists.join(' / '),
           album: release.title,
           artworkUrl: release.artworkUrl,

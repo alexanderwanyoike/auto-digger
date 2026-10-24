@@ -20,6 +20,8 @@ export const localTrackSchema = z.object({
   releaseId: z.number().int().positive(),
   videoId: z.string().regex(/^[\w-]{11}$/),
   title: z.string(),
+  sourceTitle: z.string(),
+  trackIndex: z.number().int().nonnegative().nullable(),
   artist: z.string(),
   album: z.string(),
   artworkUrl: z.string().nullable(),
