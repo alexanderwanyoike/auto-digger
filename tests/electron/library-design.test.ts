@@ -109,6 +109,10 @@ import { loadedRelease } from '../discogsFixtures';
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
       await page.screenshot({ path: `test-results/flat-settings-${width.toString()}.png` });
       await page.getByRole('button', { name: 'Crates', exact: true }).click();
+      await expect(
+        page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }),
+      ).toBeInViewport();
+      await expect(page.getByLabel('Pick Quiet Orbit', { exact: true })).toBeInViewport();
       await page.screenshot({ path: `test-results/flat-crates-${width.toString()}.png` });
       await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
