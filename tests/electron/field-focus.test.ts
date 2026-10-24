@@ -124,6 +124,7 @@ async function expectSystemFocus(field: Locator) {
       await layout.focus();
       await expectFlushFocus(layout);
       await page.getByRole('button', { name: 'Enable research access', exact: true }).click();
+      await page.getByText('Codex and other local clients', { exact: true }).click();
       const config = page.getByRole('textbox', { name: 'MCP client configuration', exact: true });
       await config.focus();
       await expectFlushFocus(config);

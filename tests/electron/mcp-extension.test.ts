@@ -3,7 +3,8 @@ import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { VERSIONED_MANIFEST_SCHEMAS } from '@anthropic-ai/mcpb/schemas';
 import { strFromU8, unzipSync } from 'fflate';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
 test('exports an installable Claude extension that calls the existing local tools without app dependencies', async () => {
@@ -19,6 +20,7 @@ test('exports an installable Claude extension that calls the existing local tool
       ),
     ),
   });
+  const folder = await mkdtemp(join(tmpdir(), 'auto-digger-extension-'));
   const client = new Client({ name: 'extension-check', version: '1.0.0' });
   try {
     const page = await desktop.firstWindow();
@@ -26,8 +28,13 @@ test('exports an installable Claude extension that calls the existing local tool
     await page.getByRole('button', { name: 'Enable research access', exact: true }).click();
     const file = test.info().outputPath('Auto Digger.mcpb');
     await desktop.evaluate(({ dialog }, filePath) => {
-      dialog.showSaveDialog = () => Promise.resolve({ canceled: false, filePath });
+      Object.assign(dialog, {
+        showSaveDialog: () => Promise.resolve({ canceled: false, filePath }),
+      });
     }, file);
+    await expect(
+      page.getByRole('button', { name: 'Save Claude extension', exact: true }),
+    ).toBeVisible();
     await page.getByRole('button', { name: 'Save Claude extension', exact: true }).click();
     await expect(page.getByText('Extension saved. Install it in Claude Desktop.')).toBeVisible();
     const files = unzipSync(await readFile(file));
@@ -38,18 +45,19 @@ test('exports an installable Claude extension that calls the existing local tool
     expect(manifest.server.mcp_config.command).toBe('node');
     expect(manifest.user_config).toBeUndefined();
     expect(Object.keys(files)).toContain('LICENSES.txt');
-    const folder = test.info().outputPath('standalone extension');
-    for (const [name, bytes] of Object.entries(files)) {
-      expect(name).not.toMatch(/(^\/|\.\.)/);
-      const path = join(folder, name);
-      await mkdir(dirname(path), { recursive: true });
-      await writeFile(path, bytes);
-    }
+    await Promise.all(
+      Object.entries(files).map(async ([name, bytes]) => {
+        expect(name).not.toMatch(/(^\/|\.\.)/);
+        const path = join(folder, name);
+        await mkdir(dirname(path), { recursive: true });
+        await writeFile(path, bytes);
+      }),
+    );
     await client.connect(
       new StdioClientTransport({
         command: process.execPath,
         args: (manifest.server.mcp_config.args ?? []).map((arg) =>
-          arg.replaceAll('${__dirname}', folder),
+          arg.replaceAll(`\${__dirname}`, folder),
         ),
         cwd: folder,
       }),
@@ -69,5 +77,6 @@ test('exports an installable Claude extension that calls the existing local tool
   } finally {
     await client.close();
     await desktop.close();
+    await rm(folder, { recursive: true, force: true });
   }
 });

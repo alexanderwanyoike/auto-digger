@@ -25,6 +25,8 @@ test.skipIf(process.platform !== 'linux')(
       [
         'out/main/index.js',
         'out/main/mcp.js',
+        'out/extension/mcp.cjs',
+        'out/extension/LICENSES.txt',
         'out/preload/index.cjs',
         'out/renderer/index.html',
         'resources/icons/icon.png',

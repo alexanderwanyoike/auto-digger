@@ -27,8 +27,9 @@ test('enables a real stdio MCP client, reflects created crates and revokes its t
     await page.getByRole('button', { name: 'Enable research access', exact: true }).click();
     const access = await page.evaluate(async () => window.researchAccess?.status());
     if (!access?.ok || !access.value.enabled) throw new Error('No research access');
+    await page.getByText('Codex and other local clients', { exact: true }).click();
     const configuration = page.getByLabel('MCP client configuration');
-    await expect(configuration).toHaveValue(/mcpServers/);
+    await expect(configuration).toHaveValue(/mcp_servers.auto_digger/);
     await client.connect(new StdioClientTransport(access.value.configuration));
     const tools = await client.listTools();
     expect(tools.tools.map((tool) => tool.name).sort()).toEqual([
