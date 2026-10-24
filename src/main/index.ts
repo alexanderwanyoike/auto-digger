@@ -22,7 +22,17 @@ async function openWindow() {
 app.setName('Auto Digger');
 registerAudioScheme();
 app.setAppUserModelId(applicationId);
-app.whenReady().then(openWindow).catch(reportStartupFailure);
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    const window = BrowserWindow.getAllWindows()[0];
+    if (window?.isMinimized()) window.restore();
+    window?.show();
+    window?.focus();
+  });
+  app.whenReady().then(openWindow).catch(reportStartupFailure);
+}
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
