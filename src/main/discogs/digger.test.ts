@@ -99,13 +99,18 @@ test('random digging accepts any selected type and skips stale nonmatching relea
       })),
     },
   });
+  const formatsById: Record<number, string> = {
+    12: 'Vinyl, Single',
+    13: 'CD, Compilation',
+    14: 'Vinyl, Album',
+  };
   const load = vi.fn<Load>().mockImplementation((id) =>
     Promise.resolve({
       ok: true,
       value: {
         ...loadedRelease,
         id,
-        formats: [id === 12 ? 'Vinyl, Single' : id === 13 ? 'CD, Compilation' : 'Vinyl, Album'],
+        formats: [formatsById[id] ?? ''],
       },
     }),
   );

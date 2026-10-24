@@ -6,7 +6,7 @@ import { identityResponse, loadedRelease } from '../../../tests/discogsFixtures'
 import { App } from '../App';
 
 test('applies filters, browses another page and opens a matching release', async () => {
-  const search = vi.fn().mockResolvedValue({
+  const search = vi.fn<DiscogsBridge['search']>().mockResolvedValue({
     ok: true,
     value: {
       page: 1,
@@ -102,9 +102,5 @@ test('applies filters, browses another page and opens a matching release', async
   await user.click(screen.getByLabelText('Remove Compilation'));
   await user.keyboard('{Escape}');
   await user.click(screen.getByRole('button', { name: 'Search releases' }));
-  expect(search).toHaveBeenLastCalledWith(
-    expect.objectContaining({
-      filters: expect.objectContaining({ format: [] }),
-    }),
-  );
+  expect(search.mock.lastCall?.[0].filters.format).toEqual([]);
 });
