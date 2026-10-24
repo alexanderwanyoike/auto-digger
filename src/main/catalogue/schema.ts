@@ -13,6 +13,15 @@ export function initialiseCatalogue(database: DatabaseSync) {
       ordinal INTEGER NOT NULL,
       PRIMARY KEY(crate_id, release_id)
     ) STRICT;
+    CREATE TABLE IF NOT EXISTS track_marks (
+      crate_id TEXT NOT NULL,
+      release_id INTEGER NOT NULL,
+      track_key TEXT NOT NULL,
+      picked INTEGER NOT NULL CHECK(picked IN (0,1)),
+      tags TEXT NOT NULL,
+      PRIMARY KEY(crate_id,release_id,track_key),
+      FOREIGN KEY(crate_id,release_id) REFERENCES entries(crate_id,release_id) ON DELETE CASCADE
+    ) STRICT;
     PRAGMA user_version=1;
   `);
 }

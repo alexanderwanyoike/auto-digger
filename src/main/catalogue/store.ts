@@ -27,6 +27,7 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
     }
   }
   return {
+    annotate: (input: unknown) => change((mutations) => mutations.annotate(input)),
     create: (name: unknown) => change((mutations) => mutations.create(name)),
     rename: (input: unknown) => change((mutations) => mutations.rename(input)),
     deleteCrate: (id: unknown) => change((mutations) => mutations.deleteCrate(id)),

@@ -8,7 +8,27 @@ export const crateSummarySchema = z.object({
   name: z.string(),
   releaseCount: z.number().int().nonnegative(),
 });
-export const crateEntrySchema = z.object({ release: releaseSchema });
+export const personalTagsSchema = z
+  .array(z.string().trim().min(1).max(40))
+  .max(20)
+  .transform((tags) =>
+    tags.filter(
+      (tag, index) =>
+        tags.findIndex((candidate) => candidate.toLowerCase() === tag.toLowerCase()) === index,
+    ),
+  );
+export const markedTrackSchema = z.object({
+  key: z.string().regex(/^[a-f0-9]{64}$/),
+  position: z.string(),
+  title: z.string(),
+  duration: z.string(),
+  picked: z.boolean(),
+  tags: personalTagsSchema,
+});
+export const crateEntrySchema = z.object({
+  release: releaseSchema,
+  tracks: z.array(markedTrackSchema),
+});
 export const catalogueViewSchema = z.object({
   crates: z.array(crateSummarySchema),
   crateId: z.string().nullable(),

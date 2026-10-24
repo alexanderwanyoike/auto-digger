@@ -5,6 +5,14 @@ import { releaseSchema } from '../../shared/discogs';
 import type { CatalogueResult, CatalogueView } from '../../shared/catalogue';
 import { catalogueFailure } from '../../shared/catalogueFailure';
 import { readCatalogueView } from './readView';
+import { personalTagsSchema } from '../../shared/catalogue';
+const annotationSchema = z.object({
+  crateId: z.string(),
+  releaseId: z.number().int().positive(),
+  trackKey: z.string(),
+  picked: z.boolean(),
+  tags: personalTagsSchema,
+});
 
 const nameSchema = z.string().trim().min(1).max(80);
 const idSchema = z.string().min(1).max(100);
@@ -17,6 +25,29 @@ export function catalogueMutations(database: DatabaseSync) {
     return Boolean(database.prepare('SELECT id FROM crates WHERE id=?').get(id));
   }
   return {
+    annotate(input: unknown): CatalogueResult<CatalogueView> {
+      const parsed = annotationSchema.safeParse(input);
+      if (!parsed.success)
+        return catalogueFailure(
+          'invalid-input',
+          'Choose a saved track and up to 20 personal tags.',
+        );
+      const { crateId, releaseId, trackKey: key, picked, tags } = parsed.data;
+      const view = readCatalogueView(database, crateId);
+      if (!view.ok) return view;
+      if (
+        !view.value.entries
+          .find((entry) => entry.release.id === releaseId)
+          ?.tracks.some((track) => track.key === key)
+      )
+        return catalogueFailure('invalid-input', 'Choose a track saved in this crate.');
+      database
+        .prepare(
+          'INSERT INTO track_marks(crate_id,release_id,track_key,picked,tags) VALUES(?,?,?,?,?) ON CONFLICT(crate_id,release_id,track_key) DO UPDATE SET picked=excluded.picked,tags=excluded.tags',
+        )
+        .run(crateId, releaseId, key, picked ? 1 : 0, JSON.stringify(tags));
+      return readCatalogueView(database, crateId);
+    },
     create(input: unknown): CatalogueResult<CatalogueView> {
       const name = nameSchema.safeParse(input);
       if (!name.success)
