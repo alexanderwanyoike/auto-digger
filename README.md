@@ -30,6 +30,8 @@ Search uses Discogs' specific release and EP filters. Pagination and random digg
 
 Auto Digger checks YouTube source availability through yt-dlp and extracts MP3 with FFmpeg. Downloads use Discogs artist, album, year, genre/style and matched track tags, plus front cover art where available. Automatic matching uses unambiguous complete track titles. You can correct a match before downloading or choose **Update tags** afterward, including while offline. Several videos can map to the same track. Missing tags or cover art leave usable audio with a notice.
 
+Each compact source row labels the **Discogs track** separately from the **YouTube video** upload title. The suggested match can be changed; **Tagging note** expands optional metadata notices.
+
 Files live in your operating system's **Music/Auto Digger** folder, with names such as `Artist - Track [release-video].yt.mp3`. Each has a versioned JSON sidecar holding library information. Use **Show in folder** beside a source or the folder button in the player to find it. Keep sidecars alongside their MP3s and back up the folder before manual repairs. Existing files are preserved on name collisions.
 
 The bottom bar controls local audio with play/pause, seeking and volume. Its download selector reopens tracks after restart. Browsing another record or disconnecting Discogs keeps the current track playing. Downloading or choosing a saved track starts playback; a browser autoplay restriction shows a prompt to press play. No YouTube frame or hidden streaming player remains. Internet is needed for downloading and fetching new cover art; saved audio plays offline.
@@ -53,7 +55,7 @@ yarn start
 
 Runnable files are written to `out/`. For a renderer preview use `yarn dev:web`. The browser preview has no desktop bridge, so it cannot connect to Discogs or save a crate. Both development commands use port 5173; run one at a time.
 
-Before distribution, installer packaging must register the stable app identity `io.github.alexanderwanyoike.auto-digger`, for desktop integration.
+The original app icon is in `resources/icons/icon.svg`. `yarn icons:generate` regenerates PNG sizes, Windows `icon.ico` and macOS `icon.icns`; `yarn icons:check` verifies committed exports and runs in CI. Native windows, the macOS Dock and the app header use this identity. Installer packaging must include `resources/icons` alongside `out`, use the platform icon files and register the stable app identity `io.github.alexanderwanyoike.auto-digger`. Native runtime checks run on Linux; Windows/macOS bundle and installer testing belongs to release packaging.
 
 ## Checks
 
