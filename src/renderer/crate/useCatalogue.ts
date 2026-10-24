@@ -2,16 +2,22 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CatalogueBridge, CatalogueView, CatalogueViewResult } from '../../shared/catalogue';
 import type { CrateError } from '../../shared/crate';
 import { catalogueFailure } from '../../shared/catalogueFailure';
+import { readCrateSelection, saveCrateSelection } from './selection';
 
 export function useCatalogue(bridge: CatalogueBridge | undefined) {
+  const [remembered] = useState(readCrateSelection);
   const [view, setView] = useState<CatalogueView>({ crates: [], crateId: null, entries: [] });
   const [busy, setBusy] = useState(Boolean(bridge));
   const [ready, setReady] = useState(false);
-  const [error, setError] = useState<CrateError | null>(null);
-  const selection = useRef<string | undefined>(undefined);
+  const [error, setError] = useState<CrateError | null>(remembered.ok ? null : remembered.error);
+  const selection = useRef<string | undefined>(remembered.ok ? remembered.value : undefined);
+  const restoreError = useRef<CrateError | null>(remembered.ok ? null : remembered.error);
   const version = useRef(0);
   const perform = useCallback(
-    async (operation: (api: CatalogueBridge) => Promise<CatalogueViewResult>) => {
+    async (
+      operation: (api: CatalogueBridge) => Promise<CatalogueViewResult>,
+      explicitSelection = true,
+    ) => {
       version.current += 1;
       const request = version.current;
       setBusy(true);
@@ -29,6 +35,12 @@ export function useCatalogue(bridge: CatalogueBridge | undefined) {
           selection.current = result.value.crateId ?? undefined;
           setView(result.value);
           setReady(true);
+          if (explicitSelection) restoreError.current = null;
+          if (restoreError.current) setError(restoreError.current);
+          else {
+            const saved = saveCrateSelection(result.value.crateId);
+            if (!saved.ok) setError(saved.error);
+          }
         } else setError(result.error);
         setBusy(false);
       }
@@ -36,7 +48,24 @@ export function useCatalogue(bridge: CatalogueBridge | undefined) {
     },
     [bridge],
   );
-  const reload = useCallback(() => perform((api) => api.view(selection.current)), [perform]);
+  const reload = useCallback(
+    () =>
+      perform(async (api) => {
+        const requested = selection.current;
+        let fallback = requested === undefined;
+        let result = await api.view(requested);
+        if (!result.ok && result.error.code === 'invalid-input' && requested !== undefined) {
+          result = await api.view();
+          fallback = true;
+        }
+        if (result.ok && fallback && !result.value.entries.length) {
+          const populated = result.value.crates.find((crate) => crate.releaseCount > 0);
+          if (populated) return api.view(populated.id);
+        }
+        return result;
+      }, false),
+    [perform],
+  );
   useEffect(() => {
     if (bridge) reload().catch(() => undefined);
     return () => {
