@@ -24,7 +24,35 @@ export async function openCatalogue(
         'This catalogue has an unsupported version. Its files have been preserved.',
       );
     }
-    initialiseCatalogue(database);
+    if (version === 0) {
+      if (database.prepare("SELECT name FROM sqlite_master WHERE type='table'").get()) {
+        database.close();
+        return catalogueFailure(
+          'invalid-data',
+          'This catalogue schema is unreadable. Its files have been preserved.',
+        );
+      }
+      initialiseCatalogue(database);
+    } else {
+      database.prepare('SELECT key,value FROM metadata LIMIT 0').all();
+      database.prepare('SELECT id,name,ordinal FROM crates LIMIT 0').all();
+      database.prepare('SELECT id,metadata FROM releases LIMIT 0').all();
+      database.prepare('SELECT crate_id,release_id,ordinal FROM entries LIMIT 0').all();
+      database
+        .prepare('SELECT crate_id,release_id,track_key,picked,tags FROM track_marks LIMIT 0')
+        .all();
+      if (
+        database.prepare('PRAGMA integrity_check').get()?.integrity_check !== 'ok' ||
+        database.prepare('PRAGMA foreign_key_check').get()
+      ) {
+        database.close();
+        return catalogueFailure(
+          'invalid-data',
+          'This catalogue is unreadable. Its files have been preserved.',
+        );
+      }
+      database.exec('PRAGMA foreign_keys=ON');
+    }
     if (!database.prepare("SELECT value FROM metadata WHERE key='legacy-import'").get()) {
       const legacy = legacyFile ? await readCrate(legacyFile) : { ok: true as const, value: [] };
       if (!legacy.ok) {

@@ -4,6 +4,7 @@ export function initialiseCatalogue(database: DatabaseSync) {
   database.exec(`
     PRAGMA journal_mode=WAL;
     PRAGMA foreign_keys=ON;
+    BEGIN IMMEDIATE;
     CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL) STRICT;
     CREATE TABLE IF NOT EXISTS crates (id TEXT PRIMARY KEY, name TEXT NOT NULL COLLATE NOCASE UNIQUE, ordinal INTEGER NOT NULL) STRICT;
     CREATE TABLE IF NOT EXISTS releases (id INTEGER PRIMARY KEY, metadata TEXT NOT NULL) STRICT;
@@ -23,5 +24,6 @@ export function initialiseCatalogue(database: DatabaseSync) {
       FOREIGN KEY(crate_id,release_id) REFERENCES entries(crate_id,release_id) ON DELETE CASCADE
     ) STRICT;
     PRAGMA user_version=1;
+    COMMIT;
   `);
 }
