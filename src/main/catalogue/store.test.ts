@@ -89,3 +89,65 @@ test('keeps named crates independent, accepts albums and preserves unique releas
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('persists independent track picks and personal tags per crate without changing release metadata', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-catalogue-'));
+  const file = join(directory, 'catalog.sqlite');
+  const store = createCatalogueStore(file);
+  try {
+    await store.add({ crateId: 'default', release: loadedRelease });
+    const other = await store.create('Warm-up');
+    if (!other.ok || !other.value.crateId) throw new Error('Expected another crate');
+    const crateId = other.value.crateId;
+    const added = await store.add({ crateId, release: loadedRelease });
+    if (!added.ok) throw new Error('Expected saved release');
+    const track = added.value.entries[0]?.tracks[0];
+    if (!track) throw new Error('Expected selectable track');
+    const marked = await store.annotate({
+      crateId,
+      releaseId: 12,
+      trackKey: track.key,
+      picked: true,
+      tags: [' Warm-up ', 'dub', 'DUB'],
+    });
+    expect(marked).toMatchObject({
+      ok: true,
+      value: {
+        entries: [
+          {
+            release: loadedRelease,
+            tracks: [{ key: track.key, picked: true, tags: ['Warm-up', 'dub'] }],
+          },
+        ],
+      },
+    });
+    expect(await store.view('default')).toMatchObject({
+      ok: true,
+      value: { entries: [{ tracks: [{ picked: false, tags: [] }] }] },
+    });
+    await store.close();
+    const reopened = createCatalogueStore(file);
+    try {
+      expect(await reopened.view(crateId)).toMatchObject({
+        ok: true,
+        value: {
+          entries: [{ tracks: [{ key: track.key, picked: true, tags: ['Warm-up', 'dub'] }] }],
+        },
+      });
+      expect(
+        await reopened.annotate({
+          crateId,
+          releaseId: 12,
+          trackKey: 'invalid',
+          picked: true,
+          tags: [],
+        }),
+      ).toMatchObject({ ok: false, error: { code: 'invalid-input' } });
+    } finally {
+      await reopened.close();
+    }
+  } finally {
+    await store.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
