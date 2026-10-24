@@ -171,3 +171,28 @@ test('corrects a saved source offline without redownloading and can restore the 
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('versions track sidecars and preserves unsupported metadata', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-audio-'));
+  try {
+    const library = createAudioLibrary(directory, {
+      probe: () =>
+        Promise.resolve({ ok: true, value: { videoId: 'abcdefghijk', title: 'Quiet Orbit' } }),
+      download: async (_id, file) => {
+        await writeFile(file, 'audio');
+        return { ok: true, value: undefined };
+      },
+    });
+    await library.download({ release: loadedRelease, videoIndex: 0 });
+    const file = join(directory, '12-abcdefghijk.json');
+    const saved: unknown = JSON.parse(await readFile(file, 'utf8'));
+    expect(saved).toMatchObject({ version: 1, track: { id: '12-abcdefghijk' } });
+    const future = JSON.stringify({ version: 99, track: saved });
+    await writeFile(file, future);
+    expect(await library.list()).toMatchObject({ ok: false, error: { code: 'storage' } });
+    expect(await readFile(file, 'utf8')).toBe(future);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
