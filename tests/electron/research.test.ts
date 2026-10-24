@@ -1,6 +1,7 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
+import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
 
 const environment = () =>
@@ -47,6 +48,22 @@ test('enables a real stdio MCP client, reflects created crates and revokes its t
     await expect(page.getByRole('combobox', { name: 'Active crate' })).toContainText(
       'H-Foundation picks',
     );
+    const duplicate = spawn(
+      desktop.process().spawnfile,
+      [
+        resolve('tests/encryptedDesktop.cjs'),
+        `--user-data-dir=${test.info().outputPath('profile')}`,
+      ],
+      { env: environment(), stdio: 'ignore' },
+    );
+    try {
+      await expect.poll(() => duplicate.exitCode).toBe(0);
+      expect(await client.callTool({ name: 'list_crates', arguments: {} })).toMatchObject({
+        isError: false,
+      });
+    } finally {
+      duplicate.kill();
+    }
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await page.getByRole('button', { name: 'Disable research access', exact: true }).click();
     expect(await client.callTool({ name: 'list_crates', arguments: {} })).toMatchObject({
