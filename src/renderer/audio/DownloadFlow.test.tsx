@@ -19,6 +19,8 @@ const track: LocalTrack = {
   releaseId: 12,
   videoId: 'lmnopqrstuv',
   title: 'Evening Mix',
+  sourceTitle: 'Unknown upload',
+  trackIndex: 1,
   artist: 'Low Tide',
   album: 'Quiet Orbit EP',
   artworkUrl: null,
@@ -27,6 +29,10 @@ const track: LocalTrack = {
 };
 
 test('shows all sources, suggests track matches, accepts corrections and loads downloaded audio into the bottom player', async () => {
+  const audio = new Audio();
+  vi.stubGlobal('Audio', function TestAudio() {
+    return audio;
+  });
   const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
   vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
   const bridge: AudioBridge = {
@@ -60,9 +66,7 @@ test('shows all sources, suggests track matches, accepts corrections and loads d
   expect(bridge.download).toHaveBeenCalledWith({ release, videoIndex: 1, trackIndex: 1 });
   const player = screen.getByRole('contentinfo', { name: 'Playback' });
   expect(await within(player).findByText('Evening Mix')).toBeInTheDocument();
-  const audio = document.querySelector('audio');
-  expect(audio).toHaveAttribute('src', 'auto-digger-audio://track/12-lmnopqrstuv');
-  if (!audio) throw new Error('Missing local audio element');
+  expect(audio.src).toBe('auto-digger-audio://track/12-lmnopqrstuv');
   fireEvent.canPlay(audio);
   expect(play).toHaveBeenCalled();
   fireEvent.play(audio);
