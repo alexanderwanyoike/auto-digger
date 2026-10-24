@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { StoreLinks } from './StoreLinks';
 import { RecordArtwork } from '../components/RecordArtwork';
 import type { DiscogsRelease } from '../../shared/discogs';
 
@@ -34,6 +35,7 @@ export function ReleaseDetails({
           </div>
         </div>
       </div>
+      <StoreLinks release={release} />
       {children}
       <dl className="release-facts">
         <div>

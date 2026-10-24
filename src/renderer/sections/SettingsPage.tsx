@@ -1,0 +1,92 @@
+import type { useDiscogs } from '../discogs/useDiscogs';
+import type { Appearance } from '../theme/preferences';
+import type { usePreferences } from './usePreferences';
+import { DownloadSettings } from './DownloadSettings';
+import { SettingsSelect } from './SettingsSelect';
+
+export function SettingsPage({
+  session,
+  appearance,
+  onAppearance,
+  onConnect,
+  preferences,
+}: {
+  preferences: ReturnType<typeof usePreferences>;
+  session: ReturnType<typeof useDiscogs>;
+  appearance: Appearance;
+  onAppearance: (appearance: Appearance) => void;
+  onConnect: () => void;
+}) {
+  return (
+    <section className="section-page settings-page" aria-label="App settings">
+      <div className="section-intro">
+        <span className="eyebrow">MAKE YOURSELF AT HOME.</span>
+        <p>Your account and the way your desk feels.</p>
+      </div>
+      <div className="settings-card">
+        <h2>Discogs account</h2>
+        <p>
+          {session.account
+            ? `Connected as ${session.account.username}.`
+            : 'Connect a personal token to search Discogs.'}{' '}
+          Your token is remembered using operating system encryption.
+        </p>
+        <button
+          type="button"
+          className="secondary-button"
+          disabled={!session.available || session.busy}
+          onClick={onConnect}
+        >
+          {session.account ? 'Manage account' : 'Connect Discogs'}
+        </button>
+      </div>
+      <div className="settings-card">
+        <h2>Appearance</h2>
+        <p>Follow your system, or choose a light or dark desk.</p>
+        <div className="settings-choices">
+          <SettingsSelect
+            label="Mode"
+            value={appearance}
+            options={['system', 'light', 'dark']}
+            disabled={false}
+            onSelect={onAppearance}
+          />
+          <SettingsSelect
+            label="Material"
+            value={preferences.value.material}
+            options={['aluminium', 'ceramic', 'slate']}
+            disabled={preferences.busy || !preferences.available}
+            onSelect={(material) => {
+              preferences.save({ material }).catch(() => undefined);
+            }}
+          />
+          <SettingsSelect
+            label="Accent"
+            value={preferences.value.accent}
+            options={['blue', 'teal', 'amber']}
+            disabled={preferences.busy || !preferences.available}
+            onSelect={(accent) => {
+              preferences.save({ accent }).catch(() => undefined);
+            }}
+          />
+        </div>
+      </div>
+      <DownloadSettings preferences={preferences} />
+      {preferences.error && (
+        <div className="crate-notice">
+          <p role="alert">{preferences.error}</p>
+          <button
+            type="button"
+            className="secondary-button"
+            disabled={preferences.busy}
+            onClick={() => {
+              preferences.reload().catch(() => undefined);
+            }}
+          >
+            Retry settings
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}

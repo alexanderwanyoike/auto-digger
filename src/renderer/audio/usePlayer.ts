@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AudioResult, LocalTrack } from '../../shared/audio';
+import type { AudioResult } from '../../shared/audio';
+import type { PlaybackItem } from '../../shared/playback';
 import { audioFailure } from '../../shared/audioFailure';
 
 const unavailableAudio =
   'This saved audio could not be played. It may have been moved or removed. Check its folder and try again.';
 
-export function useLocalPlayer(track: LocalTrack | null, request: number) {
+export function usePlayer(track: PlaybackItem | null, request: number) {
   const [media] = useState(() => new Audio());
+  const kind = useRef<PlaybackItem['source']>('download');
+  const [buffering, setBuffering] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -22,10 +25,12 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
       return { ok: true, value: undefined };
     } catch (failure) {
       if (version !== revision.current) return { ok: true, value: undefined };
-      const message =
-        failure instanceof DOMException && failure.name === 'NotAllowedError'
-          ? 'Ready to listen. Press play to start this saved track.'
+      let message =
+        kind.current === 'preview'
+          ? 'This preview could not be played. Try another source or download the track.'
           : unavailableAudio;
+      if (failure instanceof DOMException && failure.name === 'NotAllowedError')
+        message = 'Ready to listen. Press play to start.';
       return audioFailure('unavailable', message);
     }
   }, [media]);
@@ -35,6 +40,7 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
       setDuration(Number.isFinite(media.duration) ? media.duration : 0);
     };
     const onPlay = () => {
+      setBuffering(false);
       setPlaying(true);
       setError(null);
     };
@@ -43,9 +49,18 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
     };
     const onError = () => {
       setPlaying(false);
-      setError(unavailableAudio);
+      setBuffering(false);
+      setError(
+        kind.current === 'preview'
+          ? 'This preview could not be played. Try another source or download the track.'
+          : unavailableAudio,
+      );
+    };
+    const waiting = () => {
+      setBuffering(true);
     };
     const ready = () => {
+      setBuffering(false);
       update();
       if (requested.current > handled.current) {
         handled.current = requested.current;
@@ -56,6 +71,8 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
           .catch(() => undefined);
       }
     };
+    media.addEventListener('waiting', waiting);
+    media.addEventListener('stalled', waiting);
     media.addEventListener('play', onPlay);
     media.addEventListener('pause', onPause);
     media.addEventListener('ended', onPause);
@@ -67,6 +84,9 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
       revision.current += 1;
       media.pause();
       media.removeAttribute('src');
+      media.load();
+      media.removeEventListener('waiting', waiting);
+      media.removeEventListener('stalled', waiting);
       media.removeEventListener('play', onPlay);
       media.removeEventListener('pause', onPause);
       media.removeEventListener('ended', onPause);
@@ -84,8 +104,13 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
     setError(null);
     setPlaying(false);
     requested.current = request;
-    if (track) media.src = `auto-digger-audio://track/${track.id}`;
-    else media.removeAttribute('src');
+    kind.current = track?.source ?? 'download';
+    setBuffering(track?.source === 'preview');
+    if (track) media.src = track.url;
+    else {
+      media.removeAttribute('src');
+      media.load();
+    }
     if (track && request > handled.current && media.readyState >= 3) {
       handled.current = request;
       start()
@@ -110,5 +135,5 @@ export function useLocalPlayer(track: LocalTrack | null, request: number) {
     media.currentTime = time;
     setPosition(time);
   }
-  return { playing, position, duration, volume, setVolume, toggle, seek, error };
+  return { buffering, playing, position, duration, volume, setVolume, toggle, seek, error };
 }

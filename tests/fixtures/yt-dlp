@@ -14,9 +14,22 @@ if (args.includes('--dump-single-json')) {
       id,
       title: id === 'lmnopqrstuv' ? 'Unknown upload' : 'Low Tide - Quiet Orbit',
       is_live: false,
+      url: 'https://fixture.googlevideo.com/audio',
     }),
   );
 } else {
   const target = args[args.indexOf('--output') + 1].replace('%(ext)s', 'mp3');
-  fs.copyFileSync(path.join(import.meta.dirname, 'tone.mp3'), target);
+  if (args.includes('--progress'))
+    process.stdout.write(
+      'AD_PROGRESS:{"downloaded_bytes":25,"total_bytes":100,"speed":50,"eta":1}\n',
+    );
+  const finish = () => {
+    fs.copyFileSync(path.join(import.meta.dirname, 'tone.mp3'), target);
+    if (args.includes('--progress'))
+      process.stdout.write(
+        'AD_PROGRESS:{"downloaded_bytes":100,"total_bytes":100}\nAD_POSTPROCESS:"started"\n',
+      );
+  };
+  if (id === 'slowvideo01') setTimeout(finish, 1500);
+  else finish();
 }
