@@ -29,6 +29,19 @@ Auto Digger is a desktop app for discovering records on Discogs. Connect an MCP 
 
 [SHA-256 checksums](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/SHA256SUMS) accompany the installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized.
 
+### Opening the macOS app
+
+Drag **Auto Digger.app** from the disk image into **Applications** first. If macOS blocks the official release with an unverified-app or damaged-app message, quit the app and run this in Terminal:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Auto Digger.app"
+open "/Applications/Auto Digger.app"
+```
+
+This removes the download quarantine attribute from that app bundle. Adjust the path if you installed it elsewhere. The builds are ad-hoc signed and not notarized.
+
+See the [setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#macos) for installation and MCP client help.
+
 Audio previews and downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on your `PATH`. MCP clients need Node.js 22 or newer. These tools are not bundled. Connect a Discogs personal token in the app to start discovering records.
 
 ## What you can do
@@ -83,15 +96,51 @@ Saved record metadata and downloaded audio work offline. New Discogs lookups, ar
 
 Auto Digger does not provide cloud sync. The renderer is sandboxed, credentials stay in the main process, and desktop operations use narrow validated IPC boundaries. See [SQLite catalogue ownership](docs/adr/0006-sqlite-catalogue.md) and [account storage](docs/adr/0003-remembered-discogs-account.md).
 
-## Experimental mix research
+## MCP setup
 
-In **Settings → AI mix research**, enable access and copy the provided configuration into a compatible MCP client. The app must stay open, the client needs Node.js 22 or newer, and Discogs searches need a connected account.
+Use a local client on the same computer as Auto Digger. Install Node.js 22 or newer, open Auto Digger and connect Discogs. In **Settings → AI mix research**, choose **Enable research access** and keep the app open. Access starts disabled after every app restart; while enabled, your client can read and edit crates.
 
-> Research this mix. Find the original releases, put them in an After hours crate and mark the tracks. Keep the sources and flag anything uncertain.
+### Claude Desktop
 
-The AI host performs source research and recording-match judgement. Auto Digger supplies verified Discogs and catalogue operations. It does not identify a whole mix automatically. Evidence and unresolved candidates appear beside the saved records. Access starts disabled on every restart and can be revoked in Settings.
+1. In Auto Digger, select **JSON client configuration** and copy the displayed configuration.
+2. Open Claude Desktop's `claude_desktop_config.json`: `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, or `%APPDATA%\Claude\claude_desktop_config.json` on Windows. Run Claude Desktop once first if its folder does not exist.
+3. Add the copied `auto_digger` entry inside the file's existing `mcpServers` object, preserving other servers. If the file is empty, use the complete copied JSON.
+4. Fully quit Claude Desktop and reopen it. Check its local MCP servers or chat tools for `auto_digger`.
 
-See [mix research setup and tools](docs/features/mix-research.md).
+This uses a local server, not the remote custom-connector URL field. See [Claude's local MCP help](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop) and the [MCP SDK's config-file reference](https://py.sdk.modelcontextprotocol.io/get-started/real-host/).
+
+### Claude Code
+
+Copy the two absolute paths from Auto Digger's configuration, replacing the example paths below:
+
+```sh
+claude mcp add --transport stdio --scope user auto_digger -- node "/path/from/settings/mcp.js" --connection "/path/from/settings/mcp-connection.json"
+```
+
+Open Claude Code and use `/mcp` to check the connection. [Claude Code MCP reference](https://code.claude.com/docs/en/mcp).
+
+### Codex
+
+1. Select **Codex TOML configuration** in Auto Digger and copy the displayed block.
+2. Add it to `~/.codex/config.toml`, preserving other settings. Replace an existing `[mcp_servers.auto_digger]` block rather than adding it twice.
+3. Restart your Codex client. In desktop MCP settings, the equivalent is a **STDIO** server named `auto_digger`, with the displayed command and three arguments.
+
+CLI users can register it instead, replacing both example paths with the values from Auto Digger:
+
+```sh
+codex mcp add auto_digger -- node "/path/from/settings/mcp.js" --connection "/path/from/settings/mcp-connection.json"
+codex mcp list
+```
+
+Use `/mcp` in Codex to check available tools. [Official OpenAI MCP documentation](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+
+### Try it
+
+Ask your client: **Use Auto Digger to list my crates.** Then try a mix:
+
+> Research the mix at [paste a mix URL]. Find the original Discogs releases, save them to a Mix picks crate and mark the matching tracks. Keep source links and flag uncertain matches.
+
+The AI client researches the sources and judges recording matches; Auto Digger verifies Discogs metadata and saves the results. The [setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#mcp) includes troubleshooting. Re-copy the configuration after moving or updating the app, or if an AppImage launch changes its mounted path. Disabling research access revokes the connection. Keep your Discogs token in Auto Digger, not in host configuration.
 
 ## Development
 
