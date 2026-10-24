@@ -1,33 +1,105 @@
-import { Bookmark, Library } from 'lucide-react';
+import { Library, Bookmark, X } from 'lucide-react';
+import type { DiscogsRelease } from '../../shared/discogs';
+import type { useCrate } from '../crate/useCrate';
 
-export function CratePanel() {
+export function CratePanel({
+  crate,
+  onOpen,
+  disabled,
+}: {
+  crate: ReturnType<typeof useCrate>;
+  onOpen: (release: DiscogsRelease) => void;
+  disabled: boolean;
+}) {
   return (
     <aside className="crate-panel" aria-labelledby="crate-heading">
       <div className="panel-heading">
         <h2 id="crate-heading">
-          <Library size={16} aria-hidden="true" /> Your crate
+          <Library size={15} aria-hidden="true" /> Your crate
         </h2>
-        <span className="count-badge">0</span>
+        <span className="count-badge" aria-label={`${crate.releases.length.toString()} saved EPs`}>
+          {crate.releases.length}
+        </span>
       </div>
       <p className="panel-description">The ones worth coming back to.</p>
-      <div className="crate-empty">
-        <div className="empty-sleeves" aria-hidden="true">
-          <span />
-          <span />
-          <span>
-            <Bookmark size={19} strokeWidth={1.3} />
-          </span>
-        </div>
-        <h3>No records saved yet.</h3>
-        <p>
-          When something catches your ear,
-          <br />
-          keep the whole EP here.
+      {crate.busy && (
+        <p className="crate-notice" role="status">
+          Updating crate…
         </p>
-      </div>
+      )}
+      {crate.error && (
+        <div className="crate-notice">
+          <p role="alert">{crate.error.message}</p>
+          <button
+            type="button"
+            className="secondary-button"
+            disabled={crate.busy}
+            onClick={() => {
+              crate.reload().catch(() => undefined);
+            }}
+          >
+            Retry crate
+          </button>
+        </div>
+      )}
+      {!crate.releases.length && !crate.error && (
+        <div className="crate-empty">
+          <div className="empty-sleeves" aria-hidden="true">
+            <span />
+            <span />
+            <span>
+              <Bookmark size={20} strokeWidth={1} />
+            </span>
+          </div>
+          <h3>No records saved yet.</h3>
+          <p>
+            When something catches your ear,
+            <br />
+            keep the whole EP here.
+          </p>
+        </div>
+      )}
+      {Boolean(crate.releases.length) && (
+        <ol className="crate-list">
+          {crate.releases.map((release) => (
+            <li key={release.id}>
+              <button
+                className="crate-open"
+                type="button"
+                aria-label={`Open ${release.title}`}
+                disabled={disabled}
+                onClick={() => {
+                  onOpen(release);
+                }}
+              >
+                <strong>{release.title}</strong>
+                <span>
+                  {release.artists.join(', ') || 'Artist not listed'} ·{' '}
+                  {release.year ?? 'Year not listed'}
+                </span>
+              </button>
+              <button
+                className="crate-remove"
+                type="button"
+                aria-label={`Remove ${release.title}`}
+                disabled={crate.busy}
+                onClick={() => {
+                  crate.remove(release.id).catch(() => undefined);
+                }}
+              >
+                <X size={13} aria-hidden="true" />
+              </button>
+            </li>
+          ))}
+        </ol>
+      )}
       <div className="crate-footer">
         <span className="eyebrow">SAVE NOW. LISTEN LATER.</span>
-        <p>Your saved crate comes in Phase 6.</p>
+        <p>
+          {crate.available
+            ? 'Whole EPs, saved on this device.'
+            : 'Use the desktop app to save your crate.'}
+        </p>
       </div>
     </aside>
   );

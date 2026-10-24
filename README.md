@@ -1,14 +1,8 @@
 # Auto Digger
 
-A compact desktop desk for discovering records. Electron, React and TypeScript, with a brushed aluminium interface, blue accents and light, dark or system appearance.
+A compact desktop desk for discovering records. Electron, React and TypeScript, with brushed aluminium, blue accents and light, dark or system appearance.
 
-## Phase 2
-
-Connect a Discogs account with a personal token and load a release by its numeric ID. The desk shows artwork, artists, labels, catalogue numbers, year, country, genres, styles, formats, tracklist and the number of attached YouTube videos. Missing metadata and unavailable artwork get clear fallbacks.
-
-Tokens are verified with Discogs, kept only in main-process memory and cleared on disconnect or app exit. The app does not save credentials. Submitted token fields are cleared even when authentication fails. Network, authentication, rate-limit, missing-release and invalid-response failures are handled explicitly.
-
-Live digging filters, random EP discovery, YouTube playback and saved crates remain later phases. Their controls are inactive in this version.
+Connect Discogs, combine label, artist, year, genre, style and release-title filters, then dig through random matching EPs. Listen through a visible official YouTube player and save whole EPs in a local crate for later.
 
 ## Run
 
@@ -19,59 +13,58 @@ yarn install --frozen-lockfile
 yarn dev
 ```
 
-1. Click **Discogs not connected** in the header.
-2. Open Discogs settings from the connection dialog, then generate a personal token under **Developers**.
-3. Paste the token into the desktop app and choose **Connect account**.
-4. Enter a numeric Discogs release ID and choose **Load release**. The ID is the number after `/release/` in a Discogs release URL.
-5. Click the connected username to disconnect when finished.
+1. Click **Discogs not connected**, open the linked Discogs settings, and generate a personal token under **Developers**.
+2. Paste the token into the desktop app and choose **Connect account**.
+3. Enter any combination of filters and choose **Search EPs**. Genre and style accept Discogs' full vocabulary; year accepts one four-digit year. Blank filters search widely.
+4. Open a match or choose **Dig a random EP**, then **Dig again**. Draft edits take effect when you submit Search EPs. Reset digging starts fresh with the applied filters.
+5. Choose an attached YouTube video and press its official play control. Some records have no video, and some videos are unavailable or prohibit embedding. Retry or select another attached video when needed.
+6. Choose **Save EP to crate**. Open saved EPs from the right-hand list or remove them with the adjacent button. Saved metadata and video links remain available after restart without reconnecting Discogs.
 
-Enter credentials in the app, not in chat or project files. No API keys or environment variables are needed to start the app; a personal token is needed only for the connection flow.
+You can also enter a numeric Discogs release ID to load a record directly. The crate supports EPs. Click the connected username to disconnect when finished.
 
-For the renderer alone in a browser:
+Tokens stay only in main-process memory and are cleared on disconnect or exit. Token fields clear after submission, including unsuccessful attempts. Enter credentials in the app, not chat or project files. No YouTube API key is needed.
 
-```sh
-yarn dev:web
-```
+## Discovery and listening
 
-The browser preview cannot connect to Discogs because it has no desktop bridge. Both development commands use port 5173, so run one at a time.
+Search uses Discogs' specific release and EP filters. Pagination and random digging operate within the first 10,000 matching results exposed by search. Narrow broad criteria to explore further. A digging session avoids repeated release IDs and verifies EP format against loaded metadata. This history and cached search pages stay in memory.
 
-To build and run the desktop application:
+YouTube uses its visible official player, including seek and volume controls. Selection does not autoplay. Playback pauses when the player leaves view or the app is hidden, and stops when the release is replaced. It requires internet and an available video. Auto Digger does not download or extract audio.
+
+## Local crate
+
+The crate is a versioned `crate.json` file in Electron's `userData` directory. It stores validated release metadata and attached video links, never credentials. Saves prevent duplicate release IDs and preserve insertion order. Writes are serialized and replace the file atomically. Read/write errors are shown explicitly; a corrupt or unsupported file is preserved instead of silently replaced. Back up this file before manual repairs.
+
+Saved metadata can be reopened while disconnected. Artwork and YouTube still need internet. Cloud sync, named crates, export and native installers are outside this prototype.
+
+## Build and preview
 
 ```sh
 yarn build
 yarn start
 ```
 
-The build writes runnable application files to `out/`. Native installers and distribution are outside the current scope.
+Runnable files are written to `out/`. For a renderer preview use `yarn dev:web`. The browser preview has no desktop bridge, so it cannot connect to Discogs or save a crate. Both development commands use port 5173; run one at a time.
+
+Before distribution, installer packaging must register the stable app identity `io.github.alexanderwanyoike.auto-digger`, also used to identify desktop YouTube embeds.
 
 ## Checks
 
 ```sh
 yarn verify
-```
-
-This checks formatting, Airbnb-based TypeScript-aware linting, strict types, React and API integration tests, and the production build. Run the real Electron smoke tests after building:
-
-```sh
-yarn test:electron
-```
-
-On headless Linux, use:
-
-```sh
 xvfb-run --auto-servernum yarn test:electron
 ```
 
-CI runs both commands on every PR. Tests replace external HTTP responses and need no live token. The Electron tests use temporary profiles, exercise the real preload and IPC path, and check connection, lookup, disconnect, renderer isolation, blocked popups, theme persistence and compact layouts. Light/dark screenshots are saved under `test-results/`. Their records and artwork are test fixtures, not bundled catalogue data.
+`verify` runs formatting, Airbnb-based TypeScript-aware linting, strict types, unit/integration tests and the production build. On a desktop with a display, use `yarn test:electron` directly. CI runs both commands on every PR. Tests control external HTTP and YouTube API boundaries and require no live credentials. Native tests exercise actual preload/IPC, persisted crate restarts, renderer isolation, blocked popups, theme persistence and compact layouts. Screenshots are saved under `test-results/`; fixtures are not bundled catalogue data.
 
-Use `yarn format` to format the project or `yarn test:watch` while developing. EditorConfig and VS Code format-on-save settings are included; install the recommended Prettier and ESLint extensions to enable editor formatting.
+Use `yarn format` or `yarn test:watch` while developing. EditorConfig and VS Code format-on-save settings are included.
 
 ## Project notes
 
-- [Phase 1 scope](docs/phase-1.md)
-- [Phase 2 scope](docs/phase-2.md)
-- [Domain language](CONTEXT.md)
-- [Desktop foundation](docs/adr/0001-desktop-foundation.md)
-- [Discogs boundary and upstream patterns](docs/adr/0002-discogs-boundary.md)
+See the [completed handoff and PR merge order](docs/handoff.md).
 
-The renderer stays sandboxed and isolated, with no Node access. Its narrow preload bridge validates responses and exposes only the specific Discogs operations needed by this phase. Main-process handlers validate the sender and inputs. Remote artwork is limited to Discogs image hosts; fonts and icons remain local.
+- [Domain language](CONTEXT.md)
+- Phase scopes: [1](docs/phase-1.md), [2](docs/phase-2.md), [3](docs/phase-3.md), [4](docs/phase-4.md), [5](docs/phase-5.md), [6](docs/phase-6.md)
+- [Desktop foundation](docs/adr/0001-desktop-foundation.md) and [Discogs boundary](docs/adr/0002-discogs-boundary.md)
+- Review and fix records: [Phase 2](docs/reviews/phase-2.md), [Phase 3](docs/reviews/phase-3.md), [Phase 4](docs/reviews/phase-4.md), [Phase 5](docs/reviews/phase-5.md), [Phase 6](docs/reviews/phase-6.md)
+
+The renderer remains sandboxed and isolated with no Node access. Narrow preload operations validate responses, and main-process handlers validate the sender and inputs. Fonts and icons stay local. Parent-page remote resources are scoped to Discogs artwork and the official YouTube embed.

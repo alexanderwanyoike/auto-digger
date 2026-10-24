@@ -1,12 +1,20 @@
 import { useState } from 'react';
 import { Disc3 } from 'lucide-react';
+import { SaveToCrate } from '../crate/SaveToCrate';
+import type { useCrate } from '../crate/useCrate';
 import { YouTubePlayer } from '../youtube/YouTubePlayer';
 import type { useDiscogs } from './useDiscogs';
 import { ReleaseDetails } from './ReleaseDetails';
 import { DigControls } from './DigControls';
 import { SearchResults } from './SearchResults';
 
-export function ReleaseWorkspace({ session }: { session: ReturnType<typeof useDiscogs> }) {
+export function ReleaseWorkspace({
+  session,
+  crate,
+}: {
+  session: ReturnType<typeof useDiscogs>;
+  crate: ReturnType<typeof useCrate>;
+}) {
   const [id, setId] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   return (
@@ -30,13 +38,17 @@ export function ReleaseWorkspace({ session }: { session: ReturnType<typeof useDi
             placeholder="e.g. 1"
             required
             value={id}
-            disabled={session.busy}
+            disabled={session.busy || !session.account}
             onChange={(event) => {
               setId(event.target.value);
             }}
           />
         </label>
-        <button type="submit" className="secondary-button" disabled={session.busy}>
+        <button
+          type="submit"
+          className="secondary-button"
+          disabled={session.busy || !session.account}
+        >
           {session.busy ? 'Loading…' : 'Load release'}
         </button>
       </form>
@@ -57,7 +69,7 @@ export function ReleaseWorkspace({ session }: { session: ReturnType<typeof useDi
         <button
           type="button"
           className="secondary-button back-to-matches"
-          disabled={session.busy}
+          disabled={session.busy || !session.account}
           onClick={session.closeRelease}
         >
           Back to matches
@@ -65,8 +77,12 @@ export function ReleaseWorkspace({ session }: { session: ReturnType<typeof useDi
       )}
       {!session.busy && session.release && (
         <>
+          <SaveToCrate release={session.release} crate={crate} />
           <YouTubePlayer key={session.release.id} videos={session.release.videos} />
-          <ReleaseDetails release={session.release} />
+          <ReleaseDetails
+            key={`${session.release.id.toString()}-${session.release.artworkUrl ?? ''}`}
+            release={session.release}
+          />
         </>
       )}
       {!session.busy && !session.release && !session.matches && (

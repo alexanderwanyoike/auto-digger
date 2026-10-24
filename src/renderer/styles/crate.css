@@ -1,0 +1,69 @@
+.crate-panel {
+  max-height: max(516px, calc(100vh - 260px));
+}
+.crate-list {
+  padding: 0;
+  margin: 18px 0;
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+}
+.crate-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.crate-open {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  border: 0;
+  padding: 14px 0;
+  color: var(--text);
+  background: transparent;
+  text-align: left;
+  flex: 1;
+}
+.crate-open strong {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.crate-open span {
+  font-size: 9px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.crate-remove {
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+}
+.crate-footer {
+  margin-top: auto;
+}
+.crate-notice {
+  margin-top: 16px;
+  font-size: 10px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.crate-notice button {
+  margin-top: 10px;
+}
+.save-to-crate {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 24px 0;
+}
+.save-to-crate span {
+  font-size: 10px;
+  color: var(--muted);
+}

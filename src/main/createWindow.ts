@@ -1,11 +1,14 @@
-import { BrowserWindow } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { join } from 'node:path';
 import type { Result } from '../shared/result';
+import { createCrateStore } from './crate/store';
+import { registerCrateHandlers } from './crate/registerHandlers';
 import { createDiscogsSession } from './discogs/session';
 import { registerPlayerIdentity } from './youtube/registerIdentity';
 import { registerDiscogsHandlers } from './discogs/registerHandlers';
 
 const discogsSession = createDiscogsSession();
+let crateStore: ReturnType<typeof createCrateStore> | undefined;
 
 export async function createWindow(): Promise<Result<undefined, string>> {
   let window: BrowserWindow | undefined;
@@ -27,6 +30,8 @@ export async function createWindow(): Promise<Result<undefined, string>> {
         webSecurity: true,
       },
     });
+    crateStore ??= createCrateStore(join(app.getPath('userData'), 'crate.json'));
+    registerCrateHandlers(window, crateStore);
     registerDiscogsHandlers(window, discogsSession);
     registerPlayerIdentity(window.webContents.session);
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));

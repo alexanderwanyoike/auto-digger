@@ -78,6 +78,10 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
 
   return {
     account,
+    openSavedRelease: (saved: DiscogsRelease) => {
+      setRelease(saved);
+      setError(null);
+    },
     matches,
     digging,
     dig: (reset = false) => {

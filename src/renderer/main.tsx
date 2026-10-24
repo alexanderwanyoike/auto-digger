@@ -15,6 +15,7 @@ import './styles/connection.css';
 import './styles/release.css';
 import './styles/search.css';
 import './styles/youtube.css';
+import './styles/crate.css';
 
 const container = document.getElementById('root');
 
