@@ -55,7 +55,8 @@ export async function integrateAppImage(
       'Type=Application',
       'Name=Auto Digger',
       'Comment=Find records with Discogs',
-      `Exec=${quoteExecutable(appImage)}`,
+      // GLib checks the first executable before expanding literal percent escapes.
+      `Exec=env -- ${quoteExecutable(appImage)}`,
       `Icon=${icon.replaceAll('\\', '\\\\')}`,
       'Terminal=false',
       'Categories=AudioVideo;Music;',
