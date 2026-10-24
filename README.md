@@ -18,9 +18,9 @@ Auto Digger is a desktop app for discovering records on Discogs. Connect an MCP 
 
 ## Status
 
-Auto Digger is a desktop preview. The first release is being prepared, and the app can be run from source today. Native installers have not been published. Release notes and future downloads belong on [GitHub Releases](https://github.com/alexanderwanyoike/auto-digger/releases).
+Auto Digger is a desktop preview. The first release is being prepared, and the app can be run from source today. Native installers have not been published. Release notes and downloads belong on [GitHub Releases](https://github.com/alexanderwanyoike/auto-digger/releases).
 
-The project site publishes from `main` after its Pages workflow is merged. Native automated checks run on Linux; Windows and macOS distribution still need packaging and platform validation. The experimental MCP workflow is covered by automated tests with synthetic sources; real mix research through a configured AI host still needs a manual check.
+The project site publishes from `main` after its Pages workflow is merged. Installer CI builds Windows x64, macOS Apple silicon and Intel, and Linux x64 packages. PR artifacts are available for testing. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized. Interactive Windows and macOS testing remains necessary. The experimental MCP workflow is covered by automated tests with synthetic sources; real mix research through a configured AI host still needs a manual check.
 
 ## What you can do
 
