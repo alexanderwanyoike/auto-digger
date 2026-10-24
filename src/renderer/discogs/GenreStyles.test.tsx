@@ -39,3 +39,29 @@ test('offers Hip Hop styles without unrelated electronic options', async () => {
   await user.keyboard('{Escape}');
   expect(screen.getByLabelText('Remove Boom Bap')).toBeInTheDocument();
 });
+
+test('combines genres and removes stale styles while preserving compatible selections', async () => {
+  const search = renderDesk();
+  const user = userEvent.setup();
+  await screen.findByRole('button', { name: 'Connected as quiet-digger' });
+  await user.type(screen.getByLabelText('Genre'), 'Electronic');
+  await user.click(screen.getByRole('option', { name: 'Electronic' }));
+  await user.type(screen.getByLabelText('Style'), 'Deep House');
+  await user.click(screen.getByRole('option', { name: 'Deep House' }));
+  await user.type(screen.getByLabelText('Genre'), 'Hip Hop');
+  await user.click(screen.getByRole('option', { name: 'Hip Hop' }));
+  await user.type(screen.getByLabelText('Style'), 'Boom Bap');
+  await user.click(screen.getByRole('option', { name: 'Boom Bap' }));
+  await user.keyboard('{Escape}');
+  expect(screen.getByLabelText('Remove Deep House')).toBeInTheDocument();
+  await user.click(screen.getByLabelText('Remove Electronic'));
+  expect(screen.queryByLabelText('Remove Deep House')).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Remove Boom Bap')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Search releases' }));
+  expect(search.mock.lastCall?.[0].filters.genre).toEqual(['Hip Hop']);
+  expect(search.mock.lastCall?.[0].filters.style).toEqual(['Boom Bap']);
+  await user.click(screen.getByLabelText('Remove Hip Hop'));
+  expect(screen.getByLabelText('Remove Boom Bap')).toBeInTheDocument();
+  await user.type(screen.getByLabelText('Style'), 'Deep House');
+  expect(screen.getByRole('option', { name: 'Deep House' })).toBeInTheDocument();
+});
