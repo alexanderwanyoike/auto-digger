@@ -1,4 +1,6 @@
-# Progressive preview
+# Progressive preview (retired)
+
+This feature was removed at the user's request. Audio is downloaded before local playback. The original design below is retained as historical context.
 
 A source can be previewed before saving it. The shared bottom player streams audio progressively, supports pause/seek/volume and identifies previews separately from local downloads. Previewing creates no audio file, sidecar or saved-library entry. Download remains an explicit action.
 
