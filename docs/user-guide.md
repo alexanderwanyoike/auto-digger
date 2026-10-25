@@ -51,3 +51,9 @@ The catalogue is `catalog.sqlite` in Electron's `userData` directory. The encryp
 Legacy `crate.json` data is validated, backed up to `crate.json.bak` and imported once. Unsupported or corrupt storage is preserved and reported. Do not delete the catalogue to recover a missing selection; check the active crate first.
 
 For a bug report, include your operating system, app version, steps to reproduce and the readable error. Remove tokens and private file paths from screenshots. Use [GitHub Issues](https://github.com/alexanderwanyoike/auto-digger/issues).
+
+## Linux application menu
+
+The AppImage adds Auto Digger to your application menu when you first run it. This is a shortcut for your user account and needs no administrator access. Keep the AppImage in the folder you want to run it from. If you move it or download a new version, run that copy once to update the shortcut.
+
+The app uses the standard XDG data directory, so it does not depend on a particular Linux distribution or desktop. It writes `applications/io.github.alexanderwanyoike.auto-digger.desktop` and `icons/io.github.alexanderwanyoike.auto-digger.png` beneath `$XDG_DATA_HOME`, or `~/.local/share` by default. Remove those two files to remove the shortcut. If that directory cannot be written, the app still opens normally from its AppImage.
