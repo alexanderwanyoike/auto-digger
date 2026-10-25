@@ -26,11 +26,11 @@ test('chooses a material, mode and accent visually while preserving download set
     await user.click(screen.getByRole('button', { name: 'Settings' }));
     const appearance = screen.getByRole('region', { name: 'Appearance settings' });
     const material = within(appearance).getByRole('group', { name: 'Material' });
-    expect(within(material).getAllByRole('radio')).toHaveLength(6);
+    expect(within(material).getAllByRole('radio')).toHaveLength(7);
     expect(await within(material).findByRole('radio', { name: 'Brushed aluminium' })).toBeChecked();
-    await user.click(within(material).getByRole('radio', { name: 'Copper' }));
-    expect(save).toHaveBeenCalledWith({ material: 'copper', accent: 'blue', layout: 'release' });
-    expect(document.documentElement).toHaveAttribute('data-material', 'copper');
+    await user.click(within(material).getByRole('radio', { name: 'Spotify' }));
+    expect(save).toHaveBeenCalledWith({ material: 'spotify', accent: 'blue', layout: 'release' });
+    expect(document.documentElement).toHaveAttribute('data-material', 'spotify');
     const mode = within(appearance).getByRole('group', { name: 'Appearance mode' });
     await user.click(within(mode).getByRole('radio', { name: 'Dark' }));
     expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
@@ -39,7 +39,7 @@ test('chooses a material, mode and accent visually while preserving download set
     expect(within(accent).getAllByRole('radio')).toHaveLength(7);
     await user.click(within(accent).getByRole('radio', { name: 'Rose' }));
     expect(save).toHaveBeenLastCalledWith({
-      material: 'copper',
+      material: 'spotify',
       accent: 'rose',
       layout: 'release',
     });
