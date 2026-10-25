@@ -28,9 +28,9 @@ test('chooses a material, mode and accent visually while preserving download set
     const material = within(appearance).getByRole('group', { name: 'Material' });
     expect(within(material).getAllByRole('radio')).toHaveLength(7);
     expect(await within(material).findByRole('radio', { name: 'Brushed aluminium' })).toBeChecked();
-    await user.click(within(material).getByRole('radio', { name: 'Spotify' }));
-    expect(save).toHaveBeenCalledWith({ material: 'spotify', accent: 'blue', layout: 'release' });
-    expect(document.documentElement).toHaveAttribute('data-material', 'spotify');
+    await user.click(within(material).getByRole('radio', { name: 'Carbon' }));
+    expect(save).toHaveBeenCalledWith({ material: 'carbon', accent: 'blue', layout: 'release' });
+    expect(document.documentElement).toHaveAttribute('data-material', 'carbon');
     const mode = within(appearance).getByRole('group', { name: 'Appearance mode' });
     await user.click(within(mode).getByRole('radio', { name: 'Dark' }));
     expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
@@ -39,7 +39,7 @@ test('chooses a material, mode and accent visually while preserving download set
     expect(within(accent).getAllByRole('radio')).toHaveLength(7);
     await user.click(within(accent).getByRole('radio', { name: 'Rose' }));
     expect(save).toHaveBeenLastCalledWith({
-      material: 'spotify',
+      material: 'carbon',
       accent: 'rose',
       layout: 'release',
     });
