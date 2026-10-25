@@ -8,20 +8,37 @@ test('preserves a draft when saving fails and retries it without restoring older
   const snapshot = { draft: emptyFilters, presets: [] };
   const bridge: SavedFiltersBridge = {
     read: vi.fn().mockResolvedValue({ ok: true, value: snapshot }),
-    saveDraft: vi.fn<SavedFiltersBridge['saveDraft']>()
-      .mockResolvedValueOnce({ ok: false, error: { code: 'storage', message: 'Could not save filters.' } })
+    saveDraft: vi
+      .fn<SavedFiltersBridge['saveDraft']>()
+      .mockResolvedValueOnce({
+        ok: false,
+        error: { code: 'storage', message: 'Could not save filters.' },
+      })
       .mockImplementation((draft) => Promise.resolve({ ok: true, value: { ...snapshot, draft } })),
-    savePreset: vi.fn(), removePreset: vi.fn(),
+    savePreset: vi.fn(),
+    removePreset: vi.fn(),
   };
   const { result } = renderHook(() => useSavedFilters(bridge));
-  await waitFor(() => expect(result.current.ready).toBe(true));
-  act(() => result.current.setDraft({ ...emptyFilters, year: '1990-1999' }));
-  await waitFor(() => expect(result.current.error).toBe('Could not save filters.'));
+  await waitFor(() => {
+    expect(result.current.ready).toBe(true);
+  });
+  act(() => {
+    result.current.setDraft({ ...emptyFilters, year: '1990-1999' });
+  });
+  await waitFor(() => {
+    expect(result.current.error).toBe('Could not save filters.');
+  });
   await act(async () => result.current.reload());
-  await waitFor(() => expect(bridge.saveDraft).toHaveBeenCalledTimes(2));
+  await waitFor(() => {
+    expect(bridge.saveDraft).toHaveBeenCalledTimes(2);
+  });
   expect(result.current.draft.year).toBe('1990-1999');
   expect(result.current.error).toBeNull();
-  act(() => result.current.setDraft({ ...emptyFilters, year: '1990-' }));
-  await act(async () => { await Promise.resolve(); });
+  act(() => {
+    result.current.setDraft({ ...emptyFilters, year: '1990-' });
+  });
+  await act(async () => {
+    await Promise.resolve();
+  });
   expect(bridge.saveDraft).toHaveBeenCalledTimes(2);
 });

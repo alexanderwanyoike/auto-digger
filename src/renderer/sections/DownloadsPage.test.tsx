@@ -57,9 +57,17 @@ test.each(['failed', 'cancelled'] as const)(
 );
 
 test('guides an empty library to downloading from the digging desk', async () => {
-  const bridge: AudioBridge = { list: () => Promise.resolve({ ok: true, value: [] }),
-    probe: vi.fn(), download: vi.fn(), reveal: vi.fn() };
-  function Harness() { return <DownloadsPage audio={useAudioLibrary(bridge)} />; }
+  const bridge: AudioBridge = {
+    list: () => Promise.resolve({ ok: true, value: [] }),
+    probe: vi.fn(),
+    download: vi.fn(),
+    reveal: vi.fn(),
+  };
+  function Harness() {
+    return <DownloadsPage audio={useAudioLibrary(bridge)} />;
+  }
   render(<Harness />);
-  expect(await screen.findByText('No downloads yet. Download a track from the digging desk.')).toBeVisible();
+  expect(
+    await screen.findByText('No downloads yet. Download a track from the digging desk.'),
+  ).toBeVisible();
 });
