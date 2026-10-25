@@ -47,7 +47,7 @@ test('researches verified release tracks through MCP and preserves visible prove
       await page.evaluate(async () => window.discogs?.connect('research-fixture-token')),
     ).toMatchObject({ ok: true });
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await page.getByRole('button', { name: 'Enable research access', exact: true }).click();
+    await page.getByRole('button', { name: 'Enable MCP', exact: true }).click();
     const access = await page.evaluate(async () => window.researchAccess?.status());
     if (!access?.ok) throw new Error('No research access');
     expect(JSON.stringify(access.value)).not.toContain('research-fixture-token');

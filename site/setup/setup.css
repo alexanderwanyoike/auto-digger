@@ -151,3 +151,9 @@
     margin-bottom: 28px;
   }
 }
+
+.setup-copy details summary {
+  cursor: pointer;
+  color: #d8dee7;
+  margin-block: 16px;
+}

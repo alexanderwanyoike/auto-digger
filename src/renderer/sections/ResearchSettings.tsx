@@ -7,7 +7,8 @@ export function ResearchSettings() {
   const [access, setAccess] = useState<ResearchAccess | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [format, setFormat] = useState('json');
+  const [format, setFormat] = useState('toml');
+  const [saved, setSaved] = useState(false);
   useEffect(() => {
     let active = true;
     bridge
@@ -37,15 +38,29 @@ export function ResearchSettings() {
       setBusy(false);
     }
   }
+  async function saveExtension() {
+    setBusy(true);
+    setError(null);
+    setSaved(false);
+    try {
+      const result = await bridge?.saveExtension();
+      if (result?.ok) setSaved(Boolean(result.value));
+      else setError(result ? result.error.message : 'Open the desktop app to save the extension.');
+    } catch {
+      setError('The extension could not be saved. Please retry.');
+    } finally {
+      setBusy(false);
+    }
+  }
   const config = access?.configuration;
   const json = config ? JSON.stringify({ mcpServers: { auto_digger: config } }, null, 2) : '';
   const toml = config
-    ? `[mcp_servers.auto_digger]\ncommand = ${JSON.stringify(config.command)}\nargs = ${JSON.stringify(config.args)}`
+    ? `[mcp_servers.auto_digger]\ncommand = ${JSON.stringify(config.command)}\nargs = ${JSON.stringify(config.args)}\nenv = { ELECTRON_RUN_AS_NODE = "1" }`
     : '';
   return (
     <div className="settings-card research-settings">
       <h2>
-        AI mix research <span className="eyebrow">Experimental</span>
+        Auto Digger MCP <span className="eyebrow">Experimental</span>
       </h2>
       <p>
         Let an MCP client research mixes and save releases, track picks and source notes to your
@@ -60,37 +75,90 @@ export function ResearchSettings() {
             change(() => (access?.enabled ? bridge.stop() : bridge.start())).catch(() => undefined);
         }}
       >
-        {access?.enabled ? 'Disable research access' : 'Enable research access'}
+        {access?.enabled ? 'Disable MCP' : 'Enable MCP'}
       </button>
       {access?.enabled && (
         <>
           <p>
             Access ends when you disable it or close Auto Digger. Keep the app open and connect
-            Discogs for searches. Node.js 22 or newer must be available to your MCP client.
+            Discogs for searches. No separate Node.js installation is needed for MCP.
           </p>
-          <label htmlFor="research-config-format">
-            Client format
-            <select
-              id="research-config-format"
-              value={format}
-              onChange={(event) => {
-                setFormat(event.target.value);
-              }}
-            >
-              <option value="json">JSON client configuration</option>
-              <option value="toml">Codex TOML configuration</option>
-            </select>
-          </label>
-          <label htmlFor="research-config">
-            MCP client configuration
-            <textarea
-              id="research-config"
-              readOnly
-              rows={7}
-              spellCheck={false}
-              value={format === 'json' ? json : toml}
-            />
-          </label>
+          <h3>Claude Desktop</h3>
+          <button
+            className="secondary-button"
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              saveExtension().catch(() => undefined);
+            }}
+          >
+            Save Auto Digger MCP
+          </button>
+          {saved && <p role="status">Extension saved. Install it in Claude Desktop.</p>}
+          <p>
+            In Claude, open Settings → Desktop app. Choose Manage beside Extensions, then Advanced
+            settings → Install Extension. Choose the saved file.
+          </p>
+          <details>
+            <summary>Codex and other local clients</summary>
+            <p>
+              For Codex, choose STDIO and use the command, arguments and environment shown below.
+              Claude Code can use the same local server.
+            </p>
+            <label htmlFor="research-command">
+              Command
+              <input
+                id="research-command"
+                readOnly
+                value={config?.command ?? ''}
+                onFocus={(event) => {
+                  event.currentTarget.select();
+                }}
+              />
+            </label>
+            {config?.args.map((argument, index) => (
+              <label key={argument} htmlFor={`research-argument-${index.toString()}`}>
+                Argument {(index + 1).toString()}
+                <input
+                  id={`research-argument-${index.toString()}`}
+                  readOnly
+                  value={argument}
+                  onFocus={(event) => {
+                    event.currentTarget.select();
+                  }}
+                />
+              </label>
+            ))}
+            <p>
+              Environment variable: <code>ELECTRON_RUN_AS_NODE</code> with value <code>1</code>.
+            </p>
+            <details>
+              <summary>Advanced configuration</summary>
+              <label htmlFor="research-config-format">
+                Client format
+                <select
+                  id="research-config-format"
+                  value={format}
+                  onChange={(event) => {
+                    setFormat(event.target.value);
+                  }}
+                >
+                  <option value="json">JSON client configuration</option>
+                  <option value="toml">Codex TOML configuration</option>
+                </select>
+              </label>
+              <label htmlFor="research-config">
+                MCP client configuration
+                <textarea
+                  id="research-config"
+                  readOnly
+                  rows={7}
+                  spellCheck={false}
+                  value={format === 'json' ? json : toml}
+                />
+              </label>
+            </details>
+          </details>
         </>
       )}
       {error && <p role="alert">{error}</p>}

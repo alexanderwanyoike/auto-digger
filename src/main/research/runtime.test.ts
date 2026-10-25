@@ -17,7 +17,11 @@ test('only serves authorized local requests while enabled and revokes access on 
       ok: true,
       value: {
         enabled: true,
-        configuration: { command: 'node', args: ['/app/out/main/mcp.js', '--connection', file] },
+        configuration: {
+          command: process.execPath,
+          args: ['/app/out/main/mcp.js', '--connection', file],
+          env: { ELECTRON_RUN_AS_NODE: '1' },
+        },
       },
     });
     const connection = researchConnectionSchema.parse(JSON.parse(await readFile(file, 'utf8')));

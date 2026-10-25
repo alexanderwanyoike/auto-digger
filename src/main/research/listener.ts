@@ -29,7 +29,7 @@ export function createResearchListener(
         respond(
           response,
           401,
-          catalogueFailure('unavailable', 'Enable research access in Auto Digger to connect.'),
+          catalogueFailure('unavailable', 'Enable MCP in Auto Digger to connect.'),
         );
         return;
       }
