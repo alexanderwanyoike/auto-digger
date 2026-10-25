@@ -17,7 +17,7 @@ export function useSavedFilters(bridge: SavedFiltersBridge | undefined) {
   const [reloadVersion, setReloadVersion] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const edited = useRef(false);
-  const persisted = useRef(JSON.stringify(emptyFilters));
+  const pendingSave = useRef(Promise.resolve());
   const changeDraft = (value: DigFilters) => {
     edited.current = true;
     setDraft(value);
@@ -45,7 +45,6 @@ export function useSavedFilters(bridge: SavedFiltersBridge | undefined) {
       setPresets(result.value.presets);
       if (!edited.current) {
         setDraft(result.value.draft);
-        persisted.current = JSON.stringify(result.value.draft);
       }
       setError(null);
       setReady(true);
@@ -57,17 +56,17 @@ export function useSavedFilters(bridge: SavedFiltersBridge | undefined) {
   }, [bridge, reload]);
   useEffect(() => {
     const parsed = filtersSchema.safeParse(draft);
-    if (!bridge || !ready || !parsed.success || JSON.stringify(parsed.data) === persisted.current)
-      return undefined;
-    perform((api) => api.saveDraft(parsed.data))
-      .then((result) => {
-        if (result.ok) {
-          persisted.current = JSON.stringify(parsed.data);
-          setError(null);
-        } else setError(result.error.message);
-      })
-      .catch(() => undefined);
-    return undefined;
+    if (!bridge || !ready || !edited.current || !parsed.success) return undefined;
+    let active = true;
+    pendingSave.current = pendingSave.current.then(async () => {
+      const result = await perform((api) => api.saveDraft(parsed.data));
+      if (!active) return;
+      if (result.ok) setError(null);
+      else setError(result.error.message);
+    });
+    return () => {
+      active = false;
+    };
   }, [bridge, draft, ready, perform, reloadVersion]);
   async function mutate(operation: (api: SavedFiltersBridge) => Promise<SavedFiltersResult>) {
     setBusy(true);
