@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeImage, net } from 'electron';
+import { app, BrowserWindow, nativeImage } from 'electron';
 import { join } from 'node:path';
 import { createApplicationUpdates } from './updates/runtime';
 import { registerUpdateHandlers } from './updates/registerHandlers';
@@ -14,6 +14,7 @@ import { electronEncryption } from './credentials/electronEncryption';
 import { createDiscogsSession } from './discogs/session';
 import { registerDiscogsHandlers } from './discogs/registerHandlers';
 import { createIndexedLibrary } from './audio/indexedLibrary';
+import { registerSavedFiltersHandlers } from './filters/registerHandlers';
 import { registerPreferencesHandlers } from './settings/registerHandlers';
 import { createCommandRunner } from './audio/command';
 import { createDownloadJobs } from './audio/jobs';
@@ -21,11 +22,9 @@ import { registerDownloadJobHandlers } from './audio/registerJobHandlers';
 import { createDownloader } from './audio/downloader';
 import { registerAudioHandlers } from './audio/registerHandlers';
 import { registerAudioProtocol } from './audio/protocol';
-import { createPreviewSession } from './audio/previewSession';
 import { createResearchService } from './research/service';
 import { createResearchRuntime } from './research/runtime';
 import { registerResearchHandlers } from './research/registerHandlers';
-import { createPreviewResolver } from './audio/previewResolver';
 
 let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
 let crateStore: ReturnType<typeof createLegacyCrateStore> | undefined;
@@ -36,16 +35,11 @@ const audioCommands = createCommandRunner();
 const downloader = createDownloader((args, timeout, signal, onLine) =>
   audioCommands.execute(args, timeout, signal, onLine),
 );
-const previews = createPreviewSession(
-  createPreviewResolver((args, timeout, signal) => audioCommands.execute(args, timeout, signal)),
-  (input, options) => net.fetch(input instanceof URL ? input.href : input, options),
-);
 let researchRuntime: ReturnType<typeof createResearchRuntime> | undefined;
 let updates: ReturnType<typeof createApplicationUpdates>;
 let closingCatalogue = false;
 app.on('before-quit', (event) => {
   audioCommands.cancelAll();
-  previews.stop();
   if (catalogueStore && !closingCatalogue) {
     event.preventDefault();
     closingCatalogue = true;
@@ -103,6 +97,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     crateStore ??= createLegacyCrateStore(catalogueStore);
     registerCatalogueHandlers(window, catalogueStore);
     registerPreferencesHandlers(window, catalogueStore.preferences);
+    registerSavedFiltersHandlers(window, catalogueStore.filters);
     registerStoreLinkHandlers(window);
     updates ??= createApplicationUpdates();
     registerUpdateHandlers(window, updates);
@@ -125,16 +120,13 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     const downloadsDirectory = join(app.getPath('music'), 'Auto Digger');
     if (!audioLibrary) {
       audioLibrary = createIndexedLibrary(downloadsDirectory, catalogueStore, downloader);
-      registerAudioProtocol(audioLibrary, previews);
+      registerAudioProtocol(audioLibrary);
     }
     const library = audioLibrary;
     downloadJobs ??= createDownloadJobs((input, options) => library.download(input, options));
     registerDownloadJobHandlers(window, downloadJobs);
-    registerAudioHandlers(window, audioLibrary, downloader, previews);
+    registerAudioHandlers(window, audioLibrary, downloader);
     registerDiscogsHandlers(window, discogsSession);
-    window.on('closed', () => {
-      previews.stop();
-    });
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event) => {
       event.preventDefault();

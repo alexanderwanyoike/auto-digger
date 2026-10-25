@@ -19,8 +19,7 @@ export function TrackRow({
   const album = track?.album ?? job?.album ?? 'Release not listed';
   const artwork = track?.artworkUrl ?? job?.artworkUrl ?? null;
   const note = (job?.stage === 'failed' ? job.error?.message : null) ?? track?.warning;
-  const current =
-    track && audio.playback.track?.source === 'download' && audio.playback.track.id === track.id;
+  const current = track && audio.playback.track?.id === track.id;
   return (
     <tr className="library-row" aria-current={current ? 'true' : undefined}>
       <td>

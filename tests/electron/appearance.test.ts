@@ -47,9 +47,9 @@ import { resolve } from 'node:path';
           surface: getComputedStyle(element).getPropertyValue('--surface').trim(),
         })),
       );
-      expect(previews).toHaveLength(6);
+      expect(previews).toHaveLength(7);
       expect(previews.every((preview) => preview.width > 190 && preview.height >= 60)).toBe(true);
-      expect(new Set(previews.map((preview) => preview.surface)).size).toBe(6);
+      expect(new Set(previews.map((preview) => preview.surface)).size).toBe(7);
       await page.screenshot({ path: `test-results/appearance-${width.toString()}-dark.png` });
       await mode.getByRole('radio', { name: 'Light', exact: true }).check();
       await page.screenshot({ path: `test-results/appearance-${width.toString()}-light.png` });

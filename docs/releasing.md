@@ -2,7 +2,7 @@
 
 Feature branches start from `dev` and target `dev`. Use merge commits. Promote completed work through a `dev` to `main` release PR.
 
-Before promoting a release, run `yarn verify`, `xvfb-run --auto-servernum yarn test:electron` and `xvfb-run --auto-servernum yarn package:test` on the combined code. Check a real Discogs account, preview/download flow and an MCP session with your client before publishing.
+Before promoting a release, run `yarn verify`, `xvfb-run --auto-servernum yarn test:electron` and `xvfb-run --auto-servernum yarn package:test` on the combined code. Check a real Discogs account, download/playback flow and an MCP session with your client before publishing.
 
 ## Installers
 

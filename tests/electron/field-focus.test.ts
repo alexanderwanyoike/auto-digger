@@ -1,6 +1,7 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 import { resolve } from 'node:path';
+import { selectAppearance } from '../appearance';
 import { contrast } from '../contrast';
 
 async function expectFlushFocus(field: Locator) {
@@ -71,7 +72,7 @@ async function expectSystemFocus(field: Locator) {
     try {
       const page = await desktop.firstWindow();
       await page.setViewportSize({ width: 1180, height: 1000 });
-      await page.getByRole('button', { name: mode, exact: true }).click();
+      await selectAppearance(page, mode);
       await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
       const token = page.getByLabel('Personal token');
       await token.focus();
@@ -86,7 +87,7 @@ async function expectSystemFocus(field: Locator) {
       await page
         .getByRole('radio', { name: mode === 'Light' ? 'Blue' : 'Rose', exact: true })
         .check();
-      await page.getByRole('button', { name: mode, exact: true }).click();
+      await selectAppearance(page, mode);
       await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       const label = page.getByLabel('Label', { exact: true });
       await label.focus();

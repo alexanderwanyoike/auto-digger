@@ -110,7 +110,7 @@ test('reviews album source coverage, downloads one source per track and shows qu
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     const sources = page.getByRole('region', { name: 'Audio sources' });
     await expect(
-      sources.getByRole('button', { name: 'Preview', exact: true }).last(),
+      sources.getByRole('button', { name: 'Download audio', exact: true }).last(),
     ).toBeEnabled();
     await sources
       .getByRole('list', { name: 'YouTube audio sources' })
@@ -124,7 +124,7 @@ test('reviews album source coverage, downloads one source per track and shows qu
     await page.getByRole('button', { name: 'Download 2 available tracks', exact: true }).click();
     await expect(
       page.getByRole('progressbar', { name: 'Progress for Quiet Orbit', exact: true }),
-    ).toHaveAttribute('value', '25');
+    ).toHaveAttribute('aria-valuenow', '25');
     await page.getByRole('button', { name: 'Cancel download Quiet Orbit', exact: true }).click();
     await page.getByRole('button', { name: 'Downloads', exact: true }).click();
     await expect(
