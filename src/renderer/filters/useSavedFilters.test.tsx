@@ -74,14 +74,24 @@ test('persists a quick revert after an earlier draft save finishes', async () =>
     removePreset: vi.fn(),
   };
   const { result } = renderHook(() => useSavedFilters(bridge));
-  await waitFor(() => expect(result.current.ready).toBe(true));
-  act(() => result.current.setDraft({ ...original, year: '2001' }));
-  await waitFor(() => expect(bridge.saveDraft).toHaveBeenCalledTimes(1));
-  act(() => result.current.setDraft(original));
+  await waitFor(() => {
+    expect(result.current.ready).toBe(true);
+  });
+  act(() => {
+    result.current.setDraft({ ...original, year: '2001' });
+  });
+  await waitFor(() => {
+    expect(bridge.saveDraft).toHaveBeenCalledTimes(1);
+  });
+  act(() => {
+    result.current.setDraft(original);
+  });
   await act(async () => {
     finishEarlierSave();
     await pending;
   });
-  await waitFor(() => expect(persistedYear).toBe('1998'));
+  await waitFor(() => {
+    expect(persistedYear).toBe('1998');
+  });
   expect(result.current.draft).toEqual(original);
 });
