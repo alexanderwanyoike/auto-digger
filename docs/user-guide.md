@@ -22,13 +22,11 @@ Submit **Search releases** to apply your filters. Browse sleeves, choose **Dig a
 
 Discogs search exposes up to the first 10,000 matching results. Narrow broad criteria to explore further. Seen release IDs and cached search pages stay in memory for the session.
 
-## Preview and download
+## Download audio
 
 Every attached video has its own source row. **Discogs track** names the release track; **YouTube video** names the upload. Auto Digger matches unambiguous complete titles. Correct a suggestion or choose **Keep video title** when a source covers something different. Multiple videos can map to one track.
 
-Choose **Preview** to listen through the bottom player without adding a file or download entry. Preparing and buffering states explain the wait. Another preview replaces the current one, and you can stop it at any time.
-
-Choose **Download audio** to keep a source. The shared queue shows measured progress, conversion and tagging stages. Cancel or retry from the release or Downloads. **Download release** reviews source coverage, chooses one upload per track and lets you skip tracks. Gaps remain visible. Existing saved sources are reused.
+Choose the download icon to save a source. It becomes a spinner with measured progress, then a play button when the track is saved. Preparation, conversion and tagging show a spinner until they finish. Click an active download to cancel; open Downloads to retry failures. **Download release** reviews source coverage, chooses one upload per track and lets you skip tracks. Gaps remain visible. Existing saved sources are reused.
 
 Private, removed or restricted sources show a readable error with **Check again**. yt-dlp, FFmpeg and FFprobe must be installed and available on `PATH`; update yt-dlp if extraction stops working.
 
@@ -36,7 +34,7 @@ Private, removed or restricted sources show a readable error with **Check again*
 
 Files initially live in the operating system's `Music/Auto Digger` folder, with names such as `Artist - Track [release-video].yt.mp3`. Downloads use best-effort Discogs artist, album, year, genre/style and matched-track tags, plus available front-cover artwork. Missing metadata leaves usable audio with a notice. **Update tags** can correct a saved assignment offline.
 
-The bottom bar plays local audio or the active preview, with play/pause, seeking and volume. Choosing another record or disconnecting Discogs keeps the current saved track playing. Use the download selector to reopen a saved track. If autoplay is blocked, press play. Use the folder button or **Show in folder** to find a track.
+The bottom bar plays downloaded audio, with play/pause, seeking and volume. Choosing another record or disconnecting Discogs keeps the current saved track playing. Use the download selector to reopen a saved track. If autoplay is blocked, press play. Use the folder button or **Show in folder** to find a track.
 
 **Downloads** is one searchable list. Missing MP3s remain visible beside healthy tracks and offer recovery actions. Keep versioned JSON sidecars alongside the MP3s; SQLite records metadata and file locations.
 
