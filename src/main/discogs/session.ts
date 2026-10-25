@@ -60,7 +60,7 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       if (!parsed.success)
         return discogsFailure(
           'invalid-input',
-          'Use a four-digit year and filters of at most 160 characters.',
+          'Use a year such as 1998 or a range such as 1990-1999, with the earlier year first.',
         );
       const result = await searchDiscogs(parsed.data, acceptedToken, request);
       if (started !== revision)

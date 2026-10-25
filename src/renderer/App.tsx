@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
+import { useSavedFilters } from './filters/useSavedFilters';
 import { UpdateNotice } from './components/UpdateNotice';
 import { usePreferences } from './sections/usePreferences';
 import type { CatalogueBridge } from '../shared/catalogue';
@@ -13,7 +14,6 @@ import { useDiscogs } from './discogs/useDiscogs';
 import { ConnectionDialog } from './discogs/ConnectionDialog';
 import { ReleaseWorkspace } from './discogs/ReleaseWorkspace';
 import { useAppearance } from './theme/useAppearance';
-import { AppearanceControl } from './components/AppearanceControl';
 import { FilterPanel } from './components/FilterPanel';
 import { DiscoveryPanel } from './components/DiscoveryPanel';
 import { CratePanel } from './components/CratePanel';
@@ -43,6 +43,7 @@ export function App({
   const [section, setSection] = useState<keyof typeof sectionIcons>('Digging desk');
   const SectionIcon = sectionIcons[section];
   const preferences = usePreferences(window.preferences);
+  const filters = useSavedFilters(window.savedFilters);
   const audio = useAudioLibrary(audioBridge);
   const crate = useCrate(crateBridge, catalogue);
   const session = useDiscogs(discogs);
@@ -75,7 +76,6 @@ export function App({
           <span className={session.account ? 'blue-dot' : 'status-dot'} />
           {session.account ? `Connected as ${session.account.username}` : 'Discogs not connected'}
         </button>
-        <AppearanceControl appearance={appearance} onSelect={selectAppearance} />
       </header>
       {!storageAvailable && (
         <p role="status" className="preference-notice">
@@ -145,7 +145,7 @@ export function App({
         )}
         {section === 'Digging desk' && (
           <div className="workspace">
-            <FilterPanel session={session} />
+            <FilterPanel session={session} filters={filters} />
             {session.account || session.release ? (
               <ReleaseWorkspace session={session} crate={crate} audio={audio} />
             ) : (

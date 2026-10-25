@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { releaseSchema } from './discogs';
 import type { DiscogsRelease } from './discogs';
 import type { Result } from './result';
-import type { PlaybackItem } from './playback';
 
 export const audioErrorSchema = z.object({
   code: z.enum([
@@ -57,16 +56,12 @@ export interface DownloadInput {
   trackIndex?: number | null;
 }
 export const audioChannels = {
-  preview: 'audio:preview',
-  stopPreview: 'audio:stop-preview',
   list: 'audio:list',
   probe: 'audio:probe',
   download: 'audio:download',
   reveal: 'audio:reveal',
 } as const;
 export interface AudioBridge {
-  preview: (input: DownloadInput) => Promise<AudioResult<PlaybackItem>>;
-  stopPreview: () => Promise<AudioResult<undefined>>;
   list: () => Promise<AudioResult<LocalTrack[]>>;
   probe: (url: string) => Promise<AudioResult<AudioSource>>;
   download: (input: DownloadInput) => Promise<AudioResult<LocalTrack>>;

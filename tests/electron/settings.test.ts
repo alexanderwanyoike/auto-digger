@@ -30,14 +30,14 @@ test('persists settings and finds old and per-release downloads after a native r
       );
     }, chosen);
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await page.getByRole('radio', { name: 'Slate', exact: true }).check();
+    await page.getByRole('radio', { name: 'Carbon', exact: true }).check();
     await page.getByRole('radio', { name: 'Green', exact: true }).check();
     await page
       .getByRole('combobox', { name: 'Download organisation', exact: true })
       .selectOption('release');
     await page.getByRole('button', { name: 'Choose downloads folder', exact: true }).click();
     await expect(page.getByText(chosen, { exact: true })).toBeVisible();
-    await expect(page.locator('html')).toHaveAttribute('data-material', 'slate');
+    await expect(page.locator('html')).toHaveAttribute('data-material', 'carbon');
     await expect(page.locator('html')).toHaveAttribute('data-accent', 'green');
     await page.evaluate(
       async (release) => window.audioLibrary?.download({ release, videoIndex: 0 }),
@@ -47,7 +47,7 @@ test('persists settings and finds old and per-release downloads after a native r
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
-    await expect(page.locator('html')).toHaveAttribute('data-material', 'slate');
+    await expect(page.locator('html')).toHaveAttribute('data-material', 'carbon');
     const music = await desktop.evaluate(({ app }) => app.getPath('music'));
     const tracks = await page.evaluate(async () => window.audioLibrary?.list());
     if (!tracks?.ok || !tracks.value[0] || !tracks.value[1])
@@ -95,25 +95,26 @@ test('keeps small text and accent actions readable across supported materials, a
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     const accentNames: Record<string, string> = { electric: 'Electric blue', pink: 'Hot pink' };
     const choices = ['light', 'dark'].flatMap((mode) =>
-      ['aluminium', 'ceramic', 'slate', 'graphite', 'paper', 'copper'].flatMap((material) =>
-        [
-          'blue',
-          'teal',
-          'amber',
-          'coral',
-          'sage',
-          'lilac',
-          'rose',
-          'electric',
-          'green',
-          'orange',
-          'pink',
-          'violet',
-        ].map((accent) => ({
-          mode,
-          material,
-          accent,
-        })),
+      ['aluminium', 'ceramic', 'slate', 'graphite', 'paper', 'copper', 'carbon'].flatMap(
+        (material) =>
+          [
+            'blue',
+            'teal',
+            'amber',
+            'coral',
+            'sage',
+            'lilac',
+            'rose',
+            'electric',
+            'green',
+            'orange',
+            'pink',
+            'violet',
+          ].map((accent) => ({
+            mode,
+            material,
+            accent,
+          })),
       ),
     );
     await choices.reduce<Promise<void>>(

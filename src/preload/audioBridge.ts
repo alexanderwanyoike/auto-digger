@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { audioChannels, audioErrorSchema, localTrackSchema, sourceSchema } from '../shared/audio';
 import type { AudioBridge, AudioResult } from '../shared/audio';
-import { playbackItemSchema } from '../shared/playback';
 import { audioFailure } from '../shared/audioFailure';
 
 export function createAudioBridge(
@@ -28,8 +27,6 @@ export function createAudioBridge(
     );
   }
   return {
-    preview: (input) => call(audioChannels.preview, playbackItemSchema, input),
-    stopPreview: () => call(audioChannels.stopPreview, z.undefined()),
     list: () => call(audioChannels.list, z.array(localTrackSchema)),
     probe: (url) => call(audioChannels.probe, sourceSchema, url),
     download: (input) => call(audioChannels.download, localTrackSchema, input),

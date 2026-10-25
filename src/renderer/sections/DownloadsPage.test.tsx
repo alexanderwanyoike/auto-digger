@@ -34,8 +34,6 @@ test.each(['failed', 'cancelled'] as const)(
       error: stage === 'failed' ? { code: 'unavailable', message: 'Try again' } : null,
     };
     const bridge: AudioBridge = {
-      preview: vi.fn(),
-      stopPreview: vi.fn(),
       list: () => Promise.resolve({ ok: true, value: [track] }),
       probe: vi.fn(),
       download: vi.fn(),
@@ -57,3 +55,19 @@ test.each(['failed', 'cancelled'] as const)(
     expect(screen.getByText('File missing or unavailable')).toBeVisible();
   },
 );
+
+test('guides an empty library to downloading from the digging desk', async () => {
+  const bridge: AudioBridge = {
+    list: () => Promise.resolve({ ok: true, value: [] }),
+    probe: vi.fn(),
+    download: vi.fn(),
+    reveal: vi.fn(),
+  };
+  function Harness() {
+    return <DownloadsPage audio={useAudioLibrary(bridge)} />;
+  }
+  render(<Harness />);
+  expect(
+    await screen.findByText('No downloads yet. Download a track from the digging desk.'),
+  ).toBeVisible();
+});
