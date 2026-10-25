@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import { createSavedFiltersBridge } from './savedFiltersBridge';
 import { createUpdatesBridge } from './updatesBridge';
 import { createResearchAccessBridge } from './researchAccessBridge';
 import { createDownloadJobsBridge } from './downloadJobsBridge';
@@ -85,6 +86,14 @@ contextBridge.exposeInMainWorld(
   'updates',
   createUpdatesBridge(async (channel) => {
     const result: unknown = await ipcRenderer.invoke(channel);
+    return result;
+  }),
+);
+
+contextBridge.exposeInMainWorld(
+  'savedFilters',
+  createSavedFiltersBridge(async (channel, input) => {
+    const result: unknown = await ipcRenderer.invoke(channel, input);
     return result;
   }),
 );
