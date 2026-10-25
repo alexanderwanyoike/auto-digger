@@ -48,7 +48,7 @@ Reopening the app restores your active crate, including an intentionally empty o
 
 ## Settings
 
-Open the cog at the right of the navigation bar. Choose Brushed aluminium, Ceramic, Slate, Graphite, Warm paper, Copper or Spotify, with Blue, Teal, Amber, Coral, Sage, Lilac or Rose accents. Light, Dark and System modes are independent of the material.
+Open the cog at the right of the navigation bar. Choose Brushed aluminium, Ceramic, Slate, Graphite, Warm paper, Copper or Carbon, with Blue, Teal, Amber, Coral, Sage, Lilac or Rose accents. Light, Dark and System modes are independent of the material.
 
 Choose a downloads destination and flat storage or a folder per release. These choices apply to future downloads; existing files retain their recorded locations. See [download settings and recovery](features/library-settings.md).
 
