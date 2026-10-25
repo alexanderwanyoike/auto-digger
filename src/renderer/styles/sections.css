@@ -198,6 +198,14 @@
   color: var(--muted);
   max-width: 520px;
 }
+.about-app {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.about-app strong {
+  font-size: 14px;
+}
 .settings-card .appearance-control {
   width: max-content;
 }
