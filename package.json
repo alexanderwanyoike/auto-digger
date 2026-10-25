@@ -1,6 +1,6 @@
 {
   "name": "auto-digger",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "license": "MIT",
   "description": "A quiet desk for discovering records.",
@@ -11,10 +11,10 @@
     "node": ">=22.16.0 <23"
   },
   "scripts": {
-    "dev": "electron-vite dev",
+    "dev": "yarn extension:build && electron-vite dev",
     "dev:web": "vite --config vite.config.ts --host 127.0.0.1",
     "start": "electron-vite preview",
-    "build": "electron-vite build",
+    "build": "electron-vite build && yarn extension:build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx,.cjs --max-warnings 0 --report-unused-disable-directives",
     "format": "prettier --write .",
@@ -32,21 +32,26 @@
     "icons:check": "node --experimental-strip-types scripts/generate-icons.ts --check",
     "package:dir": "yarn build && electron-builder --config electron-builder.json --dir --publish never",
     "package:make": "yarn build && electron-builder --config electron-builder.json --publish never",
-    "package:test": "vitest run --config distribution.vitest.config.ts"
+    "package:test": "vitest run --config distribution.vitest.config.ts",
+    "extension:build": "vite build --config mcp.vite.config.ts"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@modelcontextprotocol/server": "2.4.0",
     "discogs-dataset-genres-styles": "2.0.0",
+    "electron-updater": "6.8.11",
+    "fflate": "0.8.3",
     "lucide-react": "^1.61.0",
     "node-id3": "0.2.9",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-select": "5.10.2",
+    "semver": "7.7.3",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@anthropic-ai/mcpb": "2.1.2",
     "@modelcontextprotocol/client": "2.4.0",
     "@playwright/test": "^1.64.1",
     "@testing-library/dom": "^10.4.2",
@@ -56,6 +61,7 @@
     "@types/node": "^22",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/semver": "7.7.1",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "@vitejs/plugin-react": "^6.1.2",

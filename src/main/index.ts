@@ -1,4 +1,6 @@
 import { app, BrowserWindow, dialog } from 'electron';
+import { join } from 'node:path';
+import { integrateAppImage } from './desktop/appImage';
 import { applicationId } from './applicationId';
 import { createWindow } from './createWindow';
 import { registerAudioScheme } from './audio/protocol';
@@ -31,7 +33,21 @@ if (!app.requestSingleInstanceLock()) {
     window?.show();
     window?.focus();
   });
-  app.whenReady().then(openWindow).catch(reportStartupFailure);
+  app
+    .whenReady()
+    .then(async () => {
+      await openWindow();
+      const integrated = await integrateAppImage({
+        platform: process.platform,
+        packaged: app.isPackaged,
+        appImage: process.env.APPIMAGE,
+        dataHome: process.env.XDG_DATA_HOME,
+        home: app.getPath('home'),
+        icon: join(import.meta.dirname, '../../resources/icons/icon.png'),
+      });
+      if (!integrated.ok) process.stderr.write(`${integrated.error}\n`);
+    })
+    .catch(reportStartupFailure);
 }
 
 app.on('activate', () => {

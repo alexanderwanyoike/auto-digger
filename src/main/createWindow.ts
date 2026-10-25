@@ -1,5 +1,7 @@
 import { app, BrowserWindow, nativeImage, net } from 'electron';
 import { join } from 'node:path';
+import { createApplicationUpdates } from './updates/runtime';
+import { registerUpdateHandlers } from './updates/registerHandlers';
 import { registerStoreLinkHandlers } from './links/registerHandlers';
 import type { Result } from '../shared/result';
 import { createLegacyCrateStore } from './catalogue/legacyCrateStore';
@@ -39,6 +41,7 @@ const previews = createPreviewSession(
   (input, options) => net.fetch(input instanceof URL ? input.href : input, options),
 );
 let researchRuntime: ReturnType<typeof createResearchRuntime> | undefined;
+let updates: ReturnType<typeof createApplicationUpdates>;
 let closingCatalogue = false;
 app.on('before-quit', (event) => {
   audioCommands.cancelAll();
@@ -101,6 +104,8 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     registerCatalogueHandlers(window, catalogueStore);
     registerPreferencesHandlers(window, catalogueStore.preferences);
     registerStoreLinkHandlers(window);
+    updates ??= createApplicationUpdates();
+    registerUpdateHandlers(window, updates);
     discogsSession ??= createRememberedSession(
       createDiscogsSession(),
       createTokenStore(join(app.getPath('userData'), 'discogs-token.bin'), electronEncryption),

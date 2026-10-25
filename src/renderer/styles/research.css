@@ -99,3 +99,18 @@
   color: var(--blue);
   font: inherit;
 }
+
+.research-settings h3 {
+  margin-block: 20px 12px;
+  font-size: 12px;
+}
+.research-settings details {
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.research-settings summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+}

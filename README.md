@@ -18,16 +18,16 @@ Auto Digger is a desktop app for discovering records on Discogs. Connect an MCP 
 
 ## Download
 
-[Auto Digger 0.1.1](https://github.com/alexanderwanyoike/auto-digger/releases/tag/v0.1.1) is a desktop preview.
+[Auto Digger 0.1.2](https://github.com/alexanderwanyoike/auto-digger/releases/tag/v0.1.2) is a desktop preview.
 
 | Platform            | Package                                                                                                                       |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Windows x64         | [Installer](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-windows-x64-setup.exe) |
-| macOS Apple silicon | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-macos-arm64.dmg)      |
-| macOS Intel         | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-macos-x64.dmg)        |
-| Linux x64           | [AppImage](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-linux-x64.AppImage)     |
+| Windows x64         | [Installer](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.2/AutoDigger-0.1.2-windows-x64-setup.exe) |
+| macOS Apple silicon | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.2/AutoDigger-0.1.2-macos-arm64.dmg)      |
+| macOS Intel         | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.2/AutoDigger-0.1.2-macos-x64.dmg)        |
+| Linux x64           | [AppImage](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.2/AutoDigger-0.1.2-linux-x64.AppImage)     |
 
-[SHA-256 checksums](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/SHA256SUMS) accompany the installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized.
+[SHA-256 checksums](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.2/SHA256SUMS) accompany the installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized.
 
 ### Opening the macOS app
 
@@ -42,7 +42,7 @@ This removes the download quarantine attribute from that app bundle. Adjust the 
 
 See the [setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#macos) for installation and MCP client help.
 
-Audio previews and downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on your `PATH`. MCP clients need Node.js 22 or newer. These tools are not bundled. Connect a Discogs personal token in the app to start discovering records.
+Audio previews and downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on your `PATH`. Those audio tools are not bundled. MCP uses the included runtime. Connect a Discogs personal token in the app to start discovering records.
 
 ## What you can do
 
@@ -96,51 +96,56 @@ Saved record metadata and downloaded audio work offline. New Discogs lookups, ar
 
 Auto Digger does not provide cloud sync. The renderer is sandboxed, credentials stay in the main process, and desktop operations use narrow validated IPC boundaries. See [SQLite catalogue ownership](docs/adr/0006-sqlite-catalogue.md) and [account storage](docs/adr/0003-remembered-discogs-account.md).
 
-## MCP setup
+## Connect your AI assistant
 
-Use a local client on the same computer as Auto Digger. Install Node.js 22 or newer, open Auto Digger and connect Discogs. In **Settings → AI mix research**, choose **Enable research access** and keep the app open. Access starts disabled after every app restart; while enabled, your client can read and edit crates.
+Auto Digger lets Claude or Codex research a mix and save its records to a crate. Set up the connection once on the same computer as Auto Digger.
 
 ### Claude Desktop
 
-1. In Auto Digger, select **JSON client configuration** and copy the displayed configuration.
-2. Open Claude Desktop's `claude_desktop_config.json`: `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, or `%APPDATA%\Claude\claude_desktop_config.json` on Windows. Run Claude Desktop once first if its folder does not exist.
-3. Add the copied `auto_digger` entry inside the file's existing `mcpServers` object, preserving other servers. If the file is empty, use the complete copied JSON.
-4. Fully quit Claude Desktop and reopen it. Check its local MCP servers or chat tools for `auto_digger`.
+1. In Auto Digger, open **Settings → Auto Digger MCP** and choose **Enable MCP**.
+2. Choose **Save Auto Digger MCP** and save the file in Downloads.
+3. In Claude Desktop, open **Settings → Desktop app**, choose **Manage** beside **Extensions**, then **Advanced settings → Install Extension**. Select the saved **Auto Digger MCP.mcpb** file and follow the prompts.
 
-This uses a local server, not the remote custom-connector URL field. See [Claude's local MCP help](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop) and the [MCP SDK's config-file reference](https://py.sdk.modelcontextprotocol.io/get-started/real-host/).
+On Linux, use Claude Desktop's official beta for Ubuntu 22.04+ or Debian 12+. Install the file through Claude's settings using the steps above. [Linux installation help](https://support.claude.com/en/articles/10065433-install-claude-desktop).
 
-### Claude Code
-
-Copy the two absolute paths from Auto Digger's configuration, replacing the example paths below:
-
-```sh
-claude mcp add --transport stdio --scope user auto_digger -- node "/path/from/settings/mcp.js" --connection "/path/from/settings/mcp-connection.json"
-```
-
-Open Claude Code and use `/mcp` to check the connection. [Claude Code MCP reference](https://code.claude.com/docs/en/mcp).
+No terminal commands, configuration files or separate Node installation are needed. Claude supplies the extension's runtime. [Claude's extension installation help](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop).
 
 ### Codex
 
-1. Select **Codex TOML configuration** in Auto Digger and copy the displayed block.
-2. Add it to `~/.codex/config.toml`, preserving other settings. Replace an existing `[mcp_servers.auto_digger]` block rather than adding it twice.
-3. Restart your Codex client. In desktop MCP settings, the equivalent is a **STDIO** server named `auto_digger`, with the displayed command and three arguments.
+1. In Auto Digger's research settings, expand **Codex and other local clients** to see the setup fields.
+2. In Codex, open **Settings → MCP servers → Add server** and choose **STDIO**. Copy **Command**, then **Argument 1**, **Argument 2** and **Argument 3** into the matching fields. The values are ready to paste.
+3. Add the environment variable **ELECTRON_RUN_AS_NODE** with value **1**, then save and restart Codex.
 
-CLI users can register it instead, replacing both example paths with the values from Auto Digger:
+The command uses Auto Digger's included runtime. You do not need to install Node for MCP.
 
-```sh
-codex mcp add auto_digger -- node "/path/from/settings/mcp.js" --connection "/path/from/settings/mcp-connection.json"
-codex mcp list
-```
+<details>
+<summary>Advanced: Codex configuration file and Claude Code</summary>
 
-Use `/mcp` in Codex to check available tools. [Official OpenAI MCP documentation](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+For Codex CLI, paste the complete **Codex TOML configuration** from Auto Digger into `~/.codex/config.toml`. Replace an existing `[mcp_servers.auto_digger]` block rather than adding it twice. Preserve your other settings.
+
+For Claude Code, register the displayed command with `claude mcp add --transport stdio --scope user auto_digger --env ELECTRON_RUN_AS_NODE=1 --`, followed by the displayed executable and three arguments. Quote paths containing spaces. Use `/mcp` to check the connection.
+
+Other local clients can use **JSON client configuration**. It includes the command, arguments and required environment variable.
+
+[Codex MCP help](https://learn.chatgpt.com/docs/extend/mcp?surface=cli) · [Claude Code MCP help](https://code.claude.com/docs/en/mcp).
+
+</details>
 
 ### Try it
 
-Ask your client: **Use Auto Digger to list my crates.** Then try a mix:
+Keep Auto Digger open and ask: **Use Auto Digger to list my crates.** Then try:
 
 > Research the mix at [paste a mix URL]. Find the original Discogs releases, save them to a Mix picks crate and mark the matching tracks. Keep source links and flag uncertain matches.
 
-The AI client researches the sources and judges recording matches; Auto Digger verifies Discogs metadata and saves the results. The [setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#mcp) includes troubleshooting. Re-copy the configuration after moving or updating the app, or if an AppImage launch changes its mounted path. Disabling research access revokes the connection. Keep your Discogs token in Auto Digger, not in host configuration.
+Connect Discogs in Auto Digger for release searches. Your assistant researches the sources; Auto Digger verifies Discogs metadata and saves the results. Review the picks and uncertain matches in **Crates**.
+
+Each time you reopen Auto Digger, choose **Enable MCP** again. Connected assistants can read and edit your crates until you disable access or close the app. Keep your Discogs token in Auto Digger. If you move the app, copy fresh Codex configuration. The [setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#mcp) includes troubleshooting.
+
+## App updates
+
+The footer shows **Update available** when a newer release is ready. Select it to download, then choose **Restart to update**. Windows installers and Linux AppImages replace the previous app; your crates, settings and music stay in place.
+
+On macOS, the notice opens the installer for your Mac. Install it manually while preview builds use ad-hoc signing. Existing v0.1.1 users need to install this release manually once to gain the updater.
 
 ## Development
 

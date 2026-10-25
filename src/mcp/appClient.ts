@@ -16,7 +16,7 @@ export async function callResearchApp(
       info.size > 4096 ||
       (process.platform !== 'win32' && info.mode % 0o100 !== 0)
     )
-      return catalogueFailure('unavailable', 'Enable research access in Auto Digger to connect.');
+      return catalogueFailure('unavailable', 'Enable MCP in Auto Digger to connect.');
     const value: unknown = JSON.parse(await readFile(file, 'utf8'));
     const connection = researchConnectionSchema.safeParse(value);
     if (!connection.success)

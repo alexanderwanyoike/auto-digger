@@ -172,3 +172,14 @@ h1 {
     padding: 16px 22px;
   }
 }
+
+.update-notice {
+  border: 0;
+  padding: 4px 0;
+  background: transparent;
+  color: var(--blue);
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: 0;
+  white-space: nowrap;
+}

@@ -16,7 +16,11 @@ export function createResearchRuntime(
   let queue = Promise.resolve();
   const status = (): ResearchAccess => ({
     enabled: Boolean(listener),
-    configuration: { command: 'node', args: [entry, '--connection', file] },
+    configuration: {
+      command: process.execPath,
+      args: [entry, '--connection', file],
+      env: { ELECTRON_RUN_AS_NODE: '1' },
+    },
   });
   function serialize(operation: () => Promise<CatalogueResult<ResearchAccess>>) {
     const result = queue.then(operation);

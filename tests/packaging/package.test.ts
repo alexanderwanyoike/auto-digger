@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process';
-import { access, mkdtemp, rm } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { access, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { promisify } from 'node:util';
@@ -8,6 +9,7 @@ import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { expect, test } from 'vitest';
 import metadata from '../../package.json';
+import { applicationId } from '../../src/main/applicationId';
 
 test.skipIf(process.platform !== 'linux')(
   'packaged Linux app opens and serves MCP from installed files',
@@ -19,12 +21,14 @@ test.skipIf(process.platform !== 'linux')(
       ['--appimage-extract'],
       { cwd: extracted, timeout: 30_000 },
     );
-    const binary = join(extracted, 'squashfs-root/auto-digger');
+    const image = resolve(`release/AutoDigger-${metadata.version}-linux-x64.AppImage`);
     const resources = join(extracted, 'squashfs-root/resources/app');
     await Promise.all(
       [
         'out/main/index.js',
         'out/main/mcp.js',
+        'out/extension/mcp.cjs',
+        'out/extension/LICENSES.txt',
         'out/preload/index.cjs',
         'out/renderer/index.html',
         'resources/icons/icon.png',
@@ -32,27 +36,46 @@ test.skipIf(process.platform !== 'linux')(
         'site/public/licenses/manrope.txt',
       ].map((file) => access(join(resources, file))),
     );
+    const updateManifest = await readFile(resolve('release/latest-linux.yml'), 'utf8');
+    const installer = await readFile(image);
+    expect(updateManifest).toContain(`version: ${metadata.version}`);
+    expect(updateManifest).toContain(createHash('sha512').update(installer).digest('base64'));
+    const feed = await readFile(join(resources, '../app-update.yml'), 'utf8');
+    expect(feed).toContain('provider: github');
+    expect(feed).toContain('owner: alexanderwanyoike');
+    expect(feed).toContain('repo: auto-digger');
     const profile = await mkdtemp(join(tmpdir(), 'auto-digger-packaged-'));
     const client = new Client({ name: 'auto-digger-package-check', version: '1.0.0' });
     const desktop = await electron.launch({
-      executablePath: binary,
+      executablePath: image,
       args: [`--user-data-dir=${profile}`],
-      env: Object.fromEntries(
-        Object.entries(process.env).filter(
-          (entry): entry is [string, string] =>
-            typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
+      env: {
+        APPIMAGE_EXTRACT_AND_RUN: '1',
+        XDG_DATA_HOME: join(profile, 'data'),
+        ...Object.fromEntries(
+          Object.entries(process.env).filter(
+            (entry): entry is [string, string] =>
+              typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
+          ),
         ),
-      ),
+      },
     });
     try {
       const page = await desktop.firstWindow();
       await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
+      const entry = join(profile, 'data/applications', `${applicationId}.desktop`);
+      await expect
+        .poll(async () => readFile(entry, 'utf8').catch(() => ''))
+        .toContain(`"${image}"`);
+      await access(join(profile, 'data/icons', `${applicationId}.png`));
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
-      await page.getByRole('button', { name: 'Enable research access', exact: true }).click();
+      await page.getByRole('button', { name: 'Enable MCP', exact: true }).click();
       const status = await page.evaluate(async () => window.researchAccess?.status());
       if (!status?.ok || !status.value.enabled)
         throw new Error('Packaged research access unavailable');
-      expect(status.value.configuration.args[0]).toBe(join(resources, 'out/main/mcp.js'));
+      expect(status.value.configuration.args[0]).toBe(
+        join(await desktop.evaluate(({ app }) => app.getAppPath()), 'out/main/mcp.js'),
+      );
       await client.connect(new StdioClientTransport(status.value.configuration));
       expect(
         await client.callTool({ name: 'create_crate', arguments: { name: 'Package check' } }),

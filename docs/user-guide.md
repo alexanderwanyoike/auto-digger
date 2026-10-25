@@ -1,5 +1,11 @@
 # Using Auto Digger
 
+## App updates
+
+When the footer offers a new version, select it to download the update. A percentage shows progress. Choose **Restart to update** when it is ready. Your saved crates, account settings and music stay in place. A failed download can be retried.
+
+On macOS, the update notice opens a new installer instead. Quit Auto Digger and install it as usual. The preview's ad-hoc signing does not support native Mac updates. Existing v0.1.1 installations need one manual upgrade to gain the updater.
+
 ## Connect Discogs
 
 Choose **Discogs not connected** or open the connection section in Settings. Generate a personal token through the linked Discogs settings, then paste it into the app. Fields clear after submission. A successful connection is stored using operating-system encryption and restored at launch.
@@ -51,3 +57,9 @@ The catalogue is `catalog.sqlite` in Electron's `userData` directory. The encryp
 Legacy `crate.json` data is validated, backed up to `crate.json.bak` and imported once. Unsupported or corrupt storage is preserved and reported. Do not delete the catalogue to recover a missing selection; check the active crate first.
 
 For a bug report, include your operating system, app version, steps to reproduce and the readable error. Remove tokens and private file paths from screenshots. Use [GitHub Issues](https://github.com/alexanderwanyoike/auto-digger/issues).
+
+## Linux application menu
+
+The AppImage adds Auto Digger to your application menu when you first run it. This is a shortcut for your user account and needs no administrator access. Keep the AppImage in the folder you want to run it from. If you move it or download a new version, run that copy once to update the shortcut.
+
+The app uses the standard XDG data directory, so it does not depend on a particular Linux distribution or desktop. It writes `applications/io.github.alexanderwanyoike.auto-digger.desktop` and `icons/io.github.alexanderwanyoike.auto-digger.png` beneath `$XDG_DATA_HOME`, or `~/.local/share` by default. Remove those two files to remove the shortcut. If that directory cannot be written, the app still opens normally from its AppImage.
