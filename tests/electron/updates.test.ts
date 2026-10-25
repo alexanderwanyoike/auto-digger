@@ -20,7 +20,7 @@ test.skip(process.platform !== 'linux', 'AppImage update fixture');
     await writeFile(image, 'old AppImage fixture', { mode: 0o755 });
     const escapedMarker = marker.replaceAll("'", "'\\''");
     const payload = Buffer.from(
-      `#!/bin/sh\nprintf '%s' installed > '${escapedMarker}'\n#${'x'.repeat(1_000_000)}\n`,
+      `#!/bin/sh\nif [ -n \"$APPIMAGE_EXIT_AFTER_INSTALL\" ]; then exit 0; fi\nprintf '%s' installed > '${escapedMarker}'\n#${'x'.repeat(1_000_000)}\n`,
     );
     const sha512 = createHash('sha512').update(payload).digest('base64');
     const server = createServer((request, response) => {
