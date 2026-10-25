@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 import { downloadStage } from '../../shared/downloadJobs';
 import type { DownloadJob, DownloadJobsBridge } from '../../shared/downloadJobs';
 import { useAudioLibrary } from './useAudioLibrary';
-import { DownloadQueue } from './DownloadQueue';
+import { DownloadsPage } from '../sections/DownloadsPage';
 
 test.each(['downloading', 'failed', 'cancelled'] as const)(
   'keeps every retained %s job accessible for cancellation or retry',
@@ -27,7 +27,7 @@ test.each(['downloading', 'failed', 'cancelled'] as const)(
     };
     function Harness() {
       const audio = useAudioLibrary(undefined, bridge);
-      return <DownloadQueue audio={audio} />;
+      return <DownloadsPage audio={audio} />;
     }
     render(<Harness />);
     const action = stage === 'downloading' ? 'Cancel' : 'Retry';

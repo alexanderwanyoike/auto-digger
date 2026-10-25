@@ -14,7 +14,7 @@
 
 _The real desktop app, shown with fictional records and original demo artwork._
 
-Auto Digger is a desktop app for discovering records on Discogs. Connect an MCP client to research mixes and save the original releases to named crates, with matching tracks, tags and source notes. You can also browse releases, preview audio and keep downloaded tracks in a local library.
+Auto Digger is a desktop app for discovering records on Discogs. Connect an MCP client to research mixes and save the original releases to named crates, with matching tracks, tags and source notes. You can also browse releases and keep downloaded tracks in a local library.
 
 ## Download
 
@@ -42,7 +42,7 @@ This removes the download quarantine attribute from that app bundle. Adjust the 
 
 See the [setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#macos) for installation and MCP client help.
 
-Audio previews and downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on your `PATH`. Those audio tools are not bundled. MCP uses the included runtime. Connect a Discogs personal token in the app to start discovering records.
+Audio downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on your `PATH`. Those audio tools are not bundled. MCP uses the included runtime. Connect a Discogs personal token in the app to start discovering records.
 
 ## What you can do
 
@@ -50,7 +50,7 @@ Audio previews and downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | MCP mix research | Let an AI host research a mix, look up Discogs releases and add them to a crate with picked tracks, tags and source notes.                     |
 | Discovery        | Combine label, artist, year or year range and title with multi-select genres, styles and release types. Browse artwork or draw random matches. |
-| Audio            | Preview YouTube sources before downloading. Save tracks or whole releases with progress, retry and best-effort Discogs metadata.               |
+| Audio            | Download YouTube sources as tracks or whole releases, with progress, retry and best-effort Discogs metadata. Play saved tracks locally.        |
 | Crates           | Keep named collections of releases with track picks and personal tags. The active crate returns after restart.                                 |
 | Downloads        | Search saved tracks, play them locally and open their folders. Choose flat or per-release file organisation.                                   |
 | Appearance       | Six materials, seven accents and light, dark or system appearance.                                                                             |
@@ -63,7 +63,7 @@ To run from source:
 
 - **Node.js 22.16 or later within Node 22**, and **Yarn 1.22.22**.
 - A **Discogs personal token** for discovery. The app links to the token settings when you connect.
-- Current **[yt-dlp](https://github.com/yt-dlp/yt-dlp#installation)**, **[FFmpeg and FFprobe](https://ffmpeg.org/download.html)** on your `PATH` for previews and audio downloads. Node supplies yt-dlp's JavaScript runtime.
+- Current **[yt-dlp](https://github.com/yt-dlp/yt-dlp#installation)**, **[FFmpeg and FFprobe](https://ffmpeg.org/download.html)** on your `PATH` for audio downloads. Node supplies yt-dlp's JavaScript runtime.
 - A desktop session with Electron's system libraries. Headless Linux checks also need Xvfb.
 
 ```sh
@@ -75,7 +75,7 @@ yarn dev
 
 1. Choose **Discogs not connected**, generate a personal token using the linked settings, and connect in the app.
 2. Set your filters and choose **Search releases**, then browse a sleeve or **Dig a random release**.
-3. Open a record, check its source-to-track assignments and choose **Preview**. Download the tracks you want to keep.
+3. Open a record, check its source-to-track assignments and choose the download icon. Play the saved track in the bottom player.
 4. Choose a crate and save the release. Open **Crates** to mark tracks and add tags; use **Downloads** for saved audio.
 
 The token is remembered using operating-system encryption. Disconnecting deletes the saved token. Enter credentials in the app, never in issues, screenshots or project files. No YouTube API key is needed.
@@ -92,7 +92,7 @@ See the [user guide](docs/user-guide.md) for source matching, whole-release down
 | Audio recovery metadata                                                 | A versioned JSON sidecar beside each downloaded MP3                                       |
 | Active crate and appearance mode                                        | Device UI preferences                                                                     |
 
-Saved record metadata and downloaded audio work offline. New Discogs lookups, artwork retrieval and previews need the internet. Close the app before backing up the catalogue and its WAL/SHM companion files; keep audio recovery sidecars with their tracks. Existing `crate.json` data is validated, backed up and imported once.
+Saved record metadata and downloaded audio work offline. New Discogs lookups, artwork retrieval and downloads need the internet. Close the app before backing up the catalogue and its WAL/SHM companion files; keep audio recovery sidecars with their tracks. Existing `crate.json` data is validated, backed up and imported once.
 
 Auto Digger does not provide cloud sync. The renderer is sandboxed, credentials stay in the main process, and desktop operations use narrow validated IPC boundaries. See [SQLite catalogue ownership](docs/adr/0006-sqlite-catalogue.md) and [account storage](docs/adr/0003-remembered-discogs-account.md).
 
