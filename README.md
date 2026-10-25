@@ -18,16 +18,16 @@ Auto Digger is a desktop app for discovering records on Discogs. Connect an MCP 
 
 ## Download
 
-[Auto Digger 0.1.1](https://github.com/alexanderwanyoike/auto-digger/releases/tag/v0.1.1) is a desktop preview.
+[Auto Digger 0.1.2](https://github.com/alexanderwanyoike/auto-digger/releases/tag/v0.1.2) is a desktop preview.
 
 | Platform            | Package                                                                                                                       |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Windows x64         | [Installer](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-windows-x64-setup.exe) |
-| macOS Apple silicon | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-macos-arm64.dmg)      |
-| macOS Intel         | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-macos-x64.dmg)        |
-| Linux x64           | [AppImage](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/AutoDigger-0.1.1-linux-x64.AppImage)     |
+| Windows x64         | [Installer](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.2/AutoDigger-0.1.2-windows-x64-setup.exe) |
+| macOS Apple silicon | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.2/AutoDigger-0.1.2-macos-arm64.dmg)      |
+| macOS Intel         | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.2/AutoDigger-0.1.2-macos-x64.dmg)        |
+| Linux x64           | [AppImage](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.2/AutoDigger-0.1.2-linux-x64.AppImage)     |
 
-[SHA-256 checksums](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.1/SHA256SUMS) accompany the installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized.
+[SHA-256 checksums](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.2/SHA256SUMS) accompany the installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized.
 
 ### Opening the macOS app
 
