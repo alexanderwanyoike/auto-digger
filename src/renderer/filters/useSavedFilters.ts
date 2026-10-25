@@ -14,6 +14,7 @@ export function useSavedFilters(bridge: SavedFiltersBridge | undefined) {
   const [presets, setPresets] = useState<SavedFilters['presets']>([]);
   const [ready, setReady] = useState(!bridge);
   const [busy, setBusy] = useState(false);
+  const [reloadVersion, setReloadVersion] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const edited = useRef(false);
   const persisted = useRef(JSON.stringify(emptyFilters));
@@ -22,7 +23,9 @@ export function useSavedFilters(bridge: SavedFiltersBridge | undefined) {
     setDraft(value);
   };
   const perform = useCallback(
-    async (operation: (api: SavedFiltersBridge) => Promise<SavedFiltersResult>): Promise<SavedFiltersResult> => {
+    async (
+      operation: (api: SavedFiltersBridge) => Promise<SavedFiltersResult>,
+    ): Promise<SavedFiltersResult> => {
       try {
         return bridge
           ? await operation(bridge)
@@ -46,6 +49,7 @@ export function useSavedFilters(bridge: SavedFiltersBridge | undefined) {
       }
       setError(null);
       setReady(true);
+      setReloadVersion((version) => version + 1);
     } else setError(result.error.message);
   }, [perform]);
   useEffect(() => {
@@ -64,7 +68,7 @@ export function useSavedFilters(bridge: SavedFiltersBridge | undefined) {
       })
       .catch(() => undefined);
     return undefined;
-  }, [bridge, draft, ready, perform]);
+  }, [bridge, draft, ready, perform, reloadVersion]);
   async function mutate(operation: (api: SavedFiltersBridge) => Promise<SavedFiltersResult>) {
     setBusy(true);
     const result = await perform(operation);
