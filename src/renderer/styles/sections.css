@@ -206,9 +206,6 @@
 .about-app strong {
   font-size: 14px;
 }
-.settings-card .appearance-control {
-  width: max-content;
-}
 @media (max-height: 900px) {
   .workspace {
     min-height: 470px;

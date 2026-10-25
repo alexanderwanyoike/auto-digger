@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { App } from './App';
@@ -30,19 +30,24 @@ test('switches appearance, remembers the choice and follows changes to the syste
   const user = userEvent.setup();
   const view = render(<App />);
 
-  expect(screen.getByRole('button', { name: 'System' })).toHaveAttribute('aria-pressed', 'true');
+  expect(
+    within(screen.getByRole('banner')).queryByRole('button', { name: 'System' }),
+  ).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Settings' }));
+  expect(screen.getByRole('radio', { name: 'System' })).toBeChecked();
   expect(document.documentElement).toHaveAttribute('data-theme', 'light');
 
-  await user.click(screen.getByRole('button', { name: 'Dark' }));
+  await user.click(screen.getByRole('radio', { name: 'Dark' }));
   expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
   view.unmount();
   render(<App />);
-  expect(screen.getByRole('button', { name: 'Dark' })).toHaveAttribute('aria-pressed', 'true');
+  await user.click(screen.getByRole('button', { name: 'Settings' }));
+  expect(screen.getByRole('radio', { name: 'Dark' })).toBeChecked();
   expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
 
-  await user.click(screen.getByRole('button', { name: 'Light' }));
+  await user.click(screen.getByRole('radio', { name: 'Light' }));
   expect(document.documentElement).toHaveAttribute('data-theme', 'light');
-  await user.click(screen.getByRole('button', { name: 'System' }));
+  await user.click(screen.getByRole('radio', { name: 'System' }));
   const { act } = await import('@testing-library/react');
   act(() => {
     media.matches = true;
@@ -63,7 +68,8 @@ test.each(['getItem', 'setItem'] as const)(
     if (operation === 'getItem') {
       expect(screen.getByRole('status')).toHaveTextContent('could not be saved');
     }
-    await user.click(screen.getByRole('button', { name: 'Dark' }));
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
+    await user.click(screen.getByRole('radio', { name: 'Dark' }));
     expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
     if (operation === 'setItem') {
       expect(screen.getByRole('status')).toHaveTextContent('could not be saved');
