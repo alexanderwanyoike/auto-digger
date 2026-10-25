@@ -1,6 +1,7 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import type { ElectronApplication, Page } from '@playwright/test';
+import { selectAppearance } from '../appearance';
 import { identityResponse, releaseResponse } from '../discogsFixtures';
 
 function launch(profile: string) {
@@ -69,7 +70,7 @@ test('keeps a whole EP after restart, reopens it disconnected and persists remov
       ratio: 1,
     });
     await page.screenshot({ path: 'test-results/phase-6-crate-light.png' });
-    await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    await selectAppearance(page, 'Dark');
     await page.screenshot({ path: 'test-results/phase-6-crate-dark.png' });
     await page.getByRole('button', { name: 'Remove Quiet Orbit EP', exact: true }).click();
     await expect(

@@ -14,7 +14,6 @@ import { useDiscogs } from './discogs/useDiscogs';
 import { ConnectionDialog } from './discogs/ConnectionDialog';
 import { ReleaseWorkspace } from './discogs/ReleaseWorkspace';
 import { useAppearance } from './theme/useAppearance';
-import { AppearanceControl } from './components/AppearanceControl';
 import { FilterPanel } from './components/FilterPanel';
 import { DiscoveryPanel } from './components/DiscoveryPanel';
 import { CratePanel } from './components/CratePanel';
@@ -77,7 +76,6 @@ export function App({
           <span className={session.account ? 'blue-dot' : 'status-dot'} />
           {session.account ? `Connected as ${session.account.username}` : 'Discogs not connected'}
         </button>
-        <AppearanceControl appearance={appearance} onSelect={selectAppearance} />
       </header>
       {!storageAvailable && (
         <p role="status" className="preference-notice">

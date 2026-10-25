@@ -9,7 +9,7 @@ import type { useDiscogs } from '../discogs/useDiscogs';
 const fields = [
   ['label', 'Label', 'Any label'],
   ['artist', 'Artist', 'Any artist'],
-  ['year', 'Year', 'Any year'],
+  ['year', 'Year', '1998 or 1990-1999'],
   ['title', 'Release title', 'Any release title'],
 ] as const;
 
@@ -49,9 +49,9 @@ export function FilterPanel({
                     onChange={(event) => {
                       filters.setDraft({ ...filters.draft, [name]: event.target.value });
                     }}
-                    maxLength={name === 'year' ? 4 : 160}
-                    pattern={name === 'year' ? '[0-9]{4}' : undefined}
-                    inputMode={name === 'year' ? 'numeric' : 'text'}
+                    maxLength={name === 'year' ? 9 : 160}
+                    pattern={name === 'year' ? '[0-9]{4}(-[0-9]{4})?' : undefined}
+                    inputMode="text"
                   />
                 </span>
               </label>
