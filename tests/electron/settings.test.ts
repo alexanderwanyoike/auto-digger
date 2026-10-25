@@ -31,14 +31,14 @@ test('persists settings and finds old and per-release downloads after a native r
     }, chosen);
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await page.getByRole('radio', { name: 'Carbon', exact: true }).check();
-    await page.getByRole('radio', { name: 'Teal', exact: true }).check();
+    await page.getByRole('radio', { name: 'Green', exact: true }).check();
     await page
       .getByRole('combobox', { name: 'Download organisation', exact: true })
       .selectOption('release');
     await page.getByRole('button', { name: 'Choose downloads folder', exact: true }).click();
     await expect(page.getByText(chosen, { exact: true })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-material', 'carbon');
-    await expect(page.locator('html')).toHaveAttribute('data-accent', 'teal');
+    await expect(page.locator('html')).toHaveAttribute('data-accent', 'green');
     await page.evaluate(
       async (release) => window.audioLibrary?.download({ release, videoIndex: 0 }),
       { ...loadedRelease, id: 13 },
@@ -76,6 +76,7 @@ test('persists settings and finds old and per-release downloads after a native r
 });
 
 test('keeps small text and accent actions readable across supported materials, accents and modes', async () => {
+  test.setTimeout(60_000);
   const { contrast } = await import('../contrast');
   const desktop = await electron.launch({
     args: [
@@ -92,10 +93,24 @@ test('keeps small text and accent actions readable across supported materials, a
   try {
     const page = await desktop.firstWindow();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    const accentNames: Record<string, string> = { electric: 'Electric blue', pink: 'Hot pink' };
     const choices = ['light', 'dark'].flatMap((mode) =>
       ['aluminium', 'ceramic', 'slate', 'graphite', 'paper', 'copper', 'carbon'].flatMap(
         (material) =>
-          ['blue', 'teal', 'amber', 'coral', 'sage', 'lilac', 'rose'].map((accent) => ({
+          [
+            'blue',
+            'teal',
+            'amber',
+            'coral',
+            'sage',
+            'lilac',
+            'rose',
+            'electric',
+            'green',
+            'orange',
+            'pink',
+            'violet',
+          ].map((accent) => ({
             mode,
             material,
             accent,
@@ -112,7 +127,9 @@ test('keeps small text and accent actions readable across supported materials, a
             .check();
           await page
             .getByRole('group', { name: 'Accent colour', exact: true })
-            .getByRole('radio', { name: new RegExp(choice.accent, 'i') })
+            .getByRole('radio', {
+              name: new RegExp(`^${accentNames[choice.accent] ?? choice.accent}$`, 'i'),
+            })
             .check();
           await expect(page.locator('html')).toHaveAttribute('data-accent', choice.accent);
           const colors = await page.evaluate(() => {

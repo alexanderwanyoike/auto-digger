@@ -36,15 +36,15 @@ test('chooses a material, mode and accent visually while preserving download set
     expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
     expect(window.localStorage.getItem('auto-digger.appearance')).toBe('dark');
     const accent = within(appearance).getByRole('group', { name: 'Accent colour' });
-    expect(within(accent).getAllByRole('radio')).toHaveLength(7);
-    await user.click(within(accent).getByRole('radio', { name: 'Rose' }));
+    expect(within(accent).getAllByRole('radio')).toHaveLength(12);
+    await user.click(within(accent).getByRole('radio', { name: 'Green' }));
     expect(save).toHaveBeenLastCalledWith({
       material: 'carbon',
-      accent: 'rose',
+      accent: 'green',
       layout: 'release',
     });
-    expect(within(accent).getByRole('radio', { name: 'Rose' })).toBeChecked();
-    expect(document.documentElement).toHaveAttribute('data-accent', 'rose');
+    expect(within(accent).getByRole('radio', { name: 'Green' })).toBeChecked();
+    expect(document.documentElement).toHaveAttribute('data-accent', 'green');
   } finally {
     delete window.preferences;
   }
