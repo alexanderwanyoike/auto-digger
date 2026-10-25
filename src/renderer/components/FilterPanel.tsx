@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { ArrowRight, SlidersHorizontal } from 'lucide-react';
+import type { useSavedFilters } from '../filters/useSavedFilters';
+import { SavedFilterPicker } from '../filters/SavedFilterPicker';
 import { TaxonomySelect } from './TaxonomySelect';
 import { GenreStyleFilters } from './GenreStyleFilters';
-import type { DigFilters } from '../../shared/search';
 import { releaseTypes } from '../../shared/releaseTypes';
 import type { useDiscogs } from '../discogs/useDiscogs';
 
@@ -13,8 +13,13 @@ const fields = [
   ['title', 'Release title', 'Any release title'],
 ] as const;
 
-export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs> }) {
-  const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
+export function FilterPanel({
+  session,
+  filters,
+}: {
+  session: ReturnType<typeof useDiscogs>;
+  filters: ReturnType<typeof useSavedFilters>;
+}) {
   return (
     <aside className="filter-panel" aria-labelledby="filters-heading">
       <div className="panel-heading">
@@ -23,31 +28,11 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
         </h2>
       </div>
       <div className="desk-panel-scroll">
-        <p className="panel-description">Set the boundaries. Leave room for a surprise.</p>
+        <SavedFilterPicker filters={filters} />
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            const data = new FormData(event.currentTarget);
-            const value = (name: string) => {
-              const field = data.get(name);
-              return typeof field === 'string' ? field.trim() : '';
-            };
-            const selected = (name: string) =>
-              data
-                .getAll(name)
-                .flatMap((field) =>
-                  typeof field === 'string' && field.trim() ? [field.trim()] : [],
-                );
-            const filters: DigFilters = {
-              label: value('label'),
-              artist: value('artist'),
-              year: value('year'),
-              genre: selected('genre'),
-              style: selected('style'),
-              format: selected('format'),
-              title: value('title'),
-            };
-            session.search(filters).catch(() => undefined);
+            session.search(filters.draft).catch(() => undefined);
           }}
         >
           <fieldset disabled={!session.account || session.busy}>
@@ -60,6 +45,10 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
                     id={name}
                     name={name}
                     placeholder={placeholder}
+                    value={filters.draft[name]}
+                    onChange={(event) => {
+                      filters.setDraft({ ...filters.draft, [name]: event.target.value });
+                    }}
                     maxLength={name === 'year' ? 4 : 160}
                     pattern={name === 'year' ? '[0-9]{4}' : undefined}
                     inputMode={name === 'year' ? 'numeric' : 'text'}
@@ -67,11 +56,20 @@ export function FilterPanel({ session }: { session: ReturnType<typeof useDiscogs
                 </span>
               </label>
             ))}
-            <GenreStyleFilters disabled={!session.account || session.busy} />
+            <GenreStyleFilters
+              disabled={!session.account || session.busy}
+              genre={filters.draft.genre}
+              style={filters.draft.style}
+              onChange={(selection) => {
+                filters.setDraft({ ...filters.draft, ...selection });
+              }}
+            />
             <TaxonomySelect
               name="format"
-              value={selectedFormats}
-              onChange={setSelectedFormats}
+              value={filters.draft.format}
+              onChange={(format) => {
+                filters.setDraft({ ...filters.draft, format });
+              }}
               label="Release type"
               options={releaseTypes}
               placeholder="All release types"
