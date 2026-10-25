@@ -30,7 +30,5 @@ test('submits a full year range from the digging form', async () => {
   await screen.findByRole('button', { name: 'Connected as quiet-digger' });
   await user.type(screen.getByLabelText('Year', { exact: true }), '1990-1999');
   await user.click(screen.getByRole('button', { name: 'Search releases' }));
-  expect(search).toHaveBeenCalledWith(
-    expect.objectContaining({ filters: expect.objectContaining({ year: '1990-1999' }) }),
-  );
+  expect(search.mock.lastCall?.[0].filters.year).toBe('1990-1999');
 });
