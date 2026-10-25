@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Headphones } from 'lucide-react';
-import { DownloadQueue } from './DownloadQueue';
 import { ReleaseDownload } from './ReleaseDownload';
 import { sourceAssignment } from './sourceAssignment';
 import type { DiscogsRelease } from '../../shared/discogs';
@@ -50,7 +49,11 @@ export function DownloadSources({
           audio={audio}
         />
       )}
-      <DownloadQueue audio={audio} releaseId={release.id} />
+      {audio.queue.error && (
+        <p role="alert" className="source-notice">
+          {audio.queue.error}
+        </p>
+      )}
       {release.videos.length ? (
         <ol className="source-list" aria-label="YouTube audio sources">
           {release.videos.map((video, index) => (

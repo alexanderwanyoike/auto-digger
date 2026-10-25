@@ -37,7 +37,7 @@
 }
 .audio-source {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) 104px;
   gap: 7px 10px;
   padding: 11px 0;
   border-top: 1px solid var(--line);
@@ -95,11 +95,13 @@
   grid-column: 2;
   grid-row: 1;
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: end;
-  flex-wrap: wrap;
+  align-self: end;
+  height: 30px;
+  flex-wrap: nowrap;
   gap: 6px;
-  max-width: 184px;
+  width: 104px;
 }
 .source-actions .secondary-button {
   display: inline-flex;
@@ -107,7 +109,9 @@
   justify-content: center;
   gap: 5px;
   font-size: 9px;
-  padding: 7px 8px;
+  padding: 0;
+  width: 28px;
+  height: 28px;
   margin: 0;
 }
 .source-actions button:disabled {
@@ -166,4 +170,28 @@ select:focus-visible,
 summary:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 3px;
+}
+
+.source-actions .source-download {
+  width: 64px;
+  min-width: 64px;
+  height: 28px;
+  font-variant-numeric: tabular-nums;
+}
+.source-download [role='progressbar'] {
+  min-width: 3ch;
+  text-align: right;
+}
+.source-spinner {
+  animation: source-spin 1s linear infinite;
+}
+@keyframes source-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .source-spinner {
+    animation: none;
+  }
 }
