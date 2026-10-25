@@ -13,7 +13,6 @@ export function downloadedPlayback(track: LocalTrack): PlaybackItem {
     album: track.album,
     artworkUrl: track.artworkUrl,
     url: `auto-digger-audio://track/${track.id}`,
-    source: 'download',
   };
 }
 
@@ -29,7 +28,6 @@ export function useAudioLibrary(
     track: null,
     request: 0,
   });
-  const [previewing, setPreviewing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -85,47 +83,10 @@ export function useAudioLibrary(
       return;
     }
     actions.current += 1;
-    setPreviewing(false);
-    bridge
-      ?.stopPreview()
-      .then((result) => {
-        if (!result.ok) setError(result.error.message);
-      })
-      .catch(() => undefined);
     setPlayback((previous) => ({
       track: downloadedPlayback(track),
       request: previous.request + 1,
     }));
-  }
-  async function preview(input: DownloadInput) {
-    actions.current += 1;
-    const version = actions.current;
-    setPreviewing(true);
-    setError(null);
-    setPlayback((previous) => ({ track: null, request: previous.request }));
-    try {
-      const result = bridge
-        ? await bridge.preview(input)
-        : audioFailure<PlaybackItem>('unavailable', 'Open the desktop app to preview audio.');
-      if (version !== actions.current) return;
-      if (result.ok)
-        setPlayback((previous) => ({ track: result.value, request: previous.request + 1 }));
-      else setError(result.error.message);
-    } catch {
-      if (version === actions.current)
-        setError('This preview could not start. Try another source.');
-    } finally {
-      if (version === actions.current) setPreviewing(false);
-    }
-  }
-  async function stopPreview() {
-    actions.current += 1;
-    setPreviewing(false);
-    setPlayback((previous) => ({ track: null, request: previous.request }));
-    if (bridge) {
-      const result = await bridge.stopPreview();
-      if (!result.ok) setError(result.error.message);
-    }
   }
   async function download(input: DownloadInput): Promise<AudioResult<LocalTrack>> {
     setBusy(true);
@@ -184,9 +145,6 @@ export function useAudioLibrary(
     queue,
     downloadBatch,
     playback,
-    previewing,
-    preview,
-    stopPreview,
     busy,
     error,
     bridge,
