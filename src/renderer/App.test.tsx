@@ -74,8 +74,8 @@ test.each(['getItem', 'setItem'] as const)(
 test('shows the current app version and licence in Settings About', async () => {
   const user = userEvent.setup();
   render(<App />);
-  await user.click(screen.getByRole('button', { name: 'Settings', exact: true }));
-  const about = screen.getByRole('region', { name: 'About', exact: true });
+  await user.click(screen.getByRole('button', { name: 'Settings' }));
+  const about = screen.getByRole('region', { name: 'About' });
   expect(about).toHaveTextContent(`Version ${version}`);
   expect(about).toHaveTextContent('Auto Digger');
   expect(about).toHaveTextContent('Alexander Wanyoike');
