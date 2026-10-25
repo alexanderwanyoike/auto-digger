@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { App } from './App';
+import { version } from '../../package.json';
 
 test('opens a digging desk with honest empty states and inactive upcoming features', () => {
   render(<App />);
@@ -69,3 +70,14 @@ test.each(['getItem', 'setItem'] as const)(
     }
   },
 );
+
+test('shows the current app version and licence in Settings About', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  await user.click(screen.getByRole('button', { name: 'Settings', exact: true }));
+  const about = screen.getByRole('region', { name: 'About', exact: true });
+  expect(about).toHaveTextContent(`Version ${version}`);
+  expect(about).toHaveTextContent('Auto Digger');
+  expect(about).toHaveTextContent('Alexander Wanyoike');
+  expect(about).toHaveTextContent('MIT licence');
+});
