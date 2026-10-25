@@ -16,7 +16,7 @@ If the network is temporarily unavailable, use **Reconnect saved account**. If t
 
 ## Find records
 
-Combine label, artist, a four-digit year, title, genres, styles and release types. Each multi-select matches any selected option within that field. Leave release type empty to include all types. Style suggestions follow selected genres; changing genres clears known incompatible styles. Newer styles missing from the bundled hierarchy can be entered explicitly.
+Combine label, artist, a year (`1998`) or inclusive range (`1990-1999`), title, genres, styles and release types. Each multi-select matches any selected option within that field. Leave release type empty to include all types. Style suggestions follow selected genres; changing genres clears known incompatible styles. Newer styles missing from the bundled hierarchy can be entered explicitly.
 
 Submit **Search releases** to apply your filters. Browse sleeves, choose **Dig a random release**, then **Dig again**. Draft filter edits take effect on the next search. Reset digging starts a fresh session with the applied filters. You can also load a numeric Discogs release ID directly.
 
