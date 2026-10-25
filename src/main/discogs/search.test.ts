@@ -105,3 +105,19 @@ test.each([
     value: { releases: [{ id: 12, artworkUrl: expected }] },
   });
 });
+
+test('sends an inclusive year range to Discogs and rejects reversed ranges locally', async () => {
+  const request = vi.fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(JSON.stringify(identityResponse)))
+    .mockResolvedValue(new Response(JSON.stringify({
+      pagination: { page: 1, pages: 0, per_page: 50, items: 0 }, results: [],
+    })));
+  const session = createDiscogsSession(request);
+  await session.connect('token');
+  expect(await session.search({ filters: { year: '1990-1999' }, page: 1 }))
+    .toMatchObject({ ok: true });
+  expect(request.mock.calls[1]?.[0]).toContain('year=1990-1999');
+  expect(await session.search({ filters: { year: '1999-1990' }, page: 1 }))
+    .toMatchObject({ ok: false, error: { code: 'invalid-input' } });
+  expect(request).toHaveBeenCalledTimes(2);
+});
