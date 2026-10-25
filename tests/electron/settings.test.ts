@@ -93,6 +93,7 @@ test('keeps small text and accent actions readable across supported materials, a
   try {
     const page = await desktop.firstWindow();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    const accentNames: Record<string, string> = { electric: 'Electric blue', pink: 'Hot pink' };
     const choices = ['light', 'dark'].flatMap((mode) =>
       ['aluminium', 'ceramic', 'slate', 'graphite', 'paper', 'copper', 'spotify'].flatMap(
         (material) =>
@@ -126,7 +127,9 @@ test('keeps small text and accent actions readable across supported materials, a
             .check();
           await page
             .getByRole('group', { name: 'Accent colour', exact: true })
-            .getByRole('radio', { name: new RegExp(choice.accent, 'i') })
+            .getByRole('radio', {
+              name: new RegExp(`^${accentNames[choice.accent] ?? choice.accent}$`, 'i'),
+            })
             .check();
           await expect(page.locator('html')).toHaveAttribute('data-accent', choice.accent);
           const colors = await page.evaluate(() => {
