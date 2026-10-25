@@ -34,6 +34,8 @@ test('distinguishes the selected Discogs track from the verified YouTube upload 
   expect(within(row).getByText('YouTube video')).toBeVisible();
   expect(within(row).getByLabelText('Discogs track')).toHaveDisplayValue('A1 · Quiet Orbit');
   expect(within(row).getByText('Suggested match')).toBeVisible();
+  expect(within(row).queryByRole('button', { name: 'Preview' })).not.toBeInTheDocument();
+  expect(within(row).getByRole('button', { name: 'Download audio' }).textContent).toBe('');
   expect(
     within(row).queryByText('Discogs tags will use this track. You can change the match.'),
   ).not.toBeInTheDocument();
