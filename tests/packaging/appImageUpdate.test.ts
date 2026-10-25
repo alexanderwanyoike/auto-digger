@@ -65,7 +65,9 @@ test.skipIf(process.platform !== 'linux')(
     const endpoint = socket.address();
     if (!endpoint || typeof endpoint === 'string') throw new Error('No debugging port');
     await new Promise<void>((done) => {
-      socket.close(() => done());
+      socket.close(() => {
+        done();
+      });
     });
     const debug = `http://127.0.0.1:${endpoint.port.toString()}`;
     const original = join(root, 'images/AutoDigger-0.0.1-linux-x64.AppImage');
@@ -114,7 +116,11 @@ test.skipIf(process.platform !== 'linux')(
       await expect
         .poll(async () => readFile(entry, 'utf8').catch(() => ''), { timeout: 20_000 })
         .toContain(`"${join(root, 'images', name)}"`);
-      expect(await readFile(join(root, 'images', name))).toEqual(payload);
+      expect(
+        createHash('sha512')
+          .update(await readFile(join(root, 'images', name)))
+          .digest('base64'),
+      ).toBe(sha512);
       await expect(readFile(original)).rejects.toMatchObject({ code: 'ENOENT' });
       await expect
         .poll(
@@ -142,18 +148,22 @@ test.skipIf(process.platform !== 'linux')(
     } finally {
       await browser?.close().catch(() => undefined);
       desktop.kill();
-      for (const directory of [profile, join(root, 'config/Auto Digger')]) {
-        const lock = await readlink(join(directory, 'SingletonLock')).catch(() => '');
-        const pid = Number(lock.split('-').at(-1));
-        if (Number.isInteger(pid) && pid > 0)
-          await promisify(execFile)('kill', ['-TERM', pid.toString()]).catch(() => undefined);
-      }
+      await Promise.all(
+        [profile, join(root, 'config/Auto Digger')].map(async (directory) => {
+          const lock = await readlink(join(directory, 'SingletonLock')).catch(() => '');
+          const pid = Number(lock.split('-').at(-1));
+          if (Number.isInteger(pid) && pid > 0)
+            await promisify(execFile)('kill', ['-TERM', pid.toString()]).catch(() => undefined);
+        }),
+      );
       await new Promise<void>((done) => {
-        server.close(() => done());
+        server.close(() => {
+          done();
+        });
         server.closeAllConnections();
       });
       await log.close();
-      await rm(root, { recursive: true, force: true });
+      await rm(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
     }
   },
 );
