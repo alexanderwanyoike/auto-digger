@@ -1,3 +1,4 @@
+import { createSavedFiltersStore } from '../filters/store';
 import type { DatabaseSync } from 'node:sqlite';
 import { createResearchStore } from '../research/store';
 import { createDownloadIndex } from '../audio/downloadIndex';
@@ -60,6 +61,7 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
   }
   return {
     preferences: createPreferencesStore(getConnection),
+    filters: createSavedFiltersStore(getConnection),
     downloads: createDownloadIndex(getConnection),
     research: createResearchStore(getConnection),
     annotate: (input: unknown, signal?: AbortSignal) =>
