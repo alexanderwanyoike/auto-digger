@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
+import { UpdateNotice } from './components/UpdateNotice';
 import { usePreferences } from './sections/usePreferences';
 import type { CatalogueBridge } from '../shared/catalogue';
 import { CratesPage } from './sections/CratesPage';
@@ -164,7 +165,7 @@ export function App({
         <span>
           <span className="blue-dot" /> DISCOGS DISCOVERY
         </span>
-        <span>Built for the long way round.</span>
+        <UpdateNotice />
       </div>
       {connectionOpen && (
         <ConnectionDialog

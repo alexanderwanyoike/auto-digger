@@ -124,7 +124,10 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: installer-${{ matrix.target }}
-          path: release/AutoDigger-${{ needs.context.outputs.version }}-${{ matrix.suffix }}
+          path: |
+            release/AutoDigger-${{ needs.context.outputs.version }}-${{ matrix.suffix }}
+            release/latest*.yml
+            release/*.exe.blockmap
           if-no-files-found: error
           compression-level: 0
           retention-days: 7
@@ -147,8 +150,11 @@ jobs:
           for suffix in windows-x64-setup.exe macos-arm64.dmg macos-x64.dmg linux-x64.AppImage; do
             test -s "AutoDigger-$VERSION-$suffix"
           done
-          test "$(find . -maxdepth 1 -type f | wc -l)" -eq 4
-          sha256sum AutoDigger-* > SHA256SUMS
+          test -s latest.yml
+          test -s latest-linux.yml
+          test -s "AutoDigger-$VERSION-windows-x64-setup.exe.blockmap"
+          test "$(find . -maxdepth 1 -type f | wc -l)" -eq 7
+          sha256sum AutoDigger-* latest*.yml > SHA256SUMS
           sha256sum --check SHA256SUMS
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

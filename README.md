@@ -141,6 +141,12 @@ Connect Discogs in Auto Digger for release searches. Your assistant researches t
 
 Each time you reopen Auto Digger, choose **Enable MCP** again. Connected assistants can read and edit your crates until you disable access or close the app. Keep your Discogs token in Auto Digger. If you move the app, copy fresh Codex configuration. The [setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#mcp) includes troubleshooting.
 
+## App updates
+
+The footer shows **Update available** when a newer release is ready. Select it to download, then choose **Restart to update**. Windows installers and Linux AppImages replace the previous app; your crates, settings and music stay in place.
+
+On macOS, the notice opens the installer for your Mac. Install it manually while preview builds use ad-hoc signing. Existing v0.1.1 users need to install this release manually once to gain the updater.
+
 ## Development
 
 The app uses Electron, React, strict TypeScript and SQLite. Yarn is the package manager.

@@ -31,3 +31,7 @@ For a local published-state preview, save the GitHub release API response and ru
 The packaging follows electron-builder's native targets and the existing Muzo distribution workflow. Auto Digger uses ordinary resource files (`asar: false`) so local MCP clients can run its helper with the included executable in Node mode. The exported Claude extension bundles its helper and dependencies separately. Runtime dependencies and their licences remain alongside the compiled app. Font licences are included explicitly.
 
 References: [electron-vite distribution](https://electron-vite.org/guide/distribution), [electron-builder configuration](https://www.electron.build/configuration/) and [Vite HTML transforms](https://vite.dev/guide/api-plugin#transformindexhtml). The project uses MIT; preserve bundled third-party licences.
+
+## Update assets
+
+Publish the matching `latest.yml`, `latest-linux.yml` and Windows `.exe.blockmap` alongside the four installers. The workflow requires all seven files and includes them in `SHA256SUMS`. Keep metadata and installers from the same build. macOS remains a manual DMG update while builds use ad-hoc signing.

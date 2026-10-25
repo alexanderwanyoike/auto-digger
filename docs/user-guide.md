@@ -1,5 +1,11 @@
 # Using Auto Digger
 
+## App updates
+
+When the footer offers a new version, select it to download the update. A percentage shows progress. Choose **Restart to update** when it is ready. Your saved crates, account settings and music stay in place. A failed download can be retried.
+
+On macOS, the update notice opens a new installer instead. Quit Auto Digger and install it as usual. The preview's ad-hoc signing does not support native Mac updates. Existing v0.1.1 installations need one manual upgrade to gain the updater.
+
 ## Connect Discogs
 
 Choose **Discogs not connected** or open the connection section in Settings. Generate a personal token through the linked Discogs settings, then paste it into the app. Fields clear after submission. A successful connection is stored using operating-system encryption and restored at launch.

@@ -1,0 +1,15 @@
+# Desktop updates
+
+The footer offers a newer stable release, reports download progress and lets the user restart to install it. Updates are checked shortly after packaged-app startup and every four hours. The footer also supports a manual check. Source/development builds and extracted non-AppImage Linux builds do not update themselves.
+
+Windows NSIS and Linux AppImage installation use [electron-updater](https://www.electron.build/v26/docs/features/auto-update/) 6.8.11 (MIT), using electron-builder 26's GitHub provider and generated update metadata. The library owns download caching, SHA-512 verification and platform installation. Downloads and installation require separate user actions. Closing the app alone does not install an update.
+
+macOS preview builds are ad-hoc signed. [Electron requires proper signing for native Mac updates](https://www.electronjs.org/docs/latest/api/auto-updater/), so those builds offer the matching official DMG instead. The app validates the complete published stable release using its existing release-assets parser and compares versions using semver (ISC). A failed background check retains a previously verified installer link. No custom Mac replacement script is used.
+
+The main process owns the updater. IPC accepts status/check/download/install operations from the trusted application frame; it accepts no renderer-supplied download URL, file path or version. Expected failures use typed Results. The footer shows a short retry action with the readable failure message as its tooltip. A failed download cannot advance to installation.
+
+After a successful installer handoff, normal app exit stops downloads and research access and closes the catalogue. The instance lock stays held until the old process exits. On Linux, the SDK reports the installed AppImage path and [Electron queues its relaunch after exit](https://www.electronjs.org/docs/latest/api/app#apprelaunchoptions), so the replacement starts after cleanup. A rejected installation keeps the existing app and its services available for retry.
+
+The installer workflow publishes the four existing installers, Windows/Linux YAML update feeds, a Windows block map and SHA256SUMS. Mac builds deliberately have no native update feed. Metadata and installers must be published together. Existing v0.1.1 installations have no updater and need one manual install of the first release containing it.
+
+Tests cover state transitions, guarded installation, manual Mac links and transient check failure. A real SDK AppImage updater downloads from a controlled local feed, reports progress, replaces a synthetic executable and starts it. A corrupted download is rejected while the old file remains intact, and retry succeeds. A denied installation keeps crate writes, MCP access and the instance lock working, then succeeds on retry. Reopening the same profile confirms its crate remains saved. The packaging check verifies the generated feed points to this repository and that its SHA-512 matches the actual AppImage. Windows interactive installation and Mac installer opening still require their target-system checks.
