@@ -16,6 +16,7 @@ writeFileSync(
   }),
 );
 const { autoUpdater } = require('electron-updater');
+
 autoUpdater.updateConfigPath = configuration;
 autoUpdater.setFeedURL({ provider: 'generic', url: process.env.AUTO_DIGGER_TEST_UPDATE_URL });
 autoUpdater.disableDifferentialDownload = true;

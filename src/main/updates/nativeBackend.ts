@@ -6,8 +6,7 @@ export function createNativeUpdateBackend(
   updater: AppUpdater,
   prepareInstall: () => Promise<UpdateResult<undefined>>,
 ): UpdateBackend {
-  updater.autoDownload = false;
-  updater.autoInstallOnAppQuit = false;
+  Object.assign(updater, { autoDownload: false, autoInstallOnAppQuit: false });
   let reportProgress: ((percent: number) => void) | undefined;
   let installFailed = false;
   updater.on('download-progress', (info) => {

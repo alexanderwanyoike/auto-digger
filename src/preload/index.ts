@@ -1,5 +1,5 @@
-import { createUpdatesBridge } from './updatesBridge';
 import { contextBridge, ipcRenderer } from 'electron';
+import { createUpdatesBridge } from './updatesBridge';
 import { createResearchAccessBridge } from './researchAccessBridge';
 import { createDownloadJobsBridge } from './downloadJobsBridge';
 import { createPreferencesBridge } from './preferencesBridge';

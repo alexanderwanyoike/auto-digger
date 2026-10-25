@@ -1,6 +1,6 @@
-import { UpdateNotice } from './components/UpdateNotice';
 import { useState } from 'react';
 import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
+import { UpdateNotice } from './components/UpdateNotice';
 import { usePreferences } from './sections/usePreferences';
 import type { CatalogueBridge } from '../shared/catalogue';
 import { CratesPage } from './sections/CratesPage';
