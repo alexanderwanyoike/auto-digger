@@ -42,3 +42,36 @@ test('preserves a draft when saving fails and retries it without restoring older
   });
   expect(bridge.saveDraft).toHaveBeenCalledTimes(2);
 });
+
+test('persists a quick revert after an earlier draft save finishes', async () => {
+  const original = { ...emptyFilters, year: '1998' };
+  const snapshot = { draft: original, presets: [] };
+  let finishEarlierSave: () => void = () => {
+    throw new Error('No pending save');
+  };
+  const pending = new Promise<void>((resolve) => {
+    finishEarlierSave = resolve;
+  });
+  let persistedYear = original.year;
+  const bridge: SavedFiltersBridge = {
+    read: vi.fn().mockResolvedValue({ ok: true, value: snapshot }),
+    saveDraft: vi.fn<SavedFiltersBridge['saveDraft']>().mockImplementation(async (draft) => {
+      if (draft.year === '2001') await pending;
+      persistedYear = draft.year;
+      return { ok: true, value: { ...snapshot, draft } };
+    }),
+    savePreset: vi.fn(),
+    removePreset: vi.fn(),
+  };
+  const { result } = renderHook(() => useSavedFilters(bridge));
+  await waitFor(() => expect(result.current.ready).toBe(true));
+  act(() => result.current.setDraft({ ...original, year: '2001' }));
+  await waitFor(() => expect(bridge.saveDraft).toHaveBeenCalledTimes(1));
+  act(() => result.current.setDraft(original));
+  await act(async () => {
+    finishEarlierSave();
+    await pending;
+  });
+  await waitFor(() => expect(persistedYear).toBe('1998'));
+  expect(result.current.draft).toEqual(original);
+});
