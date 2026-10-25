@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process';
-import { access, mkdtemp, rm } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { access, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { promisify } from 'node:util';
@@ -32,6 +33,16 @@ test.skipIf(process.platform !== 'linux')(
         'site/public/licenses/manrope.txt',
       ].map((file) => access(join(resources, file))),
     );
+    const updateManifest = await readFile(resolve('release/latest-linux.yml'), 'utf8');
+    const installer = await readFile(
+      resolve(`release/AutoDigger-${metadata.version}-linux-x64.AppImage`),
+    );
+    expect(updateManifest).toContain(`version: ${metadata.version}`);
+    expect(updateManifest).toContain(createHash('sha512').update(installer).digest('base64'));
+    const feed = await readFile(join(resources, '../app-update.yml'), 'utf8');
+    expect(feed).toContain('provider: github');
+    expect(feed).toContain('owner: alexanderwanyoike');
+    expect(feed).toContain('repo: auto-digger');
     const profile = await mkdtemp(join(tmpdir(), 'auto-digger-packaged-'));
     const client = new Client({ name: 'auto-digger-package-check', version: '1.0.0' });
     const desktop = await electron.launch({
