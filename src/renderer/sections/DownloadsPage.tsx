@@ -71,7 +71,7 @@ export function DownloadsPage({ audio }: { audio: ReturnType<typeof useAudioLibr
                 <td colSpan={4} className="library-empty">
                   {query.trim()
                     ? 'No tracks match this search.'
-                    : 'No downloads yet. Preview a source on the digging desk, then save a track.'}
+                    : 'No downloads yet. Download a track from the digging desk.'}
                 </td>
               </tr>
             )}
