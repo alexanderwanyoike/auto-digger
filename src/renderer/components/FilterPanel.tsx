@@ -31,7 +31,6 @@ export function FilterPanel({
         </h2>
       </div>
       <div className="desk-panel-scroll">
-        <p className="panel-description">Set the boundaries. Leave room for a surprise.</p>
         <SavedFilterPicker filters={filters} />
         <form
           onSubmit={(event) => {

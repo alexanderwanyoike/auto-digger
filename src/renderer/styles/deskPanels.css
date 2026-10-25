@@ -54,8 +54,12 @@
   align-items: center;
   gap: 4px;
 }
-.saved-filter-controls select {
+.saved-filter-select {
   flex: 1;
+  min-width: 0;
+}
+.saved-filter-controls select {
+  width: 100%;
   min-width: 0;
   height: 30px;
   padding: 0 6px;
@@ -104,3 +108,4 @@
   background: transparent;
   text-decoration: underline;
 }
+

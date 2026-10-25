@@ -3,7 +3,7 @@ import { BookmarkPlus, Trash2, X } from 'lucide-react';
 import type { useSavedFilters } from './useSavedFilters';
 
 export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useSavedFilters> }) {
-  const id = useId();
+  const controlId = useId();
   const [selected, setSelected] = useState('');
   const [naming, setNaming] = useState(false);
   const [name, setName] = useState('');
@@ -11,28 +11,28 @@ export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useS
   return (
     <div className="saved-filter-picker">
       <div className="saved-filter-controls">
-        <label htmlFor={`${id}-presets`} className="sr-only">
-          Saved filters
+        <label className="saved-filter-select" htmlFor={`${controlId}-presets`}>
+          <span className="sr-only">Saved filters</span>
+          <select
+            id={`${controlId}-presets`}
+            value={selected}
+            disabled={disabled}
+            onChange={(event) => {
+              const id = event.target.value;
+              setSelected(id);
+              setNaming(false);
+              const preset = filters.presets.find((item) => item.id === id);
+              if (preset) filters.setDraft(preset.filters);
+            }}
+          >
+            <option value="">Saved filters</option>
+            {filters.presets.map((preset) => (
+              <option key={preset.id} value={preset.id}>
+                {preset.name}
+              </option>
+            ))}
+          </select>
         </label>
-        <select
-          id={`${id}-presets`}
-          value={selected}
-          disabled={disabled}
-          onChange={(event) => {
-            const id = event.target.value;
-            setSelected(id);
-            setNaming(false);
-            const preset = filters.presets.find((item) => item.id === id);
-            if (preset) filters.setDraft(preset.filters);
-          }}
-        >
-          <option value="">Saved filters</option>
-          {filters.presets.map((preset) => (
-            <option key={preset.id} value={preset.id}>
-              {preset.name}
-            </option>
-          ))}
-        </select>
         <button
           type="button"
           className="icon-button"
@@ -87,16 +87,18 @@ export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useS
               .catch(() => undefined);
           }}
         >
-          <label htmlFor={`${id}-name`}>Filter name</label>
-          <input
-            id={`${id}-name`}
-            value={name}
-            onChange={(event) => {
-              setName(event.target.value);
-            }}
-            maxLength={80}
-            required
-          />
+          <label htmlFor={`${controlId}-name`}>
+            <span>Filter name</span>
+            <input
+              id={`${controlId}-name`}
+              value={name}
+              onChange={(event) => {
+                setName(event.target.value);
+              }}
+              maxLength={80}
+              required
+            />
+          </label>
           <button type="submit" className="secondary-button" disabled={disabled || !name.trim()}>
             Save
           </button>
