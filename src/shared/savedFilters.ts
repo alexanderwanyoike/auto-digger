@@ -15,7 +15,6 @@ export const savedFiltersSchema = z.object({
 export const savePresetSchema = filterPresetSchema.partial({ id: true }).strict();
 export type SavedFilters = z.infer<typeof savedFiltersSchema>;
 export type SavedFiltersResult = CatalogueResult<SavedFilters>;
-export const emptyFilters: DigFilters = filtersSchema.parse({});
 export interface SavedFiltersBridge {
   read: () => Promise<SavedFiltersResult>;
   saveDraft: (filters: DigFilters) => Promise<SavedFiltersResult>;

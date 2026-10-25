@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { filtersSchema } from '../../shared/search';
 import type { DigFilters } from '../../shared/search';
-import { emptyFilters } from '../../shared/savedFilters';
+import { emptyFilters } from '../../shared/defaultFilters';
 import type {
   SavedFilters,
   SavedFiltersBridge,
@@ -55,14 +54,13 @@ export function useSavedFilters(bridge: SavedFiltersBridge | undefined) {
     if (bridge) reload().catch(() => undefined);
   }, [bridge, reload]);
   useEffect(() => {
-    const parsed = filtersSchema.safeParse(draft);
-    if (!bridge || !ready || !edited.current || !parsed.success) return undefined;
+    if (!bridge || !ready || !edited.current) return undefined;
     let active = true;
     pendingSave.current = pendingSave.current.then(async () => {
-      const result = await perform((api) => api.saveDraft(parsed.data));
+      const result = await perform((api) => api.saveDraft(draft));
       if (!active) return;
       if (result.ok) setError(null);
-      else setError(result.error.message);
+      else if (result.error.code !== 'invalid-input') setError(result.error.message);
     });
     return () => {
       active = false;

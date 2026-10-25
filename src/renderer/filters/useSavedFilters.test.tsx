@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { expect, test, vi } from 'vitest';
-import { emptyFilters } from '../../shared/savedFilters';
+import { emptyFilters } from '../../shared/defaultFilters';
 import type { SavedFiltersBridge } from '../../shared/savedFilters';
 import { useSavedFilters } from './useSavedFilters';
 

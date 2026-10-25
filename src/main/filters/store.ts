@@ -4,7 +4,8 @@ import { z } from 'zod';
 import type { CatalogueResult } from '../../shared/catalogue';
 import { catalogueFailure } from '../../shared/catalogueFailure';
 import { filtersSchema } from '../../shared/search';
-import { emptyFilters, savedFiltersSchema, savePresetSchema } from '../../shared/savedFilters';
+import { emptyFilters } from '../../shared/defaultFilters';
+import { savedFiltersSchema, savePresetSchema } from '../../shared/savedFilters';
 import type { SavedFilters, SavedFiltersResult } from '../../shared/savedFilters';
 
 function readSnapshot(database: DatabaseSync): SavedFiltersResult {
