@@ -37,8 +37,6 @@ test('shows all sources, suggests track matches, accepts corrections and loads d
   const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
   vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
   const bridge: AudioBridge = {
-    preview: vi.fn(),
-    stopPreview: () => Promise.resolve({ ok: true, value: undefined }),
     list: () => Promise.resolve({ ok: true, value: [] }),
     probe: (url) =>
       Promise.resolve({
@@ -88,8 +86,6 @@ test('shows all sources, suggests track matches, accepts corrections and loads d
 test('keeps saved sources playable offline and lets their track assignment be corrected', async () => {
   const saved = { ...track, title: 'Unknown upload', trackIndex: null };
   const bridge: AudioBridge = {
-    preview: vi.fn(),
-    stopPreview: () => Promise.resolve({ ok: true, value: undefined }),
     list: () => Promise.resolve({ ok: true, value: [saved] }),
     probe: () => Promise.resolve({ ok: false, error: { code: 'network', message: 'Offline' } }),
     download: vi.fn<AudioBridge['download']>().mockResolvedValue({ ok: true, value: track }),
@@ -133,8 +129,6 @@ test('explains an unavailable source and lets the user retry without losing the 
       value: { videoId: 'abcdefghijk', title: 'Low Tide - Quiet Orbit' },
     });
   const bridge: AudioBridge = {
-    preview: vi.fn(),
-    stopPreview: () => Promise.resolve({ ok: true, value: undefined }),
     list: () => Promise.resolve({ ok: true, value: [] }),
     probe,
     download: vi.fn(),
@@ -164,8 +158,6 @@ test('retains a freshly downloaded track when an older library snapshot finishes
     },
   );
   const bridge: AudioBridge = {
-    preview: vi.fn(),
-    stopPreview: () => Promise.resolve({ ok: true, value: undefined }),
     list: () => initial,
     probe: () =>
       Promise.resolve({
@@ -206,8 +198,6 @@ test('reports unreadable audio rather than calling a failed track ready to play'
     new DOMException('cannot decode', 'NotSupportedError'),
   );
   const bridge: AudioBridge = {
-    preview: vi.fn(),
-    stopPreview: () => Promise.resolve({ ok: true, value: undefined }),
     list: () => Promise.resolve({ ok: true, value: [track] }),
     probe: vi.fn(),
     download: vi.fn(),
@@ -241,8 +231,6 @@ test('ignores an old play rejection after another downloaded track is selected',
     .mockResolvedValue();
   const second = { ...track, id: '13-abcdefghijk', releaseId: 13, title: 'Another track' };
   const bridge: AudioBridge = {
-    preview: vi.fn(),
-    stopPreview: () => Promise.resolve({ ok: true, value: undefined }),
     list: () => Promise.resolve({ ok: true, value: [track, second] }),
     probe: vi.fn(),
     download: vi.fn(),

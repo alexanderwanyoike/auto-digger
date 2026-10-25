@@ -5,13 +5,11 @@ import type { AudioResult } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
 import type { createIndexedLibrary } from './indexedLibrary';
 import type { createDownloader } from './downloader';
-import type { createPreviewSession } from './previewSession';
 
 export function registerAudioHandlers(
   window: BrowserWindow,
   library: ReturnType<typeof createIndexedLibrary>,
   downloader: ReturnType<typeof createDownloader>,
-  previews: ReturnType<typeof createPreviewSession>,
 ) {
   const handle = (
     channel: string,
@@ -32,8 +30,6 @@ export function registerAudioHandlers(
       }
     });
   };
-  handle(audioChannels.preview, (input) => previews.start(input));
-  handle(audioChannels.stopPreview, () => Promise.resolve(previews.stop()));
   handle(audioChannels.list, () => library.list());
   handle(audioChannels.probe, (input) =>
     typeof input === 'string'

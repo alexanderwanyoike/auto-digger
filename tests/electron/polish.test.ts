@@ -1,5 +1,6 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
+import { selectAppearance } from '../appearance';
 import { loadedRelease } from '../discogsFixtures';
 
 [900, 1180, 1600].forEach((width) => {
@@ -47,7 +48,7 @@ import { loadedRelease } from '../discogsFixtures';
         path: `test-results/polish-${width.toString()}-light.png`,
         fullPage: true,
       });
-      await page.getByRole('button', { name: 'Dark', exact: true }).click();
+      await selectAppearance(page, 'Dark');
       await page.screenshot({
         path: `test-results/polish-${width.toString()}-dark.png`,
         fullPage: true,
@@ -56,4 +57,66 @@ import { loadedRelease } from '../discogsFixtures';
       await desktop.close();
     }
   });
+});
+
+test('keeps source controls and row positions fixed while a download reports progress', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encryptedDesktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('progress-profile')}`,
+    ],
+    env: Object.fromEntries(
+      Object.entries(process.env).filter(
+        (entry): entry is [string, string] =>
+          typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
+      ),
+    ),
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
+    await page.setViewportSize({ width: 1180, height: 900 });
+    await page.evaluate(async (release) => window.crate?.save(release), {
+      ...loadedRelease,
+      videos: [
+        { title: 'Quiet Orbit', url: 'https://youtu.be/slowvideo01' },
+        { title: 'Alternative', url: 'https://youtu.be/abcdefghijk' },
+      ],
+    });
+    await page.reload();
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP' }).click();
+    const rows = page.getByRole('list', { name: 'YouTube audio sources' }).getByRole('listitem');
+    await expect(rows).toHaveCount(2);
+    const first = rows.nth(0);
+    const second = rows.nth(1);
+    const control = first.locator('.source-download');
+    await expect(control).toHaveAccessibleName('Download audio');
+    await expect(second.getByRole('button', { name: 'Download audio' })).toBeEnabled();
+    await control.scrollIntoViewIfNeeded();
+    const positions = () =>
+      Promise.all([
+        first.boundingBox(),
+        second.boundingBox(),
+        first.getByLabel('Discogs track').boundingBox(),
+        control.boundingBox(),
+      ]);
+    const before = await positions();
+    await control.click();
+    await expect(
+      page.getByRole('progressbar', { name: 'Progress for Quiet Orbit', exact: true }),
+    ).toBeVisible();
+    const after = await positions();
+    before.forEach((box, index) => {
+      const current = after[index];
+      if (!box || !current) throw new Error('Source controls disappeared');
+      expect(Math.abs(current.y - box.y)).toBeLessThanOrEqual(1);
+      expect(Math.abs(current.width - box.width)).toBeLessThanOrEqual(1);
+      expect(Math.abs(current.height - box.height)).toBeLessThanOrEqual(1);
+    });
+    await expect(control).toContainText('25%');
+    await page.screenshot({ path: '/tmp/auto-digger-source-progress.png' });
+    await page.getByRole('button', { name: 'Cancel download Quiet Orbit', exact: true }).click();
+  } finally {
+    await desktop.close();
+  }
 });

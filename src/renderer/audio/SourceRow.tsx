@@ -1,8 +1,9 @@
 import { useId, useState } from 'react';
-import { Download, FolderOpen, Play } from 'lucide-react';
+import { FolderOpen, Play } from 'lucide-react';
 import type { AudioResult, AudioSource, LocalTrack } from '../../shared/audio';
 import type { DiscogsRelease } from '../../shared/discogs';
 import { sourceAssignment } from './sourceAssignment';
+import { SourceDownloadButton } from './SourceDownloadButton';
 import type { useAudioLibrary } from './useAudioLibrary';
 
 export function SourceRow({
@@ -32,8 +33,10 @@ export function SourceRow({
   const { sourceTitle, selected } = sourceAssignment(release, index, checked, saved, manual);
   const available = saved && !saved.missing;
   const changed = saved && selected !== saved.trackIndex;
-  let actionLabel = available ? 'Update tags' : 'Download audio';
-  if (pending) actionLabel = 'Saving…';
+  const job = audio.queue.jobs
+    .filter((item) => item.releaseId === release.id && item.videoIndex === index)
+    .at(-1);
+  const failure = error ?? (job?.stage === 'failed' ? job.error?.message : null);
   let matchLabel = saved?.missing ? 'File missing' : 'Suggested match';
   if (selected === null) matchLabel = 'Unassigned';
   else if (available && !changed) matchLabel = 'Saved';
@@ -75,48 +78,35 @@ export function SourceRow({
         </span>
       </div>
       <div className="source-actions">
-        {!available && (
-          <button
-            type="button"
-            className="secondary-button source-preview"
-            disabled={!checked?.ok || audio.previewing}
-            onClick={() => {
-              audio
-                .preview({ release, videoIndex: index, trackIndex: selected })
-                .catch(() => undefined);
-            }}
-          >
-            <Play size={12} aria-hidden="true" />
-            {audio.previewing ? 'Preparing…' : 'Preview'}
-          </button>
-        )}
         {available && (
           <button
             type="button"
             className="secondary-button"
+            aria-label="Play track"
+            title="Play track"
             onClick={() => {
               audio.play(saved);
             }}
           >
             <Play size={12} aria-hidden="true" />
-            Play track
           </button>
         )}
         {(!available || changed) && (
-          <button
-            type="button"
-            className="secondary-button source-download"
+          <SourceDownloadButton
+            job={job}
+            pending={pending}
+            tagging={Boolean(available)}
             disabled={audio.busy || (!available && !checked?.ok)}
-            onClick={() => {
+            onDownload={() => {
               download().catch(() => {
                 setPending(false);
                 setError('This download could not finish. Please retry.');
               });
             }}
-          >
-            <Download size={12} aria-hidden="true" />
-            {actionLabel}
-          </button>
+            onCancel={(jobId) => {
+              audio.queue.cancel(jobId).catch(() => undefined);
+            }}
+          />
         )}
         {available && (
           <button
@@ -150,9 +140,9 @@ export function SourceRow({
           {checked.error.message}
         </p>
       )}
-      {error && (
+      {failure && (
         <p role="alert" className="source-notice">
-          {error}
+          {failure}
         </p>
       )}
       {saved?.warning && (
