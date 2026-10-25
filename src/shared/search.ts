@@ -19,7 +19,11 @@ export const filtersSchema = z.object({
   year: z
     .string()
     .trim()
-    .regex(/^(|[0-9]{4})$/)
+    .regex(/^(|[0-9]{4}(-[0-9]{4})?)$/)
+    .refine(
+      (value) => !value.includes('-') || value.slice(0, 4) <= value.slice(5),
+      'The starting year must come before the ending year.',
+    )
     .default(''),
   genre: selection,
   style: selection,
