@@ -14,7 +14,7 @@ export function createApplicationUpdates() {
         )
       : createNativeUpdateBackend(
           electronUpdater.autoUpdater,
-          process.env.APPIMAGE
+          process.platform === 'linux' && process.env.APPIMAGE
             ? {
                 file: process.env.APPIMAGE,
                 schedule: (file) => {

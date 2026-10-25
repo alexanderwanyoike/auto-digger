@@ -41,35 +41,22 @@ const previews = createPreviewSession(
   (input, options) => net.fetch(input instanceof URL ? input.href : input, options),
 );
 let researchRuntime: ReturnType<typeof createResearchRuntime> | undefined;
-let closingCatalogue = false;
-let shutdown: Promise<Result<undefined, string>> | undefined;
 let updates: ReturnType<typeof createApplicationUpdates>;
-
-function closeServices(): Promise<Result<undefined, string>> {
-  shutdown ??= (async () => {
-    audioCommands.cancelAll();
-    previews.stop();
-    const research = await researchRuntime?.stop();
-    if (research && !research.ok) process.stderr.write(`${research.error.message}\n`);
-    await downloadJobs?.close();
-    const closed = await catalogueStore?.close();
-    closingCatalogue = true;
-    return closed && !closed.ok
-      ? { ok: false, error: closed.error.message }
-      : { ok: true, value: undefined };
-  })();
-  return shutdown;
-}
+let closingCatalogue = false;
 app.on('before-quit', (event) => {
+  audioCommands.cancelAll();
+  previews.stop();
   if (catalogueStore && !closingCatalogue) {
     event.preventDefault();
-    closeServices()
+    closingCatalogue = true;
+    Promise.resolve(researchRuntime?.stop())
+      .then(() => downloadJobs?.close())
+      .then(() => catalogueStore?.close())
       .then((result) => {
-        if (!result.ok) process.stderr.write(`${result.error}\n`);
+        if (result && !result.ok) process.stderr.write(`${result.error.message}\n`);
         app.quit();
       })
       .catch(() => {
-        closingCatalogue = true;
         app.quit();
       });
   }
