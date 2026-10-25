@@ -2,6 +2,7 @@ import { app, shell } from 'electron';
 import electronUpdater from 'electron-updater';
 import { setInterval, setTimeout } from 'node:timers';
 import { createNativeUpdateBackend } from './nativeBackend';
+import { scheduleAppImageRestart } from './restartAppImage';
 import { createMacUpdateBackend } from './macBackend';
 import { createUpdateService } from './service';
 
@@ -17,9 +18,7 @@ export function createApplicationUpdates() {
           process.platform === 'linux' && process.env.APPIMAGE
             ? {
                 file: process.env.APPIMAGE,
-                schedule: (file) => {
-                  app.relaunch({ execPath: file });
-                },
+                schedule: scheduleAppImageRestart,
               }
             : undefined,
         );

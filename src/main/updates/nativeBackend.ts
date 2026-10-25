@@ -21,7 +21,7 @@ export function createNativeUpdateBackend(
     image = file;
   });
   if (restart) {
-    // The SDK handoff must succeed before queuing a relaunch after normal quit.
+    // The SDK handoff must succeed before scheduling a restart during normal quit.
     nativeUpdater.once('before-quit-for-update', () => {
       if (image) restart.schedule(image);
     });
