@@ -34,8 +34,6 @@ test.each(['failed', 'cancelled'] as const)(
       error: stage === 'failed' ? { code: 'unavailable', message: 'Try again' } : null,
     };
     const bridge: AudioBridge = {
-      preview: vi.fn(),
-      stopPreview: vi.fn(),
       list: () => Promise.resolve({ ok: true, value: [track] }),
       probe: vi.fn(),
       download: vi.fn(),
