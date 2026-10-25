@@ -34,6 +34,11 @@ const accents = [
   { value: 'sage', label: 'Sage' },
   { value: 'lilac', label: 'Lilac' },
   { value: 'rose', label: 'Rose' },
+  { value: 'electric', label: 'Electric blue' },
+  { value: 'green', label: 'Green' },
+  { value: 'orange', label: 'Orange' },
+  { value: 'pink', label: 'Hot pink' },
+  { value: 'violet', label: 'Violet' },
 ] as const;
 
 export function AppearanceSettings({

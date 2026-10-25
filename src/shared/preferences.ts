@@ -3,7 +3,20 @@ import type { CatalogueResult } from './catalogue';
 
 export const preferencesSchema = z.object({
   material: z.enum(['aluminium', 'ceramic', 'slate', 'graphite', 'paper', 'copper']),
-  accent: z.enum(['blue', 'teal', 'amber', 'coral', 'sage', 'lilac', 'rose']),
+  accent: z.enum([
+    'blue',
+    'teal',
+    'amber',
+    'coral',
+    'sage',
+    'lilac',
+    'rose',
+    'electric',
+    'green',
+    'orange',
+    'pink',
+    'violet',
+  ]),
   layout: z.enum(['flat', 'release']),
   directory: z.string().min(1).max(4096).nullable(),
 });
