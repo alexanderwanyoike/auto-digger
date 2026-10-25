@@ -196,3 +196,22 @@
     repeating-linear-gradient(90deg, transparent 0, #96714f0c 1px, transparent 3px),
     linear-gradient(var(--metal-top), var(--metal-bottom));
 }
+
+:root[data-material='spotify'],
+.material-thumbnail[data-material='spotify'] {
+  --surface: #f6f6f6;
+  --surface-raised: #fff;
+  --surface-inset: #eaeaea;
+  --metal-top: #ededed;
+  --metal-bottom: #ededed;
+  --line: #d3d3d3;
+}
+:root[data-theme='dark'][data-material='spotify'],
+:root[data-theme='dark'] .material-thumbnail[data-material='spotify'] {
+  --surface: #121212;
+  --surface-raised: #1a1a1a;
+  --surface-inset: #090909;
+  --metal-top: #181818;
+  --metal-bottom: #181818;
+  --line: #333;
+}
