@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { CatalogueResult } from './catalogue';
 
 export const preferencesSchema = z.object({
-  material: z.enum(['aluminium', 'ceramic', 'slate', 'graphite', 'paper', 'copper']),
+  material: z.enum(['aluminium', 'ceramic', 'slate', 'graphite', 'paper', 'copper', 'carbon']),
   accent: z.enum(['blue', 'teal', 'amber', 'coral', 'sage', 'lilac', 'rose']),
   layout: z.enum(['flat', 'release']),
   directory: z.string().min(1).max(4096).nullable(),

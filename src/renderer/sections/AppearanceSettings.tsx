@@ -20,6 +20,7 @@ const materials = [
   { value: 'graphite', title: 'Graphite', description: 'Soft greys with a matte finish.' },
   { value: 'paper', title: 'Warm paper', description: 'Cream tones and a soft paper grain.' },
   { value: 'copper', title: 'Copper', description: 'Warm metal with a brushed finish.' },
+  { value: 'carbon', title: 'Carbon', description: 'Black framing and soft charcoal panels.' },
 ] as const;
 const modes = [
   { value: 'light', label: 'Light', Icon: Sun },
