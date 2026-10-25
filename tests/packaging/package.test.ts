@@ -69,6 +69,13 @@ test.skipIf(process.platform !== 'linux')(
         .toContain(`"${image}"`);
       await access(join(profile, 'data/icons', `${applicationId}.png`));
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
+      const about = page.getByRole('region', { name: 'About', exact: true });
+      const version = await desktop.evaluate(({ app }) => app.getVersion());
+      await about.scrollIntoViewIfNeeded();
+      await expect(
+        about.getByText(`Version ${version}`, { exact: true }).isVisible(),
+      ).resolves.toBe(true);
+      await about.screenshot({ path: '/tmp/auto-digger-about.png' });
       await page.getByRole('button', { name: 'Enable MCP', exact: true }).click();
       const status = await page.evaluate(async () => window.researchAccess?.status());
       if (!status?.ok || !status.value.enabled)
