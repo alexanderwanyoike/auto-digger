@@ -18,16 +18,16 @@ Auto Digger is a desktop app for discovering records on Discogs. Connect an MCP 
 
 ## Download
 
-[Auto Digger 0.1.4](https://github.com/alexanderwanyoike/auto-digger/releases/tag/v0.1.4) is a desktop preview.
+[Auto Digger 0.1.5](https://github.com/alexanderwanyoike/auto-digger/releases/tag/v0.1.5) is a desktop preview.
 
 | Platform            | Package                                                                                                                       |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Windows x64         | [Installer](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.4/AutoDigger-0.1.4-windows-x64-setup.exe) |
-| macOS Apple silicon | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.4/AutoDigger-0.1.4-macos-arm64.dmg)      |
-| macOS Intel         | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.4/AutoDigger-0.1.4-macos-x64.dmg)        |
-| Linux x64           | [AppImage](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.4/AutoDigger-0.1.4-linux-x64.AppImage)     |
+| Windows x64         | [Installer](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.5/AutoDigger-0.1.5-windows-x64-setup.exe) |
+| macOS Apple silicon | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.5/AutoDigger-0.1.5-macos-arm64.dmg)      |
+| macOS Intel         | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.5/AutoDigger-0.1.5-macos-x64.dmg)        |
+| Linux x64           | [AppImage](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.5/AutoDigger-0.1.5-linux-x64.AppImage)     |
 
-[SHA-256 checksums](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.4/SHA256SUMS) accompany the installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized.
+[SHA-256 checksums](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.5/SHA256SUMS) accompany the installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized.
 
 ### Opening the macOS app
 
@@ -46,14 +46,14 @@ Audio downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on your `PATH`.
 
 ## What you can do
 
-| Feature          | Details                                                                                                                                        |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| MCP mix research | Let an AI host research a mix, look up Discogs releases and add them to a crate with picked tracks, tags and source notes.                     |
-| Discovery        | Combine label, artist, year or year range and title with multi-select genres, styles and release types. Browse artwork or draw random matches. |
-| Audio            | Download YouTube sources as tracks or whole releases, with progress, retry and best-effort Discogs metadata. Play saved tracks locally.        |
-| Crates           | Keep named collections of releases with track picks and personal tags. The active crate returns after restart.                                 |
-| Downloads        | Search saved tracks, play them locally and open their folders. Choose flat or per-release file organisation.                                   |
-| Appearance       | Six materials, seven accents and light, dark or system appearance.                                                                             |
+| Feature          | Details                                                                                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MCP mix research | Let an AI host research a mix, look up Discogs releases and add them to a crate with picked tracks, tags and source notes.                                                   |
+| Discovery        | Combine label, artist, year or year range and title with multi-select genres, styles and release types. Save named filters for later, browse artwork or draw random matches. |
+| Audio            | Download YouTube sources as tracks or whole releases, with progress, retry and best-effort Discogs metadata. Play saved tracks locally.                                      |
+| Crates           | Keep named collections of releases with track picks and personal tags. The active crate returns after restart.                                                               |
+| Downloads        | Search saved tracks, play them locally and open their folders. Choose flat or per-release file organisation.                                                                 |
+| Appearance       | Six materials, seven accents and light, dark or system appearance.                                                                                                           |
 
 ## Quick start
 
@@ -147,7 +147,7 @@ The footer shows **Update available** when a newer release is ready. Select it t
 
 On macOS, the notice opens the installer for your Mac. Install it manually while preview builds use ad-hoc signing. Existing v0.1.1 users need to install this release manually once to gain the updater.
 
-If you update a Linux AppImage from 0.1.2 or 0.1.3 and the app closes without reopening, open the new 0.1.4 AppImage once from the folder where you keep Auto Digger. This refreshes its menu shortcut and starts the version with the restart fix.
+If you update a Linux AppImage from 0.1.2 or 0.1.3 and the app closes without reopening, open the new AppImage once from the folder where you keep Auto Digger. This refreshes its menu shortcut and starts the version with the restart fix.
 
 ## Development
 
