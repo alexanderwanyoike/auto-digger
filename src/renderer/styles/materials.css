@@ -196,3 +196,87 @@
     repeating-linear-gradient(90deg, transparent 0, #96714f0c 1px, transparent 3px),
     linear-gradient(var(--metal-top), var(--metal-bottom));
 }
+
+:root[data-material='spotify'],
+.material-thumbnail[data-material='spotify'] {
+  --surface: #f6f6f6;
+  --surface-raised: #fff;
+  --surface-inset: #eaeaea;
+  --metal-top: #ededed;
+  --metal-bottom: #ededed;
+  --line: #d3d3d3;
+}
+:root[data-theme='dark'][data-material='spotify'],
+:root[data-theme='dark'] .material-thumbnail[data-material='spotify'] {
+  --surface: #121212;
+  --surface-raised: #1a1a1a;
+  --surface-inset: #090909;
+  --metal-top: #181818;
+  --metal-bottom: #181818;
+  --line: #333;
+}
+
+:root[data-accent='electric'],
+.accent-swatch[data-accent='electric'] {
+  --blue: #064fdc;
+  --blue-soft: #e4edff;
+  --blue-on: #fff;
+}
+:root[data-theme='dark'][data-accent='electric'],
+:root[data-theme='dark'] .accent-swatch[data-accent='electric'] {
+  --blue: #3c92ff;
+  --blue-soft: #08182f;
+  --blue-on: #06132a;
+}
+
+:root[data-accent='green'],
+.accent-swatch[data-accent='green'] {
+  --blue: #08772f;
+  --blue-soft: #def7e8;
+  --blue-on: #fff;
+}
+:root[data-theme='dark'][data-accent='green'],
+:root[data-theme='dark'] .accent-swatch[data-accent='green'] {
+  --blue: #1ed760;
+  --blue-soft: #10351d;
+  --blue-on: #031b0b;
+}
+
+:root[data-accent='orange'],
+.accent-swatch[data-accent='orange'] {
+  --blue: #b73e00;
+  --blue-soft: #fff0e2;
+  --blue-on: #fff;
+}
+:root[data-theme='dark'][data-accent='orange'],
+:root[data-theme='dark'] .accent-swatch[data-accent='orange'] {
+  --blue: #ff861c;
+  --blue-soft: #3d230c;
+  --blue-on: #241000;
+}
+
+:root[data-accent='pink'],
+.accent-swatch[data-accent='pink'] {
+  --blue: #ad0061;
+  --blue-soft: #ffe4f3;
+  --blue-on: #fff;
+}
+:root[data-theme='dark'][data-accent='pink'],
+:root[data-theme='dark'] .accent-swatch[data-accent='pink'] {
+  --blue: #ff4fa6;
+  --blue-soft: #3e1430;
+  --blue-on: #26031b;
+}
+
+:root[data-accent='violet'],
+.accent-swatch[data-accent='violet'] {
+  --blue: #6d22d5;
+  --blue-soft: #f0e3ff;
+  --blue-on: #fff;
+}
+:root[data-theme='dark'][data-accent='violet'],
+:root[data-theme='dark'] .accent-swatch[data-accent='violet'] {
+  --blue: #b064ff;
+  --blue-soft: #2e1746;
+  --blue-on: #17072a;
+}

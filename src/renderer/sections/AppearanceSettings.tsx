@@ -20,6 +20,7 @@ const materials = [
   { value: 'graphite', title: 'Graphite', description: 'Soft greys with a matte finish.' },
   { value: 'paper', title: 'Warm paper', description: 'Cream tones and a soft paper grain.' },
   { value: 'copper', title: 'Copper', description: 'Warm metal with a brushed finish.' },
+  { value: 'spotify', title: 'Spotify', description: 'Flat surfaces inspired by Spotify.' },
 ] as const;
 const modes = [
   { value: 'light', label: 'Light', Icon: Sun },
@@ -34,6 +35,11 @@ const accents = [
   { value: 'sage', label: 'Sage' },
   { value: 'lilac', label: 'Lilac' },
   { value: 'rose', label: 'Rose' },
+  { value: 'electric', label: 'Electric blue' },
+  { value: 'green', label: 'Green' },
+  { value: 'orange', label: 'Orange' },
+  { value: 'pink', label: 'Hot pink' },
+  { value: 'violet', label: 'Violet' },
 ] as const;
 
 export function AppearanceSettings({
