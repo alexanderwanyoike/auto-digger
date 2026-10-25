@@ -1,12 +1,24 @@
 import type { AppUpdater } from 'electron-updater';
 import type { UpdateBackend } from './service';
-import type { UpdateResult } from '../../shared/updates';
+
+interface AppImageRestart {
+  file: string;
+  schedule: (file: string) => void;
+}
 
 export function createNativeUpdateBackend(
   updater: AppUpdater,
-  prepareInstall: () => Promise<UpdateResult<undefined>>,
+  restart?: AppImageRestart,
 ): UpdateBackend {
-  Object.assign(updater, { autoDownload: false, autoInstallOnAppQuit: false });
+  Object.assign(updater, {
+    autoDownload: false,
+    autoInstallOnAppQuit: false,
+    autoRunAppAfterInstall: restart === undefined,
+  });
+  let image = restart?.file;
+  updater.on('appimage-filename-updated', (file) => {
+    image = file;
+  });
   let reportProgress: ((percent: number) => void) | undefined;
   let installFailed = false;
   updater.on('download-progress', (info) => {
@@ -42,22 +54,24 @@ export function createNativeUpdateBackend(
         reportProgress = undefined;
       }
     },
-    async install() {
-      const prepared = await prepareInstall();
-      if (!prepared.ok) return prepared;
+    install() {
       installFailed = false;
       try {
-        updater.quitAndInstall(false, true);
+        updater.quitAndInstall(false, false);
+        // AppImage restarts must wait for normal quit and catalogue cleanup.
+        if (!installFailed && image) restart?.schedule(image);
       } catch {
         installFailed = true;
       }
-      return installFailed
-        ? {
-            ok: false,
-            error:
-              'The update could not be installed. Check that the app folder is writable and try again.',
-          }
-        : { ok: true, value: undefined };
+      return Promise.resolve(
+        installFailed
+          ? {
+              ok: false,
+              error:
+                'The update could not be installed. Check that the app folder is writable and try again.',
+            }
+          : { ok: true, value: undefined },
+      );
     },
   };
 }

@@ -4,16 +4,25 @@ import { setInterval, setTimeout } from 'node:timers';
 import { createNativeUpdateBackend } from './nativeBackend';
 import { createMacUpdateBackend } from './macBackend';
 import { createUpdateService } from './service';
-import type { UpdateResult } from '../../shared/updates';
 
-export function createApplicationUpdates(prepareInstall: () => Promise<UpdateResult<undefined>>) {
+export function createApplicationUpdates() {
   if (!app.isPackaged || (process.platform === 'linux' && !process.env.APPIMAGE)) return undefined;
   const backend =
     process.platform === 'darwin'
       ? createMacUpdateBackend(app.getVersion(), process.arch, fetch, (url) =>
           shell.openExternal(url),
         )
-      : createNativeUpdateBackend(electronUpdater.autoUpdater, prepareInstall);
+      : createNativeUpdateBackend(
+          electronUpdater.autoUpdater,
+          process.env.APPIMAGE
+            ? {
+                file: process.env.APPIMAGE,
+                schedule: (file) => {
+                  app.relaunch({ execPath: file });
+                },
+              }
+            : undefined,
+        );
   const updates = createUpdateService(backend);
   const check = () => {
     updates

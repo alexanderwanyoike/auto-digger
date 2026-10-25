@@ -117,11 +117,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     registerCatalogueHandlers(window, catalogueStore);
     registerPreferencesHandlers(window, catalogueStore.preferences);
     registerStoreLinkHandlers(window);
-    updates ??= createApplicationUpdates(async () => {
-      const result = await closeServices();
-      if (result.ok) app.releaseSingleInstanceLock();
-      return result;
-    });
+    updates ??= createApplicationUpdates();
     registerUpdateHandlers(window, updates);
     discogsSession ??= createRememberedSession(
       createDiscogsSession(),
