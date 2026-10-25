@@ -4,6 +4,7 @@ import type { usePreferences } from './usePreferences';
 import { ResearchSettings } from './ResearchSettings';
 import { DownloadSettings } from './DownloadSettings';
 import { AppearanceSettings } from './AppearanceSettings';
+import { AboutSettings } from './AboutSettings';
 
 export function SettingsPage({
   session,
@@ -44,6 +45,7 @@ export function SettingsPage({
       </div>
       <DownloadSettings preferences={preferences} />
       <ResearchSettings />
+      <AboutSettings />
       {preferences.error && (
         <div className="crate-notice">
           <p role="alert">{preferences.error}</p>
