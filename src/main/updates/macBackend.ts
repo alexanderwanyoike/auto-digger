@@ -12,7 +12,6 @@ export function createMacUpdateBackend(
   return {
     manual: true,
     async check() {
-      installer = undefined;
       try {
         const response = await request(
           'https://api.github.com/repos/alexanderwanyoike/auto-digger/releases/latest',
@@ -25,7 +24,10 @@ export function createMacUpdateBackend(
             redirect: 'error',
           },
         );
-        if (response.status === 404) return { ok: true, value: null };
+        if (response.status === 404) {
+          installer = undefined;
+          return { ok: true, value: null };
+        }
         if (!response.ok)
           return { ok: false, error: 'Could not check for updates. Please try again later.' };
         const input: unknown = await response.json();
@@ -35,9 +37,13 @@ export function createMacUpdateBackend(
             ok: false,
             error: 'The latest release is not ready to download. Please try again later.',
           };
-        if (!semver.gt(release.value.version, currentVersion)) return { ok: true, value: null };
-        installer = release.value.links[`macos-${architecture}`];
-        return installer
+        if (!semver.gt(release.value.version, currentVersion)) {
+          installer = undefined;
+          return { ok: true, value: null };
+        }
+        const candidate = release.value.links[`macos-${architecture}`];
+        if (candidate) installer = candidate;
+        return candidate
           ? { ok: true, value: release.value.version }
           : { ok: false, error: 'No installer is available for this Mac.' };
       } catch {
