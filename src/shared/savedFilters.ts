@@ -4,7 +4,7 @@ import type { DigFilters } from './search';
 import type { CatalogueResult } from './catalogue';
 
 export const filterPresetSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string().trim().min(1).max(80),
   filters: filtersSchema,
 });

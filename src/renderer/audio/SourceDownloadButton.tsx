@@ -23,11 +23,9 @@ export function SourceDownloadButton({
     active?.percent === null || active?.percent === undefined
       ? undefined
       : Math.floor(active.percent);
-  const label = active
-    ? `Cancel download ${active.title}`
-    : tagging
-      ? 'Update tags'
-      : 'Download audio';
+  const idleLabel = tagging ? 'Update tags' : 'Download audio';
+  const label = active ? `Cancel download ${active.title}` : idleLabel;
+  const stageLabel = active ? downloadLabels[active.stage] : 'Preparing';
   const Icon = tagging ? Tags : Download;
   return (
     <button
@@ -55,13 +53,7 @@ export function SourceDownloadButton({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={percent}
-            aria-valuetext={
-              percent === undefined
-                ? active
-                  ? downloadLabels[active.stage]
-                  : 'Preparing'
-                : undefined
-            }
+            aria-valuetext={percent === undefined ? stageLabel : undefined}
           >
             {percent === undefined ? '…' : `${percent.toString()}%`}
           </span>

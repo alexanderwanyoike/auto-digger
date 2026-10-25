@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { ArrowRight, SlidersHorizontal } from 'lucide-react';
 import type { useSavedFilters } from '../filters/useSavedFilters';
 import { SavedFilterPicker } from '../filters/SavedFilterPicker';
 import { filtersSchema } from '../../shared/search';
-import { ArrowRight, SlidersHorizontal } from 'lucide-react';
 import { TaxonomySelect } from './TaxonomySelect';
 import { GenreStyleFilters } from './GenreStyleFilters';
 import { releaseTypes } from '../../shared/releaseTypes';
@@ -80,12 +80,16 @@ export function FilterPanel({
               disabled={!session.account || session.busy}
               genre={filters.draft.genre}
               style={filters.draft.style}
-              onChange={(selection) => filters.setDraft({ ...filters.draft, ...selection })}
+              onChange={(selection) => {
+                filters.setDraft({ ...filters.draft, ...selection });
+              }}
             />
             <TaxonomySelect
               name="format"
               value={filters.draft.format}
-              onChange={(format) => filters.setDraft({ ...filters.draft, format })}
+              onChange={(format) => {
+                filters.setDraft({ ...filters.draft, format });
+              }}
               label="Release type"
               options={releaseTypes}
               placeholder="All release types"

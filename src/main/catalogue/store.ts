@@ -1,5 +1,5 @@
-import { createSavedFiltersStore } from '../filters/store';
 import type { DatabaseSync } from 'node:sqlite';
+import { createSavedFiltersStore } from '../filters/store';
 import { createResearchStore } from '../research/store';
 import { createDownloadIndex } from '../audio/downloadIndex';
 import { createPreferencesStore } from '../settings/store';

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { BookmarkPlus, Trash2, X } from 'lucide-react';
 import type { useSavedFilters } from './useSavedFilters';
 
 export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useSavedFilters> }) {
+  const id = useId();
   const [selected, setSelected] = useState('');
   const [naming, setNaming] = useState(false);
   const [name, setName] = useState('');
@@ -10,11 +11,11 @@ export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useS
   return (
     <div className="saved-filter-picker">
       <div className="saved-filter-controls">
-        <label htmlFor="saved-filters" className="sr-only">
+        <label htmlFor={`${id}-presets`} className="sr-only">
           Saved filters
         </label>
         <select
-          id="saved-filters"
+          id={`${id}-presets`}
           value={selected}
           disabled={disabled}
           onChange={(event) => {
@@ -86,11 +87,13 @@ export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useS
               .catch(() => undefined);
           }}
         >
-          <label htmlFor="filter-name">Filter name</label>
+          <label htmlFor={`${id}-name`}>Filter name</label>
           <input
-            id="filter-name"
+            id={`${id}-name`}
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => {
+              setName(event.target.value);
+            }}
             maxLength={80}
             required
           />
@@ -101,7 +104,9 @@ export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useS
             type="button"
             className="icon-button"
             aria-label="Cancel saving filters"
-            onClick={() => setNaming(false)}
+            onClick={() => {
+              setNaming(false);
+            }}
           >
             <X size={14} aria-hidden="true" />
           </button>

@@ -35,7 +35,9 @@ export function GenreStyleFilters({
         options={stylesForGenres(genre)}
         knownOptions={mappedStyles}
         value={style}
-        onChange={(values) => onChange({ genre, style: values })}
+        onChange={(values) => {
+          onChange({ genre, style: values });
+        }}
         disabled={disabled}
       />
     </>

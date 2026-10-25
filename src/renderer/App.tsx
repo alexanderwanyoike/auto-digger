@@ -1,6 +1,6 @@
-import { useSavedFilters } from './filters/useSavedFilters';
 import { useState } from 'react';
 import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
+import { useSavedFilters } from './filters/useSavedFilters';
 import { UpdateNotice } from './components/UpdateNotice';
 import { usePreferences } from './sections/usePreferences';
 import type { CatalogueBridge } from '../shared/catalogue';

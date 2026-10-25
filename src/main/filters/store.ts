@@ -83,7 +83,7 @@ export function createSavedFiltersStore(connection: () => Promise<CatalogueResul
       });
     },
     removePreset(input: unknown): Promise<SavedFiltersResult> {
-      const parsed = z.string().uuid().safeParse(input);
+      const parsed = z.uuid().safeParse(input);
       if (!parsed.success)
         return Promise.resolve(
           catalogueFailure('invalid-input', 'Choose saved filters to remove.'),

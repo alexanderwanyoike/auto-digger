@@ -1,5 +1,5 @@
-import { createSavedFiltersBridge } from './savedFiltersBridge';
 import { contextBridge, ipcRenderer } from 'electron';
+import { createSavedFiltersBridge } from './savedFiltersBridge';
 import { createUpdatesBridge } from './updatesBridge';
 import { createResearchAccessBridge } from './researchAccessBridge';
 import { createDownloadJobsBridge } from './downloadJobsBridge';
