@@ -6,8 +6,12 @@ import { join, resolve } from 'node:path';
 
 test.skip(process.platform !== 'linux', 'AppImage update fixture');
 
-[false, true].forEach((initialCorruption) => {
-  test(`downloads and replaces the AppImage while preserving crates${initialCorruption ? ' after rejecting a corrupt download' : ''}`, async () => {
+[
+  { initialCorruption: false, installFailure: false },
+  { initialCorruption: true, installFailure: false },
+  { initialCorruption: false, installFailure: true },
+].forEach(({ initialCorruption, installFailure }) => {
+  test(`downloads and replaces the AppImage while preserving crates${initialCorruption ? ' after rejecting a corrupt download' : ''}${installFailure ? ' after a rejected installation' : ''}`, async () => {
     let corruptNext = initialCorruption;
     const profile = test.info().outputPath('profile');
     await mkdir(profile, { recursive: true });
@@ -65,6 +69,7 @@ test.skip(process.platform !== 'linux', 'AppImage update fixture');
       env: {
         ...environment,
         APPIMAGE: image,
+        AUTO_DIGGER_TEST_INSTALL_ERROR: installFailure ? '1' : '0',
         XDG_CACHE_HOME: join(profile, 'cache'),
         XDG_DATA_HOME: join(profile, 'data'),
         AUTO_DIGGER_TEST_UPDATE_URL: `http://127.0.0.1:${address.port.toString()}/`,
@@ -91,7 +96,27 @@ test.skip(process.platform !== 'linux', 'AppImage update fixture');
         });
         await page.getByRole('button', { name: 'Update failed · Retry', exact: true }).click();
       }
-      await page.getByRole('button', { name: 'Restart to update · v0.1.2', exact: true }).click();
+      if (installFailure) {
+        expect(await page.evaluate(async () => window.researchAccess?.start())).toMatchObject({
+          ok: true,
+        });
+        await page.getByRole('button', { name: 'Restart to update · v0.1.2', exact: true }).click();
+        await expect(
+          page.getByRole('button', { name: 'Update failed · Retry', exact: true }),
+        ).toBeEnabled();
+        expect(
+          await page.evaluate(async () => window.catalogue?.create('Still usable')),
+        ).toMatchObject({ ok: true });
+        expect(await page.evaluate(async () => window.researchAccess?.status())).toMatchObject({
+          ok: true,
+          value: { enabled: true },
+        });
+        expect(await desktop.evaluate(({ app }) => app.hasSingleInstanceLock())).toBe(true);
+        expect(await readFile(image, 'utf8')).toBe('old AppImage fixture');
+        await page.getByRole('button', { name: 'Update failed · Retry', exact: true }).click();
+      } else {
+        await page.getByRole('button', { name: 'Restart to update · v0.1.2', exact: true }).click();
+      }
       await expect.poll(() => readFile(marker, 'utf8').catch(() => '')).toBe('installed');
       expect(await readFile(image)).toEqual(payload);
     } finally {
