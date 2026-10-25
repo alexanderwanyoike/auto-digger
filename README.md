@@ -147,6 +147,8 @@ The footer shows **Update available** when a newer release is ready. Select it t
 
 On macOS, the notice opens the installer for your Mac. Install it manually while preview builds use ad-hoc signing. Existing v0.1.1 users need to install this release manually once to gain the updater.
 
+If you update a Linux AppImage from 0.1.2 or 0.1.3 and the app closes without reopening, open the new 0.1.4 AppImage once from the folder where you keep Auto Digger. This refreshes its menu shortcut and starts the version with the restart fix.
+
 ## Development
 
 The app uses Electron, React, strict TypeScript and SQLite. Yarn is the package manager.
