@@ -15,7 +15,13 @@ test.skip(process.platform !== 'linux', 'AppImage update fixture');
     let corruptNext = initialCorruption;
     const profile = test.info().outputPath('profile');
     await mkdir(profile, { recursive: true });
-    const image = join(profile, 'AutoDigger.AppImage');
+    const image = join(
+      profile,
+      installFailure ? 'AutoDigger-0.1.1-linux-x64.AppImage' : 'AutoDigger.AppImage',
+    );
+    const installedImage = installFailure
+      ? join(profile, 'AutoDigger-0.1.2-linux-x64.AppImage')
+      : image;
     const marker = join(profile, 'updated');
     await writeFile(image, 'old AppImage fixture', { mode: 0o755 });
     const escapedMarker = marker.replaceAll("'", "'\\''");
@@ -118,7 +124,8 @@ test.skip(process.platform !== 'linux', 'AppImage update fixture');
         await page.getByRole('button', { name: 'Restart to update · v0.1.2', exact: true }).click();
       }
       await expect.poll(() => readFile(marker, 'utf8').catch(() => '')).toBe('installed');
-      expect(await readFile(image)).toEqual(payload);
+      expect(await readFile(installedImage)).toEqual(payload);
+      if (installFailure) await expect(readFile(image)).rejects.toMatchObject({ code: 'ENOENT' });
     } finally {
       await desktop.close().catch(() => undefined);
       await new Promise<void>((done) => {
@@ -138,6 +145,11 @@ test.skip(process.platform !== 'linux', 'AppImage update fixture');
       await expect(page.getByRole('combobox', { name: 'Active crate' })).toContainText(
         'Keep my records',
       );
+      if (installFailure) {
+        await expect(page.getByRole('combobox', { name: 'Active crate' })).toContainText(
+          'Still usable',
+        );
+      }
     } finally {
       await reopened.close();
     }
