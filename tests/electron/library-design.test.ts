@@ -1,6 +1,6 @@
-import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import { join, resolve } from 'node:path';
+import { selectAppearance } from '../appearance';
 import { seedLibrary } from '../libraryFixtures';
 import { loadedRelease } from '../discogsFixtures';
 

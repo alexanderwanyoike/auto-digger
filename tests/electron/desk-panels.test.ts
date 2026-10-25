@@ -1,8 +1,8 @@
-import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 import { resolve } from 'node:path';
 import sharp from 'sharp';
+import { selectAppearance } from '../appearance';
 import { loadedRelease } from '../discogsFixtures';
 
 async function expectPanelOutline(panel: Locator, name: string) {

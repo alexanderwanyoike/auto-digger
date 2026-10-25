@@ -1,6 +1,6 @@
-import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
+import { selectAppearance } from '../appearance';
 import { loadedRelease } from '../discogsFixtures';
 
 [900, 1180, 1600].forEach((width) => {

@@ -1,6 +1,6 @@
-import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
+import { selectAppearance } from '../appearance';
 
 [900, 1180].forEach((width) => {
   test(`desktop desk opens safely, remembers appearance and fits ${width.toString()}x780`, async () => {

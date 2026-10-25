@@ -1,6 +1,6 @@
-import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve, delimiter } from 'node:path';
+import { selectAppearance } from '../appearance';
 import { loadedRelease } from '../discogsFixtures';
 
 test('downloads, persists and streams seekable audio through the isolated desktop library', async () => {
