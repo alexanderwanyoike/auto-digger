@@ -75,37 +75,25 @@ export function SourceRow({
         </span>
       </div>
       <div className="source-actions">
-        {!available && (
-          <button
-            type="button"
-            className="secondary-button source-preview"
-            disabled={!checked?.ok || audio.previewing}
-            onClick={() => {
-              audio
-                .preview({ release, videoIndex: index, trackIndex: selected })
-                .catch(() => undefined);
-            }}
-          >
-            <Play size={12} aria-hidden="true" />
-            {audio.previewing ? 'Preparing…' : 'Preview'}
-          </button>
-        )}
         {available && (
           <button
             type="button"
             className="secondary-button"
+            aria-label="Play track"
+            title="Play track"
             onClick={() => {
               audio.play(saved);
             }}
           >
             <Play size={12} aria-hidden="true" />
-            Play track
           </button>
         )}
         {(!available || changed) && (
           <button
             type="button"
             className="secondary-button source-download"
+            aria-label={actionLabel}
+            title={actionLabel}
             disabled={audio.busy || (!available && !checked?.ok)}
             onClick={() => {
               download().catch(() => {
@@ -115,7 +103,6 @@ export function SourceRow({
             }}
           >
             <Download size={12} aria-hidden="true" />
-            {actionLabel}
           </button>
         )}
         {available && (
