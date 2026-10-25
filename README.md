@@ -46,14 +46,14 @@ Audio downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on your `PATH`.
 
 ## What you can do
 
-| Feature          | Details                                                                                                                                 |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| MCP mix research | Let an AI host research a mix, look up Discogs releases and add them to a crate with picked tracks, tags and source notes.              |
-| Discovery        | Combine label, artist, year and title with multi-select genres, styles and release types. Browse artwork or draw random matches.        |
-| Audio            | Download YouTube sources as tracks or whole releases, with progress, retry and best-effort Discogs metadata. Play saved tracks locally. |
-| Crates           | Keep named collections of releases with track picks and personal tags. The active crate returns after restart.                          |
-| Downloads        | Search saved tracks, play them locally and open their folders. Choose flat or per-release file organisation.                            |
-| Appearance       | Six materials, seven accents and light, dark or system appearance.                                                                      |
+| Feature          | Details                                                                                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| MCP mix research | Let an AI host research a mix, look up Discogs releases and add them to a crate with picked tracks, tags and source notes.                     |
+| Discovery        | Combine label, artist, year or year range and title with multi-select genres, styles and release types. Browse artwork or draw random matches. |
+| Audio            | Download YouTube sources as tracks or whole releases, with progress, retry and best-effort Discogs metadata. Play saved tracks locally.        |
+| Crates           | Keep named collections of releases with track picks and personal tags. The active crate returns after restart.                                 |
+| Downloads        | Search saved tracks, play them locally and open their folders. Choose flat or per-release file organisation.                                   |
+| Appearance       | Six materials, seven accents and light, dark or system appearance.                                                                             |
 
 ## Quick start
 
