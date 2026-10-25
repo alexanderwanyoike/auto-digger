@@ -6,6 +6,7 @@ import { useSavedFilters } from './useSavedFilters';
 
 test('preserves a draft when saving fails and retries it without restoring older filters', async () => {
   const snapshot = { draft: emptyFilters, presets: [] };
+  let persistedYear = emptyFilters.year;
   const bridge: SavedFiltersBridge = {
     read: vi.fn().mockResolvedValue({ ok: true, value: snapshot }),
     saveDraft: vi
@@ -14,7 +15,15 @@ test('preserves a draft when saving fails and retries it without restoring older
         ok: false,
         error: { code: 'storage', message: 'Could not save filters.' },
       })
-      .mockImplementation((draft) => Promise.resolve({ ok: true, value: { ...snapshot, draft } })),
+      .mockImplementation((draft) => {
+        if (draft.year === '1998-')
+          return Promise.resolve({
+            ok: false,
+            error: { code: 'invalid-input', message: 'Use a complete year.' },
+          });
+        persistedYear = draft.year;
+        return Promise.resolve({ ok: true, value: { ...snapshot, draft } });
+      }),
     savePreset: vi.fn(),
     removePreset: vi.fn(),
   };
@@ -40,7 +49,8 @@ test('preserves a draft when saving fails and retries it without restoring older
   await act(async () => {
     await Promise.resolve();
   });
-  expect(bridge.saveDraft).toHaveBeenCalledTimes(2);
+  expect(persistedYear).toBe('1998');
+  expect(result.current.error).toBeNull();
 });
 
 test('persists a quick revert after an earlier draft save finishes', async () => {
