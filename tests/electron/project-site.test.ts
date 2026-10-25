@@ -73,6 +73,7 @@ import siteConfig from '../../site.vite.config';
       const contents = page.getByRole('navigation', { name: 'On this page' });
       await contents.getByRole('link', { name: 'Codex', exact: true }).click();
       await expect(page.getByRole('heading', { name: 'Codex', exact: true })).toBeInViewport();
+      await page.getByText('Codex configuration file', { exact: true }).click();
       const command = page.getByRole('region', { name: 'Codex MCP registration', exact: true });
       await command.focus();
       if (width === 390) {
