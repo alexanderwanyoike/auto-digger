@@ -1,3 +1,4 @@
+import { useSavedFilters } from './filters/useSavedFilters';
 import { useState } from 'react';
 import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
 import { UpdateNotice } from './components/UpdateNotice';
@@ -42,6 +43,7 @@ export function App({
   const [section, setSection] = useState<keyof typeof sectionIcons>('Digging desk');
   const SectionIcon = sectionIcons[section];
   const preferences = usePreferences(window.preferences);
+  const filters = useSavedFilters(window.savedFilters);
   const audio = useAudioLibrary(audioBridge);
   const crate = useCrate(crateBridge, catalogue);
   const session = useDiscogs(discogs);
@@ -143,7 +145,7 @@ export function App({
         )}
         {section === 'Digging desk' && (
           <div className="workspace">
-            <FilterPanel session={session} />
+            <FilterPanel session={session} filters={filters} />
             {session.account || session.release ? (
               <ReleaseWorkspace session={session} crate={crate} audio={audio} />
             ) : (

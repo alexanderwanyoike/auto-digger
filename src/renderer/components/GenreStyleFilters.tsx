@@ -1,34 +1,41 @@
-import { useState } from 'react';
 import { genres } from 'discogs-dataset-genres-styles';
 import { mappedStyles, stylesForGenres } from '../../shared/genreStyles';
 import { TaxonomySelect } from './TaxonomySelect';
 
-export function GenreStyleFilters({ disabled }: { disabled: boolean }) {
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
+export function GenreStyleFilters({
+  disabled,
+  genre,
+  style,
+  onChange,
+}: {
+  disabled: boolean;
+  genre: string[];
+  style: string[];
+  onChange: (selection: { genre: string[]; style: string[] }) => void;
+}) {
   return (
     <>
       <TaxonomySelect
         name="genre"
         label="Genre"
         options={genres}
-        value={selectedGenres}
+        value={genre}
         onChange={(values) => {
-          setSelectedGenres(values);
           const allowed = stylesForGenres(values);
-          setSelectedStyles((current) =>
-            current.filter((style) => allowed.includes(style) || !mappedStyles.includes(style)),
-          );
+          onChange({
+            genre: values,
+            style: style.filter((item) => allowed.includes(item) || !mappedStyles.includes(item)),
+          });
         }}
         disabled={disabled}
       />
       <TaxonomySelect
         name="style"
         label="Style"
-        options={stylesForGenres(selectedGenres)}
+        options={stylesForGenres(genre)}
         knownOptions={mappedStyles}
-        value={selectedStyles}
-        onChange={setSelectedStyles}
+        value={style}
+        onChange={(values) => onChange({ genre, style: values })}
         disabled={disabled}
       />
     </>

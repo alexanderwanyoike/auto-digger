@@ -14,6 +14,7 @@ import { electronEncryption } from './credentials/electronEncryption';
 import { createDiscogsSession } from './discogs/session';
 import { registerDiscogsHandlers } from './discogs/registerHandlers';
 import { createIndexedLibrary } from './audio/indexedLibrary';
+import { registerSavedFiltersHandlers } from './filters/registerHandlers';
 import { registerPreferencesHandlers } from './settings/registerHandlers';
 import { createCommandRunner } from './audio/command';
 import { createDownloadJobs } from './audio/jobs';
@@ -96,6 +97,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     crateStore ??= createLegacyCrateStore(catalogueStore);
     registerCatalogueHandlers(window, catalogueStore);
     registerPreferencesHandlers(window, catalogueStore.preferences);
+    registerSavedFiltersHandlers(window, catalogueStore.filters);
     registerStoreLinkHandlers(window);
     updates ??= createApplicationUpdates();
     registerUpdateHandlers(window, updates);
