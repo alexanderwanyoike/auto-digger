@@ -142,6 +142,12 @@ Ask your client: **Use Auto Digger to list my crates.** Then try a mix:
 
 The AI client researches the sources and judges recording matches; Auto Digger verifies Discogs metadata and saves the results. The [setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#mcp) includes troubleshooting. Re-copy the configuration after moving or updating the app, or if an AppImage launch changes its mounted path. Disabling research access revokes the connection. Keep your Discogs token in Auto Digger, not in host configuration.
 
+## App updates
+
+The footer shows **Update available** when a newer release is ready. Select it to download, then choose **Restart to update**. Windows installers and Linux AppImages replace the previous app; your crates, settings and music stay in place.
+
+On macOS, the notice opens the installer for your Mac. Install it manually while preview builds use ad-hoc signing. Existing v0.1.1 users need to install this release manually once to gain the updater.
+
 ## Development
 
 The app uses Electron, React, strict TypeScript and SQLite. Yarn is the package manager.
