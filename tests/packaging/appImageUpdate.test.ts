@@ -2,7 +2,6 @@ import { execFile, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdtemp, open, readFile, readlink, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
-import { createServer as createSocket } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { promisify } from 'node:util';
@@ -58,47 +57,29 @@ test.skipIf(process.platform !== 'linux')(
       ['electron-builder', '--config', config, '--linux', '--x64', '--publish', 'never'],
       { timeout: 120_000 },
     );
-    const socket = createSocket();
-    await new Promise<void>((done) => {
-      socket.listen(0, '127.0.0.1', done);
-    });
-    const endpoint = socket.address();
-    if (!endpoint || typeof endpoint === 'string') throw new Error('No debugging port');
-    await new Promise<void>((done) => {
-      socket.close(() => {
-        done();
-      });
-    });
-    const debug = `http://127.0.0.1:${endpoint.port.toString()}`;
+    const debuggerUrl = async () => {
+      const info = await readFile(join(profile, 'DevToolsActivePort'), 'utf8').catch(() => '');
+      const [port, session] = info.trim().split('\n');
+      return port && session ? `ws://127.0.0.1:${port}${session}` : '';
+    };
     const original = join(root, 'images/AutoDigger-0.0.1-linux-x64.AppImage');
-    const desktop = spawn(
-      original,
-      [`--user-data-dir=${profile}`, `--remote-debugging-port=${endpoint.port.toString()}`],
-      {
-        env: {
-          ...Object.fromEntries(
-            Object.entries(process.env).filter(([key]) => key !== 'ELECTRON_RUN_AS_NODE'),
-          ),
-          ...(process.env.AUTO_DIGGER_TEST_FUSE === '1' ? {} : { APPIMAGE_EXTRACT_AND_RUN: '1' }),
-          XDG_DATA_HOME: join(root, 'data'),
-          XDG_CONFIG_HOME: join(root, 'config'),
-          XDG_CACHE_HOME: join(root, 'cache'),
-        },
-        stdio: ['ignore', log.fd, log.fd],
+    const desktop = spawn(original, [`--user-data-dir=${profile}`, '--remote-debugging-port=0'], {
+      env: {
+        ...Object.fromEntries(
+          Object.entries(process.env).filter(([key]) => key !== 'ELECTRON_RUN_AS_NODE'),
+        ),
+        ...(process.env.AUTO_DIGGER_TEST_FUSE === '1' ? {} : { APPIMAGE_EXTRACT_AND_RUN: '1' }),
+        XDG_DATA_HOME: join(root, 'data'),
+        XDG_CONFIG_HOME: join(root, 'config'),
+        XDG_CACHE_HOME: join(root, 'cache'),
       },
-    );
+      stdio: ['ignore', log.fd, log.fd],
+    });
     let browser: Browser | undefined;
     try {
-      await expect
-        .poll(
-          () =>
-            fetch(`${debug}/json/version`)
-              .then((r) => r.status)
-              .catch(() => 0),
-          { timeout: 10_000 },
-        )
-        .toBe(200);
-      browser = await chromium.connectOverCDP(debug);
+      await expect.poll(debuggerUrl, { timeout: 10_000 }).not.toBe('');
+      const originalDebugger = await debuggerUrl();
+      browser = await chromium.connectOverCDP(originalDebugger);
       const page = browser.contexts()[0]?.pages()[0];
       if (!page) throw new Error('No original window');
       await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
@@ -112,6 +93,7 @@ test.skipIf(process.platform !== 'linux')(
       await page
         .getByRole('button', { name: `Restart to update · v${metadata.version}`, exact: true })
         .click();
+      await expect.poll(() => desktop.exitCode, { timeout: 10_000 }).not.toBe(null);
       const entry = join(root, 'data/applications', `${applicationId}.desktop`);
       await expect
         .poll(async () => readFile(entry, 'utf8').catch(() => ''), { timeout: 20_000 })
@@ -122,18 +104,22 @@ test.skipIf(process.platform !== 'linux')(
           .digest('base64'),
       ).toBe(sha512);
       await expect(readFile(original)).rejects.toMatchObject({ code: 'ENOENT' });
+      await browser.close().catch(() => undefined);
+      browser = undefined;
       await expect
         .poll(
-          () =>
-            fetch(`${debug}/json/version`)
-              .then((r) => r.status)
-              .catch(() => 0),
+          async () => {
+            const current = await debuggerUrl();
+            return current.length > 0 && current !== originalDebugger;
+          },
           { timeout: 10_000 },
         )
-        .toBe(200);
-      browser = await chromium.connectOverCDP(debug);
-      const updated = browser.contexts()[0]?.pages()[0];
-      if (!updated) throw new Error('No updated window');
+        .toBe(true);
+      browser = await chromium.connectOverCDP(await debuggerUrl());
+      const context = browser.contexts()[0];
+      if (!context) throw new Error('No updated browser context');
+      const updated =
+        context.pages()[0] ?? (await context.waitForEvent('page', { timeout: 10_000 }));
       await updated.getByRole('button', { name: 'Settings', exact: true }).click();
       const about = updated.getByRole('region', { name: 'About', exact: true });
       await about.scrollIntoViewIfNeeded();
@@ -145,6 +131,9 @@ test.skipIf(process.platform !== 'linux')(
         'Update survivor',
       );
       await updated.close();
+    } catch (error) {
+      const output = await readFile(join(root, 'launch.log'), 'utf8');
+      throw new Error(`AppImage update failed. ${output.slice(-3000)}`, { cause: error });
     } finally {
       await browser?.close().catch(() => undefined);
       desktop.kill();
