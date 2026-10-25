@@ -13,7 +13,11 @@
     "LICENSE",
     "site/public/licenses/**/*"
   ],
-  "publish": null,
+  "publish": {
+    "provider": "github",
+    "owner": "alexanderwanyoike",
+    "repo": "auto-digger"
+  },
   "npmRebuild": false,
   "win": {
     "target": ["nsis"],
@@ -32,7 +36,8 @@
     "identity": "-",
     "notarize": false,
     "category": "public.app-category.music",
-    "artifactName": "AutoDigger-${version}-macos-${arch}.${ext}"
+    "artifactName": "AutoDigger-${version}-macos-${arch}.${ext}",
+    "publish": null
   },
   "dmg": {
     "sign": false
