@@ -1,3 +1,4 @@
+import { autoUpdater as nativeUpdater } from 'electron';
 import type { AppUpdater } from 'electron-updater';
 import type { UpdateBackend } from './service';
 
@@ -19,6 +20,12 @@ export function createNativeUpdateBackend(
   updater.on('appimage-filename-updated', (file) => {
     image = file;
   });
+  if (restart) {
+    // The SDK handoff must succeed before queuing a relaunch after normal quit.
+    nativeUpdater.once('before-quit-for-update', () => {
+      if (image) restart.schedule(image);
+    });
+  }
   let reportProgress: ((percent: number) => void) | undefined;
   let installFailed = false;
   updater.on('download-progress', (info) => {
@@ -58,8 +65,6 @@ export function createNativeUpdateBackend(
       installFailed = false;
       try {
         updater.quitAndInstall(false, false);
-        // AppImage restarts must wait for normal quit and catalogue cleanup.
-        if (!installFailed && image) restart?.schedule(image);
       } catch {
         installFailed = true;
       }
