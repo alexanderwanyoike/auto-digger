@@ -27,7 +27,7 @@ test('offers a complete discovery workflow and honest release links without requ
   expect(links).toContain('https://github.com/alexanderwanyoike/auto-digger/releases');
   expect(links).toContain('https://github.com/alexanderwanyoike/auto-digger#quick-start');
   expect(links.some((link) => link?.includes('/releases/latest/download'))).toBe(false);
-  expect(document.body.textContent).toMatch(/preview.*download.*crate/is);
+  expect(document.body.textContent).toMatch(/download.*play.*crate/is);
   expect(document.querySelector('a.skip-link')?.getAttribute('href')).toBe('#main');
   expect(document.querySelectorAll('script')).toHaveLength(0);
 });
