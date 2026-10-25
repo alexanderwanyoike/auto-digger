@@ -1,3 +1,4 @@
+import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import sharp from 'sharp';
@@ -19,7 +20,7 @@ import { contrast } from '../contrast';
     });
     try {
       const page = await desktop.firstWindow();
-      await page.getByRole('button', { name: mode, exact: true }).click();
+      await selectAppearance(page, mode);
       await expect(page.locator('html')).toHaveAttribute('data-material', 'aluminium');
       await page.evaluate(async () => {
         await document.fonts.ready;

@@ -1,3 +1,4 @@
+import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import { loadedRelease } from '../discogsFixtures';
@@ -47,7 +48,7 @@ import { loadedRelease } from '../discogsFixtures';
         path: `test-results/polish-${width.toString()}-light.png`,
         fullPage: true,
       });
-      await page.getByRole('button', { name: 'Dark', exact: true }).click();
+      await selectAppearance(page, 'Dark');
       await page.screenshot({
         path: `test-results/polish-${width.toString()}-dark.png`,
         fullPage: true,

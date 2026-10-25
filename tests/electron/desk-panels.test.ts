@@ -1,3 +1,4 @@
+import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 import { resolve } from 'node:path';
@@ -88,7 +89,7 @@ async function expectPanelEnds(panel: Locator, heading: string, footer: string) 
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
       await page.getByRole('radio', { name: 'Warm paper', exact: true }).check();
       await page.getByRole('radio', { name: 'Rose', exact: true }).check();
-      await page.getByRole('button', { name: 'Dark', exact: true }).click();
+      await selectAppearance(page, 'Dark');
       await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await page.evaluate(async () => {
         await document.fonts.ready;

@@ -1,3 +1,4 @@
+import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve, delimiter } from 'node:path';
 import { loadedRelease } from '../discogsFixtures';
@@ -124,7 +125,7 @@ test('plays downloaded sources in the bottom bar with seek, volume and offline t
     await page.setViewportSize({ width: 900, height: 780 });
     await expect(player).toBeInViewport();
     await page.screenshot({ path: 'test-results/download-player-light.png', fullPage: true });
-    await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    await selectAppearance(page, 'Dark');
     await page.screenshot({ path: 'test-results/download-player-dark.png', fullPage: true });
     await desktop.close();
     desktop = await electron.launch(options);

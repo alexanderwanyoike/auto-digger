@@ -1,3 +1,4 @@
+import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import { join, resolve } from 'node:path';
 import { seedLibrary } from '../libraryFixtures';
@@ -99,12 +100,12 @@ import { loadedRelease } from '../discogsFixtures';
       const player = page.getByRole('contentinfo', { name: 'Playback' });
       await expect(player.getByRole('button', { name: 'Pause', exact: true })).toBeEnabled();
       await player.getByRole('button', { name: 'Pause', exact: true }).click();
-      await page.getByRole('button', { name: 'Light', exact: true }).click();
+      await selectAppearance(page, 'Light');
       await page.evaluate(async () => {
         await document.fonts.ready;
       });
       await page.screenshot({ path: `test-results/library-${width.toString()}-light.png` });
-      await page.getByRole('button', { name: 'Dark', exact: true }).click();
+      await selectAppearance(page, 'Dark');
       await page.screenshot({ path: `test-results/library-${width.toString()}-dark.png` });
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
       await page.screenshot({ path: `test-results/flat-settings-${width.toString()}.png` });

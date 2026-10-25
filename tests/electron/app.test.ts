@@ -1,3 +1,4 @@
+import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 
@@ -36,19 +37,15 @@ import { resolve } from 'node:path';
         ),
       ).toBe(false);
       expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
-      await page.getByRole('button', { name: 'Dark', exact: true }).click();
+      await selectAppearance(page, 'Dark');
       await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
         'background-color',
         'rgb(37, 41, 46)',
       );
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
       await page.reload();
-      await expect(page.getByRole('button', { name: 'Dark', exact: true })).toHaveAttribute(
-        'aria-pressed',
-        'true',
-      );
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-      await page.getByRole('button', { name: 'Light', exact: true }).click();
+      await selectAppearance(page, 'Light');
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
       const popup = await page.evaluate(() => window.open('https://example.com'));
       expect(popup).toBeNull();
@@ -70,7 +67,7 @@ import { resolve } from 'node:path';
         path: `test-results/phase-1-${width.toString()}-light.png`,
         fullPage: true,
       });
-      await page.getByRole('button', { name: 'Dark', exact: true }).click();
+      await selectAppearance(page, 'Dark');
       await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
         'background-color',
         'rgb(37, 41, 46)',
@@ -202,14 +199,14 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
       page.getByRole('complementary', { name: 'Your crate' }).locator('img'),
     ).toHaveAttribute('src', 'https://i.discogs.com/example.jpg');
     await page.screenshot({ path: 'test-results/artwork-record-and-crate-light.png' });
-    await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    await selectAppearance(page, 'Dark');
     await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
       'background-color',
       'rgb(37, 41, 46)',
     );
     await page.screenshot({ path: 'test-results/artwork-record-and-crate-dark.png' });
-    await page.getByRole('button', { name: 'Light', exact: true }).click();
-    await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    await selectAppearance(page, 'Light');
+    await selectAppearance(page, 'Dark');
     await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
       'background-color',
       'rgb(37, 41, 46)',
