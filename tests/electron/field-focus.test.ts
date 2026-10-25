@@ -1,7 +1,7 @@
-import { selectAppearance } from '../appearance';
 import { _electron as electron, expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 import { resolve } from 'node:path';
+import { selectAppearance } from '../appearance';
 import { contrast } from '../contrast';
 
 async function expectFlushFocus(field: Locator) {
