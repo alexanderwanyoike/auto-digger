@@ -149,6 +149,40 @@
   margin-right: 5px;
   vertical-align: middle;
 }
+.soulseek-settings form {
+  display: grid;
+  gap: 12px;
+  width: min(100%, 520px);
+  justify-items: start;
+}
+.soulseek-settings label {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  font-size: 11px;
+  color: var(--muted);
+}
+.soulseek-settings input {
+  width: 100%;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-inset);
+  color: var(--text);
+  font: inherit;
+}
+.soulseek-settings summary {
+  font-size: 11px;
+  color: var(--blue);
+  cursor: pointer;
+}
+.soulseek-settings ol {
+  max-width: 520px;
+  padding-left: 20px;
+  font-size: 11px;
+  line-height: 1.9;
+  color: var(--muted);
+}
 @media (max-width: 1000px) {
   .tracklist > li:has(.use-soulseek) {
     grid-template-columns: 20px minmax(0, 1fr) auto;

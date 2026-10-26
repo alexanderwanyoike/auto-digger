@@ -5,6 +5,7 @@ import { ResearchSettings } from './ResearchSettings';
 import { DownloadSettings } from './DownloadSettings';
 import { AppearanceSettings } from './AppearanceSettings';
 import { AboutSettings } from './AboutSettings';
+import { SoulseekSettings } from './SoulseekSettings';
 
 export function SettingsPage({
   session,
@@ -44,6 +45,7 @@ export function SettingsPage({
         </button>
       </div>
       <DownloadSettings preferences={preferences} />
+      <SoulseekSettings />
       <ResearchSettings />
       <AboutSettings />
       {preferences.error && (
