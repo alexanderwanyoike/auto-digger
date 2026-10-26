@@ -9,11 +9,13 @@ export function downloadDirectory(
   release: DiscogsRelease,
   source: 'YouTube' | 'Soulseek',
 ): string {
+  const genre = release.genres[0]?.trim();
+  const label = release.labels[0]?.name.trim();
   const values = {
     source,
-    genre: release.genres[0]?.trim() || 'Unknown genre',
+    genre: genre?.length ? genre : 'Unknown genre',
     year: release.year?.toString() ?? 'Unknown year',
-    label: release.labels[0]?.name.trim() || 'Unknown label',
+    label: label?.length ? label : 'Unknown label',
     artist: release.artists.join(', ') || 'Unknown artist',
     release: `${filenamePart(release.artists.join(', '))} - ${filenamePart(release.title)} [r${release.id.toString()}]`,
   };
