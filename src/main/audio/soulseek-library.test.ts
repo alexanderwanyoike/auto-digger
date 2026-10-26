@@ -12,21 +12,23 @@ test('imports completed Soulseek audio into the configured library and retains i
   const source = join(directory, 'peer.flac');
   await writeFile(source, 'original peer audio');
   const candidateId = 'a'.repeat(32);
-  const receive = vi.fn(async () => ({
-    ok: true as const,
-    value: {
-      file: source,
-      match: {
-        id: candidateId,
-        username: 'peer',
-        filename: 'Music\\Quiet Orbit.flac',
-        size: 19,
-        bitRate: null,
-        length: 372,
-        access: 'public' as const,
+  const receive = vi.fn(() =>
+    Promise.resolve({
+      ok: true as const,
+      value: {
+        file: source,
+        match: {
+          id: candidateId,
+          username: 'peer',
+          filename: 'Music\\Quiet Orbit.flac',
+          size: 19,
+          bitRate: null,
+          length: 372,
+          access: 'public' as const,
+        },
       },
-    },
-  }));
+    }),
+  );
   const downloader = { probe: vi.fn(), download: vi.fn() };
   try {
     await catalogue.preferences.save({

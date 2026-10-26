@@ -15,7 +15,8 @@ test('downloads only a public server-issued match and waits for the completed lo
     bytesTransferred: 5,
   };
   const request: typeof fetch = async (url, init) => {
-    const path = String(url);
+    if (typeof url !== 'string') throw new Error('Expected a string URL');
+    const path = url;
     let response: unknown = { id: 'search' };
     if (path.includes('includeResponses'))
       response = {
@@ -30,7 +31,8 @@ test('downloads only a public server-issued match and waits for the completed lo
         ],
       };
     if (path.endsWith('/batches')) {
-      const body: unknown = JSON.parse(String(init?.body));
+      if (typeof init?.body !== 'string') throw new Error('Expected a JSON request body');
+      const body: unknown = JSON.parse(init.body);
       const { z } = await import('zod');
       const batch = z
         .object({ id: z.string(), options: z.object({ destination: z.string() }) })

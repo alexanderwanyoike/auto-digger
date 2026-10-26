@@ -29,8 +29,8 @@ test('cleans a search, preserves locked results and authenticates only to the co
   expect(request.mock.calls[0]?.[1]).toMatchObject({
     redirect: 'error',
     headers: { 'X-API-Key': 'test-key' },
-    body: expect.stringContaining('Björk Jóga Live'),
   });
+  expect(request.mock.calls[0]?.[1]?.body).toContain('Björk Jóga Live');
   const results = await client.readSearch('search-id');
   expect(results).toMatchObject({
     ok: true,

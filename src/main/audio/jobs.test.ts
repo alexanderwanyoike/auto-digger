@@ -18,8 +18,13 @@ const track: LocalTrack = {
   warning: null,
 };
 
-test('queues Soulseek sources without pretending they are YouTube videos and rejects a duplicate pending source', async () => {
-  const execute = vi.fn(() => new Promise<AudioResult<LocalTrack>>(() => undefined));
+test('queues Soulseek sources without pretending they are YouTube videos and rejects a duplicate pending source', () => {
+  const execute = vi.fn(
+    () =>
+      new Promise<AudioResult<LocalTrack>>(() => {
+        /* A pending transfer keeps source uniqueness observable. */
+      }),
+  );
   const jobs = createDownloadJobs(execute);
   const candidateId = 'a'.repeat(32);
   const input = { provider: 'soulseek', release: loadedRelease, trackIndex: 0, candidateId };
