@@ -47,7 +47,7 @@ export function ReleaseAudioDetails({
               trackIndex={index}
               audio={audio}
               close={() => {
-                setSelected(null);
+                setSelected((current) => (current === index ? null : current));
               }}
             />
           )}
