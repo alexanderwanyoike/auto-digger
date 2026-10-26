@@ -8,12 +8,14 @@ export function CandidateResults({
   scenario,
   showPrivate,
   onSave,
+  unavailable = [],
 }: {
   track: DemoTrack;
   checked: boolean;
   scenario: string;
   showPrivate: boolean;
   onSave?: (candidate: DemoCandidate) => void;
+  unavailable?: string[];
 }) {
   const results = demoResults(track, scenario);
   return (
@@ -60,11 +62,15 @@ export function CandidateResults({
                   <button
                     type="button"
                     className="secondary-button"
-                    disabled={candidate.access === 'private'}
+                    disabled={candidate.access === 'private' || unavailable.includes(candidate.id)}
                     aria-label={`Save demo copy from ${candidate.owner}`}
                     onClick={() => onSave?.(candidate)}
                   >
-                    {candidate.access === 'private' ? 'Private' : 'Save demo copy'}
+                    {candidate.access === 'private'
+                      ? 'Private'
+                      : unavailable.includes(candidate.id)
+                        ? 'Already saved'
+                        : 'Save demo copy'}
                   </button>
                 </article>
               ))}

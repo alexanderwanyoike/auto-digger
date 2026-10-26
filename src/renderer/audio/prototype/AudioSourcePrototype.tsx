@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { CandidateResults } from './CandidateResults';
+import { DemoLibrary } from './DemoLibrary';
+import { SavedCopies } from './SavedCopies';
+import { useDemoCopies } from './useDemoCopies';
+import type { DemoCandidate } from './demoData';
 import { demoTracks } from './demoData';
 import './prototype.css';
 
 export function AudioSourcePrototype() {
+  const library = useDemoCopies();
+  const [confirmation, setConfirmation] = useState<DemoCandidate | null>(null);
   const [query, setQuery] = useState('Low Tide - Quiet Orbit (Original Mix)');
   const [scenario, setScenario] = useState('normal');
   const [checked, setChecked] = useState(false);
@@ -12,6 +18,16 @@ export function AudioSourcePrototype() {
   const cleaned = query.replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
   const track = demoTracks[0];
   if (!track) return null;
+  function queue(candidate: DemoCandidate) {
+    const result = library.queue(candidate);
+    setError(result.ok ? null : result.error.message);
+    setConfirmation(null);
+  }
+  function save(candidate: DemoCandidate) {
+    if (library.copies.some((copy) => copy.candidate.trackId === candidate.trackId))
+      setConfirmation(candidate);
+    else queue(candidate);
+  }
   return (
     <section className="section-page audio-prototype" aria-label="Audio sources prototype">
       <header className="prototype-heading">
@@ -92,7 +108,52 @@ export function AudioSourcePrototype() {
         checked={checked}
         scenario={scenario}
         showPrivate={showPrivate}
+        onSave={save}
+        unavailable={library.copies.map((copy) => copy.candidate.id)}
       />
+      {confirmation && (
+        <div className="prototype-confirmation" role="group" aria-label="Keep another audio copy">
+          <p>You already have audio for this track.</p>
+          <button type="button" className="secondary-button" onClick={() => queue(confirmation)}>
+            Keep another copy
+          </button>
+          <button type="button" className="secondary-button" onClick={() => setConfirmation(null)}>
+            Cancel
+          </button>
+        </div>
+      )}
+      {library.job && (
+        <div className="prototype-transfer">
+          <p role="status">
+            {library.job.stage === 'queued'
+              ? library.job.candidate.provider === 'Soulseek'
+                ? 'Queued in slskd'
+                : 'Queued for YouTube'
+              : library.job.stage === 'complete'
+                ? 'Demo copy ready'
+                : library.job.stage === 'importing'
+                  ? 'Importing into your library'
+                  : 'Downloading demo audio'}
+          </p>
+          {library.active && (
+            <>
+              <button type="button" className="secondary-button" onClick={library.advance}>
+                Advance demo transfer
+              </button>
+              <button type="button" className="secondary-button" onClick={library.cancel}>
+                Cancel demo transfer
+              </button>
+            </>
+          )}
+        </div>
+      )}
+      <SavedCopies
+        track={track}
+        copies={library.copies}
+        preferred={library.preferred[track.id]}
+        onPrefer={library.prefer}
+      />
+      <DemoLibrary copies={library.copies} preferred={library.preferred} />
     </section>
   );
 }
