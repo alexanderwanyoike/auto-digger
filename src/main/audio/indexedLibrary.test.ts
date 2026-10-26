@@ -7,6 +7,69 @@ import { createAudioLibrary } from './library';
 import { createIndexedLibrary } from './indexedLibrary';
 import { loadedRelease } from '../../../tests/discogsFixtures';
 
+test('saves new audio in ordered metadata folders without relocating existing downloads', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-folders-'));
+  const catalogue = createCatalogueStore(join(directory, 'catalog.sqlite'));
+  const downloader = {
+    probe: () =>
+      Promise.resolve({
+        ok: true as const,
+        value: { videoId: 'abcdefghijk', title: 'Quiet Orbit' },
+      }),
+    download: async (_id: string, file: string) => {
+      await writeFile(file, 'audio');
+      return { ok: true as const, value: undefined };
+    },
+  };
+  const library = createIndexedLibrary(directory, catalogue, downloader);
+  try {
+    const old = await library.download({ release: loadedRelease, videoIndex: 0 });
+    expect(old.ok).toBe(true);
+    expect(
+      await catalogue.preferences.save({
+        material: 'slate',
+        accent: 'blue',
+        directory,
+        layout: 'custom',
+        folders: ['source', 'genre', 'year', 'label', 'artist', 'release'],
+      }),
+    ).toMatchObject({ ok: true });
+    const release = {
+      ...loadedRelease,
+      id: 13,
+      genres: ['Deep / House'],
+      labels: [{ name: 'Still Records', catalogueNumber: 'ST001' }],
+    };
+    const saved = await library.download({ release, videoIndex: 0 });
+    if (!saved.ok) throw new Error(saved.error.message);
+    const location = await library.locate(saved.value.id);
+    expect(location).toMatchObject({
+      ok: true,
+      value: {
+        file: join(
+          directory,
+          'YouTube',
+          'Deep  House',
+          '1998',
+          'Still Records',
+          'Low Tide',
+          'Low Tide - Quiet Orbit EP [r13]',
+          saved.value.filename,
+        ),
+      },
+    });
+    expect(await library.download({ release: loadedRelease, videoIndex: 0 })).toEqual(old);
+    const existing = old.ok ? await library.locate(old.value.id) : old;
+    expect(existing).toMatchObject({
+      ok: true,
+      value: { file: join(directory, old.ok ? old.value.filename : '') },
+    });
+  } finally {
+    await catalogue.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
 test('imports legacy downloads, applies future destination/layout settings and reports missing files individually', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-digger-library-'));
   const oldRoot = join(directory, 'old');
