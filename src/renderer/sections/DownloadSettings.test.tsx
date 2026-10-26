@@ -1,11 +1,11 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import { defaultPreferences } from '../../shared/preferences';
 import type { PreferencesBridge } from '../../shared/preferences';
 import { App } from '../App';
 
-test('defines and reorders folder levels with a live preview and preserves them with appearance changes', async () => {
+test('edits a folder path while keeping every placeholder visible and preserves it with appearance changes', async () => {
   const save = vi
     .fn<PreferencesBridge['save']>()
     .mockImplementation((input) =>
@@ -24,39 +24,46 @@ test('defines and reorders folder levels with a live preview and preserves them 
   try {
     render(<App />);
     await user.click(screen.getByRole('button', { name: 'Settings' }));
-    await user.selectOptions(
-      await screen.findByRole('combobox', { name: 'Download organisation' }),
-      'custom',
-    );
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Add folder level' }), 'source');
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Add folder level' }), 'genre');
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Add folder level' }), 'year');
-    await user.click(screen.getByRole('button', { name: 'Move year up' }));
-    await waitFor(() => {
-      expect(save).toHaveBeenLastCalledWith({
-        material: 'aluminium',
-        accent: 'blue',
-        layout: 'custom',
-        folders: ['source', 'year', 'genre'],
-      });
-    });
+    const input = await screen.findByRole('textbox', { name: 'Folder layout' });
+    expect(
+      screen.queryByRole('combobox', { name: 'Download organisation' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Move .* up/ })).not.toBeInTheDocument();
+    await user.type(input, '<source>/<year> - <genre>/<artist>/<release>');
     expect(screen.getByLabelText('Folder preview')).toHaveTextContent(
-      '/music/Auto Digger / YouTube / 1998 / Electronic',
+      '/music/Auto Digger / YouTube / 1998 - Electronic / Low Tide / Quiet Orbit EP [r12]',
     );
+    await user.click(screen.getByRole('button', { name: 'Save folder layout' }));
+    expect(save).toHaveBeenLastCalledWith({
+      material: 'aluminium',
+      accent: 'blue',
+      layout: 'custom',
+      folderTemplate: '<source>/<year> - <genre>/<artist>/<release>',
+    });
     await user.click(screen.getByRole('radio', { name: 'Green' }));
     expect(save).toHaveBeenLastCalledWith({
       material: 'aluminium',
       accent: 'green',
       layout: 'custom',
-      folders: ['source', 'year', 'genre'],
+      folderTemplate: '<source>/<year> - <genre>/<artist>/<release>',
     });
-    await user.click(screen.getByRole('button', { name: 'Remove year folder' }));
+    await user.clear(input);
+    await user.type(input, '<source>');
+    const reference = screen.getByLabelText('Available folder placeholders');
+    ['<source>', '<genre>', '<year>', '<label>', '<artist>', '<release>'].forEach((token) => {
+      expect(reference).toHaveTextContent(token);
+    });
+    await user.clear(input);
+    await user.click(screen.getByRole('button', { name: 'Save folder layout' }));
     expect(save).toHaveBeenLastCalledWith({
       material: 'aluminium',
       accent: 'green',
       layout: 'custom',
-      folders: ['source', 'genre'],
+      folderTemplate: '',
     });
+    expect(screen.getByLabelText('Folder preview')).toHaveTextContent(
+      '/music/Auto Digger / track.mp3',
+    );
   } finally {
     delete window.preferences;
   }
