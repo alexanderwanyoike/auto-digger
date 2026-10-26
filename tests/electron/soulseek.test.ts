@@ -29,14 +29,10 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     await page.getByLabel('slskd completed-downloads folder', { exact: true }).fill(directory);
     await page.getByRole('button', { name: 'Connect slskd', exact: true }).click();
     await expect(page.getByText('slskd connection saved.', { exact: true })).toBeVisible();
-    await page.getByLabel('Download organisation').selectOption('custom');
-    await ['source', 'genre', 'year', 'label', 'artist', 'release'].reduce<Promise<void>>(
-      (previous, field) =>
-        previous.then(async () => {
-          await page.getByLabel('Add folder level').selectOption(field);
-        }),
-      Promise.resolve(),
-    );
+    await page
+      .getByLabel('Folder layout')
+      .fill('<source>/<genre>/<year>/<label>/<artist>/<release>');
+    await page.getByRole('button', { name: 'Save folder layout', exact: true }).click();
     await page
       .locator('.download-folders')
       .screenshot({ path: test.info().outputPath('folder-settings.png') });
@@ -74,7 +70,7 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
       '1998',
       'Still Records',
       'Low Tide',
-      'Low Tide - Quiet Orbit EP [r12]',
+      'Quiet Orbit EP [r12]',
       track.filename,
     );
     expect(await readFile(file)).toEqual(await readFile(resolve('tests/fixtures/tone.flac')));
@@ -95,7 +91,9 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     await page.getByRole('button', { name: 'Downloads', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeEnabled();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await expect(page.getByLabel('Download organisation')).toHaveValue('custom');
+    await expect(page.getByLabel('Folder layout')).toHaveValue(
+      '<source>/<genre>/<year>/<label>/<artist>/<release>',
+    );
     await expect(page.getByLabel('slskd API key', { exact: true })).toHaveValue('');
     await expect(page.getByLabel('slskd completed-downloads folder', { exact: true })).toHaveValue(
       directory,
