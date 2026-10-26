@@ -85,7 +85,7 @@ test('downloads from the match list and returns to the track without duplicate-c
   ).toBeDisabled();
 });
 
-test('places editable search above a compact list of matches from different peers', async () => {
+test('places editable search above a compact table that handles many peers', async () => {
   window.history.replaceState(null, '', '/?prototype=audio-sources');
   const user = userEvent.setup();
   render(<App />);
@@ -93,10 +93,13 @@ test('places editable search above a compact list of matches from different peer
     await screen.findByRole('button', { name: 'Use Soulseek for Quiet Orbit (Original Mix)' }),
   );
   const form = screen.getByRole('form', { name: 'Refine Soulseek search' });
-  const results = screen.getByRole('list', { name: 'Soulseek search results' });
+  const results = screen.getByRole('table', { name: 'Soulseek search results' });
   expect(form).toBeVisible();
   expect(form.compareDocumentPosition(results)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-  expect(within(results).getAllByRole('listitem')).toHaveLength(3);
+  expect(within(results).getAllByRole('row')).toHaveLength(41);
+  expect(within(results).getByRole('columnheader', { name: 'Quality' })).toBeVisible();
+  expect(within(results).getByRole('columnheader', { name: 'Peer' })).toBeVisible();
+  expect(screen.getByText('40 matches')).toBeVisible();
   expect(within(results).getByRole('button', { name: 'Download from tape_archive' })).toBeEnabled();
   expect(within(results).getByRole('button', { name: 'Download from deep_shelves' })).toBeEnabled();
   expect(
