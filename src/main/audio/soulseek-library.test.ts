@@ -39,6 +39,7 @@ test('imports completed Soulseek audio into the configured library and retains i
     const library = createIndexedLibrary(directory, catalogue, downloader, fetch, receive);
     const input = { provider: 'soulseek', candidateId, release: loadedRelease, trackIndex: 0 };
     const saved = await library.download(input);
+    if (!saved.ok) throw new Error(saved.error.message);
     expect(saved).toMatchObject({
       ok: true,
       value: {
@@ -48,7 +49,6 @@ test('imports completed Soulseek audio into the configured library and retains i
         soulseek: { username: 'peer', filename: 'Music\\Quiet Orbit.flac' },
       },
     });
-    if (!saved.ok) throw new Error(saved.error.message);
     const located = await library.locate(saved.value.id);
     if (!located.ok) throw new Error(located.error.message);
     expect(dirname(located.value.file)).toBe(
