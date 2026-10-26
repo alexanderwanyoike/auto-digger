@@ -16,9 +16,9 @@ yarn dev:web --port 5174
 
 Open [the digging-desk prototype](http://127.0.0.1:5174/?prototype=audio-sources). Previous variant URLs also open this simplified flow.
 
-1. Pick Use Soulseek beside a track. Possible public matches appear inline.
+1. Pick Use Soulseek beside a track. An accordion opens with an editable Refine search field at the top and a compact list of public matches below. Each result shows its filename, format/bitrate, duration and peer, with its own Download button.
 2. Choose Download on a match. The demo shows a queued state, then closes the match list and marks the track Saved from Soulseek.
-3. Open Refine search only when the suggested search needs changing. Non-letter and non-number characters become spaces; accented letters and catalogue titles remain intact. Demo matches remain fixed when editing a query.
+3. Edit Refine search and choose Search to try another query. Non-letter and non-number characters become spaces; accented letters and catalogue titles remain intact. The default query is already cleaned. Existing demo matches stay visible while editing, and the demo result set remains fixed.
 4. Expand the private-match summary if needed. Private files are labelled and cannot be downloaded. Private-only results stay distinct from an empty search.
 
 The normal YouTube download icon remains beside the track. The demo keeps one saved copy per track and prevents accidental second downloads. No real audio is available to play. Library organisation belongs in the existing Settings flow rather than the digging desk.
@@ -51,6 +51,6 @@ Observed on 0.26.2: the ReadWrite key can read shares, but `GET /api/v0/server` 
 
 ## Decision to validate
 
-Does Use Soulseek belong beside each track, or should one release-level action open the same compact list? Is the short match list enough, with query refinement and private results disclosed only on demand?
+The selected direction is a per-track Use Soulseek action on the digging desk, with editable search above a list of results and private matches disclosed below it. Validate the density and usefulness of the result rows before implementing a live adapter.
 
 After validating the flow, implement the selected behaviour through normal application boundaries and tests. Remove the fixture release, timed demo download and development entry. The source model can retain provenance and multiple-copy support internally without making that model the main interface.
