@@ -70,3 +70,27 @@ test('keeps a single track row and requires a deliberate second copy across prov
   await user.click(screen.getByRole('button', { name: 'Use YouTube copy' }));
   expect(screen.getByText('Preferred: YouTube')).toBeVisible();
 });
+test('compares three layouts without losing the search and previews user-chosen source folders', async () => {
+  window.history.replaceState(null, '', '/?prototype=audio-sources&variant=A');
+  const user = userEvent.setup();
+  render(<App />);
+  const query = await screen.findByLabelText('Soulseek search query');
+  await user.clear(query);
+  await user.type(query, 'Quiet / Orbit?!');
+  await user.clear(screen.getByLabelText('Library folder'));
+  await user.type(screen.getByLabelText('Library folder'), '/music/digs');
+  await user.click(screen.getByLabelText('Separate folders by source'));
+  expect(screen.getByLabelText('Destination preview')).toHaveTextContent(
+    '/music/digs/Soulseek/Low Tide - Quiet Orbit EP [r12]/A1 - Quiet Orbit (Original Mix).mp3',
+  );
+  await user.click(screen.getByRole('button', { name: 'Next layout' }));
+  expect(screen.getByText('B · Source inspector')).toBeVisible();
+  expect(screen.getByLabelText('Soulseek search query')).toHaveValue('Quiet / Orbit?!');
+  await user.click(screen.getByRole('heading', { name: 'Audio sources prototype' }));
+  await user.keyboard('{ArrowRight}');
+  expect(screen.getByText('C · Release shelves')).toBeVisible();
+  expect(new URLSearchParams(window.location.search).get('variant')).toBe('C');
+  await user.click(screen.getByLabelText('Soulseek search query'));
+  await user.keyboard('{ArrowLeft}');
+  expect(screen.getByText('C · Release shelves')).toBeVisible();
+});
