@@ -31,6 +31,10 @@ test('cleans a search, preserves locked results and authenticates only to the co
     headers: { 'X-API-Key': 'test-key' },
   });
   expect(request.mock.calls[0]?.[1]?.body).toContain('Björk Jóga Live');
+  const body = request.mock.calls[0]?.[1]?.body;
+  if (typeof body !== 'string') throw new Error('Expected JSON search options');
+  const sent: unknown = JSON.parse(body);
+  expect(sent).not.toHaveProperty('searchTimeout');
   const results = await client.readSearch('search-id');
   expect(results).toMatchObject({
     ok: true,
