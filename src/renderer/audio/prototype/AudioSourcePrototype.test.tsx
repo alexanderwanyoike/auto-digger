@@ -61,7 +61,9 @@ test('keeps a single track row and requires a deliberate second copy across prov
   await user.click(screen.getByRole('button', { name: 'Advance demo transfer' }));
 
   const library = screen.getByRole('region', { name: 'Demo library' });
-  expect(within(library).getAllByRole('row', { name: /Quiet Orbit/ })).toHaveLength(1);
+  expect(
+    within(library).getAllByRole('row', { name: /Quiet Orbit \(Original Mix\)/ }),
+  ).toHaveLength(1);
   const copies = screen.getByRole('list', { name: 'Saved copies for Quiet Orbit (Original Mix)' });
   expect(within(copies).getAllByRole('listitem')).toHaveLength(2);
   expect(screen.getByText('Preferred: Soulseek')).toBeVisible();
