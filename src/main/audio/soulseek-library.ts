@@ -72,8 +72,9 @@ export async function importSoulseekAudio(
       filename: `${filenamePart(input.release.artists.join(', '))} - ${filenamePart(track.title)} [${id}].slsk${extension}`,
       warning,
     };
-    committed = join(directory, saved.filename);
-    await link(staged, committed);
+    const destination = join(directory, saved.filename);
+    await link(staged, destination);
+    committed = destination;
     const result = await createLibraryFiles(directory).save(saved);
     if (result.ok) committed = undefined;
     return result;
