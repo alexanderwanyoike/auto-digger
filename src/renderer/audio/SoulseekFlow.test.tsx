@@ -82,12 +82,12 @@ test('refines a real search, keeps private matches separate and downloads a publ
     );
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
     const sources = within(screen.getByRole('region', { name: 'Audio sources' }));
-    expect(sources.getByRole('button', { name: 'YouTube', exact: true })).toHaveAttribute(
+    expect(sources.getByRole('button', { name: 'YouTube' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
-    await user.click(sources.getByRole('button', { name: 'Soulseek', exact: true }));
-    expect(sources.getByRole('button', { name: 'Soulseek', exact: true })).toHaveAttribute(
+    await user.click(sources.getByRole('button', { name: 'Soulseek' }));
+    expect(sources.getByRole('button', { name: 'Soulseek' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
@@ -126,7 +126,7 @@ test('refines a real search, keeps private matches separate and downloads a publ
     );
     await user.selectOptions(sources.getByRole('combobox', { name: 'Soulseek track' }), '0');
     expect(await screen.findByText('Saved from Soulseek')).toBeVisible();
-    await user.click(sources.getByRole('button', { name: 'YouTube', exact: true }));
+    await user.click(sources.getByRole('button', { name: 'YouTube' }));
     expect(
       screen.queryByRole('table', { name: 'Soulseek search results' }),
     ).not.toBeInTheDocument();
