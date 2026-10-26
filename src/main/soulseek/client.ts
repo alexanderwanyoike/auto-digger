@@ -50,7 +50,6 @@ export function createSlskdClient(
       const result = await call('/searches', z.object({ id: z.string() }), 'POST', {
         id: randomUUID(),
         searchText: query,
-        searchTimeout: 15,
         fileLimit: 1000,
         responseLimit: 100,
       });
