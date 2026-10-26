@@ -13,6 +13,7 @@ test('cleans a search, preserves locked results and authenticates only to the co
             {
               username: 'peer',
               files: [
+                { filename: 'Music\\Unsupported.aiff', size: 123 },
                 { filename: 'Music\\Björk - Jóga.mp3', size: 123, bitRate: 320, length: 210 },
               ],
               lockedFileCount: 3,
