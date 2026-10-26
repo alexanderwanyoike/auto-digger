@@ -57,7 +57,10 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     }));
     expect(geometry.height).toBeLessThanOrEqual(240);
     expect(geometry.scroll).toBeGreaterThan(240);
-    await sources.screenshot({ path: test.info().outputPath('soulseek-results.png') });
+    await sources.screenshot({ path: test.info().outputPath('source-choice.png') });
+    await page
+      .getByRole('region', { name: 'Soulseek matches', exact: true })
+      .screenshot({ path: test.info().outputPath('soulseek-results.png') });
     await table
       .getByRole('button', { name: 'Download Quiet Orbit.flac from archive_peer', exact: true })
       .click();
