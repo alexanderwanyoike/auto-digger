@@ -1,0 +1,79 @@
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { expect, test } from 'vitest';
+import { loadedRelease } from '../../../tests/discogsFixtures';
+import { createSoulseekService } from './service';
+
+test('downloads only a public server-issued match and waits for the completed local file', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-slskd-'));
+  const transfer = {
+    id: 'transfer-id',
+    filename: 'Music\\Track.flac',
+    size: 5,
+    state: 'Completed, Succeeded',
+    bytesTransferred: 5,
+  };
+  const request: typeof fetch = async (url, init) => {
+    const path = String(url);
+    let response: unknown = { id: 'search' };
+    if (path.includes('includeResponses'))
+      response = {
+        isComplete: true,
+        responses: [
+          {
+            username: 'peer',
+            files: [{ filename: transfer.filename, size: 5 }],
+            lockedFileCount: 1,
+            lockedFiles: [{ filename: 'Private\\Track.flac', size: 5 }],
+          },
+        ],
+      };
+    if (path.endsWith('/batches')) {
+      const body: unknown = JSON.parse(String(init?.body));
+      const { z } = await import('zod');
+      const batch = z
+        .object({ id: z.string(), options: z.object({ destination: z.string() }) })
+        .parse(body);
+      const destination = join(directory, batch.options.destination);
+      await mkdir(destination, { recursive: true });
+      await writeFile(join(destination, 'Track.flac'), 'audio');
+      response = { batch: { id: batch.id, transfers: [transfer] }, failures: [] };
+    } else if (path.includes('/batches/')) response = { id: 'batch', transfers: [transfer] };
+    return new Response(JSON.stringify(response));
+  };
+  const service = createSoulseekService(
+    () =>
+      Promise.resolve({
+        ok: true,
+        value: { url: 'http://localhost:5030', apiKey: 'test-key', directory },
+      }),
+    request,
+  );
+  try {
+    expect(await service.search('Track')).toMatchObject({ ok: true });
+    const results = await service.results('search');
+    if (!results.ok) throw new Error(results.error.message);
+    const publicMatch = results.value.matches.find((match) => match.access === 'public');
+    const privateMatch = results.value.matches.find((match) => match.access === 'private');
+    if (!publicMatch || !privateMatch) throw new Error('Expected both access states');
+    const input = {
+      provider: 'soulseek' as const,
+      release: loadedRelease,
+      trackIndex: 0,
+      candidateId: privateMatch.id,
+    };
+    expect(await service.receive(input, {})).toMatchObject({
+      ok: false,
+      error: { code: 'invalid-input' },
+    });
+    const received = await service.receive({ ...input, candidateId: publicMatch.id }, {});
+    if (!received.ok) throw new Error(received.error.message);
+    expect(await readFile(received.value.file, 'utf8')).toBe('audio');
+    expect(await service.receive({ ...input, candidateId: 'f'.repeat(32) }, {})).toMatchObject({
+      ok: false,
+    });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
