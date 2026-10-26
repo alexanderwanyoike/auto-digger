@@ -59,7 +59,7 @@ async function capture(): Promise<Result<undefined, string>> {
   let desktop: Awaited<ReturnType<typeof electron.launch>> | undefined;
   try {
     desktop = await electron.launch({
-      args: [resolve('tests/encryptedDesktop.cjs'), `--user-data-dir=${profile}`],
+      args: [resolve('tests/encrypted-desktop.cjs'), `--user-data-dir=${profile}`],
       env: {
         ...Object.fromEntries(
           Object.entries(process.env).filter(

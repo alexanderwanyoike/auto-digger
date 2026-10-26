@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { DiscogsRelease } from '../../shared/discogs';
-import type { useAudioLibrary } from './useAudioLibrary';
-import type { useCrate } from '../crate/useCrate';
+import type { useAudioLibrary } from './use-audio-library';
+import type { useCrate } from '../crate/use-crate';
 import { SaveToCrate } from '../crate/SaveToCrate';
 import { ReleaseDetails } from '../discogs/ReleaseDetails';
 import { DownloadSources } from './DownloadSources';

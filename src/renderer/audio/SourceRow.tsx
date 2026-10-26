@@ -2,9 +2,9 @@ import { useId, useState } from 'react';
 import { FolderOpen, Play } from 'lucide-react';
 import type { AudioResult, AudioSource, LocalTrack } from '../../shared/audio';
 import type { DiscogsRelease } from '../../shared/discogs';
-import { sourceAssignment } from './sourceAssignment';
+import { sourceAssignment } from './source-assignment';
 import { SourceDownloadButton } from './SourceDownloadButton';
-import type { useAudioLibrary } from './useAudioLibrary';
+import type { useAudioLibrary } from './use-audio-library';
 
 export function SourceRow({
   release,

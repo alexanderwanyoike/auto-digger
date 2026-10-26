@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
-import { siteDownloads } from './scripts/siteDownloads';
+import { siteDownloads } from './scripts/site-downloads';
 
 export default defineConfig({
   plugins: [siteDownloads()],

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { DiscogsRelease } from '../../shared/discogs';
-import { releaseDownloadPlan } from '../../shared/releaseDownloadPlan';
-import type { useAudioLibrary } from './useAudioLibrary';
+import { releaseDownloadPlan } from '../../shared/release-download-plan';
+import type { useAudioLibrary } from './use-audio-library';
 
 export function ReleaseDownload({
   release,

@@ -1,11 +1,11 @@
-import { researchSearchInputSchema } from '../../shared/researchSearch';
+import { researchSearchInputSchema } from '../../shared/research-search';
 import { createDigger } from './digger';
 import { digInputSchema } from '../../shared/dig';
 import type { DigResult } from '../../shared/dig';
 import { accountSchema } from '../../shared/discogs';
-import { discogsFailure } from '../../shared/discogsFailure';
+import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsAccount, DiscogsRelease, DiscogsResult } from '../../shared/discogs';
-import { releaseMetadataSchema } from './releaseMetadata';
+import { releaseMetadataSchema } from './release-metadata';
 import { requestDiscogs } from './request';
 import { searchDiscogs } from './search';
 import { searchInputSchema } from '../../shared/search';

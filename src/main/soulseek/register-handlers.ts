@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import type { BrowserWindow } from 'electron';
 import type { AudioResult } from '../../shared/audio';
-import { audioFailure } from '../../shared/audioFailure';
+import { audioFailure } from '../../shared/audio-failure';
 import type { createSoulseekSettings } from './settings';
 import type { createSoulseekService } from './service';
 

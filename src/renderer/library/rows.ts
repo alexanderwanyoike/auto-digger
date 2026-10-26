@@ -1,5 +1,5 @@
 import type { LocalTrack } from '../../shared/audio';
-import type { DownloadJob } from '../../shared/downloadJobs';
+import type { DownloadJob } from '../../shared/download-jobs';
 
 export interface LibraryRow {
   id: string;

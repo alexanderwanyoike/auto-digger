@@ -3,9 +3,9 @@ import { isAbsolute } from 'node:path';
 import { soulseekSettingsSchema } from '../../shared/soulseek';
 import type { SoulseekSettings, SoulseekStatus } from '../../shared/soulseek';
 import type { AudioResult } from '../../shared/audio';
-import { audioFailure } from '../../shared/audioFailure';
-import { createTokenStore } from '../credentials/tokenStore';
-import type { TokenEncryption } from '../credentials/tokenStore';
+import { audioFailure } from '../../shared/audio-failure';
+import { createTokenStore } from '../credentials/token-store';
+import type { TokenEncryption } from '../credentials/token-store';
 import { createSlskdClient } from './client';
 
 export function createSoulseekSettings(

@@ -1,11 +1,11 @@
 import type { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import type { CatalogueResult } from '../../shared/catalogue';
-import { catalogueFailure } from '../../shared/catalogueFailure';
-import { researchNoteInputSchema } from '../../shared/researchNotes';
-import type { ResearchNote } from '../../shared/researchNotes';
-import { readCatalogueView } from '../catalogue/readView';
-import { readResearchNotes } from './readNotes';
+import { catalogueFailure } from '../../shared/catalogue-failure';
+import { researchNoteInputSchema } from '../../shared/research-notes';
+import type { ResearchNote } from '../../shared/research-notes';
+import { readCatalogueView } from '../catalogue/read-view';
+import { readResearchNotes } from './read-notes';
 
 export function createResearchStore(connection: () => Promise<CatalogueResult<DatabaseSync>>) {
   return {

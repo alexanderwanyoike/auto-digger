@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { AudioResult } from '../../shared/audio';
-import { audioFailure } from '../../shared/audioFailure';
+import { audioFailure } from '../../shared/audio-failure';
 
 export function createSlskdHttp(config: { url: string; apiKey: string }, request: typeof fetch) {
   return async function call<T>(

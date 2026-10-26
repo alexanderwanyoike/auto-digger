@@ -10,7 +10,7 @@ import siteConfig from '../../site.vite.config';
     if (!address) throw new Error('Site preview did not start');
     const desktop = await electron.launch({
       args: [
-        resolve('tests/siteDesktop.cjs'),
+        resolve('tests/site-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
         address,
       ],

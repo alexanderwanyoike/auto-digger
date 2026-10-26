@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { audioErrorSchema } from '../shared/audio';
 import type { AudioResult } from '../shared/audio';
-import { audioFailure } from '../shared/audioFailure';
+import { audioFailure } from '../shared/audio-failure';
 import {
   soulseekResultsSchema,
   soulseekSearchSchema,

@@ -1,7 +1,7 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import { selectAppearance } from '../appearance';
-import { loadedRelease } from '../discogsFixtures';
+import { loadedRelease } from '../discogs-fixtures';
 
 [900, 1180, 1600].forEach((width) => {
   test(`keeps transport beside track details and source rows compact at ${width.toString()}px`, async () => {
@@ -13,7 +13,7 @@ import { loadedRelease } from '../discogsFixtures';
     );
     const desktop = await electron.launch({
       args: [
-        resolve('tests/encryptedDesktop.cjs'),
+        resolve('tests/encrypted-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('polish-profile')}`,
       ],
       env,
@@ -62,7 +62,7 @@ import { loadedRelease } from '../discogsFixtures';
 test('keeps source controls and row positions fixed while a download reports progress', async () => {
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('progress-profile')}`,
     ],
     env: Object.fromEntries(

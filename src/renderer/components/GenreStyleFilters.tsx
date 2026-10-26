@@ -1,5 +1,5 @@
 import { genres } from 'discogs-dataset-genres-styles';
-import { mappedStyles, stylesForGenres } from '../../shared/genreStyles';
+import { mappedStyles, stylesForGenres } from '../../shared/genre-styles';
 import { TaxonomySelect } from './TaxonomySelect';
 
 export function GenreStyleFilters({

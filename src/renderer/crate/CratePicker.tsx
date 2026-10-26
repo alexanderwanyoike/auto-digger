@@ -1,4 +1,4 @@
-import type { useCrate } from './useCrate';
+import type { useCrate } from './use-crate';
 
 export function CratePicker({ crate }: { crate: ReturnType<typeof useCrate> }) {
   const { catalogue } = crate;

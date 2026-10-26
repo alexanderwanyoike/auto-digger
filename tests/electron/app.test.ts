@@ -12,7 +12,7 @@ import { selectAppearance } from '../appearance';
     );
     const desktop = await electron.launch({
       args: [
-        resolve('tests/encryptedDesktop.cjs'),
+        resolve('tests/encrypted-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       env: environment,
@@ -83,7 +83,7 @@ import { selectAppearance } from '../appearance';
 });
 
 test('connects, searches and loads metadata through the isolated Discogs bridge', async () => {
-  const { identityResponse, releaseResponse } = await import('../discogsFixtures');
+  const { identityResponse, releaseResponse } = await import('../discogs-fixtures');
   const environment = Object.fromEntries(
     Object.entries(process.env).filter(
       (entry): entry is [string, string] =>
@@ -92,7 +92,7 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
   );
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('discogs-profile')}`,
     ],
     env: environment,

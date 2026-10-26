@@ -1,11 +1,11 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
-import { loadedRelease } from '../discogsFixtures';
+import { loadedRelease } from '../discogs-fixtures';
 
 test('reopens the active named crate and its releases instead of showing the empty default crate', async () => {
   const options = {
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: Object.fromEntries(
@@ -70,7 +70,7 @@ test('reopens the active named crate and its releases instead of showing the emp
 test('opens a populated crate for older profiles and recovers from a removed remembered crate', async () => {
   const options = {
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: Object.fromEntries(

@@ -1,5 +1,5 @@
 import { RecordArtwork } from '../components/RecordArtwork';
-import type { useDiscogs } from './useDiscogs';
+import type { useDiscogs } from './use-discogs';
 
 export function SearchResults({ session }: { session: ReturnType<typeof useDiscogs> }) {
   const { matches, filters } = session;

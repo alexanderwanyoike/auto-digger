@@ -1,6 +1,6 @@
 import type { DiscogsRelease } from '../../shared/discogs';
-import { isEp } from '../../shared/isEp';
-import type { useCrate } from './useCrate';
+import { isEp } from '../../shared/is-ep';
+import type { useCrate } from './use-crate';
 
 export function SaveToCrate({
   release,

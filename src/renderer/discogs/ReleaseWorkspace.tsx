@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Disc3 } from 'lucide-react';
-import type { useCrate } from '../crate/useCrate';
+import type { useCrate } from '../crate/use-crate';
 import { ReleaseAudioDetails } from '../audio/ReleaseAudioDetails';
-import type { useAudioLibrary } from '../audio/useAudioLibrary';
-import type { useDiscogs } from './useDiscogs';
+import type { useAudioLibrary } from '../audio/use-audio-library';
+import type { useDiscogs } from './use-discogs';
 import { DigControls } from './DigControls';
 import { SearchResults } from './SearchResults';
 

@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test, vi } from 'vitest';
 import type { LocalTrack } from '../../shared/audio';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 import { reassignTrack } from './reassign';
 
 vi.mock('node:fs/promises', async (original) => ({

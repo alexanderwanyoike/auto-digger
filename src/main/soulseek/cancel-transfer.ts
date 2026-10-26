@@ -1,6 +1,6 @@
 import type { AudioResult } from '../../shared/audio';
 import type { SoulseekMatch } from '../../shared/soulseek';
-import { audioFailure } from '../../shared/audioFailure';
+import { audioFailure } from '../../shared/audio-failure';
 import type { createSlskdClient } from './client';
 
 export async function cancelOwnedTransfer(

@@ -1,4 +1,4 @@
-import type { usePreferences } from './usePreferences';
+import type { usePreferences } from './use-preferences';
 import { DownloadFolders } from './DownloadFolders';
 import { currentFolderTemplate } from '../../shared/folder-template';
 

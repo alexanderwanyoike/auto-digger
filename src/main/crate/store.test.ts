@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
 import { createCatalogueStore } from '../catalogue/store';
-import { createLegacyCrateStore } from '../catalogue/legacyCrateStore';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { createLegacyCrateStore } from '../catalogue/legacy-crate-store';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 
 test('keeps existing crate operations compatible while SQLite owns membership and ordering', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-digger-crate-'));

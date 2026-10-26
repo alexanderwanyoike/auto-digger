@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Headphones } from 'lucide-react';
 import { ReleaseDownload } from './ReleaseDownload';
-import { sourceAssignment } from './sourceAssignment';
+import { sourceAssignment } from './source-assignment';
 import type { DiscogsRelease } from '../../shared/discogs';
-import { videoId } from '../../shared/youtubeVideoId';
-import type { useAudioLibrary } from './useAudioLibrary';
-import { useSources } from './useSources';
+import { videoId } from '../../shared/youtube-video-id';
+import type { useAudioLibrary } from './use-audio-library';
+import { useSources } from './use-sources';
 import { SourceRow } from './SourceRow';
 
 export function DownloadSources({

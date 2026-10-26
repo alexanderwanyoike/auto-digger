@@ -1,10 +1,10 @@
 import { ArrowRight, SlidersHorizontal } from 'lucide-react';
-import type { useSavedFilters } from '../filters/useSavedFilters';
+import type { useSavedFilters } from '../filters/use-saved-filters';
 import { SavedFilterPicker } from '../filters/SavedFilterPicker';
 import { TaxonomySelect } from './TaxonomySelect';
 import { GenreStyleFilters } from './GenreStyleFilters';
-import { releaseTypes } from '../../shared/releaseTypes';
-import type { useDiscogs } from '../discogs/useDiscogs';
+import { releaseTypes } from '../../shared/release-types';
+import type { useDiscogs } from '../discogs/use-discogs';
 
 const fields = [
   ['label', 'Label', 'Any label'],

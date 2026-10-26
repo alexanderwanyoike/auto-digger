@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { CatalogueResult } from '../../shared/catalogue';
-import type { ResearchAccess } from '../../shared/researchAccess';
+import type { ResearchAccess } from '../../shared/research-access';
 
 export function ResearchSettings() {
   const bridge = window.researchAccess;

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { AudioResult } from '../../shared/audio';
 import type { SoulseekSettings, SoulseekMatch, SoulseekResults } from '../../shared/soulseek';
-import { audioFailure } from '../../shared/audioFailure';
+import { audioFailure } from '../../shared/audio-failure';
 import type { ReceiveSoulseek } from '../audio/soulseek-library';
 import { createSlskdClient } from './client';
 import { receiveFile } from './receive';

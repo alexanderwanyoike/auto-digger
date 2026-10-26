@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import type { AudioResult, AudioSource } from '../../shared/audio';
-import { audioFailure } from '../../shared/audioFailure';
-import { videoId } from '../../shared/youtubeVideoId';
-import type { DownloadOptions } from './downloadOptions';
+import { audioFailure } from '../../shared/audio-failure';
+import { videoId } from '../../shared/youtube-video-id';
+import type { DownloadOptions } from './download-options';
 import { parseDownloadProgress } from './progress';
-import { ytDlpArguments } from './ytDlpArguments';
+import { ytDlpArguments } from './yt-dlp-arguments';
 
 export type Execute = (
   args: string[],

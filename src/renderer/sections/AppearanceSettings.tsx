@@ -2,7 +2,7 @@ import { Monitor, Moon, Sun } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import type { Preferences } from '../../shared/preferences';
 import type { Appearance } from '../theme/preferences';
-import type { usePreferences } from './usePreferences';
+import type { usePreferences } from './use-preferences';
 import { MaterialChoice } from './MaterialChoice';
 
 const materials = [

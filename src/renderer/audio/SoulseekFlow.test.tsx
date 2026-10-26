@@ -2,7 +2,7 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import { App } from '../App';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 import type { AudioBridge, LocalTrack } from '../../shared/audio';
 import type { SoulseekBridge } from '../../shared/soulseek';
 

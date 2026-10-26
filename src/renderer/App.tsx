@@ -1,25 +1,25 @@
 import { useState } from 'react';
 import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
-import { useSavedFilters } from './filters/useSavedFilters';
+import { useSavedFilters } from './filters/use-saved-filters';
 import { UpdateNotice } from './components/UpdateNotice';
-import { usePreferences } from './sections/usePreferences';
+import { usePreferences } from './sections/use-preferences';
 import type { CatalogueBridge } from '../shared/catalogue';
 import { CratesPage } from './sections/CratesPage';
 import { DownloadsPage } from './sections/DownloadsPage';
 import { SettingsPage } from './sections/SettingsPage';
 import type { CrateBridge } from '../shared/crate';
-import { useCrate } from './crate/useCrate';
+import { useCrate } from './crate/use-crate';
 import type { DiscogsBridge } from '../shared/discogs';
-import { useDiscogs } from './discogs/useDiscogs';
+import { useDiscogs } from './discogs/use-discogs';
 import { ConnectionDialog } from './discogs/ConnectionDialog';
 import { ReleaseWorkspace } from './discogs/ReleaseWorkspace';
-import { useAppearance } from './theme/useAppearance';
+import { useAppearance } from './theme/use-appearance';
 import { FilterPanel } from './components/FilterPanel';
 import { DiscoveryPanel } from './components/DiscoveryPanel';
 import { CratePanel } from './components/CratePanel';
 import { PlaybackBar } from './components/PlaybackBar';
 import type { AudioBridge } from '../shared/audio';
-import { useAudioLibrary } from './audio/useAudioLibrary';
+import { useAudioLibrary } from './audio/use-audio-library';
 import appIcon from '../../resources/icons/icon.svg';
 
 const sectionIcons = {

@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import NodeID3 from 'node-id3';
 import { expect, test, vi } from 'vitest';
 import { createAudioLibrary } from './library';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 
 test('persists separate videos, avoids duplicate downloads and applies the chosen Discogs track', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-digger-audio-'));

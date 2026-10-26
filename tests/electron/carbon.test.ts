@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 test('uses flat dark panels and black framing for Carbon, then restores the saved material', async () => {
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: Object.fromEntries(

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import type { DiscogsRelease } from '../../shared/discogs';
-import { storePlatforms } from '../../shared/storeLinks';
+import { storePlatforms } from '../../shared/store-links';
 
 const labels = {
   discogs: 'Discogs sellers',

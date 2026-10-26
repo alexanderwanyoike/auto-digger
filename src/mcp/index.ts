@@ -1,6 +1,6 @@
 import { isAbsolute } from 'node:path';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
-import { callResearchApp } from './appClient';
+import { callResearchApp } from './app-client';
 import { createResearchToolServer } from './tools';
 
 const file = process.argv[3];

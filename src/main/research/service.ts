@@ -1,8 +1,8 @@
-import { catalogueFailure } from '../../shared/catalogueFailure';
-import { researchCommandSchema } from '../../shared/researchCommands';
-import type { ResearchResult } from '../../shared/researchCommands';
+import { catalogueFailure } from '../../shared/catalogue-failure';
+import { researchCommandSchema } from '../../shared/research-commands';
+import type { ResearchResult } from '../../shared/research-commands';
 import type { createCatalogueStore } from '../catalogue/store';
-import type { createRememberedSession } from '../discogs/rememberedSession';
+import type { createRememberedSession } from '../discogs/remembered-session';
 
 type DiscogsResearch = Pick<
   ReturnType<typeof createRememberedSession>,

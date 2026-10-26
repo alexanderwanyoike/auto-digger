@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import { createDownloadJobs } from './jobs';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
-import { loadedRelease } from '../../../tests/discogsFixtures';
-import { downloadStage } from '../../shared/downloadJobs';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
+import { downloadStage } from '../../shared/download-jobs';
 
 const track: LocalTrack = {
   id: '12-abcdefghijk',

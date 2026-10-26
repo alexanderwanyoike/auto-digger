@@ -3,7 +3,7 @@ import type { Locator } from '@playwright/test';
 import { resolve } from 'node:path';
 import sharp from 'sharp';
 import { selectAppearance } from '../appearance';
-import { loadedRelease } from '../discogsFixtures';
+import { loadedRelease } from '../discogs-fixtures';
 
 async function expectPanelOutline(panel: Locator, name: string) {
   const expected = await panel.evaluate((element) => {
@@ -66,7 +66,7 @@ async function expectPanelEnds(panel: Locator, heading: string, footer: string) 
   test(`keeps desk panel ends visible while filters and crates scroll at ${width.toString()}x${height.toString()}`, async () => {
     const desktop = await electron.launch({
       args: [
-        resolve('tests/encryptedDesktop.cjs'),
+        resolve('tests/encrypted-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       env: {

@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 test('restores named filters, multiselects and the current draft after restarting', async () => {
   const options = {
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: {

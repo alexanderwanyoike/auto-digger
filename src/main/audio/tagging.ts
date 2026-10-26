@@ -4,7 +4,7 @@ import NodeID3 from 'node-id3';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { AudioResult } from '../../shared/audio';
 import { fetchArtwork } from './artwork';
-import { matchTrack } from '../../shared/matchTrack';
+import { matchTrack } from '../../shared/match-track';
 
 export async function tagDownload(
   file: string,

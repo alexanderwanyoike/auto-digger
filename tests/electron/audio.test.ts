@@ -1,7 +1,7 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve, delimiter } from 'node:path';
 import { selectAppearance } from '../appearance';
-import { loadedRelease } from '../discogsFixtures';
+import { loadedRelease } from '../discogs-fixtures';
 
 test('downloads, persists and streams seekable audio through the isolated desktop library', async () => {
   const environment = Object.fromEntries(
@@ -13,7 +13,7 @@ test('downloads, persists and streams seekable audio through the isolated deskto
   environment.PATH = `${resolve('tests/fixtures')}${delimiter}${environment.PATH ?? ''}`;
   const options = {
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('audio-profile')}`,
     ],
     env: environment,
@@ -73,7 +73,7 @@ test('plays downloaded sources in the bottom bar with seek, volume and offline t
   );
   const options = {
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('player-profile')}`,
     ],
     env: environment,

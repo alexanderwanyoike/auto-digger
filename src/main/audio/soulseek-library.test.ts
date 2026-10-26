@@ -2,9 +2,9 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { expect, test, vi } from 'vitest';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 import { createCatalogueStore } from '../catalogue/store';
-import { createIndexedLibrary } from './indexedLibrary';
+import { createIndexedLibrary } from './indexed-library';
 import { importSoulseekAudio } from './soulseek-library';
 
 test('preserves existing audio when recovery metadata is missing and a new import collides', async () => {

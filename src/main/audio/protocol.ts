@@ -1,7 +1,7 @@
 import { net, protocol } from 'electron';
 import { stat } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
-import type { createIndexedLibrary } from './indexedLibrary';
+import type { createIndexedLibrary } from './indexed-library';
 import { audioContentType } from './content-type';
 
 export function registerAudioScheme() {

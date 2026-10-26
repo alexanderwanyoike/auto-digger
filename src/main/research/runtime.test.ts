@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test, vi } from 'vitest';
 import { createResearchRuntime } from './runtime';
-import { callResearchApp } from '../../mcp/appClient';
-import { researchConnectionSchema } from '../../shared/researchAccess';
+import { callResearchApp } from '../../mcp/app-client';
+import { researchConnectionSchema } from '../../shared/research-access';
 
 test('only serves authorized local requests while enabled and revokes access on stop', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-digger-mcp-runtime-'));

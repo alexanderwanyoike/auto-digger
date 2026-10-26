@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
 import { createCatalogueStore } from './store';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 
 test('migrates the original crate once into SQLite with its metadata, order and original file preserved', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-digger-catalogue-'));
