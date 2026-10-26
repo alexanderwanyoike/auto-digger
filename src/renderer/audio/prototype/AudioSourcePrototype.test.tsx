@@ -15,7 +15,7 @@ test('opens a demo in Downloads and shows the cleaned Soulseek query without cha
   expect(await screen.findByRole('heading', { name: 'Audio sources prototype' })).toBeVisible();
   expect(screen.getByRole('heading', { name: 'Downloads' })).toBeVisible();
   await user.clear(screen.getByLabelText('Soulseek search query'));
-  await user.type(screen.getByLabelText('Soulseek search query'), 'Björk / Jóga (Live) [1997]?!');
+  await user.type(screen.getByLabelText('Soulseek search query'), 'Björk / Jóga (Live) [[1997]?!');
   expect(screen.getByLabelText('Soulseek query sent')).toHaveTextContent('Björk Jóga Live 1997');
   expect(screen.getByRole('heading', { name: 'Quiet Orbit (Original Mix)' })).toBeVisible();
   expect(
