@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
 import { useSavedFilters } from './filters/useSavedFilters';
 import { UpdateNotice } from './components/UpdateNotice';
@@ -29,6 +29,13 @@ const sectionIcons = {
   Settings: SettingsIcon,
 };
 
+const DiggingDeskPrototype = import.meta.env.DEV
+  ? lazy(async () => {
+      const module = await import('./audio/prototype/DiggingDeskPrototype');
+      return { default: module.DiggingDeskPrototype };
+    })
+  : null;
+
 export function App({
   discogs = window.discogs,
   crate: crateBridge = window.crate,
@@ -40,12 +47,10 @@ export function App({
   audioLibrary?: AudioBridge;
   catalogue?: CatalogueBridge;
 }) {
-  const [section, setSection] = useState<keyof typeof sectionIcons>(() =>
-    import.meta.env.DEV &&
-    new URLSearchParams(window.location.search).get('prototype') === 'audio-sources'
-      ? 'Downloads'
-      : 'Digging desk',
-  );
+  const [section, setSection] = useState<keyof typeof sectionIcons>('Digging desk');
+  const prototypeEnabled =
+    DiggingDeskPrototype &&
+    new URLSearchParams(window.location.search).get('prototype') === 'audio-sources';
   const SectionIcon = sectionIcons[section];
   const preferences = usePreferences(window.preferences);
   const filters = useSavedFilters(window.savedFilters);
@@ -54,6 +59,15 @@ export function App({
   const session = useDiscogs(discogs);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const { appearance, selectAppearance, storageAvailable } = useAppearance();
+  let recordContent = <DiscoveryPanel />;
+  if (session.account || session.release)
+    recordContent = <ReleaseWorkspace session={session} crate={crate} audio={audio} />;
+  if (prototypeEnabled && DiggingDeskPrototype)
+    recordContent = (
+      <Suspense fallback={<p>Loading prototype...</p>}>
+        <DiggingDeskPrototype />
+      </Suspense>
+    );
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -151,11 +165,7 @@ export function App({
         {section === 'Digging desk' && (
           <div className="workspace">
             <FilterPanel session={session} filters={filters} />
-            {session.account || session.release ? (
-              <ReleaseWorkspace session={session} crate={crate} audio={audio} />
-            ) : (
-              <DiscoveryPanel />
-            )}
+            {recordContent}
             <CratePanel crate={crate} disabled={session.busy} onOpen={session.openSavedRelease} />
           </div>
         )}

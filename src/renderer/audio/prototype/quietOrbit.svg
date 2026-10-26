@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <rect width="600" height="600" fill="#263f40" />
+  <g fill="none" stroke="#93a39b" stroke-width="1" opacity=".5">
+    <circle cx="350" cy="340" r="180" />
+    <circle cx="350" cy="340" r="140" />
+    <circle cx="350" cy="340" r="100" />
+    <circle cx="350" cy="340" r="60" />
+    <path d="M0 340h600M350 0v600" />
+  </g>
+  <circle cx="350" cy="340" r="9" fill="#c2bd9d" />
+  <g fill="#e4e4d9" font-family="sans-serif">
+    <text x="42" y="65" font-size="20" letter-spacing="4">LOW TIDE</text>
+    <text x="42" y="119" font-size="38">Quiet Orbit</text>
+    <text x="42" y="550" font-size="14" letter-spacing="3">STILL RECORDS / ST001</text>
+  </g>
+</svg>

@@ -1,0 +1,129 @@
+.desk-prototype-note {
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+}
+.desk-audio-prototype .tracklist > li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+}
+.desk-audio-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.desk-audio-actions .icon-button {
+  width: 28px;
+  height: 28px;
+}
+.desk-use-soulseek {
+  border: 0;
+  padding: 5px 0;
+  background: transparent;
+  color: var(--blue);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.desk-track-status {
+  grid-column: 2 / -1;
+  color: var(--muted);
+  font-size: 10px;
+}
+.desk-soulseek-matches {
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin: 4px 0;
+  padding: 14px;
+  border-left: 2px solid var(--blue);
+  background: var(--surface-inset);
+  font-size: 10px;
+  line-height: 1.7;
+}
+.desk-soulseek-matches > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.desk-soulseek-matches > header strong {
+  font-weight: 600;
+}
+.desk-soulseek-matches > p {
+  margin-top: 10px;
+  color: var(--muted);
+}
+.desk-soulseek-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+}
+.desk-soulseek-result > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.desk-soulseek-result strong {
+  font-weight: 500;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.desk-soulseek-result span {
+  color: var(--muted);
+  font-size: 9px;
+}
+.desk-soulseek-result button {
+  flex-shrink: 0;
+}
+.desk-soulseek-refine,
+.desk-soulseek-private {
+  margin-top: 6px;
+  color: var(--muted);
+}
+.desk-soulseek-matches summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.desk-soulseek-private summary svg {
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.desk-soulseek-refine form {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding-top: 12px;
+}
+.desk-soulseek-refine label {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+}
+.desk-soulseek-refine input {
+  width: 100%;
+  min-width: 0;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 8px;
+  font: inherit;
+}
+.desk-soulseek-refine output {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1000px) {
+  .desk-audio-prototype .tracklist > li {
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+  }
+  .desk-audio-actions {
+    grid-column: 2 / -1;
+    justify-content: end;
+  }
+}
