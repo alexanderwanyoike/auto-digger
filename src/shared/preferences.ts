@@ -31,7 +31,7 @@ export const preferencesSchema = z.object({
     .optional(),
   folders: z
     .array(folderFieldSchema)
-    .max(6)
+    .max(folderFields.length)
     .refine((fields) => new Set(fields).size === fields.length)
     .optional(),
   directory: z.string().min(1).max(4096).nullable(),
@@ -40,7 +40,8 @@ export type Preferences = z.infer<typeof preferencesSchema>;
 export const defaultPreferences: Preferences = {
   material: 'aluminium',
   accent: 'blue',
-  layout: 'flat',
+  layout: 'custom',
+  folderTemplate: '<source>/<genre>/<subgenre>/<year>',
   directory: null,
 };
 export type PreferencesResult = CatalogueResult<Preferences>;
