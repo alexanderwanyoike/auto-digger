@@ -25,34 +25,38 @@ test('edits a folder path while keeping every placeholder visible and preserves 
     render(<App />);
     await user.click(screen.getByRole('button', { name: 'Settings' }));
     const input = await screen.findByRole('textbox', { name: 'Folder layout' });
+    expect(input).toHaveValue('<source>/<genre>/<subgenre>/<year>');
+    await user.clear(input);
     expect(
       screen.queryByRole('combobox', { name: 'Download organisation' }),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Move .* up/ })).not.toBeInTheDocument();
-    await user.type(input, '<source>/<year> - <genre>/<artist>/<release>');
+    await user.type(input, '<source>/<genre>/<subgenre>/<artist>/<release>');
     expect(screen.getByLabelText('Folder preview')).toHaveTextContent(
-      '/music/Auto Digger / YouTube / 1998 - Electronic / Low Tide / Quiet Orbit EP [r12]',
+      '/music/Auto Digger / YouTube / Electronic / Deep House / Low Tide / Quiet Orbit EP [r12]',
     );
     await user.click(screen.getByRole('button', { name: 'Save folder layout' }));
     expect(save).toHaveBeenLastCalledWith({
       material: 'aluminium',
       accent: 'blue',
       layout: 'custom',
-      folderTemplate: '<source>/<year> - <genre>/<artist>/<release>',
+      folderTemplate: '<source>/<genre>/<subgenre>/<artist>/<release>',
     });
     await user.click(screen.getByRole('radio', { name: 'Green' }));
     expect(save).toHaveBeenLastCalledWith({
       material: 'aluminium',
       accent: 'green',
       layout: 'custom',
-      folderTemplate: '<source>/<year> - <genre>/<artist>/<release>',
+      folderTemplate: '<source>/<genre>/<subgenre>/<artist>/<release>',
     });
     await user.clear(input);
     await user.type(input, '<source>');
     const reference = screen.getByLabelText('Available folder placeholders');
-    ['<source>', '<genre>', '<year>', '<label>', '<artist>', '<release>'].forEach((token) => {
-      expect(reference).toHaveTextContent(token);
-    });
+    ['<source>', '<genre>', '<subgenre>', '<year>', '<label>', '<artist>', '<release>'].forEach(
+      (token) => {
+        expect(reference).toHaveTextContent(token);
+      },
+    );
     await user.clear(input);
     await user.click(screen.getByRole('button', { name: 'Save folder layout' }));
     expect(save).toHaveBeenLastCalledWith({

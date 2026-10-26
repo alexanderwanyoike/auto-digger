@@ -22,3 +22,37 @@ test('uses portable folder names for bare metadata and explicit fallbacks withou
     value: join('/music', 'Soulseek', '_LPT1.flac', '_CON', 'Unknown genre', 'Unknown year'),
   });
 });
+
+test.each(['YouTube', 'Soulseek'] as const)(
+  'uses the first Discogs style as a subgenre folder for %s',
+  (source) => {
+    expect(
+      downloadDirectory(
+        '/music',
+        { layout: 'custom', folderTemplate: '<genre>/<subgenre>/<artist>' },
+        {
+          ...loadedRelease,
+          styles: ['Deep/House', 'Techno'],
+        },
+        source,
+      ),
+    ).toEqual({ ok: true, value: join('/music', 'Electronic', 'DeepHouse', 'Low Tide') });
+  },
+);
+
+test.each([{ styles: [] }, { styles: ['   '] }])(
+  'uses an explicit subgenre fallback when the first style is unavailable: $styles',
+  ({ styles }) => {
+    expect(
+      downloadDirectory(
+        '/music',
+        { layout: 'custom', folderTemplate: '<genre>/<subgenre>' },
+        {
+          ...loadedRelease,
+          styles,
+        },
+        'Soulseek',
+      ),
+    ).toEqual({ ok: true, value: join('/music', 'Electronic', 'Unknown subgenre') });
+  },
+);
