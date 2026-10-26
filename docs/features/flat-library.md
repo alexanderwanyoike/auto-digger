@@ -4,6 +4,8 @@ The user requested Downloads as a simple searchable list of tracks, and fewer ca
 
 Downloads now has one search toolbar and one table: sleeve/title, artist, release and actions. Saved tracks appear once. Current source activity is merged into its track row, with progress, cancellation or retry inline. A completed attempt does not create a second copy of the saved track. Superseded attempts for the same source are consolidated; source-page history remains available. Search includes artist, track and release metadata for saved and pending tracks.
 
+The source selector offers All sources, YouTube and Soulseek and combines with the text search. Every row names its provider beneath the title, including pending transfers. Legacy saved YouTube files retain their source label without a metadata migration; unfinished jobs use their existing source identity. The filtered count and empty state follow the selection. This extends the existing track-library filtering pattern with a native select control.
+
 The loaded track has a restrained accent marker. Play and reveal controls stay visible. Tagging warnings are available through an accessible disclosure beside the title, rather than repeated paragraphs in every row. Missing-file status stays explicit. Queue communication errors remain readable.
 
 Remove the rounded outer section panels and nested source/queue boxes. Crates use release headings and separators, Settings uses plain groups, and the desk retains clear column divisions. Keep the established brushed surface, materials, accent choices, local fonts, artwork and persistent bottom player. Settings remains a cog at the navigation's right edge.

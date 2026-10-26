@@ -15,7 +15,7 @@ test('chooses a material, mode and accent visually while preserving download set
     read: () =>
       Promise.resolve({
         ok: true,
-        value: { ...defaultPreferences, directory: '/music', layout: 'release' },
+        value: { material: 'aluminium', accent: 'blue', directory: '/music', layout: 'release' },
       }),
     save,
     chooseDirectory: vi.fn(),

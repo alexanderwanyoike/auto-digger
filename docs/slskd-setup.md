@@ -31,18 +31,18 @@ The normal local URL is `http://127.0.0.1:5030`. Remote URLs must use HTTPS and 
 Under Downloads in Settings, choose your Auto Digger destination and edit Folder layout. Type a relative path using the placeholders shown below the field. For example:
 
 ```text
-<source>/<genre>/<year>/<label>/<artist>/<release>
+<source>/<genre>/<subgenre>/<year>
 ```
 
 You can combine values and ordinary text, such as `DJ Music/<source>/<artist>/<year> - <release>`. Leave the field empty to keep files together. Choose Save folder layout when ready. The placeholder reference always remains visible, including placeholders you have removed from your path.
 
 ![Folder layout field, persistent placeholder reference and example path](images/audio-folder-settings.png)
 
-The preview illustrates future paths. Genre and label use the first Discogs value. Missing metadata gets an Unknown folder. Release folders include the Discogs ID to keep pressings distinct. Existing downloads stay where they are and remain indexed.
+This is the default layout for new setups. Saved layouts remain unchanged. Subgenre uses the first Discogs style, such as Deep House. Genre and label also use the first Discogs value. Missing metadata gets an Unknown folder. Release folders include the Discogs ID to keep pressings distinct. Existing downloads stay where they are and remain indexed.
 
 ## 4. Find a track
 
-Open a record on the digging desk and choose Use Soulseek beside a track. Edit Refine search when needed. Punctuation becomes spaces; the record's title stays unchanged.
+Open a record on the digging desk. Under Audio sources, choose YouTube or Soulseek in the same provider selector. Choose Soulseek, select the Discogs track, then edit Refine search when needed. Punctuation becomes spaces; the record's title stays unchanged. Both providers use the same download queue and library.
 
 ![Editable search and compact results table](images/soulseek-results.png)
 

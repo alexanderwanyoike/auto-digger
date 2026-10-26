@@ -13,10 +13,12 @@ export function downloadDirectory(
   source: 'YouTube' | 'Soulseek',
 ): Result<string, { message: string }> {
   const genre = release.genres[0]?.trim();
+  const subgenre = release.styles[0]?.trim();
   const label = release.labels[0]?.name.trim();
   const values = {
     source,
     genre: genre?.length ? genre : 'Unknown genre',
+    subgenre: subgenre?.length ? subgenre : 'Unknown subgenre',
     year: release.year?.toString() ?? 'Unknown year',
     label: label?.length ? label : 'Unknown label',
     artist: release.artists.join(', ') || 'Unknown artist',
@@ -27,6 +29,7 @@ export function downloadDirectory(
     const rendered = renderFolderTemplate(preferences.folderTemplate, {
       source,
       genre: folderPart(values.genre),
+      subgenre: folderPart(values.subgenre),
       year: values.year,
       label: folderPart(values.label),
       artist: folderPart(values.artist),

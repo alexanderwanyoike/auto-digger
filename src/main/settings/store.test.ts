@@ -46,7 +46,13 @@ test('persists validated appearance and download preferences independently of cr
   try {
     expect(await store.preferences.read()).toMatchObject({
       ok: true,
-      value: { material: 'aluminium', accent: 'blue', layout: 'flat', directory: null },
+      value: {
+        material: 'aluminium',
+        accent: 'blue',
+        layout: 'custom',
+        folderTemplate: '<source>/<genre>/<subgenre>/<year>',
+        directory: null,
+      },
     });
     expect(
       await store.preferences.save({
@@ -102,7 +108,7 @@ test('keeps an expanded material and accent after reopening existing settings', 
     try {
       expect(await reopened.preferences.read()).toMatchObject({
         ok: true,
-        value: { material: 'paper', accent: 'rose' },
+        value: { material: 'paper', accent: 'rose', layout: 'flat' },
       });
     } finally {
       await reopened.close();

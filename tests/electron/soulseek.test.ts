@@ -29,9 +29,15 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     await page.getByLabel('slskd completed-downloads folder', { exact: true }).fill(directory);
     await page.getByRole('button', { name: 'Connect slskd', exact: true }).click();
     await expect(page.getByText('slskd connection saved.', { exact: true })).toBeVisible();
+    await expect(page.getByLabel('Folder layout')).toHaveValue(
+      '<source>/<genre>/<subgenre>/<year>',
+    );
+    await page
+      .locator('.download-folders')
+      .screenshot({ path: test.info().outputPath('default-folder-settings.png') });
     await page
       .getByLabel('Folder layout')
-      .fill('<source>/<genre>/<year>/<label>/<artist>/<release>');
+      .fill('<source>/<genre>/<subgenre>/<year>/<label>/<artist>/<release>');
     await page.getByRole('button', { name: 'Save folder layout', exact: true }).click();
     await page
       .locator('.download-folders')
@@ -42,7 +48,13 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     });
     await page.reload();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
-    await page.getByRole('button', { name: 'Use Soulseek for Quiet Orbit', exact: true }).click();
+    const sources = page.getByRole('region', { name: 'Audio sources', exact: true });
+    await expect(sources.getByRole('button', { name: 'YouTube', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await sources.getByRole('button', { name: 'Soulseek', exact: true }).click();
+    await expect(sources.getByRole('combobox', { name: 'Soulseek track' })).toHaveValue('0');
     const table = page.getByRole('table', { name: 'Soulseek search results' });
     await expect(table.getByRole('row')).toHaveCount(41);
     const geometry = await table.evaluate((element) => ({
@@ -51,6 +63,7 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     }));
     expect(geometry.height).toBeLessThanOrEqual(240);
     expect(geometry.scroll).toBeGreaterThan(240);
+    await sources.screenshot({ path: test.info().outputPath('source-choice.png') });
     await page
       .getByRole('region', { name: 'Soulseek matches', exact: true })
       .screenshot({ path: test.info().outputPath('soulseek-results.png') });
@@ -67,6 +80,7 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
       'Auto Digger',
       'Soulseek',
       'Electronic',
+      'Deep House',
       '1998',
       'Still Records',
       'Low Tide',
@@ -90,9 +104,18 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     page = await desktop.firstWindow();
     await page.getByRole('button', { name: 'Downloads', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeEnabled();
+    const sourceFilter = page.getByRole('combobox', { name: 'Filter downloads by source' });
+    await sourceFilter.selectOption('youtube');
+    await expect(page.getByText('No YouTube downloads yet.', { exact: true })).toBeVisible();
+    await sourceFilter.selectOption('soulseek');
+    await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeEnabled();
+    await expect(page.getByRole('table', { name: 'Tracks' })).toContainText('Soulseek');
+    await page
+      .getByRole('region', { name: 'Downloaded library' })
+      .screenshot({ path: test.info().outputPath('source-filter.png') });
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await expect(page.getByLabel('Folder layout')).toHaveValue(
-      '<source>/<genre>/<year>/<label>/<artist>/<release>',
+      '<source>/<genre>/<subgenre>/<year>/<label>/<artist>/<release>',
     );
     await expect(page.getByLabel('slskd API key', { exact: true })).toHaveValue('');
     await expect(page.getByLabel('slskd completed-downloads folder', { exact: true })).toHaveValue(

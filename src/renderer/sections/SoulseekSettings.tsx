@@ -171,8 +171,8 @@ export function SoulseekSettings() {
             side of the downloads volume mapping.
           </li>
           <li>
-            Choose your Auto Digger folder layout above. Open a record and choose Use Soulseek
-            beside a track.
+            Choose your Auto Digger folder layout above. Open a record, choose Soulseek under Audio
+            sources, then select the track to find.
           </li>
         </ol>
       </details>

@@ -81,7 +81,19 @@ test('refines a real search, keeps private matches separate and downloads a publ
       />,
     );
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
-    await user.click(screen.getByRole('button', { name: 'Use Soulseek for Quiet Orbit' }));
+    const sources = within(screen.getByRole('region', { name: 'Audio sources' }));
+    expect(sources.getByRole('button', { name: 'YouTube' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await user.click(sources.getByRole('button', { name: 'Soulseek' }));
+    expect(sources.getByRole('button', { name: 'Soulseek' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(sources.getByRole('combobox', { name: 'Soulseek track' })).toHaveDisplayValue(
+      'A1 · Quiet Orbit',
+    );
     const table = await screen.findByRole('table', { name: 'Soulseek search results' });
     expect(within(table).getByRole('columnheader', { name: 'Quality' })).toBeVisible();
     expect(within(table).queryByText('private_peer')).not.toBeInTheDocument();
@@ -101,7 +113,7 @@ test('refines a real search, keeps private matches separate and downloads a publ
       release,
       trackIndex: 0,
     });
-    await user.click(screen.getByRole('button', { name: 'Use Soulseek for Night Tide' }));
+    await user.selectOptions(sources.getByRole('combobox', { name: 'Soulseek track' }), '1');
     expect(await screen.findByRole('textbox', { name: 'Refine Soulseek search' })).toHaveValue(
       'Low Tide Night Tide',
     );
@@ -109,11 +121,12 @@ test('refines a real search, keeps private matches separate and downloads a publ
       finishDownload?.({ ok: true, value: track });
       await pendingDownload;
     });
-    expect(await screen.findByText('Saved from Soulseek')).toBeVisible();
     expect(screen.getByRole('textbox', { name: 'Refine Soulseek search' })).toHaveValue(
       'Low Tide Night Tide',
     );
-    await user.click(screen.getByRole('button', { name: 'Use Soulseek for Night Tide' }));
+    await user.selectOptions(sources.getByRole('combobox', { name: 'Soulseek track' }), '0');
+    expect(await screen.findByText('Saved from Soulseek')).toBeVisible();
+    await user.click(sources.getByRole('button', { name: 'YouTube' }));
     expect(
       screen.queryByRole('table', { name: 'Soulseek search results' }),
     ).not.toBeInTheDocument();

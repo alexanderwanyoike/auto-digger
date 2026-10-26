@@ -1,5 +1,7 @@
 import type { LocalTrack } from '../../shared/audio';
 import type { DownloadJob } from '../../shared/download-jobs';
+import { rowProvider } from './source';
+import type { DownloadSourceFilter } from './source';
 
 export interface LibraryRow {
   id: string;
@@ -13,6 +15,7 @@ export function libraryRows(
   tracks: LocalTrack[],
   jobs: DownloadJob[],
   query: string,
+  source: DownloadSourceFilter = 'all',
 ): LibraryRow[] {
   const rows = new Map<string, LibraryRow>(
     tracks.map((track) => [track.id, { id: track.id, track, job: null }]),
@@ -28,6 +31,7 @@ export function libraryRows(
   });
   const search = query.trim().toLowerCase();
   return [...rows.values()]
+    .filter((row) => source === 'all' || rowProvider(row) === source)
     .filter(({ track, job }) =>
       `${track?.title ?? ''} ${track?.artist ?? ''} ${track?.album ?? ''} ${job?.title ?? ''} ${job?.artist ?? ''} ${job?.album ?? ''}`
         .toLowerCase()
