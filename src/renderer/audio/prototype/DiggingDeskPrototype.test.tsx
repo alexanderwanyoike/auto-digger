@@ -26,7 +26,7 @@ test('offers Soulseek on the digging desk without a source-management screen', a
   );
   expect(screen.getByRole('button', { name: 'Download from tape_archive' })).toBeEnabled();
   expect(screen.getByLabelText('Soulseek search query')).not.toBeVisible();
-  await user.click(screen.getByRole('button', { name: 'Downloads', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Downloads' }));
   expect(screen.getByRole('region', { name: 'Downloaded library' })).toBeVisible();
 });
 
