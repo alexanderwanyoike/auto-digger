@@ -4,6 +4,41 @@ import { join } from 'node:path';
 import { expect, test } from 'vitest';
 import { createCatalogueStore } from '../catalogue/store';
 
+test('restores a saved folder template and keeps it when invalid edits are rejected', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-template-settings-'));
+  const file = join(directory, 'catalog.sqlite');
+  const store = createCatalogueStore(file);
+  const preferences = {
+    material: 'slate',
+    accent: 'blue',
+    layout: 'custom',
+    folderTemplate: '<source>/<artist>/<year> - <release>',
+    directory,
+  };
+  try {
+    expect(await store.preferences.save(preferences)).toMatchObject({
+      ok: true,
+      value: { folderTemplate: preferences.folderTemplate },
+    });
+    expect(
+      await store.preferences.save({ ...preferences, folderTemplate: '../<artist>' }),
+    ).toMatchObject({ ok: false, error: { code: 'invalid-input' } });
+    await store.close();
+    const reopened = createCatalogueStore(file);
+    try {
+      expect(await reopened.preferences.read()).toMatchObject({
+        ok: true,
+        value: { folderTemplate: preferences.folderTemplate },
+      });
+    } finally {
+      await reopened.close();
+    }
+  } finally {
+    await store.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
 test('persists validated appearance and download preferences independently of crate metadata', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-digger-settings-'));
   const file = join(directory, 'catalog.sqlite');
