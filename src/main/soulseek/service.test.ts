@@ -5,6 +5,51 @@ import { expect, test } from 'vitest';
 import { loadedRelease } from '../../../tests/discogsFixtures';
 import { createSoulseekService } from './service';
 
+test('rejects stale matches after connection settings change and uses the new connection for fresh matches', async () => {
+  let settings = { url: 'http://localhost:5030', apiKey: 'old-key', directory: '/old' };
+  const headers: string[] = [];
+  const request: typeof fetch = (url, init) => {
+    if (typeof url !== 'string') throw new Error('Expected URL string');
+    if (url.endsWith('/searches'))
+      return Promise.resolve(new Response(JSON.stringify({ id: settings.apiKey })));
+    if (url.includes('includeResponses'))
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            isComplete: true,
+            responses: [{ username: 'peer', files: [{ filename: 'Track.flac', size: 5 }] }],
+          }),
+        ),
+      );
+    headers.push(new Headers(init?.headers).get('X-API-Key') ?? '');
+    return Promise.resolve(new Response(null, { status: 400 }));
+  };
+  const service = createSoulseekService(
+    () => Promise.resolve({ ok: true, value: settings }),
+    request,
+  );
+  await service.search('Track');
+  const previous = await service.results('old-key');
+  if (!previous.ok || !previous.value.matches[0]) throw new Error('Expected a public match');
+  settings = { ...settings, apiKey: 'new-key', directory: '/new' };
+  const input = {
+    provider: 'soulseek' as const,
+    release: loadedRelease,
+    trackIndex: 0,
+    candidateId: previous.value.matches[0].id,
+  };
+  expect(await service.receive(input, {})).toMatchObject({
+    ok: false,
+    error: { code: 'invalid-input' },
+  });
+  expect(headers).toEqual([]);
+  await service.search('Track');
+  await service.results('new-key');
+  await service.receive(input, {});
+  expect(headers.length).toBeGreaterThan(0);
+  expect(headers.every((key) => key === 'new-key')).toBe(true);
+});
+
 test('downloads only a public server-issued match and waits for the completed local file', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-digger-slskd-'));
   const transfer = {
