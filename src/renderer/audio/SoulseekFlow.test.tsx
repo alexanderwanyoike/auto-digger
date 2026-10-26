@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import { App } from '../App';
@@ -54,13 +54,23 @@ test('refines a real search, keeps private matches separate and downloads a publ
     filename: 'Quiet Orbit.slsk.mp3',
     warning: null,
   };
-  const download = vi.fn<AudioBridge['download']>().mockResolvedValue({ ok: true, value: track });
+  let finishDownload: ((value: Awaited<ReturnType<AudioBridge['download']>>) => void) | undefined;
+  const download = vi.fn<AudioBridge['download']>().mockImplementation(
+    () =>
+      new Promise((resolve) => {
+        finishDownload = resolve;
+      }),
+  );
+  const release = {
+    ...loadedRelease,
+    tracks: [...loadedRelease.tracks, { position: 'B1', title: 'Night Tide', duration: '5:00' }],
+  };
   const user = userEvent.setup();
   try {
     render(
       <App
         crate={{
-          list: () => Promise.resolve({ ok: true, value: [loadedRelease] }),
+          list: () => Promise.resolve({ ok: true, value: [release] }),
           save: vi.fn(),
           remove: vi.fn(),
         }}
@@ -90,10 +100,21 @@ test('refines a real search, keeps private matches separate and downloads a publ
     expect(download).toHaveBeenCalledWith({
       provider: 'soulseek',
       candidateId: id,
-      release: loadedRelease,
+      release,
       trackIndex: 0,
     });
+    await user.click(screen.getByRole('button', { name: 'Use Soulseek for Night Tide' }));
+    expect(await screen.findByRole('textbox', { name: 'Refine Soulseek search' })).toHaveValue(
+      'Low Tide Night Tide',
+    );
+    await act(async () => {
+      finishDownload?.({ ok: true, value: track });
+    });
     expect(await screen.findByText('Saved from Soulseek')).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Refine Soulseek search' })).toHaveValue(
+      'Low Tide Night Tide',
+    );
+    await user.click(screen.getByRole('button', { name: 'Use Soulseek for Night Tide' }));
     expect(
       screen.queryByRole('table', { name: 'Soulseek search results' }),
     ).not.toBeInTheDocument();
