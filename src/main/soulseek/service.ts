@@ -12,13 +12,22 @@ export function createSoulseekService(
 ) {
   interface Search {
     client: ReturnType<typeof createSlskdClient>;
-    directory: string;
+    settings: SoulseekSettings;
     matches: SoulseekMatch[];
   }
   const searches = new Map<string, Search>();
   const receive: ReceiveSoulseek = async (input, options) => {
-    const search = [...searches.values()].find((entry) =>
-      entry.matches.some((match) => match.id === input.candidateId && match.access === 'public'),
+    const current = await load();
+    if (!current.ok) return current;
+    const configuration = current.value;
+    if (!configuration)
+      return audioFailure('unavailable', 'Connect slskd in Settings before downloading.');
+    const search = [...searches.values()].find(
+      (entry) =>
+        entry.settings.url === configuration.url &&
+        entry.settings.apiKey === configuration.apiKey &&
+        entry.settings.directory === configuration.directory &&
+        entry.matches.some((match) => match.id === input.candidateId && match.access === 'public'),
     );
     const match = search?.matches.find(
       (item) => item.id === input.candidateId && item.access === 'public',
@@ -28,7 +37,7 @@ export function createSoulseekService(
         'invalid-input',
         'This match is private or has expired. Search again and choose a public match.',
       );
-    return receiveFile(search.client, search.directory, match, options);
+    return receiveFile(search.client, search.settings.directory, match, options);
   };
   return {
     receive,
@@ -56,7 +65,7 @@ export function createSoulseekService(
             searches.delete(oldest[0]);
           }
         }
-        searches.set(result.value.id, { client, directory: settings.value.directory, matches: [] });
+        searches.set(result.value.id, { client, settings: settings.value, matches: [] });
       }
       return result;
     },
