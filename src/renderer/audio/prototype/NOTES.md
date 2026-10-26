@@ -1,8 +1,10 @@
-# Throwaway audio-source prototype
+# Throwaway digging-desk Soulseek prototype
 
-Question: can one release-track library support YouTube and Soulseek candidates, private matches and deliberate saved copies without becoming two separate libraries?
+Question: can Soulseek be a simple alternative while digging, without asking the DJ to manage audio sources?
 
-Three layouts share the existing Downloads page, selected with `?prototype=audio-sources&variant=`. This is a development-only, in-memory UI study. It does not connect to either provider, invoke desktop download commands, create music files or persist prototype state. Production builds exclude the prototype module and its switcher.
+The user rejected the three Downloads layouts as too complex. This iteration keeps the normal digging desk and adds Use Soulseek beside each track. The comparison screens, switcher, source inspector and folder-management controls have been removed.
+
+This is a development-only, in-memory UI study. It uses fictional release metadata and demo matches. It does not call either provider, invoke desktop download commands, create audio files or persist prototype state. Production builds exclude the prototype module and artwork. The existing release view accepts an optional track-action slot so the prototype can use the real record presentation.
 
 ## Try it
 
@@ -12,21 +14,16 @@ From the repository root, run:
 yarn dev:web --port 5174
 ```
 
-Open [the prototype](http://127.0.0.1:5174/?prototype=audio-sources&variant=A).
+Open [the digging-desk prototype](http://127.0.0.1:5174/?prototype=audio-sources). Previous variant URLs also open this simplified flow.
 
-- A: Track ledger, with sources and organisation beneath the library list.
-- B: Source inspector, with a persistent track selector beside the source results.
-- C: Release shelves, with tracks grouped by their Discogs release.
+1. Pick Use Soulseek beside a track. Possible public matches appear inline.
+2. Choose Download on a match. The demo shows a queued state, then closes the match list and marks the track Saved from Soulseek.
+3. Open Refine search only when the suggested search needs changing. Non-letter and non-number characters become spaces; accented letters and catalogue titles remain intact. Demo matches remain fixed when editing a query.
+4. Expand the private-match summary if needed. Private files are labelled and cannot be downloaded. Private-only results stay distinct from an empty search.
 
-The floating arrows and left/right arrow keys cycle layouts. Text fields and selects retain their own arrow-key behaviour. The variant is stored in the URL; prototype data resets on reload.
+The normal YouTube download icon remains beside the track. The demo keeps one saved copy per track and prevents accidental second downloads. No real audio is available to play. Library organisation belongs in the existing Settings flow rather than the digging desk.
 
-Edit the Soulseek query and check its cleaned form. Non-letter and non-number characters become spaces, repeated spaces collapse, and accented letters remain intact. The catalogue title stays unchanged. Demo matches stay fixed when editing a query.
-
-Use Search scenario to compare mixed public/private results, private-only results, no matches and a disconnected slskd service. Private results are visible by default with a lock label and disabled save action. Hiding them retains the private-only outcome and hidden-result count.
-
-Choose a public candidate and advance the simulated transfer through queued, downloading, importing and complete states. Saving from another provider requires Keep another copy. Copies remain attached to one release-track row, and the preferred copy is selectable. No actual file is playable in this demo.
-
-Change the library folder, release/flat layout and source-folder option to preview future destinations. A completed demo copy keeps the destination captured when its job was queued; changing organisation does not move it. Inspect prototype state exposes the relevant state without credentials.
+For maintainer checks, append `&scenario=private-only`, `&scenario=empty` or `&scenario=offline` to the URL. These simulation controls are deliberately absent from the main interface. Reloading clears demo state.
 
 ## Patterns and evidence
 
@@ -52,8 +49,8 @@ Use `docker stop auto-digger-slskd` or `docker start auto-digger-slskd` to manag
 
 Observed on 0.26.2: the ReadWrite key can read shares, but `GET /api/v0/server` returns 403 because that controller also requires the administrator role. The web administrator can read it. A future connection check must distinguish key permissions from service reachability instead of escalating the key to administrator merely to show a status badge.
 
-## Decision still open
+## Decision to validate
 
-Which layout wins, or which parts should be combined? Does default-visible private audio help explain coverage, or should the filter default to hidden? Does one library root with optional source folders cover actual organisation needs?
+Does Use Soulseek belong beside each track, or should one release-level action open the same compact list? Is the short match list enough, with query refinement and private results disclosed only on demand?
 
-After that decision, remove the losing layouts, switcher and demo state. Implement the selected behaviour through normal application boundaries and tests. Do not promote fixture identities, simulated transfer steps or this throwaway state hook into the production download pipeline.
+After validating the flow, implement the selected behaviour through normal application boundaries and tests. Remove the fixture release, timed demo download and development entry. The source model can retain provenance and multiple-copy support internally without making that model the main interface.
