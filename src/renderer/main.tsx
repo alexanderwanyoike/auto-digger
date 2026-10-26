@@ -23,10 +23,10 @@ import './styles/materials.css';
 import './styles/queue.css';
 import './styles/library.css';
 import './styles/research.css';
-import './styles/appearanceSettings.css';
+import './styles/appearance-settings.css';
 import './styles/aluminium.css';
-import './styles/deskPanels.css';
-import './styles/fieldFocus.css';
+import './styles/desk-panels.css';
+import './styles/field-focus.css';
 
 const container = document.getElementById('root');
 

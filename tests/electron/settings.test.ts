@@ -1,14 +1,14 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { mkdir, readFile, rm } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { loadedRelease } from '../discogsFixtures';
+import { loadedRelease } from '../discogs-fixtures';
 
 test('persists settings and finds old and per-release downloads after a native restart', async () => {
   const profile = test.info().outputPath('profile');
   const chosen = test.info().outputPath('chosen-music');
   await mkdir(chosen, { recursive: true });
   const options = {
-    args: [resolve('tests/encryptedDesktop.cjs'), `--user-data-dir=${profile}`],
+    args: [resolve('tests/encrypted-desktop.cjs'), `--user-data-dir=${profile}`],
     env: Object.fromEntries(
       Object.entries(process.env).filter(
         (entry): entry is [string, string] =>
@@ -33,8 +33,9 @@ test('persists settings and finds old and per-release downloads after a native r
     await page.getByRole('radio', { name: 'Carbon', exact: true }).check();
     await page.getByRole('radio', { name: 'Green', exact: true }).check();
     await page
-      .getByRole('combobox', { name: 'Download organisation', exact: true })
-      .selectOption('release');
+      .getByRole('textbox', { name: 'Folder layout', exact: true })
+      .fill('<artist> - <release>');
+    await page.getByRole('button', { name: 'Save folder layout', exact: true }).click();
     await page.getByRole('button', { name: 'Choose downloads folder', exact: true }).click();
     await expect(page.getByText(chosen, { exact: true })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-material', 'carbon');
@@ -80,7 +81,7 @@ test('keeps small text and accent actions readable across supported materials, a
   const { contrast } = await import('../contrast');
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('appearance-profile')}`,
     ],
     env: Object.fromEntries(

@@ -10,7 +10,7 @@ import { dirname, join, resolve } from 'node:path';
 test('exports an installable Claude extension that calls the existing local tools without app dependencies', async () => {
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: Object.fromEntries(

@@ -1,11 +1,11 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
-import { identityResponse, releaseResponse } from '../discogsFixtures';
+import { identityResponse, releaseResponse } from '../discogs-fixtures';
 
 test('searches and digs multiple release types, saves a non-EP and clears to all types', async () => {
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: Object.fromEntries(

@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { expect, test } from 'vitest';
 import type { CatalogueBridge, CatalogueView } from '../../shared/catalogue';
-import { loadedRelease } from '../../../tests/discogsFixtures';
-import { useCrate } from '../crate/useCrate';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
+import { useCrate } from '../crate/use-crate';
 import { CratesPage } from './CratesPage';
 
 test('keeps saved record selection disabled during an unfinished Discogs request', async () => {

@@ -1,5 +1,5 @@
-import type { DownloadJob } from '../../shared/downloadJobs';
-import { downloadLabels } from '../audio/downloadLabels';
+import type { DownloadJob } from '../../shared/download-jobs';
+import { downloadLabels } from '../audio/download-labels';
 import { pendingDownload } from './rows';
 
 export function DownloadState({ job }: { job: DownloadJob }) {

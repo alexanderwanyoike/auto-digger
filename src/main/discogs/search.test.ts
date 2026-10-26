@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { createDiscogsSession } from './session';
-import { identityResponse } from '../../../tests/discogsFixtures';
+import { identityResponse } from '../../../tests/discogs-fixtures';
 
 test('combines Discogs filters into an authenticated paged search matching any selected release type', async () => {
   const request = vi

@@ -1,5 +1,5 @@
 import { FolderOpen, Play, RotateCcw, X } from 'lucide-react';
-import type { useAudioLibrary } from '../audio/useAudioLibrary';
+import type { useAudioLibrary } from '../audio/use-audio-library';
 import { RecordArtwork } from '../components/RecordArtwork';
 import type { LibraryRow } from './rows';
 import { pendingDownload } from './rows';

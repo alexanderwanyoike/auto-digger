@@ -1,6 +1,6 @@
 import { FolderOpen, Pause, Play, Volume2 } from 'lucide-react';
-import type { useAudioLibrary } from '../audio/useAudioLibrary';
-import { usePlayer } from '../audio/usePlayer';
+import type { useAudioLibrary } from '../audio/use-audio-library';
+import { usePlayer } from '../audio/use-player';
 import { RecordArtwork } from './RecordArtwork';
 
 function timecode(value: number) {

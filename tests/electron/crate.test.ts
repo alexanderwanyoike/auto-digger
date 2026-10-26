@@ -2,7 +2,7 @@ import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import type { ElectronApplication, Page } from '@playwright/test';
 import { selectAppearance } from '../appearance';
-import { identityResponse, releaseResponse } from '../discogsFixtures';
+import { identityResponse, releaseResponse } from '../discogs-fixtures';
 
 function launch(profile: string) {
   const environment = Object.fromEntries(
@@ -12,7 +12,7 @@ function launch(profile: string) {
     ),
   );
   return electron.launch({
-    args: [resolve('tests/encryptedDesktop.cjs'), `--user-data-dir=${profile}`],
+    args: [resolve('tests/encrypted-desktop.cjs'), `--user-data-dir=${profile}`],
     env: environment,
   });
 }

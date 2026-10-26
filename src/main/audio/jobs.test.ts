@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import { createDownloadJobs } from './jobs';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
-import { loadedRelease } from '../../../tests/discogsFixtures';
-import { downloadStage } from '../../shared/downloadJobs';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
+import { downloadStage } from '../../shared/download-jobs';
 
 const track: LocalTrack = {
   id: '12-abcdefghijk',
@@ -17,6 +17,23 @@ const track: LocalTrack = {
   filename: 'Quiet Orbit.yt.mp3',
   warning: null,
 };
+
+test('queues Soulseek sources without pretending they are YouTube videos and rejects a duplicate pending source', () => {
+  const execute = vi.fn(
+    () =>
+      new Promise<AudioResult<LocalTrack>>(() => {
+        /* A pending transfer keeps source uniqueness observable. */
+      }),
+  );
+  const jobs = createDownloadJobs(execute);
+  const candidateId = 'a'.repeat(32);
+  const input = { provider: 'soulseek', release: loadedRelease, trackIndex: 0, candidateId };
+  expect(jobs.start([input])).toMatchObject({
+    ok: true,
+    value: [{ sourceId: `12-slsk-${candidateId}`, title: 'Quiet Orbit' }],
+  });
+  expect(jobs.start([input])).toMatchObject({ ok: false, error: { code: 'invalid-input' } });
+});
 
 test('queues serially, exposes measured progress, cancels queued/active items and retries only the failed item', async () => {
   const execute = vi.fn(

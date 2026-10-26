@@ -3,8 +3,8 @@ import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import type { DiscogsRelease } from '../../shared/discogs';
-import { audioFailure } from '../../shared/audioFailure';
-import type { createLibraryFiles } from './libraryFiles';
+import { audioFailure } from '../../shared/audio-failure';
+import type { createLibraryFiles } from './library-files';
 import { tagDownload } from './tagging';
 
 export async function reassignTrack(

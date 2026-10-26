@@ -1,9 +1,9 @@
 import { app, shell } from 'electron';
 import electronUpdater from 'electron-updater';
 import { setInterval, setTimeout } from 'node:timers';
-import { createNativeUpdateBackend } from './nativeBackend';
-import { scheduleAppImageRestart } from './restartAppImage';
-import { createMacUpdateBackend } from './macBackend';
+import { createNativeUpdateBackend } from './native-backend';
+import { scheduleAppImageRestart } from './restart-app-image';
+import { createMacUpdateBackend } from './mac-backend';
 import { createUpdateService } from './service';
 
 export function createApplicationUpdates() {

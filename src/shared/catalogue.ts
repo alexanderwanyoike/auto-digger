@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { researchNoteSchema } from './researchNotes';
+import { researchNoteSchema } from './research-notes';
 import { releaseSchema } from './discogs';
 import type { CrateError } from './crate';
 import type { Result } from './result';

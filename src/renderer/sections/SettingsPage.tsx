@@ -1,10 +1,11 @@
-import type { useDiscogs } from '../discogs/useDiscogs';
+import type { useDiscogs } from '../discogs/use-discogs';
 import type { Appearance } from '../theme/preferences';
-import type { usePreferences } from './usePreferences';
+import type { usePreferences } from './use-preferences';
 import { ResearchSettings } from './ResearchSettings';
 import { DownloadSettings } from './DownloadSettings';
 import { AppearanceSettings } from './AppearanceSettings';
 import { AboutSettings } from './AboutSettings';
+import { SoulseekSettings } from './SoulseekSettings';
 
 export function SettingsPage({
   session,
@@ -44,6 +45,7 @@ export function SettingsPage({
         </button>
       </div>
       <DownloadSettings preferences={preferences} />
+      <SoulseekSettings />
       <ResearchSettings />
       <AboutSettings />
       {preferences.error && (

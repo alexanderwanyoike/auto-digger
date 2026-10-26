@@ -1,7 +1,8 @@
 import { net, protocol } from 'electron';
 import { stat } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
-import type { createIndexedLibrary } from './indexedLibrary';
+import type { createIndexedLibrary } from './indexed-library';
+import { audioContentType } from './content-type';
 
 export function registerAudioScheme() {
   protocol.registerSchemesAsPrivileged([
@@ -46,7 +47,7 @@ export function registerAudioProtocol(library: ReturnType<typeof createIndexedLi
           });
       }
       const headers = new Headers({
-        'Content-Type': 'audio/mpeg',
+        'Content-Type': audioContentType(file),
         'Accept-Ranges': 'bytes',
         'Content-Length': (end - start + 1).toString(),
       });

@@ -56,7 +56,7 @@ async function expectSystemFocus(field: Locator) {
   test(`uses a single flush field focus frame in ${mode.toLowerCase()} mode`, async () => {
     const desktop = await electron.launch({
       args: [
-        resolve('tests/encryptedDesktop.cjs'),
+        resolve('tests/encrypted-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       env: {
@@ -120,7 +120,7 @@ async function expectSystemFocus(field: Locator) {
       await crateName.focus();
       await expectFlushFocus(crateName);
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
-      const layout = page.getByRole('combobox', { name: 'Download organisation', exact: true });
+      const layout = page.getByRole('textbox', { name: 'Folder layout', exact: true });
       await page.keyboard.press('Tab');
       await layout.focus();
       await expectFlushFocus(layout);

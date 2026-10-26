@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { expect, test } from 'vitest';
 import NodeID3 from 'node-id3';
 import { tagDownload } from './tagging';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 
 test('tags the matched Discogs track and front cover, retaining audio when artwork fails', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-digger-tags-'));

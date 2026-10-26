@@ -1,8 +1,8 @@
 import { spawn } from 'node:child_process';
 import type { ChildProcess } from 'node:child_process';
 import type { AudioResult } from '../../shared/audio';
-import { audioFailure } from '../../shared/audioFailure';
-import { terminateProcess } from './terminateProcess';
+import { audioFailure } from '../../shared/audio-failure';
+import { terminateProcess } from './terminate-process';
 
 function commandFailure(stderr: string): AudioResult<string> {
   if (/ffmpeg|ffprobe|unrecognized arguments|no such option/i.test(stderr))

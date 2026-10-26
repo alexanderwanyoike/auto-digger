@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { strToU8, zipSync } from 'fflate';
 import metadata from '../../../package.json';
 import type { CatalogueResult } from '../../shared/catalogue';
-import { catalogueFailure } from '../../shared/catalogueFailure';
+import { catalogueFailure } from '../../shared/catalogue-failure';
 
 export async function createResearchExtension(
   connectionFile: string,

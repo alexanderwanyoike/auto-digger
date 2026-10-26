@@ -2,11 +2,11 @@ import { randomUUID } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { z } from 'zod';
 import type { CatalogueResult } from '../../shared/catalogue';
-import { catalogueFailure } from '../../shared/catalogueFailure';
+import { catalogueFailure } from '../../shared/catalogue-failure';
 import { filtersSchema } from '../../shared/search';
-import { emptyFilters } from '../../shared/defaultFilters';
-import { savedFiltersSchema, savePresetSchema } from '../../shared/savedFilters';
-import type { SavedFilters, SavedFiltersResult } from '../../shared/savedFilters';
+import { emptyFilters } from '../../shared/default-filters';
+import { savedFiltersSchema, savePresetSchema } from '../../shared/saved-filters';
+import type { SavedFilters, SavedFiltersResult } from '../../shared/saved-filters';
 
 function readSnapshot(database: DatabaseSync): SavedFiltersResult {
   const row = database.prepare("SELECT value FROM metadata WHERE key='digging-filters'").get();

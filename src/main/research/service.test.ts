@@ -2,7 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test, vi } from 'vitest';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 import { createCatalogueStore } from '../catalogue/store';
 import { createResearchService } from './service';
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { DiscogsRelease } from '../../shared/discogs';
-import type { useCrate } from '../crate/useCrate';
+import type { useCrate } from '../crate/use-crate';
 import { CrateOptions } from '../crate/CrateOptions';
 import { CratePicker } from '../crate/CratePicker';
 import { ResearchNotes } from '../crate/ResearchNotes';

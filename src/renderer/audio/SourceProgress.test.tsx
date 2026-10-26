@@ -3,9 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import type { AudioBridge } from '../../shared/audio';
 import type { CrateBridge } from '../../shared/crate';
-import type { DownloadJob, DownloadJobsBridge } from '../../shared/downloadJobs';
-import { downloadStage } from '../../shared/downloadJobs';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import type { DownloadJob, DownloadJobsBridge } from '../../shared/download-jobs';
+import { downloadStage } from '../../shared/download-jobs';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 import { App } from '../App';
 
 test('keeps download progress inside the original source button without inserting a queue', async () => {

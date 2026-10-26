@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { createDigger } from './digger';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 import type { DiscogsResult, DiscogsRelease } from '../../shared/discogs';
 import type { DigFilters, SearchPage } from '../../shared/search';
 

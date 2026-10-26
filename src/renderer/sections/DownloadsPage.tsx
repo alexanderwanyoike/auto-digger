@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FolderOpen, Search } from 'lucide-react';
-import type { useAudioLibrary } from '../audio/useAudioLibrary';
+import type { useAudioLibrary } from '../audio/use-audio-library';
 import { libraryRows } from '../library/rows';
 import { TrackRow } from '../library/TrackRow';
 

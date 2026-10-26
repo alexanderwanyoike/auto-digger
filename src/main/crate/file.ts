@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { crateSchema } from '../../shared/crate';
 import type { CrateResult } from '../../shared/crate';
-import { crateFailure } from '../../shared/crateFailure';
+import { crateFailure } from '../../shared/crate-failure';
 
 export async function readCrate(file: string): Promise<CrateResult> {
   let contents: string;

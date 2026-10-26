@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import type { ServerContext } from '@modelcontextprotocol/server';
-import { researchInputs } from '../shared/researchCommands';
-import type { ResearchResult } from '../shared/researchCommands';
+import { researchInputs } from '../shared/research-commands';
+import type { ResearchResult } from '../shared/research-commands';
 
 const descriptions: Record<keyof typeof researchInputs, string> = {
   list_crates:

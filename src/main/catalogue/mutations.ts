@@ -3,8 +3,8 @@ import type { DatabaseSync } from 'node:sqlite';
 import { z } from 'zod';
 import { releaseSchema } from '../../shared/discogs';
 import type { CatalogueResult, CatalogueView } from '../../shared/catalogue';
-import { catalogueFailure } from '../../shared/catalogueFailure';
-import { readCatalogueView } from './readView';
+import { catalogueFailure } from '../../shared/catalogue-failure';
+import { readCatalogueView } from './read-view';
 import { personalTagsSchema } from '../../shared/catalogue';
 
 const annotationSchema = z.object({

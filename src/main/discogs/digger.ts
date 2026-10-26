@@ -1,7 +1,7 @@
 import type { DiscogsRelease, DiscogsResult } from '../../shared/discogs';
 import type { DigFilters, SearchPage } from '../../shared/search';
 import type { DigResult } from '../../shared/dig';
-import { discogsFailure } from '../../shared/discogsFailure';
+import { discogsFailure } from '../../shared/discogs-failure';
 
 type Search = (filters: DigFilters, page: number) => Promise<DiscogsResult<SearchPage>>;
 type Load = (id: number) => Promise<DiscogsResult<DiscogsRelease>>;

@@ -15,7 +15,7 @@ const environment = () =>
 test('enables a real stdio MCP client, reflects created crates and revokes its tools on disable', async () => {
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: environment(),
@@ -53,7 +53,7 @@ test('enables a real stdio MCP client, reflects created crates and revokes its t
       desktop.process().spawnfile,
       [
         '--no-sandbox',
-        resolve('tests/encryptedDesktop.cjs'),
+        resolve('tests/encrypted-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       { env: environment(), stdio: 'ignore' },

@@ -72,7 +72,11 @@ test.each(['getItem', 'setItem'] as const)(
     await user.click(screen.getByRole('radio', { name: 'Dark' }));
     expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
     if (operation === 'setItem') {
-      expect(screen.getByRole('status')).toHaveTextContent('could not be saved');
+      expect(
+        screen.getByText(
+          'Appearance works for this session, but could not be saved on this device.',
+        ),
+      ).toBeVisible();
     }
   },
 );

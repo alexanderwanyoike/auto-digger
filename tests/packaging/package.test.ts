@@ -9,7 +9,7 @@ import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { expect, test } from 'vitest';
 import metadata from '../../package.json';
-import { applicationId } from '../../src/main/applicationId';
+import { applicationId } from '../../src/main/application-id';
 
 test.skipIf(process.platform !== 'linux')(
   'packaged Linux app opens and serves MCP from installed files',

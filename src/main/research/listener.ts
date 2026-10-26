@@ -1,10 +1,10 @@
 import { createServer } from 'node:http';
 import type { Server, ServerResponse } from 'node:http';
 import { timingSafeEqual } from 'node:crypto';
-import { catalogueFailure } from '../../shared/catalogueFailure';
+import { catalogueFailure } from '../../shared/catalogue-failure';
 import type { CatalogueResult } from '../../shared/catalogue';
-import type { ResearchResult } from '../../shared/researchCommands';
-import { readResearchRequest } from './readRequest';
+import type { ResearchResult } from '../../shared/research-commands';
+import { readResearchRequest } from './read-request';
 
 function respond(response: ServerResponse, status: number, result: ResearchResult) {
   response.writeHead(status, {
