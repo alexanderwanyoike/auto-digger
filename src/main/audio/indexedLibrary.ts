@@ -5,7 +5,7 @@ import { createAudioLibrary } from './library';
 import { createLibraryFiles } from './libraryFiles';
 import { fileAvailable } from './fileAvailable';
 import type { DownloadOptions } from './downloadOptions';
-import { downloadDirectory } from './downloadDirectory';
+import { downloadDirectory } from './download-directory';
 import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
