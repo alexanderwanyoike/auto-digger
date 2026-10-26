@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { Disc3 } from 'lucide-react';
-import { SaveToCrate } from '../crate/SaveToCrate';
 import type { useCrate } from '../crate/useCrate';
-import { DownloadSources } from '../audio/DownloadSources';
+import { ReleaseAudioDetails } from '../audio/ReleaseAudioDetails';
 import type { useAudioLibrary } from '../audio/useAudioLibrary';
 import type { useDiscogs } from './useDiscogs';
-import { ReleaseDetails } from './ReleaseDetails';
 import { DigControls } from './DigControls';
 import { SearchResults } from './SearchResults';
 
@@ -79,13 +77,12 @@ export function ReleaseWorkspace({
         </button>
       )}
       {!session.busy && session.release && (
-        <ReleaseDetails
+        <ReleaseAudioDetails
           key={`${session.release.id.toString()}-${session.release.artworkUrl ?? ''}`}
           release={session.release}
-        >
-          <SaveToCrate release={session.release} crate={crate} />
-          <DownloadSources key={session.release.id} release={session.release} audio={audio} />
-        </ReleaseDetails>
+          crate={crate}
+          audio={audio}
+        />
       )}
       {!session.busy && !session.release && !session.matches && (
         <div className="release-placeholder">

@@ -1,6 +1,6 @@
 import { link, mkdtemp, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
-import { downloadInputSchema } from '../../shared/audio';
+import { youtubeDownloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
 import { videoId } from '../../shared/youtubeVideoId';
@@ -36,7 +36,7 @@ export function createAudioLibrary(
             ...(options.signal ? [options.signal] : []),
           ]),
         });
-      const parsed = downloadInputSchema.safeParse(input);
+      const parsed = youtubeDownloadInputSchema.safeParse(input);
       if (!parsed.success)
         return audioFailure('invalid-input', 'Choose a video and a valid Discogs track.');
       const { release, videoIndex, trackIndex } = parsed.data;

@@ -5,7 +5,7 @@ import type { AudioResult, DownloadInput, LocalTrack } from '../../shared/audio'
 import type { DownloadJob } from '../../shared/downloadJobs';
 import { downloadStage } from '../../shared/downloadJobs';
 import { audioFailure } from '../../shared/audioFailure';
-import { videoId } from '../../shared/youtubeVideoId';
+import { downloadSourceId as sourceKey } from '../../shared/download-source-id';
 import type { DownloadOptions } from './downloadOptions';
 
 const terminal = new Set(['complete', 'failed', 'cancelled']);
@@ -13,10 +13,6 @@ interface Entry {
   input: DownloadInput;
   job: DownloadJob;
   controller?: AbortController;
-}
-function sourceKey(input: Pick<DownloadInput, 'release' | 'videoIndex'>): string | null {
-  const id = videoId(input.release.videos[input.videoIndex]?.url ?? '');
-  return id ? `${input.release.id.toString()}-${id}` : null;
 }
 export function createDownloadJobs(
   execute: (input: DownloadInput, options: DownloadOptions) => Promise<AudioResult<LocalTrack>>,
@@ -83,8 +79,9 @@ export function createDownloadJobs(
       if (pending() + parsed.data.length > 100)
         return audioFailure('busy', 'The download queue is full. Let some tracks finish first.');
       const keys = pendingKeys();
-      const valid = parsed.data.every(({ release, videoIndex, trackIndex }) => {
-        const key = sourceKey({ release, videoIndex });
+      const valid = parsed.data.every((request) => {
+        const { release, trackIndex } = request;
+        const key = sourceKey(request);
         if (
           !key ||
           keys.has(key) ||
@@ -97,35 +94,34 @@ export function createDownloadJobs(
       if (!valid)
         return audioFailure(
           'invalid-input',
-          'Choose valid tracks and one pending job per YouTube source.',
+          'Choose valid tracks and one pending job per audio source.',
         );
       while (entries.length + parsed.data.length > 200) {
         const index = entries.findIndex((entry) => terminal.has(entry.job.stage));
         if (index < 0) break;
         entries.splice(index, 1);
       }
-      const created = parsed.data.map((request): Entry => {
-        const { trackIndex, ...sourceRequest } = request;
-        return {
-          input: trackIndex === undefined ? sourceRequest : { ...sourceRequest, trackIndex },
-          job: {
-            ...downloadStage('queued'),
-            id: randomUUID(),
-            title:
-              request.release.tracks[request.trackIndex ?? -1]?.title ??
-              request.release.videos[request.videoIndex]?.title ??
-              request.release.title,
-            releaseId: request.release.id,
-            videoIndex: request.videoIndex,
-            sourceId: sourceKey(request) ?? undefined,
-            artist: request.release.artists.join(', '),
-            album: request.release.title,
-            artworkUrl: request.release.artworkUrl,
-            track: null,
-            error: null,
-          },
-        };
-      });
+      const created = parsed.data.map((request): Entry => ({
+        input: request,
+        job: {
+          ...downloadStage('queued'),
+          id: randomUUID(),
+          title:
+            request.release.tracks[request.trackIndex ?? -1]?.title ??
+            ('videoIndex' in request
+              ? request.release.videos[request.videoIndex]?.title
+              : undefined) ??
+            request.release.title,
+          releaseId: request.release.id,
+          ...('videoIndex' in request ? { videoIndex: request.videoIndex } : {}),
+          sourceId: sourceKey(request) ?? undefined,
+          artist: request.release.artists.join(', '),
+          album: request.release.title,
+          artworkUrl: request.release.artworkUrl,
+          track: null,
+          error: null,
+        },
+      }));
       entries.push(...created);
       pump();
       return { ok: true, value: created.map(snapshot) };

@@ -6,9 +6,11 @@ import type { DiscogsRelease } from '../../shared/discogs';
 export function ReleaseDetails({
   release,
   children,
+  renderTrackActions,
 }: {
   release: DiscogsRelease;
   children?: ReactNode;
+  renderTrackActions?: (index: number) => ReactNode;
 }) {
   return (
     <article className="release-details" aria-labelledby="release-title">
@@ -57,11 +59,12 @@ export function ReleaseDetails({
       </div>
       {release.tracks.length ? (
         <ol className="tracklist">
-          {release.tracks.map((track) => (
+          {release.tracks.map((track, index) => (
             <li key={`${track.position}-${track.title}`}>
               <span className="track-position">{track.position || '•'}</span>
               <span>{track.title}</span>
               <span className="track-duration">{track.duration || 'Not listed'}</span>
+              {renderTrackActions?.(index)}
             </li>
           ))}
         </ol>
