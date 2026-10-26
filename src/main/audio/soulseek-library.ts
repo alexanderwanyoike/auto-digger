@@ -31,7 +31,7 @@ export async function importSoulseekAudio(
     !id ||
     match.id !== input.candidateId ||
     match.access !== 'public' ||
-    !/^\.(mp3|flac|wav|m4a|ogg|opus|aiff?)$/.test(extension)
+    !/^\.(mp3|flac|wav|m4a|ogg|opus)$/.test(extension)
   )
     return audioFailure('invalid-input', 'Choose an available audio match and a valid track.');
   let temporary: string | undefined;

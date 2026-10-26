@@ -68,7 +68,7 @@ export function createSlskdClient(
         const add = (file: z.infer<typeof fileSchema>, access: SoulseekMatch['access']) => {
           if (
             matches.length >= 1000 ||
-            !/\.(mp3|flac|wav|m4a|ogg|opus|aiff?)$/i.test(file.filename) ||
+            !/\.(mp3|flac|wav|m4a|ogg|opus)$/i.test(file.filename) ||
             file.size <= 0 ||
             file.size > 2_000_000_000
           )

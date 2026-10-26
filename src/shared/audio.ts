@@ -45,7 +45,7 @@ export const localTrackSchema = z
     filename: z
       .string()
       .max(240)
-      .regex(/^[^/\\]+\.(?:yt\.mp3|slsk\.(?:mp3|flac|wav|m4a|ogg|opus|aiff?))$/)
+      .regex(/^[^/\\]+\.(?:yt\.mp3|slsk\.(?:mp3|flac|wav|m4a|ogg|opus))$/)
       .refine((value) =>
         Array.from(value).every((character) => (character.codePointAt(0) ?? 0) >= 32),
       ),
