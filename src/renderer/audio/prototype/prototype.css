@@ -1,0 +1,129 @@
+.audio-prototype {
+  padding: 10px 16px 90px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.prototype-heading,
+.prototype-track-heading,
+.prototype-source-options,
+.prototype-candidate,
+.prototype-provider header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.prototype-heading {
+  align-items: start;
+  padding-bottom: 24px;
+}
+.prototype-heading h2 {
+  margin: 4px 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.9px;
+}
+.prototype-heading p,
+.prototype-track-heading p,
+.prototype-provider p,
+.prototype-source-options,
+.prototype-candidate span {
+  color: var(--muted);
+}
+.prototype-track-heading {
+  justify-content: start;
+  padding: 22px 0;
+  border-top: 1px solid var(--line);
+}
+.prototype-track-heading h3 {
+  font-size: 19px;
+  letter-spacing: -0.5px;
+}
+.prototype-position {
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--blue);
+  font-size: 15px;
+}
+.prototype-search {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px;
+  background: var(--surface-inset);
+}
+.prototype-search > label {
+  flex: 1;
+}
+.prototype-search .primary-button {
+  width: auto;
+  min-height: 35px;
+  padding: 9px 16px;
+}
+.prototype-clean-query {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  width: 100%;
+  gap: 3px 12px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.prototype-clean-query output {
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.prototype-clean-query small {
+  grid-column: 2;
+}
+.prototype-source-options {
+  padding: 22px 0 12px;
+  font-size: 10px;
+}
+.audio-prototype .prototype-source-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prototype-provider {
+  border-top: 1px solid var(--line);
+  padding: 14px 0;
+}
+.prototype-provider h4 {
+  margin: 0;
+  font-size: 12px;
+}
+.prototype-provider header > span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+.prototype-provider > p {
+  padding: 10px 0;
+}
+.prototype-candidate {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.prototype-candidate > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.prototype-candidate strong {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 600;
+}
+.prototype-candidate span {
+  font-size: 10px;
+}
+.prototype-candidate .secondary-button {
+  flex-shrink: 0;
+  min-width: 108px;
+}
+.prototype-private {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
