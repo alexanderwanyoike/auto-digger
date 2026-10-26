@@ -42,7 +42,7 @@ This removes the download quarantine attribute from that app bundle. Adjust the 
 
 See the [setup guide](https://alexanderwanyoike.github.io/auto-digger/setup/#macos) for installation and MCP client help.
 
-Audio downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on your `PATH`. Those audio tools are not bundled. MCP uses the included runtime. Connect a Discogs personal token in the app to start discovering records.
+YouTube downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on your `PATH`. Those audio tools are not bundled. MCP uses the included runtime. Connect a Discogs personal token in the app to start discovering records.
 
 ## What you can do
 
@@ -63,7 +63,7 @@ To run from source:
 
 - **Node.js 22.16 or later within Node 22**, and **Yarn 1.22.22**.
 - A **Discogs personal token** for discovery. The app links to the token settings when you connect.
-- Current **[yt-dlp](https://github.com/yt-dlp/yt-dlp#installation)**, **[FFmpeg and FFprobe](https://ffmpeg.org/download.html)** on your `PATH` for audio downloads. Node supplies yt-dlp's JavaScript runtime.
+- Current **[yt-dlp](https://github.com/yt-dlp/yt-dlp#installation)**, **[FFmpeg and FFprobe](https://ffmpeg.org/download.html)** on your `PATH` for YouTube downloads. Node supplies yt-dlp's JavaScript runtime.
 - A desktop session with Electron's system libraries. Headless Linux checks also need Xvfb.
 
 ```sh
@@ -91,7 +91,7 @@ Soulseek is available through a separately installed slskd instance. See the [se
 | Crates, releases, picks, tags, research notes, settings and audio index | `catalog.sqlite` in Electron's `userData` directory                                       |
 | Discogs credential                                                      | Separately encrypted `discogs-token.bin` in `userData`                                    |
 | Downloaded audio                                                        | Initially `Music/Auto Digger`; future destination and layout are configurable in Settings |
-| Audio recovery metadata                                                 | A versioned JSON sidecar beside each downloaded MP3                                       |
+| Audio recovery metadata                                                 | A versioned JSON sidecar beside each downloaded audio file                                |
 | Active crate and appearance mode                                        | Device UI preferences                                                                     |
 
 Saved record metadata and downloaded audio work offline. New Discogs lookups, artwork retrieval and downloads need the internet. Close the app before backing up the catalogue and its WAL/SHM companion files; keep audio recovery sidecars with their tracks. Existing `crate.json` data is validated, backed up and imported once.
