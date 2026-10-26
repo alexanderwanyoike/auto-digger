@@ -70,6 +70,32 @@
   color: var(--text);
   overflow-wrap: anywhere;
 }
+.download-folders ol {
+  margin: 12px 0;
+  padding-left: 22px;
+  max-width: 340px;
+}
+.download-folders li {
+  padding: 4px 0;
+}
+.download-folders li > span {
+  display: inline-block;
+  width: 150px;
+  font-size: 11px;
+}
+.download-folders .icon-button {
+  width: 26px;
+  height: 26px;
+  vertical-align: middle;
+}
+.download-folder-preview {
+  display: block;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
 
 :root[data-accent='blue'],
 .accent-swatch[data-accent='blue'] {
