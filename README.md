@@ -82,6 +82,8 @@ The token is remembered using operating-system encryption. Disconnecting deletes
 
 See the [user guide](docs/user-guide.md) for source matching, whole-release downloads, account recovery and storage details.
 
+Soulseek is available through a separately installed slskd instance. See the [setup guide with screenshots](docs/slskd-setup.md) for connecting it and choosing source/genre/year/label/artist/release folders in Settings.
+
 ## Your data stays on your desktop
 
 | Data                                                                    | Storage                                                                                   |
