@@ -2,13 +2,9 @@ import { join } from 'node:path';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { Preferences } from '../../shared/preferences';
 import { filenamePart } from './filenamePart';
-import { parseFolderTemplate, renderFolderTemplate } from '../../shared/folder-template';
+import { renderFolderTemplate } from '../../shared/folder-template';
+import { folderPart } from '../../shared/filename-part';
 import type { Result } from '../../shared/result';
-
-function folderPart(value: string): string {
-  const safe = filenamePart(value).trim();
-  return /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(safe) ? `_${safe}` : safe;
-}
 
 export function downloadDirectory(
   root: string,
@@ -27,8 +23,6 @@ export function downloadDirectory(
     release: `${filenamePart(release.artists.join(', '))} - ${filenamePart(release.title)} [r${release.id.toString()}]`,
   };
   if (preferences.layout === 'custom' && preferences.folderTemplate !== undefined) {
-    const template = parseFolderTemplate(preferences.folderTemplate);
-    if (!template.ok) return template;
     const releaseId = `[r${release.id.toString()}]`;
     const rendered = renderFolderTemplate(preferences.folderTemplate, {
       source,
@@ -39,13 +33,7 @@ export function downloadDirectory(
       release: `${filenamePart(release.title)} ${releaseId}`,
     });
     if (!rendered.ok) return rendered;
-    const segments = rendered.value.map((segment, index) => {
-      const safe = folderPart(segment);
-      return template.value[index]?.includes('<release>') && !safe.includes(releaseId)
-        ? `${safe} ${releaseId}`
-        : safe;
-    });
-    return { ok: true, value: join(root, ...segments) };
+    return { ok: true, value: join(root, ...rendered.value) };
   }
   const fields = preferences.layout === 'custom' ? (preferences.folders ?? []) : [];
   if (preferences.layout === 'release') return { ok: true, value: join(root, values.release) };

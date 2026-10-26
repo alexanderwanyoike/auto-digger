@@ -1,4 +1,5 @@
 import type { Result } from './result';
+import { folderPart } from './filename-part';
 
 export const folderFields = ['source', 'genre', 'year', 'label', 'artist', 'release'] as const;
 export type FolderField = (typeof folderFields)[number];
@@ -39,14 +40,20 @@ export function renderFolderTemplate(
   const parsed = parseFolderTemplate(template);
   if (!parsed.ok) return parsed;
   const replacements = new Map(Object.entries(values));
+  const releaseId = /\[r\d+\]$/.exec(values.release)?.[0];
   return {
     ok: true,
-    value: parsed.value.map((segment) =>
-      segment.replace(
-        /<([^<>]+)>/g,
-        (token: string, field: string) => replacements.get(field) ?? token,
-      ),
-    ),
+    value: parsed.value.map((segment) => {
+      const safe = folderPart(
+        segment.replace(
+          /<([^<>]+)>/g,
+          (token: string, field: string) => replacements.get(field) ?? token,
+        ),
+      );
+      return segment.includes('<release>') && releaseId && !safe.includes(releaseId)
+        ? `${safe} ${releaseId}`
+        : safe;
+    }),
   };
 }
 
