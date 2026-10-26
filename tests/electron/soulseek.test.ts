@@ -33,6 +33,9 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
       '<source>/<genre>/<subgenre>/<year>',
     );
     await page
+      .locator('.download-folders')
+      .screenshot({ path: test.info().outputPath('default-folder-settings.png') });
+    await page
       .getByLabel('Folder layout')
       .fill('<source>/<genre>/<subgenre>/<year>/<label>/<artist>/<release>');
     await page.getByRole('button', { name: 'Save folder layout', exact: true }).click();
