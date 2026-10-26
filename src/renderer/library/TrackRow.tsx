@@ -5,6 +5,7 @@ import type { LibraryRow } from './rows';
 import { pendingDownload } from './rows';
 import { TrackNotice } from './TrackNotice';
 import { DownloadState } from './DownloadState';
+import { rowProvider, sourceLabels } from './source';
 
 export function TrackRow({
   row,
@@ -27,6 +28,7 @@ export function TrackRow({
           <RecordArtwork url={artwork} title={album} decorative />
           <div className="library-track-copy">
             <strong title={title}>{title}</strong>
+            <span className="library-provider-label">{sourceLabels[rowProvider(row)]}</span>
             {job ? <DownloadState job={job} /> : null}
             {track?.missing && <span className="library-missing">File missing or unavailable</span>}
             {note && <TrackNotice text={note} title={title} />}
