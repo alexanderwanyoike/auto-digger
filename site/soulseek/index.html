@@ -6,7 +6,7 @@
     <title>Soulseek setup | Auto Digger</title>
     <meta
       name="description"
-      content="Connect slskd to Auto Digger, organise downloaded music and search Soulseek from Audio sources. A step-by-step setup guide with screenshots."
+      content="Connect slskd to Auto Digger, organise downloaded music and search Soulseek beside a track. A step-by-step setup guide with screenshots."
     />
     <meta name="theme-color" content="#111316" />
     <link rel="canonical" href="https://alexanderwanyoike.github.io/auto-digger/soulseek/" />
@@ -32,6 +32,7 @@
         <nav aria-label="On this page">
           <p>On this page</p>
           <a href="#prepare">Prepare slskd</a>
+          <a href="#configure">Logins and sharing</a>
           <a href="#connect">Connect Auto Digger</a>
           <a href="#folders">Organise downloads</a>
           <a href="#search">Find a track</a>
@@ -51,118 +52,410 @@
         </header>
         <section id="prepare" aria-labelledby="prepare-title">
           <h2 id="prepare-title">1. Prepare slskd</h2>
-          <ol>
-            <li>
-              Install
-              <a href="https://github.com/slskd/slskd/blob/0.26.2/docs/docker.md"
-                >slskd with Docker</a
-              >
-              or follow its
-              <a href="https://github.com/slskd/slskd/tree/0.26.2#with-binaries"
-                >native installation guide</a
-              >. This integration was checked with <strong>slskd 0.26.2</strong>.
-            </li>
-            <li>
-              Enter your <strong>Soulseek username and password</strong> in slskd's configuration.
-              Its web-interface login is a separate account.
-            </li>
-            <li>
-              Choose a music folder to share and let slskd index it. Keep completed downloads and
-              incomplete transfers in separate writable folders.
-            </li>
-            <li>
-              Create a <strong>ReadWrite API key</strong> under
-              <code>web.authentication.api_keys</code>. Save it for Auto Digger; keep your Soulseek
-              password in slskd.
-            </li>
-            <li>
-              Open the local slskd interface at
-              <a href="http://127.0.0.1:5030">http://127.0.0.1:5030</a> and confirm that Soulseek is
-              connected.
-            </li>
-          </ol>
-          <details>
-            <summary>Docker setup</summary>
+          <p>
+            Choose <strong>one installation method</strong> below. Native runs slskd directly on
+            your computer. Docker runs it inside Docker's background service. Both connect to the
+            same Auto Digger feature.
+          </p>
+          <nav class="guide-methods" aria-label="Installation methods">
+            <a href="#native">Native installation</a>
+            <a href="#docker">Docker installation</a>
+          </nav>
+          <p>
+            After your chosen route, continue to <a href="#configure">Logins and sharing</a>.
+            Already running slskd? Start there, or <a href="#connect">connect Auto Digger</a> if
+            your account and API key are ready.
+          </p>
+          <div id="native" class="install-route">
+            <h3>Native installation</h3>
             <p>
-              This Linux example follows slskd's bind-mount setup. Install Docker with its Compose
-              plugin first, then create a working folder containing <code>compose.yml</code> and the
-              folders <code>data</code>, <code>downloads</code> and <code>incomplete</code>.
+              Download the ZIP for your computer. A ZIP is a compressed folder: extract it before
+              running slskd. These links are the official
+              <a href="https://github.com/slskd/slskd/releases/tag/0.26.2"
+                >slskd 0.26.2 release files</a
+              >.
             </p>
+            <details id="native-macos">
+              <summary>macOS native setup</summary>
+              <ol>
+                <li>
+                  Choose
+                  <a
+                    href="https://github.com/slskd/slskd/releases/download/0.26.2/slskd-0.26.2-osx-arm64.zip"
+                    >Apple silicon ZIP</a
+                  >
+                  for an M-series Mac, or
+                  <a
+                    href="https://github.com/slskd/slskd/releases/download/0.26.2/slskd-0.26.2-osx-x64.zip"
+                    >Intel Mac ZIP</a
+                  >. Apple menu → About This Mac shows your chip or processor.
+                </li>
+                <li>
+                  In Finder, open Downloads and double-click the ZIP. Open the extracted folder
+                  containing the file <code>slskd</code>. Move that folder somewhere you will keep
+                  it, such as Documents.
+                </li>
+                <li>
+                  Open <strong>Terminal</strong>, the Mac app where you paste commands: press
+                  Command + Space, type Terminal, then press Return.
+                </li>
+                <li>
+                  Type <code>cd</code> followed by a space in Terminal. Drag the extracted slskd
+                  folder from Finder into that window, then press Return. This tells Terminal which
+                  folder to use.
+                </li>
+                <li>Copy these two lines, paste them into Terminal, then press Return:</li>
+              </ol>
+              <pre
+                role="region"
+                tabindex="0"
+                aria-label="macOS native launch"
+              ><code>chmod +x ./slskd
+./slskd</code></pre>
+              <p>
+                slskd displays startup messages and creates its settings. Keep this Terminal window
+                open while slskd runs. If macOS blocks the official download, follow
+                <a href="https://support.apple.com/en-us/102445">Apple's Open Anyway guidance</a>;
+                there is no slskd .app bundle to drag into Applications.
+              </p>
+              <p>
+                To open its settings folder, use Finder → Go → Go to Folder, paste
+                <code>~/.local/share/slskd</code> and press Return. Continue to
+                <a href="#configure">Logins and sharing</a>.
+              </p>
+            </details>
+            <details id="native-windows">
+              <summary>Windows native setup</summary>
+              <ol>
+                <li>
+                  Download the
+                  <a
+                    href="https://github.com/slskd/slskd/releases/download/0.26.2/slskd-0.26.2-win-x64.zip"
+                    >Windows x64 ZIP</a
+                  >
+                  for most PCs. Windows on ARM uses the
+                  <a
+                    href="https://github.com/slskd/slskd/releases/download/0.26.2/slskd-0.26.2-win-arm64.zip"
+                    >Windows ARM64 ZIP</a
+                  >; check Settings → System → About → System type if unsure.
+                </li>
+                <li>
+                  Open Downloads in File Explorer. Right-click the ZIP, choose
+                  <strong>Extract All</strong>, then follow the prompts. Keep the extracted folder
+                  somewhere permanent, such as Documents.
+                </li>
+                <li>
+                  Open that folder and double-click <strong>slskd.exe</strong>. If file extensions
+                  are hidden, it appears as slskd with type Application.
+                </li>
+              </ol>
+              <p>
+                A console window shows startup messages. Leave it open while using Soulseek. Press
+                Windows + R to open Run, paste <code>%LOCALAPPDATA%\slskd</code> and press Enter to
+                open the settings folder. Continue to <a href="#configure">Logins and sharing</a>.
+              </p>
+              <p class="setup-reference">
+                <a
+                  href="https://support.microsoft.com/en-us/windows/experience/storage-filemanagement/zip-and-unzip-files"
+                  >Microsoft's ZIP extraction help</a
+                >
+              </p>
+            </details>
+            <details id="native-linux">
+              <summary>Linux native setup</summary>
+              <ol>
+                <li>
+                  Most desktop PCs use the
+                  <a
+                    href="https://github.com/slskd/slskd/releases/download/0.26.2/slskd-0.26.2-linux-x64.zip"
+                    >Linux x64 ZIP</a
+                  >. ARM computers use
+                  <a
+                    href="https://github.com/slskd/slskd/releases/download/0.26.2/slskd-0.26.2-linux-arm64.zip"
+                    >Linux ARM64</a
+                  >
+                  or
+                  <a
+                    href="https://github.com/slskd/slskd/releases/download/0.26.2/slskd-0.26.2-linux-arm.zip"
+                    >32-bit ARM</a
+                  >. If unsure, open your app menu, search for Terminal and open it. Paste
+                  <code>uname -m</code> and press Enter: x86_64 means x64, aarch64 means ARM64, and
+                  armv7l means 32-bit ARM.
+                </li>
+                <li>
+                  Open the ZIP with your archive app and choose Extract. Keep the extracted folder
+                  containing <code>slskd</code> somewhere permanent.
+                </li>
+                <li>
+                  In Terminal, type <code>cd</code> followed by a space. Drag that extracted folder
+                  from your file manager into Terminal, then press Enter.
+                </li>
+                <li>Copy these two lines, paste them into Terminal and press Enter:</li>
+              </ol>
+              <pre
+                role="region"
+                tabindex="0"
+                aria-label="Linux native launch"
+              ><code>chmod +x ./slskd
+./slskd</code></pre>
+              <p>
+                Startup messages appear. Leave Terminal open while slskd runs. In your file manager,
+                press Ctrl + L, paste <code>~/.local/share/slskd</code> and press Enter to open its
+                settings folder.
+              </p>
+              <p>
+                Alpine Linux needs the matching
+                <a href="https://github.com/slskd/slskd/releases/tag/0.26.2">linux-musl ZIP</a>
+                instead. Continue to <a href="#configure">Logins and sharing</a>.
+              </p>
+            </details>
+          </div>
+          <div id="docker" class="install-route">
+            <h3>Docker installation</h3>
             <p>
-              Save this as <code>compose.yml</code>. Replace <code>/path/to/your/music</code> with
-              your collection. Set <code>user</code> to your Linux user and group IDs, found with
-              <code>id -u</code> and <code>id -g</code>, and make the three writable folders
-              accessible to that user.
+              Use this route instead of native installation. Docker must be installed and running
+              before the commands below will work.
             </p>
-            <pre
-              role="region"
-              tabindex="0"
-              aria-label="Docker Compose configuration"
-            ><code>services:
+            <details>
+              <summary>Docker setup</summary>
+              <p>
+                Make a folder named <strong>slskd</strong> somewhere easy to find, such as inside
+                Music. Inside it, create four folders named <code>data</code>,
+                <code>downloads</code>, <code>incomplete</code> and <code>shared-music</code>. Put
+                the tracks you want to share in shared-music.
+              </p>
+              <details id="docker-macos">
+                <summary>macOS with Docker Desktop</summary>
+                <p>
+                  Install
+                  <a href="https://docs.docker.com/desktop/setup/install/mac-install/"
+                    >Docker Desktop for your Mac</a
+                  >, choosing Apple silicon or Intel. Open Docker Desktop and wait for it to finish
+                  starting.
+                </p>
+                <p>
+                  Press Command + Space, type Terminal and press Return. Type
+                  <code>cd</code> followed by a space, drag your new slskd folder from Finder into
+                  Terminal, then press Return. Paste Docker commands into this window and press
+                  Return after each command.
+                </p>
+              </details>
+              <details id="docker-windows">
+                <summary>Windows with Docker Desktop</summary>
+                <p>
+                  Install
+                  <a href="https://docs.docker.com/desktop/setup/install/windows-install/"
+                    >Docker Desktop for Windows</a
+                  >, follow its prompts, then open Docker Desktop. If it asks you to restart
+                  Windows, do that and open Docker Desktop again.
+                </p>
+                <p>
+                  Open your new slskd folder in File Explorer. Click the address bar at the top,
+                  type <code>powershell</code> and press Enter. This opens PowerShell, the Windows
+                  app where you paste commands, in the correct folder. Press Enter after pasting
+                  each Docker command.
+                </p>
+              </details>
+              <details id="docker-linux">
+                <summary>Linux with Docker Engine</summary>
+                <p>
+                  Follow
+                  <a href="https://docs.docker.com/engine/install/"
+                    >Docker Engine's instructions for your distribution</a
+                  >, including Docker Compose, which reads the setup file below. Start Docker as
+                  described there.
+                </p>
+                <p>
+                  Open Terminal, the app where you paste commands, from your app menu. Type
+                  <code>cd</code> followed by a space, drag your new slskd folder into Terminal and
+                  press Enter. Paste Docker commands into this window and press Enter after each
+                  one. If Docker reports permission denied, follow its
+                  <a href="https://docs.docker.com/engine/install/linux-postinstall/"
+                    >Linux post-installation instructions</a
+                  >.
+                </p>
+              </details>
+              <p>
+                Paste <code>docker version</code> into that Terminal or PowerShell window and press
+                Return/Enter. You should see both Client and Server information. Keep Docker Desktop
+                or the Docker service running.
+              </p>
+              <p>
+                In a plain-text editor, save this as <code>compose.yml</code> inside your slskd
+                folder. On Mac, use TextEdit → Format → Make Plain Text. On Windows, use Notepad →
+                Save As and choose All files. Check that the filename is not compose.yml.txt.
+              </p>
+              <pre
+                role="region"
+                tabindex="0"
+                aria-label="Docker Compose configuration"
+              ><code>services:
   slskd:
     image: slskd/slskd:0.26.2
     restart: unless-stopped
-    user: "1000:1000"
     ports:
       - "127.0.0.1:5030:5030/tcp"
       - "50300:50300/tcp"
     volumes:
       - ./data:/app:rw
-      - ./downloads:/downloads:rw
-      - ./incomplete:/incomplete:rw
-      - /path/to/your/music:/music:ro</code></pre>
-            <p>Generate a random API key, then copy it into the configuration below:</p>
-            <pre
-              role="region"
-              tabindex="0"
-              aria-label="Generate a slskd API key"
-            ><code>docker run --rm slskd/slskd:0.26.2 ./slskd --generate-secret 32</code></pre>
+      - ./downloads:/app/downloads:rw
+      - ./incomplete:/app/incomplete:rw
+      - ./shared-music:/music:ro</code></pre>
+              <p>
+                This connects folders on your computer to slskd. The <code>:ro</code> shared-music
+                entry means read-only: slskd can share those tracks without changing them. The other
+                folders let it write its settings and transfers.
+              </p>
+              <p>
+                Next, <a href="#configure">fill in logins and sharing</a> and save
+                <code>data/slskd.yml</code> before starting slskd. Then return to the same Terminal
+                or PowerShell window, paste this command and press Return/Enter:
+              </p>
+              <pre
+                role="region"
+                tabindex="0"
+                aria-label="Start slskd"
+              ><code>docker compose up -d</code></pre>
+              <p>
+                Docker keeps slskd running in the background and restarts it when Docker starts.
+                Open <a href="http://127.0.0.1:5030">the slskd web page</a> to check it. Incoming
+                Soulseek peers use TCP port <code>50300</code>; see the
+                <a href="https://github.com/slskd/slskd/blob/0.26.2/docs/docker.md"
+                  >official Docker guide</a
+                >
+                if your firewall/router needs configuration.
+              </p>
+            </details>
+          </div>
+          <div id="configure" class="install-route">
+            <h3>Logins and sharing</h3>
             <p>
-              Save this as <code>data/slskd.yml</code>, replacing every capitalised value. The web
-              username and password are for opening slskd's interface; the Soulseek credentials
-              connect to the music network.
+              Both installation methods rejoin here. slskd needs your Soulseek login, a music folder
+              to share, and an API key: a password-like string that lets Auto Digger talk to slskd.
             </p>
-            <pre role="region" tabindex="0" aria-label="slskd configuration"><code>soulseek:
-  username: "YOUR_SOULSEEK_USERNAME"
-  password: "YOUR_SOULSEEK_PASSWORD"
+            <ol>
+              <li>
+                If native slskd is running, stop it first: close its console window on Windows, or
+                press Ctrl + C in its Terminal window on Mac/Linux.
+              </li>
+              <li>
+                Open <code>slskd.yml</code> in the native settings folder described above. For
+                Docker, create that file inside your new <code>data</code> folder. This is a
+                plain-text settings file, not a program.
+              </li>
+              <li>
+                Open the instructions below, replace the file's contents with the template, fill in
+                your details, then save it with the same <code>.yml</code> filename.
+              </li>
+            </ol>
+            <details>
+              <summary>Fill in your slskd settings</summary>
+              <p>
+                Keep the spaces and quotation marks in place. Replace the capitalised values. The
+                web username/password are the login you choose for slskd's web page; they are
+                separate from your Soulseek account.
+              </p>
+              <pre role="region" tabindex="0" aria-label="slskd configuration"><code>soulseek:
+  username: 'YOUR_SOULSEEK_USERNAME'
+  password: 'YOUR_SOULSEEK_PASSWORD'
 shares:
   directories:
-    - /music
-directories:
-  downloads: /downloads
-  incomplete: /incomplete
+    - 'YOUR_SHARED_MUSIC_FOLDER'
 web:
   authentication:
-    username: "YOUR_WEB_USERNAME"
-    password: "YOUR_WEB_PASSWORD"
+    username: 'YOUR_WEB_USERNAME'
+    password: 'YOUR_WEB_PASSWORD'
     api_keys:
       auto_digger:
-        key: "YOUR_GENERATED_RANDOM_API_KEY"
+        key: 'YOUR_GENERATED_RANDOM_API_KEY'
         role: ReadWrite</code></pre>
-            <p>Start slskd from your working folder:</p>
-            <pre
-              role="region"
-              tabindex="0"
-              aria-label="Start slskd"
-            ><code>docker compose up -d</code></pre>
+              <p>
+                For native installation, replace <code>YOUR_SHARED_MUSIC_FOLDER</code> with the full
+                address of your music collection. On Mac, select the folder in Finder and press
+                Option + Command + C to copy its address. On Windows/Linux, open the folder in your
+                file manager, press Ctrl + L, then Ctrl + C. Paste that address between the single
+                quotes.
+              </p>
+              <p>
+                Examples are <code>/Users/YOUR_NAME/Music/Collection</code> on Mac,
+                <code>C:\Users\YOUR_NAME\Music\Collection</code> on Windows, or
+                <code>/home/YOUR_NAME/Music/Collection</code> on Linux. Use your actual folder, not
+                these example names. Docker users enter <code>/music</code> here because that is
+                Docker's name for shared-music.
+              </p>
+              <p>
+                To generate your API key, use the command for your chosen route below. Copy only the
+                generated random string into <code>YOUR_GENERATED_RANDOM_API_KEY</code>. Keep the
+                key private; it is not your Soulseek password.
+              </p>
+              <dl class="setup-paths">
+                <div>
+                  <dt>Native Mac or Linux</dt>
+                  <dd>
+                    Use Terminal in the extracted slskd folder, as described in your native steps.
+                    Paste this and press Return/Enter:
+                  </dd>
+                </div>
+              </dl>
+              <pre
+                role="region"
+                tabindex="0"
+                aria-label="Native Mac and Linux API key"
+              ><code>./slskd --generate-secret 32</code></pre>
+              <dl class="setup-paths">
+                <div>
+                  <dt>Native Windows</dt>
+                  <dd>
+                    Open the extracted folder containing slskd.exe in File Explorer. Click its
+                    address bar, type <code>powershell</code> and press Enter. PowerShell is the
+                    Windows command window. Paste this into the PowerShell window and press Enter:
+                  </dd>
+                </div>
+              </dl>
+              <pre
+                role="region"
+                tabindex="0"
+                aria-label="Native Windows API key"
+              ><code>.\slskd.exe --generate-secret 32</code></pre>
+              <dl class="setup-paths">
+                <div>
+                  <dt>Docker on any platform</dt>
+                  <dd>
+                    Use the Terminal or PowerShell window from your Docker steps, with Docker
+                    running. Paste this and press Return/Enter:
+                  </dd>
+                </div>
+              </dl>
+              <pre
+                role="region"
+                tabindex="0"
+                aria-label="Generate a slskd API key"
+              ><code>docker run --rm slskd/slskd:0.26.2 ./slskd --generate-secret 32</code></pre>
+              <p>
+                <strong>ReadWrite</strong> gives Auto Digger search and download access. An
+                administrator key is unnecessary.
+              </p>
+            </details>
             <p>
-              Keep the web interface on localhost. Incoming Soulseek peers use TCP port
-              <code>50300</code>; allow or forward it through your firewall/router when needed. The
-              <code>:ro</code> music mount lets slskd share your collection without changing it.
+              Save the file, then start native slskd again as before, or run
+              <code>docker compose up -d</code> for Docker. Open
+              <a href="http://127.0.0.1:5030">http://127.0.0.1:5030</a> in your browser, sign in
+              using your web login, and confirm that Soulseek is connected and your shared music has
+              been scanned.
             </p>
             <p>
-              For Windows, macOS or a different Docker layout, use the
-              <a href="https://github.com/slskd/slskd/blob/0.26.2/docs/docker.md"
-                >official Docker guide</a
-              >. Native installations use ordinary local folder paths instead of container paths.
+              slskd keeps finished downloads and incomplete transfers separate from the collection
+              you share. Native installs create <code>downloads</code> and
+              <code>incomplete</code> inside the settings folder automatically; Docker uses the two
+              folders you created. Auto Digger reads completed files only.
             </p>
-          </details>
-          <p class="setup-reference">
-            Reference:
-            <a href="https://github.com/slskd/slskd/blob/0.26.2/docs/config.md#authentication"
-              >slskd authentication and API keys</a
-            >.
-          </p>
+            <p class="setup-reference">
+              Reference:
+              <a href="https://github.com/slskd/slskd/blob/0.26.2/docs/config.md"
+                >official slskd configuration guide</a
+              >.
+            </p>
+          </div>
         </section>
         <section id="connect" aria-labelledby="connect-title">
           <h2 id="connect-title">2. Connect Auto Digger</h2>
@@ -181,12 +474,23 @@ web:
             <div>
               <dt>slskd completed-downloads folder</dt>
               <dd>
-                The full path to completed files <strong>on your computer</strong>. With the Docker
-                example, choose the <code>downloads</code> folder inside your working folder, rather
-                than the container path <code>/downloads</code>.
+                The full address of slskd's finished-downloads folder on your computer. The steps
+                below show how to copy it.
               </dd>
             </div>
           </dl>
+          <p>
+            A folder path is its full address on your computer. For native slskd, open the settings
+            folder from your operating-system instructions above, then find its
+            <code>downloads</code> folder. For Docker, use <code>downloads</code> inside the slskd
+            working folder you created.
+          </p>
+          <p>
+            On Mac, select that folder in Finder and press Option + Command + C. On Windows/Linux,
+            open the folder, press Ctrl + L, then Ctrl + C. Paste the copied address into Auto
+            Digger. Docker calls this folder <code>/app/downloads</code> internally; Auto Digger
+            needs its address on your computer instead.
+          </p>
           <p>
             Choose <strong>Connect slskd</strong>. This confirms API access. Soulseek sign-in and
             sharing are managed separately in slskd.
@@ -240,12 +544,11 @@ web:
           <h2 id="search-title">4. Find a track</h2>
           <ol>
             <li>
-              Open a record on the digging desk. Under <strong>Audio sources</strong>, choose
-              <strong>Soulseek</strong> beside YouTube.
+              Open a record on the digging desk and choose <strong>Use Soulseek</strong> beside the
+              track you want.
             </li>
             <li>
-              Choose the <strong>Discogs track</strong> you want, then edit
-              <strong>Refine search</strong> when needed. Punctuation becomes spaces, while the
+              Edit <strong>Refine search</strong> when needed. Punctuation becomes spaces, while the
               record's title stays unchanged.
             </li>
             <li>

@@ -52,36 +52,85 @@
           <h2 id="macos-title">macOS installation</h2>
           <ol>
             <li>
-              Download the <a href="../#get-started">disk image for your Mac</a>: Apple silicon or
-              Intel.
+              Download the <a href="../#get-started">disk image for your Mac</a>: Apple silicon for
+              an M-series Mac, or Intel. Apple menu → About This Mac shows your chip or processor.
             </li>
             <li>
-              Open the disk image and drag <strong>Auto Digger.app</strong> into
-              <strong>Applications</strong>.
+              In Finder, open Downloads and double-click the downloaded <strong>.dmg</strong> file.
+              A disk image is a window containing the app.
             </li>
-            <li>Open Auto Digger from Applications.</li>
+            <li>
+              Drag <strong>Auto Digger.app</strong> from that window into
+              <strong>Applications</strong>. Wait for the copy to finish, then open Finder →
+              Applications and double-click Auto Digger.
+            </li>
           </ol>
           <p>
-            The preview builds are ad-hoc signed and not notarized. If macOS blocks the official
-            release with an unverified-app or damaged-app message, quit the app and run:
+            These preview builds are ad-hoc signed and not notarized. If macOS says it cannot verify
+            the developer, use Apple's normal approval route:
           </p>
-          <pre
-            role="region"
-            tabindex="0"
-            aria-label="macOS installation commands"
-          ><code>xattr -dr com.apple.quarantine "/Applications/Auto Digger.app"
-open "/Applications/Auto Digger.app"</code></pre>
+          <ol>
+            <li>
+              After trying to open the downloaded app, open Apple menu →
+              <strong>System Settings</strong>.
+            </li>
+            <li>
+              Choose <strong>Privacy &amp; Security</strong>, scroll down and choose
+              <strong>Open Anyway</strong> for Auto Digger.
+            </li>
+            <li>
+              Confirm <strong>Open</strong> when asked. Auto Digger should now open from
+              Applications.
+            </li>
+          </ol>
           <p>
-            This removes the download quarantine attribute from that app bundle. Change the path if
-            you installed it elsewhere.
+            Apple's
+            <a href="https://support.apple.com/en-us/102445">safe app-opening guide</a> explains
+            these messages. A warning that software will damage your computer is different; follow
+            Apple's guidance rather than overriding it.
           </p>
+          <details>
+            <summary>Terminal troubleshooting for the official Auto Digger download</summary>
+            <p>
+              If the trusted official preview still fails to open after the steps above, this
+              project workaround removes the download quarantine label from Auto Digger's installed
+              app bundle.
+            </p>
+            <ol>
+              <li>
+                Open <strong>Terminal</strong>, the macOS app where you paste commands: press
+                Command + Space, type Terminal and press Return. You can also find it in Finder →
+                Applications → Utilities.
+              </li>
+              <li>
+                Copy the two lines below, click inside the Terminal window, paste, then press
+                Return:
+              </li>
+            </ol>
+            <pre
+              role="region"
+              tabindex="0"
+              aria-label="macOS installation commands"
+            ><code>xattr -dr com.apple.quarantine "/Applications/Auto Digger.app"
+open "/Applications/Auto Digger.app"</code></pre>
+            <p>
+              The second line opens Auto Digger. If you installed it outside Applications, move it
+              there first so the address matches. Use this only for the official Auto Digger release
+              you downloaded and trust.
+            </p>
+            <p class="setup-reference">
+              <a href="https://support.apple.com/guide/terminal/welcome/mac"
+                >Apple's Terminal guide</a
+              >
+            </p>
+          </details>
         </section>
         <section id="soulseek" aria-labelledby="soulseek-title">
           <h2 id="soulseek-title">Soulseek audio</h2>
           <p>
-            Connect your own slskd instance to search Soulseek from Audio sources and copy completed
-            audio into your Auto Digger library. Choose between YouTube and Soulseek in the same
-            source controls.
+            Connect your own slskd instance to search beside a track and copy completed audio into
+            your Auto Digger library. The guide covers native and Docker setup on macOS, Windows and
+            Linux.
           </p>
           <p><a href="../soulseek/">Soulseek setup guide</a></p>
         </section>
@@ -180,8 +229,15 @@ env = { ELECTRON_RUN_AS_NODE = "1" }</code></pre>
           <details>
             <summary>Claude Code command</summary>
             <p>
-              Use the executable and paths displayed in Auto Digger. Replace the example paths and
-              quote any path containing spaces:
+              A terminal is the app where you paste command-line instructions. On Mac, press Command
+              + Space, type Terminal and press Return. On Windows, open Start, type PowerShell and
+              open it. On Linux, find Terminal in your app menu.
+            </p>
+            <p>
+              Use the executable and paths displayed in Auto Digger. A path is a file’s full
+              address. Replace the examples below with those values, keep quotation marks around
+              addresses containing spaces, paste the completed line into your terminal and press
+              Return/Enter:
             </p>
             <pre
               role="region"
