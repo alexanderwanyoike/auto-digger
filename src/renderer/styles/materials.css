@@ -76,11 +76,13 @@
   max-width: 340px;
 }
 .download-folders li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(3, 26px);
+  align-items: center;
+  gap: 4px;
   padding: 4px 0;
 }
 .download-folders li > span {
-  display: inline-block;
-  width: 150px;
   font-size: 11px;
 }
 .download-folders .icon-button {
