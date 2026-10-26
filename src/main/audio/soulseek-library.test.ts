@@ -5,6 +5,49 @@ import { expect, test, vi } from 'vitest';
 import { loadedRelease } from '../../../tests/discogsFixtures';
 import { createCatalogueStore } from '../catalogue/store';
 import { createIndexedLibrary } from './indexedLibrary';
+import { importSoulseekAudio } from './soulseek-library';
+
+test('preserves existing audio when recovery metadata is missing and a new import collides', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-import-collision-'));
+  const file = join(directory, 'incoming.flac');
+  const candidateId = 'c'.repeat(32);
+  const input = {
+    provider: 'soulseek' as const,
+    candidateId,
+    release: loadedRelease,
+    trackIndex: 0,
+  };
+  const receive = () =>
+    Promise.resolve({
+      ok: true as const,
+      value: {
+        file,
+        match: {
+          id: candidateId,
+          username: 'peer',
+          filename: 'Track.flac',
+          size: 5,
+          bitRate: null,
+          length: null,
+          access: 'public' as const,
+        },
+      },
+    });
+  try {
+    await writeFile(file, 'audio');
+    const first = await importSoulseekAudio(directory, input, receive, {});
+    if (!first.ok) throw new Error(first.error.message);
+    await rm(join(directory, `${first.value.id}.json`));
+    await writeFile(file, 'other');
+    expect(await importSoulseekAudio(directory, input, receive, {})).toMatchObject({
+      ok: false,
+      error: { code: 'storage' },
+    });
+    expect(await readFile(join(directory, first.value.filename), 'utf8')).toBe('audio');
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
 
 test('imports completed Soulseek audio into the configured library and retains its source across restart', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-digger-soulseek-'));
