@@ -3,10 +3,16 @@ import { FolderOpen, Search } from 'lucide-react';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import { libraryRows } from '../library/rows';
 import { TrackRow } from '../library/TrackRow';
+import { sourceLabels } from '../library/source';
+import type { DownloadSourceFilter } from '../library/source';
 
 export function DownloadsPage({ audio }: { audio: ReturnType<typeof useAudioLibrary> }) {
   const [query, setQuery] = useState('');
-  const rows = libraryRows(audio.tracks, audio.queue.jobs, query);
+  const [source, setSource] = useState<DownloadSourceFilter>('all');
+  const rows = libraryRows(audio.tracks, audio.queue.jobs, query, source);
+  let empty = 'No downloads yet. Download a track from the digging desk.';
+  if (source !== 'all') empty = `No ${sourceLabels[source]} downloads yet.`;
+  if (query.trim()) empty = 'No tracks match this search.';
   return (
     <section className="section-page downloads-page" aria-label="Downloaded library">
       <div className="library-toolbar">
@@ -22,6 +28,21 @@ export function DownloadsPage({ audio }: { audio: ReturnType<typeof useAudioLibr
               setQuery(event.target.value);
             }}
           />
+        </label>
+        <label className="library-source-filter" htmlFor="download-source-filter">
+          <span className="sr-only">Filter downloads by source</span>
+          <select
+            id="download-source-filter"
+            value={source}
+            onChange={(event) => {
+              const { value } = event.target;
+              if (value === 'all' || value === 'youtube' || value === 'soulseek') setSource(value);
+            }}
+          >
+            <option value="all">All sources</option>
+            <option value="youtube">YouTube</option>
+            <option value="soulseek">Soulseek</option>
+          </select>
         </label>
         <span className="library-count">
           {rows.length} {rows.length === 1 ? 'track' : 'tracks'}
@@ -69,9 +90,7 @@ export function DownloadsPage({ audio }: { audio: ReturnType<typeof useAudioLibr
             {!rows.length && (
               <tr>
                 <td colSpan={4} className="library-empty">
-                  {query.trim()
-                    ? 'No tracks match this search.'
-                    : 'No downloads yet. Download a track from the digging desk.'}
+                  {empty}
                 </td>
               </tr>
             )}

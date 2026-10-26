@@ -34,6 +34,21 @@
   font-size: 11px;
   white-space: nowrap;
 }
+.library-source-filter select {
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+}
+.library-provider-label {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 10px;
+}
 .library-folder {
   width: 30px;
   height: 30px;
@@ -197,6 +212,14 @@
   margin: 0 0 12px;
 }
 @media (max-width: 1000px) {
+  .section-page .library-search {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+  .library-toolbar {
+    gap: 10px;
+  }
   .column-track {
     width: 39%;
   }
