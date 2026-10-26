@@ -17,5 +17,8 @@ test('uses portable folder names for bare metadata and explicit fallbacks withou
       },
       'Soulseek',
     ),
-  ).toBe(join('/music', 'Soulseek', '_LPT1.flac', '_CON', 'Unknown genre', 'Unknown year'));
+  ).toEqual({
+    ok: true,
+    value: join('/music', 'Soulseek', '_LPT1.flac', '_CON', 'Unknown genre', 'Unknown year'),
+  });
 });
