@@ -9,13 +9,16 @@ import { downloadDirectory } from './download-directory';
 import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
-import { videoId } from '../../shared/youtubeVideoId';
+import { downloadSourceId } from '../../shared/download-source-id';
+import { importSoulseekAudio } from './soulseek-library';
+import type { ReceiveSoulseek } from './soulseek-library';
 
 export function createIndexedLibrary(
   defaultDirectory: string,
   catalogue: ReturnType<typeof createCatalogueStore>,
   downloader: ReturnType<typeof createDownloader>,
   request: typeof fetch = fetch,
+  receiveSoulseek?: ReceiveSoulseek,
 ) {
   const libraries = new Map<string, ReturnType<typeof createAudioLibrary>>();
   let busy = false;
@@ -129,23 +132,24 @@ export function createIndexedLibrary(
         );
       busy = true;
       try {
-        const { release, videoIndex } = parsed.data;
-        const sourceId = videoId(release.videos[videoIndex]?.url ?? '');
-        if (!sourceId) return audioFailure('invalid-input', 'Choose a supported YouTube source.');
+        const { release } = parsed.data;
+        if (typeof parsed.data.trackIndex === 'number' && !release.tracks[parsed.data.trackIndex])
+          return audioFailure('invalid-input', 'Choose a valid Discogs track.');
+        const sourceId = downloadSourceId(parsed.data);
+        if (!sourceId) return audioFailure('invalid-input', 'Choose a supported audio source.');
         const current = await list();
         if (!current.ok) return current;
         const records = await catalogue.downloads.list();
         const preferences = await catalogue.preferences.read();
         if (!records.ok) return audioFailure('storage', records.error.message);
         if (!preferences.ok) return audioFailure('storage', preferences.error.message);
-        const existing = records.value.find(
-          (record) => record.track.id === `${release.id.toString()}-${sourceId}`,
-        );
+        const existing = records.value.find((record) => record.track.id === sourceId);
         const available = current.value.some(
           (track) => track.id === existing?.track.id && !track.missing,
         );
         if (existing && available) {
           if (
+            'provider' in parsed.data ||
             parsed.data.trackIndex === undefined ||
             parsed.data.trackIndex === existing.track.trackIndex
           )
@@ -154,12 +158,25 @@ export function createIndexedLibrary(
           if (!recovered.ok) return recovered;
         }
         const root = preferences.value.directory ?? defaultDirectory;
-        const target = downloadDirectory(root, preferences.value, release, 'YouTube');
+        const target = downloadDirectory(
+          root,
+          preferences.value,
+          release,
+          'provider' in parsed.data ? 'Soulseek' : 'YouTube',
+        );
         if (!target.ok) return audioFailure('invalid-input', target.error.message);
         const directory = existing?.directory ?? target.value;
         const remembered = await catalogue.downloads.rememberDirectory(directory);
         if (!remembered.ok) return audioFailure('storage', remembered.error.message);
-        const result = await library(directory).download(parsed.data, options);
+        const result =
+          'provider' in parsed.data
+            ? receiveSoulseek
+              ? await importSoulseekAudio(directory, parsed.data, receiveSoulseek, options)
+              : audioFailure<LocalTrack>(
+                  'unavailable',
+                  'Connect slskd in Settings before using Soulseek.',
+                )
+            : await library(directory).download(parsed.data, options);
         if (!result.ok) return result;
         const indexed = await catalogue.downloads.save({ directory, track: result.value });
         return indexed.ok

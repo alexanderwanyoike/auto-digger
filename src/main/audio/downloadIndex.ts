@@ -87,7 +87,7 @@ export function createDownloadIndex(connection: () => Promise<CatalogueResult<Da
           .run(
             parsed.data.track.id,
             parsed.data.directory,
-            JSON.stringify(localTrackSchema.omit({ missing: true }).parse(parsed.data.track)),
+            JSON.stringify({ ...parsed.data.track, missing: undefined }),
           );
         return { ok: true, value: undefined };
       });
