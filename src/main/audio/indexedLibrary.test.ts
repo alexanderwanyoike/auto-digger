@@ -7,7 +7,7 @@ import { createAudioLibrary } from './library';
 import { createIndexedLibrary } from './indexedLibrary';
 import { loadedRelease } from '../../../tests/discogsFixtures';
 
-test('saves new audio in ordered metadata folders without relocating existing downloads', async () => {
+test('saves new audio using an editable folder template without relocating existing downloads', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-digger-folders-'));
   const catalogue = createCatalogueStore(join(directory, 'catalog.sqlite'));
   const downloader = {
@@ -31,9 +31,12 @@ test('saves new audio in ordered metadata folders without relocating existing do
         accent: 'blue',
         directory,
         layout: 'custom',
-        folders: ['source', 'genre', 'year', 'label', 'artist', 'release'],
+        folderTemplate: 'Archive/<source>/<year> - <genre>/<label>/<artist>/<release>',
       }),
-    ).toMatchObject({ ok: true });
+    ).toMatchObject({
+      ok: true,
+      value: { folderTemplate: 'Archive/<source>/<year> - <genre>/<label>/<artist>/<release>' },
+    });
     const release = {
       ...loadedRelease,
       id: 13,
@@ -48,12 +51,12 @@ test('saves new audio in ordered metadata folders without relocating existing do
       value: {
         file: join(
           directory,
+          'Archive',
           'YouTube',
-          'Deep  House',
-          '1998',
+          '1998 - Deep  House',
           'Still Records',
           'Low Tide',
-          'Low Tide - Quiet Orbit EP [r13]',
+          'Quiet Orbit EP [r13]',
           saved.value.filename,
         ),
       },
