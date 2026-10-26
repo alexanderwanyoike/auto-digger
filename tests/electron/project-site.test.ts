@@ -125,6 +125,10 @@ import siteConfig from '../../site.vite.config';
         .getByRole('navigation', { name: 'On this page' })
         .getByRole('link', { name: 'Prepare slskd', exact: true })
         .click();
+      await page.getByRole('link', { name: 'Native installation', exact: true }).click();
+      await page.getByText('Windows native setup', { exact: true }).click();
+      await expect(page.getByRole('link', { name: 'Windows x64 ZIP', exact: true })).toBeVisible();
+      await page.getByRole('link', { name: 'Docker installation', exact: true }).click();
       await page.getByText('Docker setup', { exact: true }).click();
       const docker = page.getByRole('region', {
         name: 'Docker Compose configuration',

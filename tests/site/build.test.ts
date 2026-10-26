@@ -79,6 +79,14 @@ test('builds a discoverable Soulseek guide with project-prefixed links and scree
   expect(document.querySelectorAll('main h1')).toHaveLength(1);
   expect(document.querySelectorAll('script')).toHaveLength(0);
   expect(document.querySelectorAll('main img')).toHaveLength(2);
+  ['native', 'docker'].forEach((method) => {
+    expect(
+      document.querySelector(`nav[aria-label="Installation methods"] a[href="#${method}"]`),
+    ).not.toBeNull();
+    ['macos', 'windows', 'linux'].forEach((platform) => {
+      expect(document.querySelector(`details#${method}-${platform} summary`)).not.toBeNull();
+    });
+  });
   const pageUrl = new URL('https://alexanderwanyoike.github.io/auto-digger/soulseek/');
   await Promise.all(
     Array.from(document.querySelectorAll('a[href], link[href], img[src]')).map(async (element) => {
