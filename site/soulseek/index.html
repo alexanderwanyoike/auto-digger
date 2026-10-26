@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Soulseek setup | Auto Digger</title>
+    <meta
+      name="description"
+      content="Connect slskd to Auto Digger, organise downloaded music and search Soulseek beside a track. A step-by-step setup guide with screenshots."
+    />
+    <meta name="theme-color" content="#111316" />
+    <link rel="canonical" href="https://alexanderwanyoike.github.io/auto-digger/soulseek/" />
+    <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="../setup/setup.css" />
+    <link rel="stylesheet" href="./soulseek.css" />
+  </head>
+  <body class="setup-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header wrap">
+      <a class="brand" href="../" aria-label="Auto Digger home"
+        ><img src="../icon.svg" alt="" width="32" height="32" />Auto Digger</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="../#features">Features</a><a href="../#research">MCP</a
+        ><a href="../#get-started">Downloads</a><a href="../setup/">Setup</a
+        ><a href="https://github.com/alexanderwanyoike/auto-digger">GitHub</a>
+      </nav>
+    </header>
+    <main id="main" class="setup-layout wrap" tabindex="-1">
+      <aside class="setup-contents">
+        <nav aria-label="On this page">
+          <p>On this page</p>
+          <a href="#prepare">Prepare slskd</a>
+          <a href="#connect">Connect Auto Digger</a>
+          <a href="#folders">Organise downloads</a>
+          <a href="#search">Find a track</a>
+          <a href="#troubleshooting">Troubleshooting</a>
+        </nav>
+      </aside>
+      <article class="setup-copy">
+        <header class="setup-intro">
+          <p class="guide-kicker"><a href="../setup/">Setup</a> / Optional audio source</p>
+          <h1>Soulseek setup</h1>
+          <p>Find a track on Soulseek without leaving the digging desk.</p>
+          <p>
+            slskd handles the Soulseek connection and transfers. Auto Digger searches its API and
+            copies completed audio into your library. YouTube downloads remain available alongside
+            it.
+          </p>
+        </header>
+        <section id="prepare" aria-labelledby="prepare-title">
+          <h2 id="prepare-title">1. Prepare slskd</h2>
+          <ol>
+            <li>
+              Install
+              <a href="https://github.com/slskd/slskd/blob/0.26.2/docs/docker.md"
+                >slskd with Docker</a
+              >
+              or follow its
+              <a href="https://github.com/slskd/slskd/tree/0.26.2#with-binaries"
+                >native installation guide</a
+              >. This integration was checked with <strong>slskd 0.26.2</strong>.
+            </li>
+            <li>
+              Enter your <strong>Soulseek username and password</strong> in slskd's configuration.
+              Its web-interface login is a separate account.
+            </li>
+            <li>
+              Choose a music folder to share and let slskd index it. Keep completed downloads and
+              incomplete transfers in separate writable folders.
+            </li>
+            <li>
+              Create a <strong>ReadWrite API key</strong> under
+              <code>web.authentication.api_keys</code>. Save it for Auto Digger; keep your Soulseek
+              password in slskd.
+            </li>
+            <li>
+              Open the local slskd interface at
+              <a href="http://127.0.0.1:5030">http://127.0.0.1:5030</a> and confirm that Soulseek is
+              connected.
+            </li>
+          </ol>
+          <details>
+            <summary>Docker setup</summary>
+            <p>
+              This Linux example follows slskd's bind-mount setup. Install Docker first, then create
+              a working folder containing <code>compose.yml</code> and the folders
+              <code>data</code>, <code>downloads</code> and <code>incomplete</code>.
+            </p>
+            <p>
+              Save this as <code>compose.yml</code>. Replace <code>/path/to/your/music</code> with
+              your collection. Set <code>user</code> to your Linux user and group IDs, found with
+              <code>id -u</code> and <code>id -g</code>, and make the three writable folders
+              accessible to that user.
+            </p>
+            <pre
+              role="region"
+              tabindex="0"
+              aria-label="Docker Compose configuration"
+            ><code>services:
+  slskd:
+    image: slskd/slskd:0.26.2
+    restart: unless-stopped
+    user: "1000:1000"
+    ports:
+      - "127.0.0.1:5030:5030/tcp"
+      - "50300:50300/tcp"
+    volumes:
+      - ./data:/app:rw
+      - ./downloads:/downloads:rw
+      - ./incomplete:/incomplete:rw
+      - /path/to/your/music:/music:ro</code></pre>
+            <p>Generate a random API key, then copy it into the configuration below:</p>
+            <pre
+              role="region"
+              tabindex="0"
+              aria-label="Generate a slskd API key"
+            ><code>docker run --rm slskd/slskd:0.26.2 --generate-secret</code></pre>
+            <p>
+              Save this as <code>data/slskd.yml</code>, replacing every capitalised value. The web
+              username and password are for opening slskd's interface; the Soulseek credentials
+              connect to the music network.
+            </p>
+            <pre role="region" tabindex="0" aria-label="slskd configuration"><code>soulseek:
+  username: "YOUR_SOULSEEK_USERNAME"
+  password: "YOUR_SOULSEEK_PASSWORD"
+shares:
+  directories:
+    - /music
+directories:
+  downloads: /downloads
+  incomplete: /incomplete
+web:
+  authentication:
+    username: "YOUR_WEB_USERNAME"
+    password: "YOUR_WEB_PASSWORD"
+    api_keys:
+      auto_digger:
+        key: "YOUR_GENERATED_RANDOM_API_KEY"
+        role: ReadWrite</code></pre>
+            <p>Start slskd from your working folder:</p>
+            <pre
+              role="region"
+              tabindex="0"
+              aria-label="Start slskd"
+            ><code>docker compose up -d</code></pre>
+            <p>
+              Keep the web interface on localhost. Incoming Soulseek peers use TCP port
+              <code>50300</code>; allow or forward it through your firewall/router when needed. The
+              <code>:ro</code> music mount lets slskd share your collection without changing it.
+            </p>
+            <p>
+              For Windows, macOS or a different Docker layout, use the
+              <a href="https://github.com/slskd/slskd/blob/0.26.2/docs/docker.md"
+                >official Docker guide</a
+              >. Native installations use ordinary local folder paths instead of container paths.
+            </p>
+          </details>
+          <p class="setup-reference">
+            Reference:
+            <a href="https://github.com/slskd/slskd/blob/0.26.2/docs/config.md#authentication"
+              >slskd authentication and API keys</a
+            >.
+          </p>
+        </section>
+        <section id="connect" aria-labelledby="connect-title">
+          <h2 id="connect-title">2. Connect Auto Digger</h2>
+          <p>Open <strong>Settings → Soulseek</strong> in Auto Digger and enter:</p>
+          <dl class="setup-paths">
+            <div>
+              <dt>slskd URL</dt>
+              <dd><code>http://127.0.0.1:5030</code> for a local instance.</dd>
+            </div>
+            <div>
+              <dt>slskd API key</dt>
+              <dd>
+                The <strong>ReadWrite</strong> key from slskd. An administrator key is unnecessary.
+              </dd>
+            </div>
+            <div>
+              <dt>slskd completed-downloads folder</dt>
+              <dd>
+                The full path to completed files <strong>on your computer</strong>. With the Docker
+                example, choose the <code>downloads</code> folder inside your working folder, rather
+                than the container path <code>/downloads</code>.
+              </dd>
+            </div>
+          </dl>
+          <p>
+            Choose <strong>Connect slskd</strong>. This confirms API access. Soulseek sign-in and
+            sharing are managed separately in slskd.
+          </p>
+          <p>
+            Auto Digger remembers the API key using operating-system encryption and clears it from
+            the field. Leave it blank when changing other connection details to keep the saved key.
+          </p>
+          <p>
+            A remote slskd URL must use <strong>HTTPS</strong>. Its completed files must still be
+            accessible on this computer, for example through a mounted shared folder.
+          </p>
+        </section>
+        <section id="folders" aria-labelledby="folders-title">
+          <h2 id="folders-title">3. Organise downloads</h2>
+          <p>
+            Under Downloads in Settings, choose your Auto Digger destination and edit
+            <strong>Folder layout</strong>. Use any of the six placeholders:
+          </p>
+          <p class="guide-placeholders">
+            <code>&lt;source&gt;</code> <code>&lt;genre&gt;</code> <code>&lt;year&gt;</code>
+            <code>&lt;label&gt;</code> <code>&lt;artist&gt;</code> <code>&lt;release&gt;</code>
+          </p>
+          <pre
+            role="region"
+            tabindex="0"
+            aria-label="Example folder layout"
+          ><code>&lt;source&gt;/&lt;artist&gt;/&lt;release&gt;</code></pre>
+          <p>
+            Use <code>/</code> between folders, or combine values with ordinary text such as
+            <code>&lt;year&gt; - &lt;genre&gt;</code>. Leave the field empty to keep files together.
+            Choose <strong>Save folder layout</strong> when the preview looks right.
+          </p>
+          <figure class="app-figure guide-figure">
+            <img
+              src="../../docs/images/audio-folder-settings.png"
+              width="680"
+              height="232"
+              alt="Folder layout field with all six placeholder hints and an example download path"
+              loading="lazy"
+            />
+            <figcaption>Placeholder hints stay visible while you edit the path.</figcaption>
+          </figure>
+          <p>
+            Genre and label use the first Discogs value; missing metadata gets an Unknown folder.
+            Release folders include the pressing ID. Changes apply to future downloads, and existing
+            files stay at their saved locations.
+          </p>
+        </section>
+        <section id="search" aria-labelledby="search-title">
+          <h2 id="search-title">4. Find a track</h2>
+          <ol>
+            <li>
+              Open a record on the digging desk and choose <strong>Use Soulseek</strong> beside a
+              track.
+            </li>
+            <li>
+              Edit <strong>Refine search</strong> when needed. Punctuation becomes spaces, while the
+              record's title stays unchanged.
+            </li>
+            <li>
+              Compare the file, quality, duration and peer. The table scrolls, and
+              <strong>Show more</strong> reveals further matches. Private matches are counted
+              separately and cannot be downloaded.
+            </li>
+            <li>
+              Choose a public match's download icon. Follow progress, cancel or retry in
+              <strong>Downloads</strong>.
+            </li>
+          </ol>
+          <figure class="app-figure guide-figure">
+            <img
+              src="../../docs/images/soulseek-results.png"
+              width="619"
+              height="399"
+              alt="Editable Soulseek search above a compact table of public files, with private matches counted separately"
+              loading="lazy"
+            />
+            <figcaption>Search and folder screenshots use fictional demo records.</figcaption>
+          </figure>
+          <p>
+            slskd finishes the transfer first. Auto Digger then copies the completed file into your
+            chosen folder layout and adds it to the player. The slskd copy is retained.
+          </p>
+          <p>
+            MP3, FLAC, WAV, M4A, Ogg and Opus keep their original encoding. MP3 files receive
+            best-effort Discogs tags; other formats retain their embedded tags. Auto Digger records
+            Discogs metadata and the source in its library index.
+          </p>
+        </section>
+        <section id="troubleshooting" aria-labelledby="troubleshooting-title">
+          <h2 id="troubleshooting-title">Troubleshooting</h2>
+          <dl class="setup-problems">
+            <div>
+              <dt>Connected to slskd, but searches do not work?</dt>
+              <dd>
+                Check that slskd is connected to Soulseek. Signing into its web interface alone does
+                not connect the music account.
+              </dd>
+            </div>
+            <div>
+              <dt>Cannot connect Auto Digger?</dt>
+              <dd>
+                Check the URL and ReadWrite API key, and keep slskd running. If your desktop keyring
+                is locked, unlock it and save again. Use Forget slskd connection to clear unreadable
+                saved settings.
+              </dd>
+            </div>
+            <div>
+              <dt>A transfer stalls or a peer is unavailable?</dt>
+              <dd>
+                Try another public match or refine the query. Access to private files remains
+                controlled by the peer.
+              </dd>
+            </div>
+            <div>
+              <dt>Completed audio cannot be found?</dt>
+              <dd>
+                Check the host download-folder mapping and read permissions. Auto Digger imports
+                completed files, not files from the incomplete folder or the collection you share.
+              </dd>
+            </div>
+          </dl>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer wrap">
+      <span>Auto Digger · Open source</span>
+      <div>
+        <a href="../">Home</a><a href="../setup/">Setup</a
+        ><a href="https://github.com/alexanderwanyoike/auto-digger">GitHub</a>
+      </div>
+    </footer>
+  </body>
+</html>

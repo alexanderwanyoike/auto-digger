@@ -1,6 +1,6 @@
 # Project site
 
-The site lives in `site/` and builds to `site/dist/`. The separate installation and MCP guide lives at `site/setup/index.html` and publishes to `/auto-digger/setup/`. It is static HTML and CSS, with local fonts and no client JavaScript or analytics. Its dark layout leads with Discogs discovery, local listening and crates, then introduces optional MCP mix research and downloads alongside app screenshots.
+The site lives in `site/` and builds to `site/dist/`. The installation and MCP guide lives at `site/setup/index.html` and publishes to `/auto-digger/setup/`. The optional Soulseek guide lives at `site/soulseek/index.html` and publishes to `/auto-digger/soulseek/`, linked from the homepage feature list and Setup. It is static HTML and CSS, with local fonts and no client JavaScript or analytics. Its dark layout leads with Discogs discovery, local listening and crates, then introduces optional Soulseek audio, MCP mix research and downloads alongside app screenshots.
 
 ```sh
 yarn site:verify
@@ -36,6 +36,6 @@ The build follows Muzo's static-site approach and GitHub's [custom Pages workflo
 
 ## Setup guide
 
-Vite's [multi-page build pattern](https://vite.dev/guide/build#multi-page-app) includes both HTML entries and shares the existing site stylesheet. The guide adds a small stylesheet for its contents navigation and horizontally scrollable commands; it needs no client JavaScript.
+Vite's [multi-page build pattern](https://vite.dev/guide/build#multi-page-app) includes all three HTML entries and shares the existing site stylesheet. The guides share contents navigation and horizontally scrollable commands; they need no client JavaScript. The Soulseek guide imports the existing fictional fixture screenshots from `docs/images/`; Vite bundles them into the Pages artifact without a second copy of the source images. Its optional Docker example follows slskd's documented bind mounts and configuration, pinned to the integration's checked 0.26.2 version, with read-only sharing and a persistent restart policy. No upstream source is copied.
 
 MCP steps use the app's exported Claude Desktop extension and generated local-client configuration. They follow the linked official client documentation. The macOS command follows Jolt's scoped `xattr -dr com.apple.quarantine` pattern, adapted to Auto Digger's installed bundle. Showbiz's broader `xattr -cr` example was checked; this guide removes only the quarantine attribute. The instructions do not run commands or change a client's configuration automatically.
