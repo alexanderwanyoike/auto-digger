@@ -90,6 +90,15 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     page = await desktop.firstWindow();
     await page.getByRole('button', { name: 'Downloads', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeEnabled();
+    const sourceFilter = page.getByRole('combobox', { name: 'Filter downloads by source' });
+    await sourceFilter.selectOption('youtube');
+    await expect(page.getByText('No YouTube downloads yet.', { exact: true })).toBeVisible();
+    await sourceFilter.selectOption('soulseek');
+    await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeEnabled();
+    await expect(page.getByRole('table', { name: 'Tracks' })).toContainText('Soulseek');
+    await page
+      .getByRole('region', { name: 'Downloaded library' })
+      .screenshot({ path: test.info().outputPath('source-filter.png') });
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await expect(page.getByLabel('Folder layout')).toHaveValue(
       '<source>/<genre>/<year>/<label>/<artist>/<release>',

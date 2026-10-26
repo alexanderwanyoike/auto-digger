@@ -49,3 +49,34 @@ test('keeps a pending retry inline with its track and searches both saved and pe
   expect(libraryRows([], [pending], 'quiet orbit ep')).toHaveLength(1);
   expect(libraryRows([track], [job], 'no match')).toEqual([]);
 });
+
+test('filters saved files and pending jobs by provider while retaining legacy YouTube tracks and text search', () => {
+  const soulseek: LocalTrack = {
+    ...track,
+    id: `12-slsk-${'a'.repeat(32)}`,
+    provider: 'soulseek',
+    videoId: null,
+    soulseek: { username: 'peer', filename: 'Night Tide.flac', size: 123 },
+    title: 'Night Tide',
+    filename: 'Night Tide.slsk.flac',
+  };
+  const pending = {
+    ...job,
+    ...downloadStage('downloading'),
+    sourceId: `12-slsk-${'b'.repeat(32)}`,
+    videoIndex: undefined,
+    track: null,
+    title: 'Coastline',
+  };
+  expect(libraryRows([track, soulseek], [pending], '', 'youtube').map((row) => row.id)).toEqual([
+    track.id,
+  ]);
+  expect(libraryRows([track, soulseek], [pending], '', 'soulseek').map((row) => row.id)).toEqual([
+    pending.sourceId,
+    soulseek.id,
+  ]);
+  expect(
+    libraryRows([track, soulseek], [pending], 'night', 'soulseek').map((row) => row.id),
+  ).toEqual([soulseek.id]);
+  expect(libraryRows([track, soulseek], [pending], '', 'all')).toHaveLength(3);
+});
