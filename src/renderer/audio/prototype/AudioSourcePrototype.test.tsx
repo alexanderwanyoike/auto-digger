@@ -47,7 +47,7 @@ test('keeps a single track row and requires a deliberate second copy across prov
   render(<App />);
   await user.click(await screen.findByRole('button', { name: 'Check audio sources' }));
   await user.click(screen.getByRole('button', { name: 'Save demo copy from tape_archive' }));
-  expect(screen.getByRole('status')).toHaveTextContent('Queued in slskd');
+  expect(screen.getByText('Queued in slskd')).toBeVisible();
   await user.click(screen.getByRole('button', { name: 'Advance demo transfer' }));
   await user.click(screen.getByRole('button', { name: 'Advance demo transfer' }));
   await user.click(screen.getByRole('button', { name: 'Advance demo transfer' }));
