@@ -3,6 +3,11 @@ import type { DiscogsRelease } from '../../shared/discogs';
 import type { Preferences } from '../../shared/preferences';
 import { filenamePart } from './filenamePart';
 
+function folderPart(value: string): string {
+  const safe = filenamePart(value).trim();
+  return /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(safe) ? `_${safe}` : safe;
+}
+
 export function downloadDirectory(
   root: string,
   preferences: Pick<Preferences, 'layout' | 'folders'>,
@@ -23,6 +28,6 @@ export function downloadDirectory(
   if (preferences.layout === 'release') return join(root, values.release);
   return join(
     root,
-    ...fields.map((field) => (field === 'release' ? values.release : filenamePart(values[field]))),
+    ...fields.map((field) => (field === 'release' ? values.release : folderPart(values[field]))),
   );
 }
