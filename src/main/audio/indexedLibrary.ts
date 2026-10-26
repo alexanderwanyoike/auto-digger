@@ -155,7 +155,8 @@ export function createIndexedLibrary(
         }
         const root = preferences.value.directory ?? defaultDirectory;
         const target = downloadDirectory(root, preferences.value, release, 'YouTube');
-        const directory = existing?.directory ?? target;
+        if (!target.ok) return audioFailure('invalid-input', target.error.message);
+        const directory = existing?.directory ?? target.value;
         const remembered = await catalogue.downloads.rememberDirectory(directory);
         if (!remembered.ok) return audioFailure('storage', remembered.error.message);
         const result = await library(directory).download(parsed.data, options);

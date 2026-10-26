@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import type { CatalogueResult } from './catalogue';
+import { folderFields, parseFolderTemplate } from './folder-template';
 
-export const folderFieldSchema = z.enum(['source', 'genre', 'year', 'label', 'artist', 'release']);
+export const folderFieldSchema = z.enum(folderFields);
 export type FolderField = z.infer<typeof folderFieldSchema>;
 
 export const preferencesSchema = z.object({
@@ -21,6 +22,13 @@ export const preferencesSchema = z.object({
     'violet',
   ]),
   layout: z.enum(['flat', 'release', 'custom']),
+  folderTemplate: z
+    .string()
+    .max(1024)
+    .refine((value) => parseFolderTemplate(value).ok, {
+      message: 'Choose a valid relative folder layout.',
+    })
+    .optional(),
   folders: z
     .array(folderFieldSchema)
     .max(6)
