@@ -1,12 +1,28 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { FolderOpen, Search } from 'lucide-react';
 import type { useAudioLibrary } from '../audio/useAudioLibrary';
 import { libraryRows } from '../library/rows';
 import { TrackRow } from '../library/TrackRow';
 
+const AudioSourcePrototype = import.meta.env.DEV
+  ? lazy(async () => {
+      const module = await import('../audio/prototype/AudioSourcePrototype');
+      return { default: module.AudioSourcePrototype };
+    })
+  : null;
+
 export function DownloadsPage({ audio }: { audio: ReturnType<typeof useAudioLibrary> }) {
   const [query, setQuery] = useState('');
   const rows = libraryRows(audio.tracks, audio.queue.jobs, query);
+  if (
+    AudioSourcePrototype &&
+    new URLSearchParams(window.location.search).get('prototype') === 'audio-sources'
+  )
+    return (
+      <Suspense fallback={<p>Loading prototype...</p>}>
+        <AudioSourcePrototype />
+      </Suspense>
+    );
   return (
     <section className="section-page downloads-page" aria-label="Downloaded library">
       <div className="library-toolbar">

@@ -40,7 +40,12 @@ export function App({
   audioLibrary?: AudioBridge;
   catalogue?: CatalogueBridge;
 }) {
-  const [section, setSection] = useState<keyof typeof sectionIcons>('Digging desk');
+  const [section, setSection] = useState<keyof typeof sectionIcons>(() =>
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).get('prototype') === 'audio-sources'
+      ? 'Downloads'
+      : 'Digging desk',
+  );
   const SectionIcon = sectionIcons[section];
   const preferences = usePreferences(window.preferences);
   const filters = useSavedFilters(window.savedFilters);
