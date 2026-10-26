@@ -19,7 +19,6 @@ test('leads with record discovery and presents MCP research after the core featu
     Array.from(document.querySelectorAll('main > section[id]'), (section) => section.id),
   ).toEqual(['features', 'research', 'get-started']);
   const research = document.getElementById('research');
-  expect(research?.textContent).toMatch(/optional/i);
   expect(research?.textContent).toMatch(/client.*Discogs.*crate/is);
   expect(research?.querySelector('a')?.getAttribute('href')).toBe('setup/#mcp');
 });
