@@ -55,12 +55,10 @@ test('refines a real search, keeps private matches separate and downloads a publ
     warning: null,
   };
   let finishDownload: ((value: Awaited<ReturnType<AudioBridge['download']>>) => void) | undefined;
-  const download = vi.fn<AudioBridge['download']>().mockImplementation(
-    () =>
-      new Promise((resolve) => {
-        finishDownload = resolve;
-      }),
-  );
+  const pendingDownload = new Promise<Awaited<ReturnType<AudioBridge['download']>>>((resolve) => {
+    finishDownload = resolve;
+  });
+  const download = vi.fn<AudioBridge['download']>().mockReturnValue(pendingDownload);
   const release = {
     ...loadedRelease,
     tracks: [...loadedRelease.tracks, { position: 'B1', title: 'Night Tide', duration: '5:00' }],
@@ -109,6 +107,7 @@ test('refines a real search, keeps private matches separate and downloads a publ
     );
     await act(async () => {
       finishDownload?.({ ok: true, value: track });
+      await pendingDownload;
     });
     expect(await screen.findByText('Saved from Soulseek')).toBeVisible();
     expect(screen.getByRole('textbox', { name: 'Refine Soulseek search' })).toHaveValue(
