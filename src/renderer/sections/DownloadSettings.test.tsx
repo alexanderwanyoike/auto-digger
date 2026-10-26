@@ -32,14 +32,14 @@ test('defines and reorders folder levels with a live preview and preserves them 
     await user.selectOptions(screen.getByRole('combobox', { name: 'Add folder level' }), 'genre');
     await user.selectOptions(screen.getByRole('combobox', { name: 'Add folder level' }), 'year');
     await user.click(screen.getByRole('button', { name: 'Move year up' }));
-    await waitFor(() =>
+    await waitFor(() => {
       expect(save).toHaveBeenLastCalledWith({
         material: 'aluminium',
         accent: 'blue',
         layout: 'custom',
         folders: ['source', 'year', 'genre'],
-      }),
-    );
+      });
+    });
     expect(screen.getByLabelText('Folder preview')).toHaveTextContent(
       '/music/Auto Digger / YouTube / 1998 / Electronic',
     );
