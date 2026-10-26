@@ -37,8 +37,9 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
         }),
       Promise.resolve(),
     );
-    await page.getByLabel('Folder preview').scrollIntoViewIfNeeded();
-    await page.screenshot({ path: test.info().outputPath('folder-settings.png') });
+    await page
+      .locator('.download-folders')
+      .screenshot({ path: test.info().outputPath('folder-settings.png') });
     await page.evaluate(async (release) => window.crate?.save(release), {
       ...loadedRelease,
       videos: [],
@@ -54,8 +55,9 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     }));
     expect(geometry.height).toBeLessThanOrEqual(240);
     expect(geometry.scroll).toBeGreaterThan(240);
-    await table.scrollIntoViewIfNeeded();
-    await page.screenshot({ path: test.info().outputPath('soulseek-results.png') });
+    await page
+      .getByRole('region', { name: 'Soulseek matches', exact: true })
+      .screenshot({ path: test.info().outputPath('soulseek-results.png') });
     await table
       .getByRole('button', { name: 'Download Quiet Orbit.flac from archive_peer', exact: true })
       .click();
