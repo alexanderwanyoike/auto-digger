@@ -1,6 +1,6 @@
 # Project site
 
-The site lives in `site/` and builds to `site/dist/`. The separate installation and MCP guide lives at `site/setup/index.html` and publishes to `/auto-digger/setup/`. It is static HTML and CSS, with local fonts and no client JavaScript or analytics. Its dark layout introduces Discogs discovery and MCP mix research, then shows app screenshots and downloads.
+The site lives in `site/` and builds to `site/dist/`. The separate installation and MCP guide lives at `site/setup/index.html` and publishes to `/auto-digger/setup/`. It is static HTML and CSS, with local fonts and no client JavaScript or analytics. Its dark layout leads with Discogs discovery, local listening and crates, then introduces optional MCP mix research and downloads alongside app screenshots.
 
 ```sh
 yarn site:verify
@@ -32,7 +32,7 @@ The build follows Muzo's static-site approach and GitHub's [custom Pages workflo
 
 ## Verification
 
-`yarn verify` includes site content and production-build checks. They validate navigation, the MCP introduction, local assets under the Pages base and the pending-release state. Native tests check 390px and 1280px layouts, loaded images, keyboard navigation and section links. Screenshots are written to `test-results/project-site-390.png` and `test-results/project-site-1280.png`.
+`yarn verify` includes site content and production-build checks. They validate discovery-led positioning, core features before optional MCP research, navigation, local assets under the Pages base and the pending-release state. Native tests check 390px and 1280px layouts, loaded images, keyboard navigation and section links. Screenshots are written to `test-results/project-site-390.png` and `test-results/project-site-1280.png`.
 
 ## Setup guide
 

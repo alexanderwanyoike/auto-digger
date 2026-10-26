@@ -1,7 +1,7 @@
 <div align="center">
   <img src="resources/icons/icon-128.png" alt="" width="72" height="72" />
   <h1>Auto Digger</h1>
-  <p>Discogs discovery and MCP mix research.</p>
+  <p>A quiet desk for discovering records.</p>
   <p>
     <a href="https://alexanderwanyoike.github.io/auto-digger/">Project site</a> ·
     <a href="#quick-start">Quick start</a> ·
@@ -14,7 +14,7 @@
 
 _The real desktop app, shown with fictional records and original demo artwork._
 
-Auto Digger is a desktop app for discovering records on Discogs. Connect an MCP client to research mixes and save the original releases to named crates, with matching tracks, tags and source notes. You can also browse releases and keep downloaded tracks in a local library.
+Auto Digger is a desktop app for discovering records on Discogs. Follow a label, explore a style or dig up a random release. Download audio to listen locally and keep your finds in named crates, with track picks and personal tags. An optional MCP connection lets an AI client research mixes and add releases with source notes.
 
 ## Download
 
@@ -48,12 +48,12 @@ Audio downloads need current yt-dlp, FFmpeg, FFprobe and Node.js on your `PATH`.
 
 | Feature          | Details                                                                                                                                                                      |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| MCP mix research | Let an AI host research a mix, look up Discogs releases and add them to a crate with picked tracks, tags and source notes.                                                   |
 | Discovery        | Combine label, artist, year or year range and title with multi-select genres, styles and release types. Save named filters for later, browse artwork or draw random matches. |
 | Audio            | Download YouTube sources as tracks or whole releases, with progress, retry and best-effort Discogs metadata. Play saved tracks locally.                                      |
 | Crates           | Keep named collections of releases with track picks and personal tags. The active crate returns after restart.                                                               |
 | Downloads        | Search saved tracks, play them locally and open their folders. Choose flat or per-release file organisation.                                                                 |
 | Appearance       | Six materials, seven accents and light, dark or system appearance.                                                                                                           |
+| MCP mix research | Let an AI host research a mix, look up Discogs releases and add them to a crate with picked tracks, tags and source notes.                                                   |
 
 ## Quick start
 
