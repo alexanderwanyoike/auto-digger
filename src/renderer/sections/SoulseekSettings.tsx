@@ -6,6 +6,7 @@ export function SoulseekSettings() {
   const [directory, setDirectory] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [configured, setConfigured] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [busy, setBusy] = useState(Boolean(bridge));
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -19,12 +20,16 @@ export function SoulseekSettings() {
           setUrl(result.value.url);
           setDirectory(result.value.directory);
           setConfigured(result.value.configured);
-        } else if (!result.ok) setError(result.error.message);
+        } else if (!result.ok) {
+          setError(result.error.message);
+          setLoadFailed(true);
+        }
         setBusy(false);
       })
       .catch(() => {
         if (active) {
           setError('slskd settings could not be loaded. Please retry.');
+          setLoadFailed(true);
           setBusy(false);
         }
       });
@@ -41,6 +46,7 @@ export function SoulseekSettings() {
       const result = await bridge.configure({ url, directory, apiKey });
       if (result.ok) {
         setConfigured(true);
+        setLoadFailed(false);
         setApiKey('');
         setSaved(true);
       } else setError(result.error.message);
@@ -59,6 +65,7 @@ export function SoulseekSettings() {
       const result = await bridge.disconnect();
       if (result.ok) {
         setConfigured(false);
+        setLoadFailed(false);
         setApiKey('');
       } else setError(result.error.message);
     } catch {
@@ -129,7 +136,7 @@ export function SoulseekSettings() {
         <button className="secondary-button" type="submit" disabled={busy || !bridge}>
           {busy ? 'Checking…' : submitLabel}
         </button>
-        {configured && (
+        {(configured || loadFailed) && (
           <button
             className="secondary-button"
             type="button"

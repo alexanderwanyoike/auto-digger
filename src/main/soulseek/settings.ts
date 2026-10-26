@@ -53,9 +53,12 @@ export function createSoulseekSettings(
           'invalid-input',
           'Choose a valid slskd URL and an absolute completed-downloads folder. Use HTTPS for remote servers.',
         );
-      const current = await load();
-      if (!current.ok) return current;
-      const apiKey = parsed.data.apiKey || current.value?.apiKey;
+      let { apiKey } = parsed.data;
+      if (!apiKey) {
+        const current = await load();
+        if (!current.ok) return current;
+        apiKey = current.value?.apiKey ?? '';
+      }
       if (!apiKey) return audioFailure('invalid-input', 'Enter a slskd ReadWrite API key.');
       try {
         if (!(await lstat(parsed.data.directory)).isDirectory())
