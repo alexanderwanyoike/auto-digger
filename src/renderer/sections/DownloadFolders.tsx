@@ -1,6 +1,7 @@
-import { ArrowDown, ArrowUp, X } from 'lucide-react';
-import { folderFieldSchema } from '../../shared/preferences';
-import type { FolderField } from '../../shared/preferences';
+import { useEffect, useState } from 'react';
+import { folderFields, renderFolderTemplate } from '../../shared/folder-template';
+import type { FolderField } from '../../shared/folder-template';
+import type { PreferencesResult } from '../../shared/preferences';
 
 const examples: Record<FolderField, string> = {
   source: 'YouTube',
@@ -8,98 +9,93 @@ const examples: Record<FolderField, string> = {
   year: '1998',
   label: 'Still Records',
   artist: 'Low Tide',
-  release: 'Low Tide - Quiet Orbit EP [r12]',
+  release: 'Quiet Orbit EP [r12]',
 };
 export function DownloadFolders({
-  fields,
+  template,
   root,
   disabled,
-  onChange,
+  onSave,
 }: {
-  fields: FolderField[];
+  template: string;
   root: string;
   disabled: boolean;
-  onChange: (fields: FolderField[]) => void;
+  onSave: (template: string) => Promise<PreferencesResult>;
 }) {
-  function move(index: number, offset: number) {
-    const reordered = [...fields];
-    const value = reordered[index];
-    const other = reordered[index + offset];
-    if (!value || !other) return;
-    reordered[index] = other;
-    reordered[index + offset] = value;
-    onChange(reordered);
+  const [draft, setDraft] = useState(template);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => {
+    setDraft(template);
+  }, [template]);
+  const preview = renderFolderTemplate(draft, examples);
+  async function save() {
+    setSaved(false);
+    if (!preview.ok) {
+      setError(preview.error.message);
+      return;
+    }
+    const result = await onSave(draft);
+    if (result.ok) {
+      setError(null);
+      setSaved(true);
+    } else setError(result.error.message);
   }
   return (
-    <div className="download-folders">
-      <ol aria-label="Folder levels">
-        {fields.map((field, index) => (
-          <li key={field}>
-            <span>{field.charAt(0).toUpperCase() + field.slice(1)}</span>
-            <button
-              type="button"
-              className="icon-button"
-              aria-label={`Move ${field} up`}
-              disabled={disabled || index === 0}
-              onClick={() => {
-                move(index, -1);
-              }}
-            >
-              <ArrowUp size={13} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className="icon-button"
-              aria-label={`Move ${field} down`}
-              disabled={disabled || index === fields.length - 1}
-              onClick={() => {
-                move(index, 1);
-              }}
-            >
-              <ArrowDown size={13} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className="icon-button"
-              aria-label={`Remove ${field} folder`}
-              disabled={disabled}
-              onClick={() => {
-                onChange(fields.filter((item) => item !== field));
-              }}
-            >
-              <X size={13} aria-hidden="true" />
-            </button>
-          </li>
-        ))}
-      </ol>
-      <label className="settings-select" htmlFor="add-download-folder">
-        Add folder level
-        <select
-          id="add-download-folder"
-          value=""
-          disabled={disabled || fields.length === folderFieldSchema.options.length}
+    <form
+      className="download-folders"
+      onSubmit={(event) => {
+        event.preventDefault();
+        save().catch(() => {
+          setError('The folder layout could not be saved. Please retry.');
+        });
+      }}
+    >
+      <label htmlFor="download-folder-layout">
+        Folder layout
+        <input
+          id="download-folder-layout"
+          value={draft}
+          disabled={disabled}
+          spellCheck={false}
+          autoComplete="off"
+          maxLength={1024}
+          placeholder="<source>/<artist>/<release>"
+          aria-describedby="download-folder-help"
+          aria-invalid={Boolean(error)}
           onChange={(event) => {
-            const parsed = folderFieldSchema.safeParse(event.target.value);
-            if (parsed.success && !fields.includes(parsed.data)) onChange([...fields, parsed.data]);
+            setDraft(event.target.value);
+            setError(null);
+            setSaved(false);
           }}
-        >
-          <option value="">Choose a level</option>
-          {folderFieldSchema.options
-            .filter((field) => !fields.includes(field))
-            .map((field) => (
-              <option key={field} value={field}>
-                {field.charAt(0).toUpperCase() + field.slice(1)}
-              </option>
-            ))}
-        </select>
+        />
       </label>
-      <p>
-        Folders nest from top to bottom. Genre and label use the first Discogs value. Missing
-        metadata uses an Unknown folder.
-      </p>
-      <output className="download-folder-preview" aria-label="Folder preview">
-        {[root, ...fields.map((field) => examples[field])].join(' / ')} / track.mp3
-      </output>
-    </div>
+      <p id="download-folder-help">Use / between folders. Leave empty to keep files together.</p>
+      <div className="folder-placeholders" aria-label="Available folder placeholders">
+        <span>Placeholders</span>
+        {folderFields.map((field) => (
+          <code key={field}>
+            {'<'}
+            {field}
+            {'>'}
+          </code>
+        ))}
+      </div>
+      <div className="download-folder-example">
+        <span>Example path</span>
+        <output className="download-folder-preview" aria-label="Folder preview">
+          {preview.ok
+            ? [root, ...preview.value, 'track.mp3'].join(' / ')
+            : 'Complete the layout to preview it.'}
+        </output>
+      </div>
+      {error && <p role="alert">{error}</p>}
+      <div className="download-folder-actions">
+        <button type="submit" className="secondary-button" disabled={disabled}>
+          Save folder layout
+        </button>
+        {saved && <span role="status">Layout saved.</span>}
+      </div>
+    </form>
   );
 }
