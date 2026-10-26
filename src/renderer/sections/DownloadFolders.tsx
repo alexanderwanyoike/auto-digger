@@ -6,6 +6,7 @@ import type { PreferencesResult } from '../../shared/preferences';
 const examples: Record<FolderField, string> = {
   source: 'YouTube',
   genre: 'Electronic',
+  subgenre: 'Deep House',
   year: '1998',
   label: 'Still Records',
   artist: 'Low Tide',

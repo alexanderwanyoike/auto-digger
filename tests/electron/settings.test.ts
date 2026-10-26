@@ -20,6 +20,9 @@ test('persists settings and finds old and per-release downloads after a native r
   try {
     let page = await desktop.firstWindow();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
+    await page.evaluate(async () =>
+      window.preferences?.save({ material: 'aluminium', accent: 'blue', layout: 'flat' }),
+    );
     await page.evaluate(
       async (release) => window.audioLibrary?.download({ release, videoIndex: 0 }),
       loadedRelease,

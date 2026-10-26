@@ -29,9 +29,15 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     await page.getByLabel('slskd completed-downloads folder', { exact: true }).fill(directory);
     await page.getByRole('button', { name: 'Connect slskd', exact: true }).click();
     await expect(page.getByText('slskd connection saved.', { exact: true })).toBeVisible();
+    await expect(page.getByLabel('Folder layout')).toHaveValue(
+      '<source>/<genre>/<subgenre>/<year>',
+    );
+    await page
+      .locator('.download-folders')
+      .screenshot({ path: test.info().outputPath('default-folder-settings.png') });
     await page
       .getByLabel('Folder layout')
-      .fill('<source>/<genre>/<year>/<label>/<artist>/<release>');
+      .fill('<source>/<genre>/<subgenre>/<year>/<label>/<artist>/<release>');
     await page.getByRole('button', { name: 'Save folder layout', exact: true }).click();
     await page
       .locator('.download-folders')
@@ -74,6 +80,7 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
       'Auto Digger',
       'Soulseek',
       'Electronic',
+      'Deep House',
       '1998',
       'Still Records',
       'Low Tide',
@@ -108,7 +115,7 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
       .screenshot({ path: test.info().outputPath('source-filter.png') });
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await expect(page.getByLabel('Folder layout')).toHaveValue(
-      '<source>/<genre>/<year>/<label>/<artist>/<release>',
+      '<source>/<genre>/<subgenre>/<year>/<label>/<artist>/<release>',
     );
     await expect(page.getByLabel('slskd API key', { exact: true })).toHaveValue('');
     await expect(page.getByLabel('slskd completed-downloads folder', { exact: true })).toHaveValue(

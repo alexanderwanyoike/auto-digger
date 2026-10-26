@@ -508,19 +508,21 @@ web:
           <h2 id="folders-title">3. Organise downloads</h2>
           <p>
             Under Downloads in Settings, choose your Auto Digger destination and edit
-            <strong>Folder layout</strong>. Use any of the six placeholders:
+            <strong>Folder layout</strong>. Use these placeholders:
           </p>
           <p class="guide-placeholders">
-            <code>&lt;source&gt;</code> <code>&lt;genre&gt;</code> <code>&lt;year&gt;</code>
-            <code>&lt;label&gt;</code> <code>&lt;artist&gt;</code> <code>&lt;release&gt;</code>
+            <code>&lt;source&gt;</code> <code>&lt;genre&gt;</code> <code>&lt;subgenre&gt;</code>
+            <code>&lt;year&gt;</code> <code>&lt;label&gt;</code> <code>&lt;artist&gt;</code>
+            <code>&lt;release&gt;</code>
           </p>
           <pre
             role="region"
             tabindex="0"
             aria-label="Example folder layout"
-          ><code>&lt;source&gt;/&lt;artist&gt;/&lt;release&gt;</code></pre>
+          ><code>&lt;source&gt;/&lt;genre&gt;/&lt;subgenre&gt;/&lt;year&gt;</code></pre>
           <p>
-            Use <code>/</code> between folders, or combine values with ordinary text such as
+            New setups start with this layout. Saved layouts stay as you chose them. Use
+            <code>/</code> between folders, or combine values with ordinary text such as
             <code>&lt;year&gt; - &lt;genre&gt;</code>. Leave the field empty to keep files together.
             Choose <strong>Save folder layout</strong> when the preview looks right.
           </p>
@@ -529,15 +531,16 @@ web:
               src="../../docs/images/audio-folder-settings.png"
               width="680"
               height="232"
-              alt="Folder layout field with all six placeholder hints and an example download path"
+              alt="Default folder layout using source, genre, subgenre and year, with persistent placeholder hints"
               loading="lazy"
             />
             <figcaption>Placeholder hints stay visible while you edit the path.</figcaption>
           </figure>
           <p>
-            Genre and label use the first Discogs value; missing metadata gets an Unknown folder.
-            Release folders include the pressing ID. Changes apply to future downloads, and existing
-            files stay at their saved locations.
+            Subgenre uses the first style listed on Discogs, such as Deep House. Genre and label
+            also use the first Discogs value; missing metadata gets an Unknown folder. Release
+            folders include the pressing ID. Changes apply to future downloads, and existing files
+            stay at their saved locations.
           </p>
         </section>
         <section id="search" aria-labelledby="search-title">
