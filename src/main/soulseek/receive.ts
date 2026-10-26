@@ -7,6 +7,7 @@ import type { DownloadOptions } from '../audio/downloadOptions';
 import { downloadStage } from '../../shared/downloadJobs';
 import type { createSlskdClient } from './client';
 import { completedFile } from './completed-file';
+import { cancelOwnedTransfer } from './cancel-transfer';
 
 export async function receiveFile(
   client: ReturnType<typeof createSlskdClient>,
@@ -22,15 +23,8 @@ export async function receiveFile(
   ]);
   let transferId: string | undefined;
   const state: { completed: boolean } = { completed: false };
+  let outcome: AudioResult<{ file: string; match: SoulseekMatch }>;
   try {
-    const queued = await client.enqueue(match, batchId, signal);
-    if (!queued.ok) return queued;
-    transferId = queued.value.batch.transfers[0]?.id;
-    if (queued.value.failures.length || !transferId)
-      return audioFailure(
-        'unavailable',
-        'This peer could not accept the download. Try another match.',
-      );
     const waitForFile = async (
       attempt: number,
     ): Promise<AudioResult<{ file: string; match: SoulseekMatch }>> => {
@@ -66,16 +60,31 @@ export async function receiveFile(
       await delay(750, undefined, { signal });
       return poll();
     };
-    return await poll();
+    const queued = await client.enqueue(match, batchId);
+    if (!queued.ok) outcome = queued;
+    else {
+      transferId = queued.value.batch.transfers[0]?.id;
+      outcome =
+        queued.value.failures.length || !transferId
+          ? audioFailure(
+              'unavailable',
+              'This peer could not accept the download. Try another match.',
+            )
+          : await poll();
+    }
   } catch {
-    /* Aborting interrupts both network requests and queue polling. */
-  } finally {
-    if (transferId && !state.completed) await client.cancel(match.username, transferId);
+    outcome = audioFailure(
+      options.signal?.aborted ? 'cancelled' : 'network',
+      options.signal?.aborted
+        ? 'This download was cancelled.'
+        : 'The Soulseek download timed out. Retry or choose another peer.',
+    );
   }
-  return audioFailure(
-    options.signal?.aborted ? 'cancelled' : 'network',
-    options.signal?.aborted
-      ? 'This download was cancelled.'
-      : 'The Soulseek download timed out. Retry or choose another peer.',
-  );
+  if (!state.completed) {
+    const stopped = await cancelOwnedTransfer(client, batchId, match, transferId);
+    if (!stopped.ok) return stopped;
+  }
+  return options.signal?.aborted
+    ? audioFailure('cancelled', 'This download was cancelled.')
+    : outcome;
 }
