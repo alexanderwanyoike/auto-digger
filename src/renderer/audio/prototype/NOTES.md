@@ -16,8 +16,8 @@ yarn dev:web --port 5174
 
 Open [the digging-desk prototype](http://127.0.0.1:5174/?prototype=audio-sources). Previous variant URLs also open this simplified flow.
 
-1. Pick Use Soulseek beside a track. An accordion opens with an editable Refine search field at the top and a compact list of public matches below. Each result shows its filename, format/bitrate, duration and peer, with its own Download button.
-2. Choose Download on a match. The demo shows a queued state, then closes the match list and marks the track Saved from Soulseek.
+1. Pick Use Soulseek beside a track. An accordion opens with an editable Refine search field above a compact table: file, quality, time, peer and a download icon. The demo has 40 public matches. Roughly six rows fit in a 240px scroll area, with sticky column headers. The query and private-match summary stay outside that scroll area. Hover a clipped filename or peer to see its full value.
+2. Choose a download icon on a match. The demo shows a queued state, then closes the table and marks the track Saved from Soulseek.
 3. Edit Refine search and choose Search to try another query. Non-letter and non-number characters become spaces; accented letters and catalogue titles remain intact. The default query is already cleaned. Existing demo matches stay visible while editing, and the demo result set remains fixed.
 4. Expand the private-match summary if needed. Private files are labelled and cannot be downloaded. Private-only results stay distinct from an empty search.
 
@@ -30,6 +30,8 @@ For maintainer checks, append `&scenario=private-only`, `&scenario=empty` or `&s
 The query work follows Nicotine+'s established distinction between original and transmitted search terms, with the user's stricter punctuation-to-space rule. No upstream implementation is copied. [Nicotine+ 3.3.11 search code](https://github.com/nicotine-plus/nicotine-plus/blob/3.3.11/pynicotine/search.py) is GPL-3.0-or-later.
 
 slskd returns `files` and `lockedFiles` separately, along with `lockedFileCount`. Its file conversion does not populate `isLocked` in the checked release, so a future adapter must retain collection membership rather than rely on that boolean alone. A response may report a locked count without enough file details to present individual candidates; keep that as a private-results summary. See the [slskd 0.26.2 response contract](https://github.com/slskd/slskd/blob/0.26.2/src/slskd/Search/Types/Response.cs) and [file conversion](https://github.com/slskd/slskd/blob/0.26.2/src/slskd/Search/Types/File.cs). slskd is AGPL-3.0-only with additional terms; it remains an external service.
+
+The compact table follows the existing native HTML table, fixed column layout and sticky headers in `DownloadsPage.tsx` and `styles/library.css`. It needs no table dependency or virtualisation for this fixture set. A live connector handling thousands of matches should bound rendered results separately from this UI study.
 
 The prototype reuses Auto Digger's existing typography, theme tokens, application shell and typed Result convention. Its fixture identities are not a production catalogue migration.
 
@@ -51,6 +53,6 @@ Observed on 0.26.2: the ReadWrite key can read shares, but `GET /api/v0/server` 
 
 ## Decision to validate
 
-The selected direction is a per-track Use Soulseek action on the digging desk, with editable search above a list of results and private matches disclosed below it. Validate the density and usefulness of the result rows before implementing a live adapter.
+The selected direction is a per-track Use Soulseek action on the digging desk, with editable search above a compact scrollable results table and private matches disclosed below it. Validate the density and usefulness of the result rows before implementing a live adapter.
 
 After validating the flow, implement the selected behaviour through normal application boundaries and tests. Remove the fixture release, timed demo download and development entry. The source model can retain provenance and multiple-copy support internally without making that model the main interface.
