@@ -60,3 +60,46 @@ test('builds a separate setup guide with working Pages links and local assets', 
     }),
   );
 });
+
+test('builds a discoverable Soulseek guide with project-prefixed links and screenshots', async () => {
+  await promisify(execFile)('yarn', ['site:build'], { timeout: 30_000 });
+  document.documentElement.innerHTML = await readFile(resolve('site/dist/index.html'), 'utf8');
+  const feature = document.querySelector('.features a[href="soulseek/"]');
+  expect(feature).not.toBeNull();
+  document.documentElement.innerHTML = await readFile(
+    resolve('site/dist/setup/index.html'),
+    'utf8',
+  );
+  expect(document.querySelector('a[href="../soulseek/"]')).not.toBeNull();
+  document.documentElement.innerHTML = await readFile(
+    resolve('site/dist/soulseek/index.html'),
+    'utf8',
+  );
+  expect(document.querySelector('h1')?.textContent).toBe('Soulseek setup');
+  expect(document.querySelectorAll('main h1')).toHaveLength(1);
+  expect(document.querySelectorAll('script')).toHaveLength(0);
+  expect(document.querySelectorAll('main img')).toHaveLength(2);
+  ['native', 'docker'].forEach((method) => {
+    expect(
+      document.querySelector(`nav[aria-label="Installation methods"] a[href="#${method}"]`),
+    ).not.toBeNull();
+    ['macos', 'windows', 'linux'].forEach((platform) => {
+      expect(document.querySelector(`details#${method}-${platform} summary`)).not.toBeNull();
+    });
+  });
+  const pageUrl = new URL('https://alexanderwanyoike.github.io/auto-digger/soulseek/');
+  await Promise.all(
+    Array.from(document.querySelectorAll('a[href], link[href], img[src]')).map(async (element) => {
+      const value = element.getAttribute('href') ?? element.getAttribute('src') ?? '';
+      const url = new URL(value, pageUrl);
+      if (url.origin !== pageUrl.origin) return;
+      expect(url.pathname).toMatch(/^\/auto-digger\//);
+      const relative = url.pathname.slice('/auto-digger/'.length);
+      await access(
+        resolve('site/dist', relative.endsWith('/') ? `${relative}index.html` : relative),
+      );
+      if (url.pathname === pageUrl.pathname && url.hash)
+        expect(document.getElementById(url.hash.slice(1))).not.toBeNull();
+    }),
+  );
+});

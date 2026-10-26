@@ -89,6 +89,56 @@ import siteConfig from '../../site.vite.config';
       await expect(
         page.getByRole('heading', { name: 'Claude Desktop', exact: true }),
       ).toBeInViewport();
+      await page.getByRole('link', { name: 'Soulseek setup guide', exact: true }).click();
+      await expect(
+        page.getByRole('heading', { name: 'Soulseek setup', exact: true }),
+      ).toBeVisible();
+      await page.getByRole('link', { name: 'Skip to content', exact: true }).focus();
+      await page.keyboard.press('Enter');
+      await expect(page.getByRole('main')).toBeFocused();
+      await page
+        .getByRole('navigation', { name: 'On this page' })
+        .getByRole('link', { name: 'Find a track', exact: true })
+        .click();
+      await expect(
+        page.getByRole('heading', { name: '4. Find a track', exact: true }),
+      ).toBeInViewport();
+      await expect
+        .poll(() =>
+          page
+            .locator('main img')
+            .evaluateAll((elements) =>
+              elements.every(
+                (element) =>
+                  element instanceof HTMLImageElement &&
+                  element.complete &&
+                  element.naturalWidth > 0,
+              ),
+            ),
+        )
+        .toBe(true);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      ).toBe(true);
+      await page.screenshot({ path: `test-results/soulseek-guide-${width.toString()}.png` });
+      await page
+        .getByRole('navigation', { name: 'On this page' })
+        .getByRole('link', { name: 'Prepare slskd', exact: true })
+        .click();
+      await page.getByRole('link', { name: 'Native installation', exact: true }).click();
+      await page.getByText('Windows native setup', { exact: true }).click();
+      await expect(page.getByRole('link', { name: 'Windows x64 ZIP', exact: true })).toBeVisible();
+      await page.getByRole('link', { name: 'Docker installation', exact: true }).click();
+      await page.getByText('Docker setup', { exact: true }).click();
+      const docker = page.getByRole('region', {
+        name: 'Docker Compose configuration',
+        exact: true,
+      });
+      await docker.focus();
+      await expect(docker).toBeFocused();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      ).toBe(true);
     } finally {
       await desktop.close();
       await new Promise<void>((done) => {

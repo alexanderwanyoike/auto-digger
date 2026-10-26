@@ -1,0 +1,33 @@
+.setup-copy .guide-kicker {
+  margin: 0 0 16px;
+  color: #909aa7;
+  font-size: 12px;
+}
+.guide-figure {
+  margin-block: 24px;
+}
+.guide-placeholders {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-block: 16px;
+}
+.guide-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block: 20px;
+}
+.guide-methods a {
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  text-decoration: none;
+}
+.install-route {
+  margin-top: 30px;
+}
+.install-route > h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
