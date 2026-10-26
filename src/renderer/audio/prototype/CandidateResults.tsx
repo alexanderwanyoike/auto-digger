@@ -27,13 +27,15 @@ export function CandidateResults({
         const visible = matches.filter(
           (candidate) => showPrivate || candidate.access !== 'private',
         );
+        let summary = 'Not checked';
+        if (checked && result.ok)
+          summary = `${matches.length.toString()} ${matches.length === 1 ? 'candidate' : 'candidates'}`;
+        if (checked && !result.ok) summary = 'Could not check';
         return (
           <div className="prototype-provider" key={provider}>
             <header>
               <h4>{provider}</h4>
-              <span>
-                {checked && result.ok ? `${matches.length.toString()} candidates` : 'Not checked'}
-              </span>
+              <span>{summary}</span>
             </header>
             {!checked && <p>Check sources to see demo matches.</p>}
             {checked && !result.ok && <p role="status">{result.error.message}</p>}

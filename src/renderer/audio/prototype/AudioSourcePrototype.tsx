@@ -4,6 +4,7 @@ import { ReleaseShelves } from './ReleaseShelves';
 import { PrototypeSwitcher, usePrototypeLayout } from './PrototypeSwitcher';
 import { useAudioPrototype } from './useAudioPrototype';
 import './prototype.css';
+import './prototypeLayouts.css';
 
 export function AudioSourcePrototype() {
   const state = useAudioPrototype();
