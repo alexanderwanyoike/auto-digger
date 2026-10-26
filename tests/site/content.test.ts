@@ -2,12 +2,24 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
 
-test('leads with MCP mix research and explains how verified finds reach a crate', async () => {
+test('leads with record discovery and presents MCP research after the core features', async () => {
   document.documentElement.innerHTML = await readFile(resolve('site/index.html'), 'utf8');
   expect(document.querySelector('h1')?.textContent).toContain('Auto Digger');
-  expect(document.querySelector('.hero')?.textContent).toContain('MCP');
-  expect(document.querySelector('nav a')?.getAttribute('href')).toBe('#research');
+  expect(document.querySelector('.hero')?.textContent).toMatch(/discover.*Discogs.*crate/is);
+  expect(document.querySelector('.hero')?.textContent).not.toMatch(/MCP|AI client/i);
+  expect(document.title).toMatch(/discover.*records/i);
+  expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toMatch(
+    /Discogs.*download.*crate/i,
+  );
+  expect(document.querySelector('meta[property="og:title"]')?.getAttribute('content')).toBe(
+    document.title,
+  );
+  expect(document.querySelector('nav a')?.getAttribute('href')).toBe('#features');
+  expect(
+    Array.from(document.querySelectorAll('main > section[id]'), (section) => section.id),
+  ).toEqual(['features', 'research', 'get-started']);
   const research = document.getElementById('research');
+  expect(research?.textContent).toMatch(/optional/i);
   expect(research?.textContent).toMatch(/client.*Discogs.*crate/is);
   expect(research?.querySelector('a')?.getAttribute('href')).toBe('setup/#mcp');
 });
