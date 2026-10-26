@@ -62,7 +62,7 @@ export function App({
   let recordContent = <DiscoveryPanel />;
   if (session.account || session.release)
     recordContent = <ReleaseWorkspace session={session} crate={crate} audio={audio} />;
-  if (prototypeEnabled && DiggingDeskPrototype)
+  if (prototypeEnabled)
     recordContent = (
       <Suspense fallback={<p>Loading prototype...</p>}>
         <DiggingDeskPrototype />

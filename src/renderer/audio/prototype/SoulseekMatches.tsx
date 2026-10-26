@@ -1,11 +1,11 @@
 import { LockKeyhole, X } from 'lucide-react';
-import { demoResults } from './demoData';
+import { demoSoulseekResults } from './demoData';
 import type { useDeskSoulseek } from './useDeskSoulseek';
 
 export function SoulseekMatches({ state }: { state: ReturnType<typeof useDeskSoulseek> }) {
   const { track } = state;
   if (!track) return null;
-  const result = demoResults(track, state.scenario).Soulseek;
+  const result = demoSoulseekResults(track, state.scenario);
   const candidates = result.ok ? result.value : [];
   const available = candidates.filter((candidate) => candidate.access === 'public');
   const locked = candidates.filter((candidate) => candidate.access === 'private');

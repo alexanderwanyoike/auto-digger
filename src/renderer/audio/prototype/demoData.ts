@@ -35,14 +35,6 @@ export const demoTracks: [DemoTrack, ...DemoTrack[]] = [
     release: 'Quiet Orbit EP',
     releaseId: 12,
   },
-  {
-    id: 'pressure-a1',
-    position: 'A1',
-    title: 'Low Pressure / Dub',
-    artist: 'Soft Current',
-    release: 'After Hours',
-    releaseId: 24,
-  },
 ];
 export function demoCandidates(track: DemoTrack): DemoCandidate[] {
   return [
@@ -78,30 +70,19 @@ export function demoCandidates(track: DemoTrack): DemoCandidate[] {
     },
   ];
 }
-export function demoResults(
+export function demoSoulseekResults(
   track: DemoTrack,
   scenario: string,
-): Record<DemoCandidate['provider'], Result<DemoCandidate[], { message: string }>> {
-  const candidates = demoCandidates(track);
+): Result<DemoCandidate[], { message: string }> {
+  if (scenario === 'offline')
+    return { ok: false, error: { message: 'Soulseek is not connected in this demo.' } };
   return {
-    YouTube: {
-      ok: true,
-      value: candidates.filter(
-        (candidate) =>
-          candidate.provider === 'YouTube' && !['private-only', 'empty'].includes(scenario),
-      ),
-    },
-    Soulseek:
-      scenario === 'offline'
-        ? { ok: false, error: { message: 'Could not connect to slskd. YouTube still works.' } }
-        : {
-            ok: true,
-            value: candidates.filter(
-              (candidate) =>
-                candidate.provider === 'Soulseek' &&
-                scenario !== 'empty' &&
-                (scenario !== 'private-only' || candidate.access === 'private'),
-            ),
-          },
+    ok: true,
+    value: demoCandidates(track).filter(
+      (candidate) =>
+        candidate.provider === 'Soulseek' &&
+        scenario !== 'empty' &&
+        (scenario !== 'private-only' || candidate.access === 'private'),
+    ),
   };
 }
