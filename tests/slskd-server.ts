@@ -16,7 +16,7 @@ function readBody(request: IncomingMessage): Promise<unknown> {
       try {
         resolveBody(JSON.parse(body) as unknown);
       } catch (error) {
-        reject(error);
+        reject(error instanceof Error ? error : new Error('Invalid JSON request'));
       }
     });
     request.once('error', reject);
