@@ -84,9 +84,9 @@
           <details>
             <summary>Docker setup</summary>
             <p>
-              This Linux example follows slskd's bind-mount setup. Install Docker first, then create
-              a working folder containing <code>compose.yml</code> and the folders
-              <code>data</code>, <code>downloads</code> and <code>incomplete</code>.
+              This Linux example follows slskd's bind-mount setup. Install Docker with its Compose
+              plugin first, then create a working folder containing <code>compose.yml</code> and the
+              folders <code>data</code>, <code>downloads</code> and <code>incomplete</code>.
             </p>
             <p>
               Save this as <code>compose.yml</code>. Replace <code>/path/to/your/music</code> with
@@ -116,7 +116,7 @@
               role="region"
               tabindex="0"
               aria-label="Generate a slskd API key"
-            ><code>docker run --rm slskd/slskd:0.26.2 --generate-secret</code></pre>
+            ><code>docker run --rm slskd/slskd:0.26.2 ./slskd --generate-secret 32</code></pre>
             <p>
               Save this as <code>data/slskd.yml</code>, replacing every capitalised value. The web
               username and password are for opening slskd's interface; the Soulseek credentials
