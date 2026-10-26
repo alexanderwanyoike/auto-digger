@@ -61,14 +61,73 @@
 :root:not([data-material='aluminium']) .app-header {
   background: linear-gradient(var(--metal-top), var(--metal-bottom));
 }
-.settings-select {
-  min-width: 150px;
-  text-transform: none;
-}
 .download-location {
   font-size: 11px;
   color: var(--text);
   overflow-wrap: anywhere;
+}
+.download-folders {
+  display: grid;
+  gap: 10px;
+  width: min(100%, 680px);
+}
+.download-folders label {
+  display: grid;
+  gap: 8px;
+  font-size: 11px;
+}
+.download-folders input {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-inset);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+}
+.folder-placeholders {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.folder-placeholders > span {
+  margin-right: 4px;
+}
+.folder-placeholders code {
+  padding: 3px 5px;
+  background: var(--surface-inset);
+  border-radius: 3px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.download-folder-example {
+  border-left: 2px solid var(--line);
+  padding: 8px 12px;
+}
+.download-folder-example > span {
+  color: var(--muted);
+  font-size: 10px;
+}
+.download-folder-preview {
+  display: block;
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.download-folder-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.download-folder-actions > span {
+  color: var(--muted);
+  font-size: 10px;
 }
 
 :root[data-accent='blue'],

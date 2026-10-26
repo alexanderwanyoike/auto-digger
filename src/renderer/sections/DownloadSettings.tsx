@@ -1,5 +1,6 @@
 import type { usePreferences } from './usePreferences';
-import { SettingsSelect } from './SettingsSelect';
+import { DownloadFolders } from './DownloadFolders';
+import { currentFolderTemplate } from '../../shared/folder-template';
 
 export function DownloadSettings({
   preferences,
@@ -24,19 +25,12 @@ export function DownloadSettings({
       >
         Choose downloads folder
       </button>
-      <SettingsSelect
-        label="Download organisation"
-        value={preferences.value.layout}
-        options={['flat', 'release']}
+      <DownloadFolders
+        template={currentFolderTemplate(preferences.value)}
+        root={preferences.value.directory ?? 'Music/Auto Digger'}
         disabled={disabled}
-        onSelect={(layout) => {
-          preferences.save({ layout }).catch(() => undefined);
-        }}
+        onSave={(folderTemplate) => preferences.save({ layout: 'custom', folderTemplate })}
       />
-      <p>
-        Flat keeps files together. Folder per release groups EPs and albums by artist, title and
-        Discogs ID.
-      </p>
     </div>
   );
 }

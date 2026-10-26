@@ -5,7 +5,7 @@ import { createAudioLibrary } from './library';
 import { createLibraryFiles } from './libraryFiles';
 import { fileAvailable } from './fileAvailable';
 import type { DownloadOptions } from './downloadOptions';
-import { filenamePart } from './filenamePart';
+import { downloadDirectory } from './download-directory';
 import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audioFailure';
@@ -154,14 +154,9 @@ export function createIndexedLibrary(
           if (!recovered.ok) return recovered;
         }
         const root = preferences.value.directory ?? defaultDirectory;
-        const target =
-          preferences.value.layout === 'release'
-            ? join(
-                root,
-                `${filenamePart(release.artists.join(', '))} - ${filenamePart(release.title)} [r${release.id.toString()}]`,
-              )
-            : root;
-        const directory = existing?.directory ?? target;
+        const target = downloadDirectory(root, preferences.value, release, 'YouTube');
+        if (!target.ok) return audioFailure('invalid-input', target.error.message);
+        const directory = existing?.directory ?? target.value;
         const remembered = await catalogue.downloads.rememberDirectory(directory);
         if (!remembered.ok) return audioFailure('storage', remembered.error.message);
         const result = await library(directory).download(parsed.data, options);

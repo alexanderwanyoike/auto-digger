@@ -33,8 +33,9 @@ test('persists settings and finds old and per-release downloads after a native r
     await page.getByRole('radio', { name: 'Carbon', exact: true }).check();
     await page.getByRole('radio', { name: 'Green', exact: true }).check();
     await page
-      .getByRole('combobox', { name: 'Download organisation', exact: true })
-      .selectOption('release');
+      .getByRole('textbox', { name: 'Folder layout', exact: true })
+      .fill('<artist> - <release>');
+    await page.getByRole('button', { name: 'Save folder layout', exact: true }).click();
     await page.getByRole('button', { name: 'Choose downloads folder', exact: true }).click();
     await expect(page.getByText(chosen, { exact: true })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-material', 'carbon');

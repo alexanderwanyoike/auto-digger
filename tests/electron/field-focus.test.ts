@@ -120,7 +120,7 @@ async function expectSystemFocus(field: Locator) {
       await crateName.focus();
       await expectFlushFocus(crateName);
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
-      const layout = page.getByRole('combobox', { name: 'Download organisation', exact: true });
+      const layout = page.getByRole('textbox', { name: 'Folder layout', exact: true });
       await page.keyboard.press('Tab');
       await layout.focus();
       await expectFlushFocus(layout);
