@@ -9,6 +9,15 @@ import { createCrateBridge } from './crateBridge';
 import { createDiscogsBridge } from './bridge';
 import { createCatalogueBridge } from './catalogueBridge';
 import { createAudioBridge } from './audioBridge';
+import { createSoulseekBridge } from './soulseek-bridge';
+
+contextBridge.exposeInMainWorld(
+  'soulseek',
+  createSoulseekBridge(async (channel, input) => {
+    const result: unknown = await ipcRenderer.invoke(channel, input);
+    return result;
+  }),
+);
 
 contextBridge.exposeInMainWorld(
   'researchAccess',

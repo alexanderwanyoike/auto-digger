@@ -22,6 +22,9 @@ import { registerDownloadJobHandlers } from './audio/registerJobHandlers';
 import { createDownloader } from './audio/downloader';
 import { registerAudioHandlers } from './audio/registerHandlers';
 import { registerAudioProtocol } from './audio/protocol';
+import { createSoulseekSettings } from './soulseek/settings';
+import { createSoulseekService } from './soulseek/service';
+import { registerSoulseekHandlers } from './soulseek/register-handlers';
 import { createResearchService } from './research/service';
 import { createResearchRuntime } from './research/runtime';
 import { registerResearchHandlers } from './research/registerHandlers';
@@ -31,6 +34,8 @@ let crateStore: ReturnType<typeof createLegacyCrateStore> | undefined;
 let catalogueStore: ReturnType<typeof createCatalogueStore> | undefined;
 let audioLibrary: ReturnType<typeof createIndexedLibrary> | undefined;
 let downloadJobs: ReturnType<typeof createDownloadJobs> | undefined;
+let soulseekSettings: ReturnType<typeof createSoulseekSettings> | undefined;
+let soulseek: ReturnType<typeof createSoulseekService> | undefined;
 const audioCommands = createCommandRunner();
 const downloader = createDownloader((args, timeout, signal, onLine) =>
   audioCommands.execute(args, timeout, signal, onLine),
@@ -45,6 +50,7 @@ app.on('before-quit', (event) => {
     closingCatalogue = true;
     Promise.resolve(researchRuntime?.stop())
       .then(() => downloadJobs?.close())
+      .then(() => soulseek?.close())
       .then(() => catalogueStore?.close())
       .then((result) => {
         if (result && !result.ok) process.stderr.write(`${result.error.message}\n`);
@@ -118,8 +124,22 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     registerResearchHandlers(window, researchRuntime, catalogueStore.research);
     registerCrateHandlers(window, crateStore);
     const downloadsDirectory = join(app.getPath('music'), 'Auto Digger');
+    soulseekSettings ??= createSoulseekSettings(
+      join(app.getPath('userData'), 'slskd.bin'),
+      electronEncryption,
+    );
+    soulseek ??= createSoulseekService(() =>
+      soulseekSettings ? soulseekSettings.load() : Promise.resolve({ ok: true, value: null }),
+    );
+    registerSoulseekHandlers(window, soulseekSettings, soulseek);
     if (!audioLibrary) {
-      audioLibrary = createIndexedLibrary(downloadsDirectory, catalogueStore, downloader);
+      audioLibrary = createIndexedLibrary(
+        downloadsDirectory,
+        catalogueStore,
+        downloader,
+        fetch,
+        soulseek.receive,
+      );
       registerAudioProtocol(audioLibrary);
     }
     const library = audioLibrary;

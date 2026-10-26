@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { AudioResult } from '../../shared/audio';
-import type { SoulseekSettings, SoulseekMatch } from '../../shared/soulseek';
+import type { SoulseekSettings, SoulseekMatch, SoulseekResults } from '../../shared/soulseek';
 import { audioFailure } from '../../shared/audioFailure';
 import type { ReceiveSoulseek } from '../audio/soulseek-library';
 import { createSlskdClient } from './client';
@@ -59,7 +59,7 @@ export function createSoulseekService(
       }
       return result;
     },
-    async results(id: unknown) {
+    async results(id: unknown): Promise<AudioResult<SoulseekResults>> {
       const search = typeof id === 'string' ? searches.get(id) : undefined;
       if (!search || typeof id !== 'string')
         return audioFailure('invalid-input', 'This search has expired. Search again.');

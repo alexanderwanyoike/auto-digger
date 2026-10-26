@@ -8,9 +8,11 @@ import type { CrateBridge } from './crate';
 import type { DiscogsBridge } from './discogs';
 import type { CatalogueBridge } from './catalogue';
 import type { AudioBridge } from './audio';
+import type { SoulseekBridge } from './soulseek';
 
 declare global {
   interface Window {
+    soulseek?: SoulseekBridge;
     savedFilters?: SavedFiltersBridge;
     updates?: UpdatesBridge;
     researchAccess?: ResearchAccessBridge;
