@@ -10,11 +10,11 @@ export function createSoulseekService(
   load: () => Promise<AudioResult<SoulseekSettings | null>>,
   request: typeof fetch = fetch,
 ) {
-  type Search = {
+  interface Search {
     client: ReturnType<typeof createSlskdClient>;
     directory: string;
     matches: SoulseekMatch[];
-  };
+  }
   const searches = new Map<string, Search>();
   const receive: ReceiveSoulseek = async (input, options) => {
     const search = [...searches.values()].find((entry) =>
@@ -49,11 +49,12 @@ export function createSoulseekService(
       const client = createSlskdClient(settings.value, request);
       const result = await client.startSearch(query.data);
       if (result.ok) {
-        while (searches.size >= 10) {
+        if (searches.size >= 10) {
           const oldest = searches.entries().next().value;
-          if (!oldest) break;
-          await oldest[1].client.stop(oldest[0]);
-          searches.delete(oldest[0]);
+          if (oldest) {
+            await oldest[1].client.stop(oldest[0]);
+            searches.delete(oldest[0]);
+          }
         }
         searches.set(result.value.id, { client, directory: settings.value.directory, matches: [] });
       }

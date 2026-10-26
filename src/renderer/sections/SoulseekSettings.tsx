@@ -67,6 +67,7 @@ export function SoulseekSettings() {
       setBusy(false);
     }
   }
+  const submitLabel = configured ? 'Save slskd connection' : 'Connect slskd';
   return (
     <section className="settings-card soulseek-settings" aria-label="Soulseek settings">
       <h2>Soulseek</h2>
@@ -126,7 +127,7 @@ export function SoulseekSettings() {
           from your Auto Digger library.
         </p>
         <button className="secondary-button" type="submit" disabled={busy || !bridge}>
-          {busy ? 'Checking…' : configured ? 'Save slskd connection' : 'Connect slskd'}
+          {busy ? 'Checking…' : submitLabel}
         </button>
         {configured && (
           <button

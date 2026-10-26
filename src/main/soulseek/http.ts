@@ -6,13 +6,13 @@ export function createSlskdHttp(config: { url: string; apiKey: string }, request
   return async function call<T>(
     path: string,
     schema: z.ZodType<T>,
-    method = 'GET',
+    method?: string,
     body?: unknown,
     signal?: AbortSignal,
   ): Promise<AudioResult<T>> {
     try {
       const response = await request(`${config.url.replace(/\/+$/, '')}/api/v0${path}`, {
-        method,
+        method: method ?? 'GET',
         redirect: 'error',
         headers: { 'X-API-Key': config.apiKey, 'Content-Type': 'application/json' },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
@@ -35,22 +35,25 @@ export function createSlskdHttp(config: { url: string; apiKey: string }, request
       if (!reader) return audioFailure('invalid-data', 'slskd returned an empty response.');
       let size = 0;
       const chunks: Uint8Array[] = [];
-      for (;;) {
+      const readNext = async (): Promise<AudioResult<T>> => {
         const next = await reader.read();
-        if (next.done) break;
+        if (next.done) {
+          const parsed = schema.safeParse(
+            JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown,
+          );
+          return parsed.success
+            ? { ok: true, value: parsed.data }
+            : audioFailure('invalid-data', 'slskd returned an unreadable response.');
+        }
         size += next.value.length;
         if (size > 8_000_000) {
           await reader.cancel();
           return audioFailure('invalid-data', 'Too many Soulseek results. Refine your search.');
         }
         chunks.push(next.value);
-      }
-      const parsed = schema.safeParse(
-        JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown,
-      );
-      return parsed.success
-        ? { ok: true, value: parsed.data }
-        : audioFailure('invalid-data', 'slskd returned an unreadable response.');
+        return readNext();
+      };
+      return await readNext();
     } catch {
       return audioFailure(
         signal?.aborted ? 'cancelled' : 'network',

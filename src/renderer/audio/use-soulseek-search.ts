@@ -12,7 +12,7 @@ export function useSoulseekSearch(bridge: SoulseekBridge | undefined, initial: s
   const search = useCallback(
     async (value: string) => {
       version.current += 1;
-      const current = version.current;
+      const { current } = version;
       const cleaned = cleanSoulseekQuery(value);
       edit(cleaned);
       setSearchId(null);

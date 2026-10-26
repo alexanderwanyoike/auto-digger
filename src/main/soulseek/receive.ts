@@ -21,7 +21,7 @@ export async function receiveFile(
     ...(options.signal ? [options.signal] : []),
   ]);
   let transferId: string | undefined;
-  let completed = false;
+  const state: { completed: boolean } = { completed: false };
   try {
     const queued = await client.enqueue(match, batchId, signal);
     if (!queued.ok) return queued;
@@ -31,20 +31,24 @@ export async function receiveFile(
         'unavailable',
         'This peer could not accept the download. Try another match.',
       );
-    while (!signal.aborted) {
+    const waitForFile = async (
+      attempt: number,
+    ): Promise<AudioResult<{ file: string; match: SoulseekMatch }>> => {
+      const file = await completedFile(directory, batchId, match.size);
+      if (file.ok) return { ok: true, value: { file: file.value, match } };
+      if (attempt === 19) return file;
+      await delay(500, undefined, { signal });
+      return waitForFile(attempt + 1);
+    };
+    const poll = async (): Promise<AudioResult<{ file: string; match: SoulseekMatch }>> => {
       const batch = await client.batch(batchId, signal);
       if (!batch.ok) return batch;
       const transfer = batch.value.transfers.find((item) => item.id === transferId);
       if (!transfer)
         return audioFailure('invalid-data', 'slskd lost this transfer. Try another match.');
       if (transfer.state.includes('Succeeded')) {
-        completed = true;
-        for (let attempt = 0; attempt < 20; attempt += 1) {
-          const file = await completedFile(directory, batchId, match.size);
-          if (file.ok) return { ok: true, value: { file: file.value, match } };
-          if (attempt === 19) return file;
-          await delay(500, undefined, { signal });
-        }
+        state.completed = true;
+        return waitForFile(0);
       }
       if (transfer.state.includes('Completed'))
         return audioFailure(
@@ -60,11 +64,13 @@ export async function receiveFile(
         eta: null,
       });
       await delay(750, undefined, { signal });
-    }
+      return poll();
+    };
+    return await poll();
   } catch {
     /* Aborting interrupts both network requests and queue polling. */
   } finally {
-    if (transferId && !completed) await client.cancel(match.username, transferId);
+    if (transferId && !state.completed) await client.cancel(match.username, transferId);
   }
   return audioFailure(
     options.signal?.aborted ? 'cancelled' : 'network',

@@ -101,29 +101,27 @@ export function createDownloadJobs(
         if (index < 0) break;
         entries.splice(index, 1);
       }
-      const created = parsed.data.map((request): Entry => {
-        return {
-          input: request,
-          job: {
-            ...downloadStage('queued'),
-            id: randomUUID(),
-            title:
-              request.release.tracks[request.trackIndex ?? -1]?.title ??
-              ('videoIndex' in request
-                ? request.release.videos[request.videoIndex]?.title
-                : undefined) ??
-              request.release.title,
-            releaseId: request.release.id,
-            ...('videoIndex' in request ? { videoIndex: request.videoIndex } : {}),
-            sourceId: sourceKey(request) ?? undefined,
-            artist: request.release.artists.join(', '),
-            album: request.release.title,
-            artworkUrl: request.release.artworkUrl,
-            track: null,
-            error: null,
-          },
-        };
-      });
+      const created = parsed.data.map((request): Entry => ({
+        input: request,
+        job: {
+          ...downloadStage('queued'),
+          id: randomUUID(),
+          title:
+            request.release.tracks[request.trackIndex ?? -1]?.title ??
+            ('videoIndex' in request
+              ? request.release.videos[request.videoIndex]?.title
+              : undefined) ??
+            request.release.title,
+          releaseId: request.release.id,
+          ...('videoIndex' in request ? { videoIndex: request.videoIndex } : {}),
+          sourceId: sourceKey(request) ?? undefined,
+          artist: request.release.artists.join(', '),
+          album: request.release.title,
+          artworkUrl: request.release.artworkUrl,
+          track: null,
+          error: null,
+        },
+      }));
       entries.push(...created);
       pump();
       return { ok: true, value: created.map(snapshot) };

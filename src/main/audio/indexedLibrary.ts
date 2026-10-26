@@ -17,7 +17,7 @@ export function createIndexedLibrary(
   defaultDirectory: string,
   catalogue: ReturnType<typeof createCatalogueStore>,
   downloader: ReturnType<typeof createDownloader>,
-  request: typeof fetch = fetch,
+  request?: typeof fetch,
   receiveSoulseek?: ReceiveSoulseek,
 ) {
   const libraries = new Map<string, ReturnType<typeof createAudioLibrary>>();
@@ -168,15 +168,12 @@ export function createIndexedLibrary(
         const directory = existing?.directory ?? target.value;
         const remembered = await catalogue.downloads.rememberDirectory(directory);
         if (!remembered.ok) return audioFailure('storage', remembered.error.message);
-        const result =
-          'provider' in parsed.data
-            ? receiveSoulseek
-              ? await importSoulseekAudio(directory, parsed.data, receiveSoulseek, options)
-              : audioFailure<LocalTrack>(
-                  'unavailable',
-                  'Connect slskd in Settings before using Soulseek.',
-                )
-            : await library(directory).download(parsed.data, options);
+        let result: AudioResult<LocalTrack>;
+        if ('provider' in parsed.data) {
+          if (!receiveSoulseek)
+            return audioFailure('unavailable', 'Connect slskd in Settings before using Soulseek.');
+          result = await importSoulseekAudio(directory, parsed.data, receiveSoulseek, options);
+        } else result = await library(directory).download(parsed.data, options);
         if (!result.ok) return result;
         const indexed = await catalogue.downloads.save({ directory, track: result.value });
         return indexed.ok
