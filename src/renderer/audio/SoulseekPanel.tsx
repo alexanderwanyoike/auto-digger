@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, X, LockKeyhole } from 'lucide-react';
+import { Search, LockKeyhole } from 'lucide-react';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { SoulseekMatch } from '../../shared/soulseek';
 import type { useAudioLibrary } from './use-audio-library';
@@ -11,12 +11,10 @@ export function SoulseekPanel({
   release,
   trackIndex,
   audio,
-  close,
 }: {
   release: DiscogsRelease;
   trackIndex: number;
   audio: ReturnType<typeof useAudioLibrary>;
-  close: () => void;
 }) {
   const state = useSoulseekSearch(
     window.soulseek,
@@ -40,21 +38,12 @@ export function SoulseekPanel({
       trackIndex,
       candidateId: match.id,
     });
-    if (result.ok) close();
-    else setError(result.error.message);
+    if (!result.ok) setError(result.error.message);
   }
   return (
     <section className="soulseek-matches" aria-label="Soulseek matches">
       <header>
         <strong>Soulseek matches</strong>
-        <button
-          type="button"
-          className="icon-button"
-          aria-label="Close Soulseek matches"
-          onClick={close}
-        >
-          <X size={13} aria-hidden="true" />
-        </button>
       </header>
       <form
         className="soulseek-refine"
