@@ -53,6 +53,7 @@ export function usePreferences(bridge: PreferencesBridge | undefined) {
           material: value.material,
           accent: value.accent,
           layout: value.layout,
+          ...(value.folders ? { folders: value.folders } : {}),
           ...patch,
         }),
       ),
