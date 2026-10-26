@@ -2,7 +2,7 @@
 
 Status: production integration, dependent on ADR 0008 folder organisation.
 
-Soulseek is an optional audio provider on the digging desk. Auto Digger talks to a separately installed slskd instance over its HTTP API. It does not bundle a Soulseek client, run slskd, manage sharing or request the user's Soulseek password. slskd owns the peer connection and transfer; Auto Digger owns its library copy, Discogs assignment, source provenance and destination.
+YouTube and Soulseek are selected together in the digging desk Audio sources section. The Soulseek view selects a Discogs track before searching. Auto Digger talks to a separately installed slskd instance over its HTTP API. It does not bundle a Soulseek client, run slskd, manage sharing or request the user's Soulseek password. slskd owns the peer connection and transfer; Auto Digger owns its library copy, Discogs assignment, source provenance and destination.
 
 Use the established API flow in the [slskd 0.26.2 web search client](https://github.com/slskd/slskd/blob/0.26.2/src/web/src/lib/searches.js) and [batch transfer controller](https://github.com/slskd/slskd/blob/0.26.2/src/slskd/Transfers/API/Controllers/TransfersController.cs). These sources are AGPL-3.0-only with additional terms. No upstream implementation is copied. Keep slskd external. Search requests retain slskd's default timeout and bound responses to 1,000 files and 100 peers.
 

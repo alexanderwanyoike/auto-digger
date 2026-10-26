@@ -42,7 +42,7 @@ The preview illustrates future paths. Genre and label use the first Discogs valu
 
 ## 4. Find a track
 
-Open a record on the digging desk and choose Use Soulseek beside a track. Edit Refine search when needed. Punctuation becomes spaces; the record's title stays unchanged.
+Open a record on the digging desk. Under Audio sources, choose YouTube or Soulseek in the same provider selector. Choose Soulseek, select the Discogs track, then edit Refine search when needed. Punctuation becomes spaces; the record's title stays unchanged. Both providers use the same download queue and library.
 
 ![Editable search and compact results table](images/soulseek-results.png)
 

@@ -30,6 +30,31 @@
   color: var(--muted);
   line-height: 1.6;
 }
+.source-provider-choice {
+  display: flex;
+  gap: 4px;
+  padding-bottom: 12px;
+}
+.source-provider-choice button {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-inset);
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+}
+.source-provider-choice button[aria-pressed='true'] {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  color: var(--text);
+}
+.source-provider-choice button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
 .source-list {
   list-style: none;
   padding: 0;

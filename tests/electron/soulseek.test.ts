@@ -42,7 +42,13 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     });
     await page.reload();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
-    await page.getByRole('button', { name: 'Use Soulseek for Quiet Orbit', exact: true }).click();
+    const sources = page.getByRole('region', { name: 'Audio sources', exact: true });
+    await expect(sources.getByRole('button', { name: 'YouTube', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await sources.getByRole('button', { name: 'Soulseek', exact: true }).click();
+    await expect(sources.getByRole('combobox', { name: 'Soulseek track' })).toHaveValue('0');
     const table = page.getByRole('table', { name: 'Soulseek search results' });
     await expect(table.getByRole('row')).toHaveCount(41);
     const geometry = await table.evaluate((element) => ({
@@ -51,6 +57,7 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     }));
     expect(geometry.height).toBeLessThanOrEqual(240);
     expect(geometry.scroll).toBeGreaterThan(240);
+    await sources.screenshot({ path: test.info().outputPath('source-choice.png') });
     await page
       .getByRole('region', { name: 'Soulseek matches', exact: true })
       .screenshot({ path: test.info().outputPath('soulseek-results.png') });
