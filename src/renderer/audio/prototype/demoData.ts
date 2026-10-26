@@ -18,7 +18,7 @@ export interface DemoCandidate {
   quality: string;
   duration: string;
 }
-export const demoTracks: DemoTrack[] = [
+export const demoTracks: [DemoTrack, ...DemoTrack[]] = [
   {
     id: 'orbit-a1',
     position: 'A1',

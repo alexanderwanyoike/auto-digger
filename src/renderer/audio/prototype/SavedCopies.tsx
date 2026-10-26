@@ -27,6 +27,7 @@ export function SavedCopies({
           <li key={copy.id}>
             <div>
               <strong>{copy.candidate.provider}</strong>
+              <code>{copy.path}</code>
               <span>
                 {copy.candidate.quality} · {copy.candidate.owner}
               </span>
@@ -35,7 +36,9 @@ export function SavedCopies({
               type="button"
               className="secondary-button"
               disabled={copy.id === preferred}
-              onClick={() => onPrefer(copy)}
+              onClick={() => {
+                onPrefer(copy);
+              }}
             >
               Use {copy.candidate.provider} copy
             </button>

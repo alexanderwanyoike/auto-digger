@@ -5,9 +5,11 @@ import type { DemoCandidate } from './demoData';
 export interface DemoCopy {
   id: string;
   candidate: DemoCandidate;
+  path: string;
 }
 interface DemoJob {
   candidate: DemoCandidate;
+  path: string;
   stage: 'queued' | 'downloading' | 'importing' | 'complete';
 }
 export function useDemoCopies() {
@@ -15,26 +17,23 @@ export function useDemoCopies() {
   const [preferred, setPreferred] = useState<Record<string, string>>({});
   const [job, setJob] = useState<DemoJob | null>(null);
   const active = job !== null && job.stage !== 'complete';
-  function queue(candidate: DemoCandidate): Result<undefined, { message: string }> {
+  function queue(candidate: DemoCandidate, path: string): Result<undefined, { message: string }> {
     if (candidate.access === 'private')
       return { ok: false, error: { message: 'Private files are not downloadable in this demo.' } };
     if (active)
       return { ok: false, error: { message: 'Finish or cancel the current demo transfer first.' } };
     if (copies.some((copy) => copy.candidate.id === candidate.id))
       return { ok: false, error: { message: 'This source is already saved.' } };
-    setJob({ candidate, stage: 'queued' });
+    setJob({ candidate, path, stage: 'queued' });
     return { ok: true, value: undefined };
   }
   function advance() {
     if (!job || job.stage === 'complete') return;
-    const stage =
-      job.stage === 'queued'
-        ? 'downloading'
-        : job.stage === 'downloading'
-          ? 'importing'
-          : 'complete';
+    let stage: 'downloading' | 'importing' | 'complete' = 'complete';
+    if (job.stage === 'queued') stage = 'downloading';
+    if (job.stage === 'downloading') stage = 'importing';
     if (stage === 'complete') {
-      const copy = { id: `copy-${job.candidate.id}`, candidate: job.candidate };
+      const copy = { id: `copy-${job.candidate.id}`, candidate: job.candidate, path: job.path };
       setCopies((previous) => [...previous, copy]);
       setPreferred((previous) =>
         previous[job.candidate.trackId]
@@ -51,7 +50,9 @@ export function useDemoCopies() {
     active,
     queue,
     advance,
-    cancel: () => setJob(null),
+    cancel: () => {
+      setJob(null);
+    },
     prefer: (copy: DemoCopy) => {
       setPreferred((previous) => ({ ...previous, [copy.candidate.trackId]: copy.id }));
     },

@@ -66,11 +66,9 @@ export function CandidateResults({
                     aria-label={`Save demo copy from ${candidate.owner}`}
                     onClick={() => onSave?.(candidate)}
                   >
-                    {candidate.access === 'private'
-                      ? 'Private'
-                      : unavailable.includes(candidate.id)
-                        ? 'Already saved'
-                        : 'Save demo copy'}
+                    {candidate.access === 'private' && 'Private'}
+                    {candidate.access !== 'private' &&
+                      (unavailable.includes(candidate.id) ? 'Already saved' : 'Save demo copy')}
                   </button>
                 </article>
               ))}
