@@ -1,7 +1,7 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
-import { loadedRelease } from '../discogsFixtures';
+import { loadedRelease } from '../discogs-fixtures';
 
 test('migrates the crate and persists named crate track annotations through isolated IPC and restarts', async () => {
   const profile = test.info().outputPath('catalogue-profile');
@@ -15,7 +15,7 @@ test('migrates the crate and persists named crate track annotations through isol
     ),
   );
   const options = {
-    args: [resolve('tests/encryptedDesktop.cjs'), `--user-data-dir=${profile}`],
+    args: [resolve('tests/encrypted-desktop.cjs'), `--user-data-dir=${profile}`],
     env,
   };
   let desktop = await electron.launch(options);

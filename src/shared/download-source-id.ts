@@ -1,5 +1,5 @@
 import type { DownloadInput } from './audio';
-import { videoId } from './youtubeVideoId';
+import { videoId } from './youtube-video-id';
 
 export function downloadSourceId(input: DownloadInput): string | null {
   const source =

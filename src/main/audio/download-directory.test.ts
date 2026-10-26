@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 import { downloadDirectory } from './download-directory';
 
 test('uses portable folder names for bare metadata and explicit fallbacks without losing source order', () => {

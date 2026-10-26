@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import type { z } from 'zod';
 import type { markedTrackSchema } from '../../shared/catalogue';
-import type { useCrate } from './useCrate';
+import type { useCrate } from './use-crate';
 
 export function TrackMarks({
   track,

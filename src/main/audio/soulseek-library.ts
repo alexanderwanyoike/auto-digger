@@ -2,12 +2,12 @@ import { copyFile, link, mkdir, mkdtemp, rm, stat } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import type { AudioResult, LocalTrack, SoulseekDownloadInput } from '../../shared/audio';
 import type { SoulseekMatch } from '../../shared/soulseek';
-import { audioFailure } from '../../shared/audioFailure';
+import { audioFailure } from '../../shared/audio-failure';
 import { downloadSourceId } from '../../shared/download-source-id';
-import { downloadStage } from '../../shared/downloadJobs';
-import type { DownloadOptions } from './downloadOptions';
-import { createLibraryFiles } from './libraryFiles';
-import { filenamePart } from './filenamePart';
+import { downloadStage } from '../../shared/download-jobs';
+import type { DownloadOptions } from './download-options';
+import { createLibraryFiles } from './library-files';
+import { filenamePart } from './filename-part';
 import { tagDownload } from './tagging';
 
 export type ReceiveSoulseek = (

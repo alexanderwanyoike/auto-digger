@@ -1,7 +1,7 @@
 import { lstat, readdir, realpath } from 'node:fs/promises';
 import { isAbsolute, join, relative } from 'node:path';
 import type { AudioResult } from '../../shared/audio';
-import { audioFailure } from '../../shared/audioFailure';
+import { audioFailure } from '../../shared/audio-failure';
 
 export async function completedFile(
   root: string,

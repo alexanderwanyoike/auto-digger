@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import type { DiscogsBridge } from '../../shared/discogs';
-import { identityResponse } from '../../../tests/discogsFixtures';
+import { identityResponse } from '../../../tests/discogs-fixtures';
 import { App } from '../App';
 
 test('submits a full year range from the digging form', async () => {

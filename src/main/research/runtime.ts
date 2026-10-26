@@ -2,9 +2,9 @@ import { randomBytes } from 'node:crypto';
 import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import type { CatalogueResult } from '../../shared/catalogue';
-import type { ResearchAccess } from '../../shared/researchAccess';
-import type { ResearchResult } from '../../shared/researchCommands';
-import { catalogueFailure } from '../../shared/catalogueFailure';
+import type { ResearchAccess } from '../../shared/research-access';
+import type { ResearchResult } from '../../shared/research-commands';
+import { catalogueFailure } from '../../shared/catalogue-failure';
 import { createResearchListener } from './listener';
 
 export function createResearchRuntime(

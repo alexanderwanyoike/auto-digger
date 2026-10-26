@@ -1,13 +1,13 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import { selectAppearance } from '../appearance';
-import { identityResponse, releaseResponse } from '../discogsFixtures';
+import { identityResponse, releaseResponse } from '../discogs-fixtures';
 
 [900, 1920].forEach((width) => {
   test(`keeps long search summaries compact and aligned at ${width.toString()}px`, async () => {
     const desktop = await electron.launch({
       args: [
-        resolve('tests/encryptedDesktop.cjs'),
+        resolve('tests/encrypted-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       env: Object.fromEntries(

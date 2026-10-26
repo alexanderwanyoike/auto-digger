@@ -1,12 +1,12 @@
 import type { DatabaseSync } from 'node:sqlite';
 import { createSavedFiltersStore } from '../filters/store';
 import { createResearchStore } from '../research/store';
-import { createDownloadIndex } from '../audio/downloadIndex';
+import { createDownloadIndex } from '../audio/download-index';
 import { createPreferencesStore } from '../settings/store';
-import { catalogueFailure } from '../../shared/catalogueFailure';
+import { catalogueFailure } from '../../shared/catalogue-failure';
 import type { CatalogueResult, CatalogueView } from '../../shared/catalogue';
 import { openCatalogue } from './database';
-import { readCatalogueView } from './readView';
+import { readCatalogueView } from './read-view';
 import { catalogueMutations } from './mutations';
 
 export function createCatalogueStore(file: string, legacyFile?: string) {

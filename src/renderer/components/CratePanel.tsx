@@ -2,7 +2,7 @@ import { Library, Bookmark, X } from 'lucide-react';
 import { CratePicker } from '../crate/CratePicker';
 import { RecordArtwork } from './RecordArtwork';
 import type { DiscogsRelease } from '../../shared/discogs';
-import type { useCrate } from '../crate/useCrate';
+import type { useCrate } from '../crate/use-crate';
 
 export function CratePanel({
   crate,

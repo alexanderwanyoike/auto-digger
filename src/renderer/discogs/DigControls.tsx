@@ -1,5 +1,5 @@
 import { Shuffle } from 'lucide-react';
-import type { useDiscogs } from './useDiscogs';
+import type { useDiscogs } from './use-discogs';
 
 export function DigControls({ session }: { session: ReturnType<typeof useDiscogs> }) {
   if (!session.filters) return null;

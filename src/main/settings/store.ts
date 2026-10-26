@@ -1,7 +1,7 @@
 import type { DatabaseSync } from 'node:sqlite';
 import { isAbsolute } from 'node:path';
 import type { CatalogueResult } from '../../shared/catalogue';
-import { catalogueFailure } from '../../shared/catalogueFailure';
+import { catalogueFailure } from '../../shared/catalogue-failure';
 import { defaultPreferences, preferencesSchema } from '../../shared/preferences';
 import type { PreferencesResult } from '../../shared/preferences';
 

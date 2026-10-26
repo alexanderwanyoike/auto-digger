@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import type { LocalTrack } from '../../shared/audio';
-import type { DownloadJob } from '../../shared/downloadJobs';
-import { downloadStage } from '../../shared/downloadJobs';
+import type { DownloadJob } from '../../shared/download-jobs';
+import { downloadStage } from '../../shared/download-jobs';
 import { libraryRows } from './rows';
 
 const track: LocalTrack = {

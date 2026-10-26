@@ -1,6 +1,6 @@
-import type { useDiscogs } from '../discogs/useDiscogs';
+import type { useDiscogs } from '../discogs/use-discogs';
 import type { Appearance } from '../theme/preferences';
-import type { usePreferences } from './usePreferences';
+import type { usePreferences } from './use-preferences';
 import { ResearchSettings } from './ResearchSettings';
 import { DownloadSettings } from './DownloadSettings';
 import { AppearanceSettings } from './AppearanceSettings';

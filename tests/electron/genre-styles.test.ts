@@ -1,11 +1,11 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
-import { identityResponse } from '../discogsFixtures';
+import { identityResponse } from '../discogs-fixtures';
 
 test('scopes styles by genre and submits only compatible selected styles through IPC', async () => {
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: Object.fromEntries(

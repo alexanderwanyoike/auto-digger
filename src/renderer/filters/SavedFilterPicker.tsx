@@ -1,6 +1,6 @@
 import { useId, useState } from 'react';
 import { BookmarkPlus, Trash2, X } from 'lucide-react';
-import type { useSavedFilters } from './useSavedFilters';
+import type { useSavedFilters } from './use-saved-filters';
 
 export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useSavedFilters> }) {
   const controlId = useId();

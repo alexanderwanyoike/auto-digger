@@ -1,14 +1,14 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { createSavedFiltersBridge } from './savedFiltersBridge';
-import { createUpdatesBridge } from './updatesBridge';
-import { createResearchAccessBridge } from './researchAccessBridge';
-import { createDownloadJobsBridge } from './downloadJobsBridge';
-import { createPreferencesBridge } from './preferencesBridge';
-import { createStoreLinksBridge } from './storeLinksBridge';
-import { createCrateBridge } from './crateBridge';
+import { createSavedFiltersBridge } from './saved-filters-bridge';
+import { createUpdatesBridge } from './updates-bridge';
+import { createResearchAccessBridge } from './research-access-bridge';
+import { createDownloadJobsBridge } from './download-jobs-bridge';
+import { createPreferencesBridge } from './preferences-bridge';
+import { createStoreLinksBridge } from './store-links-bridge';
+import { createCrateBridge } from './crate-bridge';
 import { createDiscogsBridge } from './bridge';
-import { createCatalogueBridge } from './catalogueBridge';
-import { createAudioBridge } from './audioBridge';
+import { createCatalogueBridge } from './catalogue-bridge';
+import { createAudioBridge } from './audio-bridge';
 import { createSoulseekBridge } from './soulseek-bridge';
 
 contextBridge.exposeInMainWorld(

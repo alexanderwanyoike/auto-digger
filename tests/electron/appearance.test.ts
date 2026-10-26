@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
   test(`selects visual appearance choices with the keyboard at ${width.toString()}px`, async () => {
     const desktop = await electron.launch({
       args: [
-        resolve('tests/encryptedDesktop.cjs'),
+        resolve('tests/encrypted-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       env: Object.fromEntries(

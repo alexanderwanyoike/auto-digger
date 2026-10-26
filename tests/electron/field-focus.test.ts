@@ -56,7 +56,7 @@ async function expectSystemFocus(field: Locator) {
   test(`uses a single flush field focus frame in ${mode.toLowerCase()} mode`, async () => {
     const desktop = await electron.launch({
       args: [
-        resolve('tests/encryptedDesktop.cjs'),
+        resolve('tests/encrypted-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       env: {

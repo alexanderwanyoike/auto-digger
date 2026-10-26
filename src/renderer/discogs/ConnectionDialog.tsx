@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { SubmitEvent } from 'react';
 import { X } from 'lucide-react';
-import type { useDiscogs } from './useDiscogs';
+import type { useDiscogs } from './use-discogs';
 
 interface ConnectionDialogProps {
   session: ReturnType<typeof useDiscogs>;

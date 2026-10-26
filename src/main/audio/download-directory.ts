@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { Preferences } from '../../shared/preferences';
-import { filenamePart } from './filenamePart';
+import { filenamePart } from './filename-part';
 import { renderFolderTemplate } from '../../shared/folder-template';
 import { folderPart } from '../../shared/filename-part';
 import type { Result } from '../../shared/result';

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import type { CrateBridge } from '../../shared/crate';
 import type { DiscogsBridge } from '../../shared/discogs';
-import { identityResponse, loadedRelease } from '../../../tests/discogsFixtures';
+import { identityResponse, loadedRelease } from '../../../tests/discogs-fixtures';
 import { App } from '../App';
 
 test('only marks an EP saved after a completed write, then reopens it without Discogs', async () => {

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Search, X, LockKeyhole } from 'lucide-react';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { SoulseekMatch } from '../../shared/soulseek';
-import type { useAudioLibrary } from './useAudioLibrary';
+import type { useAudioLibrary } from './use-audio-library';
 import { useSoulseekSearch } from './use-soulseek-search';
 import { SoulseekTable } from './SoulseekTable';
 import '../styles/soulseek.css';

@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { downloadStage } from '../../shared/downloadJobs';
-import type { DownloadProgress } from '../../shared/downloadJobs';
+import { downloadStage } from '../../shared/download-jobs';
+import type { DownloadProgress } from '../../shared/download-jobs';
 
 const measure = z
   .union([z.number().nonnegative(), z.null(), z.literal('NA')])

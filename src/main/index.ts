@@ -1,8 +1,8 @@
 import { app, BrowserWindow, dialog } from 'electron';
 import { join } from 'node:path';
-import { integrateAppImage } from './desktop/appImage';
-import { applicationId } from './applicationId';
-import { createWindow } from './createWindow';
+import { integrateAppImage } from './desktop/app-image';
+import { applicationId } from './application-id';
+import { createWindow } from './create-window';
 import { registerAudioScheme } from './audio/protocol';
 
 function reportStartupFailure(error: unknown) {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import type { ResearchNote } from '../../shared/researchNotes';
+import type { ResearchNote } from '../../shared/research-notes';
 
 const certaintyLabels = {
   confirmed: 'Confirmed',

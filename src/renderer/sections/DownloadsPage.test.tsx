@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { expect, test, vi } from 'vitest';
 import type { AudioBridge, LocalTrack } from '../../shared/audio';
-import { downloadStage } from '../../shared/downloadJobs';
-import type { DownloadJob, DownloadJobsBridge } from '../../shared/downloadJobs';
-import { useAudioLibrary } from '../audio/useAudioLibrary';
+import { downloadStage } from '../../shared/download-jobs';
+import type { DownloadJob, DownloadJobsBridge } from '../../shared/download-jobs';
+import { useAudioLibrary } from '../audio/use-audio-library';
 import { DownloadsPage } from './DownloadsPage';
 
 test.each(['failed', 'cancelled'] as const)(

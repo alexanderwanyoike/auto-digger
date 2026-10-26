@@ -2,11 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, DownloadInput, LocalTrack } from '../../shared/audio';
-import type { DownloadJob } from '../../shared/downloadJobs';
-import { downloadStage } from '../../shared/downloadJobs';
-import { audioFailure } from '../../shared/audioFailure';
+import type { DownloadJob } from '../../shared/download-jobs';
+import { downloadStage } from '../../shared/download-jobs';
+import { audioFailure } from '../../shared/audio-failure';
 import { downloadSourceId as sourceKey } from '../../shared/download-source-id';
-import type { DownloadOptions } from './downloadOptions';
+import type { DownloadOptions } from './download-options';
 
 const terminal = new Set(['complete', 'failed', 'cancelled']);
 interface Entry {

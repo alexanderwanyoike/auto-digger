@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
 import { createCatalogueStore } from '../catalogue/store';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 
 test('persists mix provenance and uncertain candidates beside picked tracks in a named crate', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-digger-research-'));

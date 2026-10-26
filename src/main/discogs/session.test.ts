@@ -61,7 +61,7 @@ test.each(['malformed', 'network', 'json'] as const)(
 );
 
 test('loads validated release metadata for the connected account without returning the token', async () => {
-  const { identityResponse, releaseResponse } = await import('../../../tests/discogsFixtures');
+  const { identityResponse, releaseResponse } = await import('../../../tests/discogs-fixtures');
   const request = vi
     .fn<typeof fetch>()
     .mockResolvedValueOnce(new Response(JSON.stringify(identityResponse)))

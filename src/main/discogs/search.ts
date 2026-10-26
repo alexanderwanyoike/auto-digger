@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { supportedUrl } from './mediaUrl';
+import { supportedUrl } from './media-url';
 import type { searchInputSchema, SearchPage } from '../../shared/search';
 import type { DiscogsResult } from '../../shared/discogs';
 import { requestDiscogs } from './request';

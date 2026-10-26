@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import type { AudioBridge } from '../../shared/audio';
 import type { CrateBridge } from '../../shared/crate';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 import { App } from '../App';
 
 test('distinguishes the selected Discogs track from the verified YouTube upload title', async () => {

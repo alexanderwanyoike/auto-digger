@@ -1,11 +1,11 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
-import { loadedRelease } from '../discogsFixtures';
+import { loadedRelease } from '../discogs-fixtures';
 
 test('manages named crates and track annotations in the UI and browses downloads across sections', async () => {
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: Object.fromEntries(

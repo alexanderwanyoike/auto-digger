@@ -1,7 +1,7 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { mkdir, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { loadedRelease } from '../discogsFixtures';
+import { loadedRelease } from '../discogs-fixtures';
 import { startSlskdFixture } from '../slskd-server';
 
 test('downloads Soulseek audio through the desktop queue into ordered library folders and restores it after restart', async () => {
@@ -10,7 +10,7 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
   const service = await startSlskdFixture(directory);
   const options = {
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: Object.fromEntries(

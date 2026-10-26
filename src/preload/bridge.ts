@@ -7,7 +7,7 @@ import {
   discogsErrorSchema,
   releaseSchema,
 } from '../shared/discogs';
-import { discogsFailure } from '../shared/discogsFailure';
+import { discogsFailure } from '../shared/discogs-failure';
 import type { DiscogsBridge, DiscogsResult } from '../shared/discogs';
 
 type Invoke = (channel: string, input?: unknown) => Promise<unknown>;

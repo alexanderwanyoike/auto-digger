@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { expect, test } from 'vitest';
-import { downloadStage } from '../../shared/downloadJobs';
-import type { DownloadJob, DownloadJobsBridge } from '../../shared/downloadJobs';
-import { useAudioLibrary } from './useAudioLibrary';
+import { downloadStage } from '../../shared/download-jobs';
+import type { DownloadJob, DownloadJobsBridge } from '../../shared/download-jobs';
+import { useAudioLibrary } from './use-audio-library';
 import { DownloadsPage } from '../sections/DownloadsPage';
 
 test.each(['downloading', 'failed', 'cancelled'] as const)(

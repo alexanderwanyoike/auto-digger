@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { cleanSoulseekQuery } from '../../shared/soulseek';
 import type { SoulseekMatch, SoulseekResults } from '../../shared/soulseek';
 import type { AudioResult } from '../../shared/audio';
-import { audioFailure } from '../../shared/audioFailure';
+import { audioFailure } from '../../shared/audio-failure';
 import { createSlskdHttp } from './http';
 
 const fileSchema = z.object({

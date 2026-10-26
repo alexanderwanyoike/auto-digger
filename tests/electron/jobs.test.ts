@@ -1,12 +1,12 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { loadedRelease } from '../discogsFixtures';
+import { loadedRelease } from '../discogs-fixtures';
 
 test('reports actual subprocess progress, cancels, continues the queue and retries without repeating completed tracks', async () => {
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: Object.fromEntries(
@@ -79,7 +79,7 @@ test('reports actual subprocess progress, cancels, continues the queue and retri
 test('reviews album source coverage, downloads one source per track and shows queue actions in the UI', async () => {
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encryptedDesktop.cjs'),
+      resolve('tests/encrypted-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('batch-profile')}`,
     ],
     env: Object.fromEntries(

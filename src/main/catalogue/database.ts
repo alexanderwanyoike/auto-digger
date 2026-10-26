@@ -3,7 +3,7 @@ import { chmod, copyFile, mkdir } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { dirname } from 'node:path';
 import type { CatalogueResult } from '../../shared/catalogue';
-import { catalogueFailure } from '../../shared/catalogueFailure';
+import { catalogueFailure } from '../../shared/catalogue-failure';
 import { readCrate } from '../crate/file';
 import { catalogueVersion, upgradeCatalogue } from './upgrade';
 import { initialiseCatalogue } from './schema';

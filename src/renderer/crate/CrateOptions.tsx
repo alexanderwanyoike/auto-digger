@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { CatalogueView } from '../../shared/catalogue';
-import type { useCrate } from './useCrate';
+import type { useCrate } from './use-crate';
 
 export function CrateOptions({
   active,

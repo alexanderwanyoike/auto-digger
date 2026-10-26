@@ -2,11 +2,11 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test, vi } from 'vitest';
-import { identityResponse, loadedRelease, releaseResponse } from '../../../tests/discogsFixtures';
+import { identityResponse, loadedRelease, releaseResponse } from '../../../tests/discogs-fixtures';
 import { createCatalogueStore } from '../catalogue/store';
-import { createTokenStore } from '../credentials/tokenStore';
+import { createTokenStore } from '../credentials/token-store';
 import { createDiscogsSession } from '../discogs/session';
-import { createRememberedSession } from '../discogs/rememberedSession';
+import { createRememberedSession } from '../discogs/remembered-session';
 import { createResearchService } from './service';
 
 test('revocation aborts the active Discogs request and prevents queued research from contacting Discogs', async () => {

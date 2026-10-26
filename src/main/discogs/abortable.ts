@@ -1,5 +1,5 @@
 import type { DiscogsResult } from '../../shared/discogs';
-import { discogsFailure } from '../../shared/discogsFailure';
+import { discogsFailure } from '../../shared/discogs-failure';
 
 export function abortableDiscogs<T>(
   pending: Promise<DiscogsResult<T>>,

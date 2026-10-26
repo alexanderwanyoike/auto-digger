@@ -1,14 +1,14 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { join, resolve } from 'node:path';
 import { selectAppearance } from '../appearance';
-import { seedLibrary } from '../libraryFixtures';
-import { loadedRelease } from '../discogsFixtures';
+import { seedLibrary } from '../library-fixtures';
+import { loadedRelease } from '../discogs-fixtures';
 
 [900, 1180].forEach((width) => {
   test(`uses one searchable track list with inline activity at ${width.toString()}px`, async () => {
     const desktop = await electron.launch({
       args: [
-        resolve('tests/encryptedDesktop.cjs'),
+        resolve('tests/encrypted-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       env: Object.fromEntries(

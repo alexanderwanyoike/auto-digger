@@ -1,6 +1,6 @@
 import type { AudioResult } from '../../shared/audio';
-import { audioFailure } from '../../shared/audioFailure';
-import { supportedUrl } from '../discogs/mediaUrl';
+import { audioFailure } from '../../shared/audio-failure';
+import { supportedUrl } from '../discogs/media-url';
 
 export async function fetchArtwork(
   url: string,

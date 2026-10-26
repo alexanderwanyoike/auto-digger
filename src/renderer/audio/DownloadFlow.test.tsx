@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import type { AudioBridge, LocalTrack } from '../../shared/audio';
 import type { CrateBridge } from '../../shared/crate';
-import { loadedRelease } from '../../../tests/discogsFixtures';
+import { loadedRelease } from '../../../tests/discogs-fixtures';
 import { App } from '../App';
 
 const release = {

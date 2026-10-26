@@ -8,7 +8,7 @@ import { contrast } from '../contrast';
   test(`renders neutral satin aluminium with fine grain in ${mode.toLowerCase()} mode`, async () => {
     const desktop = await electron.launch({
       args: [
-        resolve('tests/encryptedDesktop.cjs'),
+        resolve('tests/encrypted-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       env: Object.fromEntries(

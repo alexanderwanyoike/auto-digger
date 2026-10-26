@@ -2,15 +2,15 @@ import { link, mkdtemp, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { youtubeDownloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
-import { audioFailure } from '../../shared/audioFailure';
-import { videoId } from '../../shared/youtubeVideoId';
-import { matchTrack } from '../../shared/matchTrack';
+import { audioFailure } from '../../shared/audio-failure';
+import { videoId } from '../../shared/youtube-video-id';
+import { matchTrack } from '../../shared/match-track';
 import type { createDownloader } from './downloader';
-import { createLibraryFiles } from './libraryFiles';
+import { createLibraryFiles } from './library-files';
 import { tagDownload } from './tagging';
-import type { DownloadOptions } from './downloadOptions';
-import { downloadStage } from '../../shared/downloadJobs';
-import { filenamePart } from './filenamePart';
+import type { DownloadOptions } from './download-options';
+import { downloadStage } from '../../shared/download-jobs';
+import { filenamePart } from './filename-part';
 import { reassignTrack } from './reassign';
 
 export function createAudioLibrary(

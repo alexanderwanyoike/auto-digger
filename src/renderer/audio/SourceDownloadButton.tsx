@@ -1,6 +1,6 @@
 import { Download, LoaderCircle, Tags } from 'lucide-react';
-import type { DownloadJob } from '../../shared/downloadJobs';
-import { downloadLabels } from './downloadLabels';
+import type { DownloadJob } from '../../shared/download-jobs';
+import { downloadLabels } from './download-labels';
 
 export function SourceDownloadButton({
   job,

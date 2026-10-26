@@ -71,7 +71,7 @@ test.skip(process.platform !== 'linux', 'AppImage update fixture');
       ),
     );
     const desktop = await electron.launch({
-      args: [resolve('tests/updatingDesktop.cjs'), `--user-data-dir=${profile}`],
+      args: [resolve('tests/updating-desktop.cjs'), `--user-data-dir=${profile}`],
       env: {
         ...environment,
         APPIMAGE: image,
@@ -136,7 +136,7 @@ test.skip(process.platform !== 'linux', 'AppImage update fixture');
       });
     }
     const reopened = await electron.launch({
-      args: [resolve('tests/encryptedDesktop.cjs'), `--user-data-dir=${profile}`],
+      args: [resolve('tests/encrypted-desktop.cjs'), `--user-data-dir=${profile}`],
       env: environment,
     });
     try {

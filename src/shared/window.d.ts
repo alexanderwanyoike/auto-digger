@@ -1,9 +1,9 @@
-import type { SavedFiltersBridge } from './savedFilters';
+import type { SavedFiltersBridge } from './saved-filters';
 import type { UpdatesBridge } from './updates';
-import type { ResearchAccessBridge } from './researchAccess';
-import type { DownloadJobsBridge } from './downloadJobs';
+import type { ResearchAccessBridge } from './research-access';
+import type { DownloadJobsBridge } from './download-jobs';
 import type { PreferencesBridge } from './preferences';
-import type { StoreLinksBridge } from './storeLinks';
+import type { StoreLinksBridge } from './store-links';
 import type { CrateBridge } from './crate';
 import type { DiscogsBridge } from './discogs';
 import type { CatalogueBridge } from './catalogue';
