@@ -3,6 +3,10 @@ import type { Result } from '../../../shared/result';
 import { demoCandidates, demoTracks } from './demoData';
 import type { DemoCandidate, DemoTrack } from './demoData';
 
+function cleanQuery(value: string) {
+  return value.replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+}
+
 interface Failure {
   code: 'private' | 'busy' | 'saved';
   message: string;
@@ -15,7 +19,7 @@ export function useDeskSoulseek() {
   const [pending, setPending] = useState<DemoCandidate | null>(null);
   const [saved, setSaved] = useState<Record<string, DemoCandidate>>({});
   const scenario = new URLSearchParams(window.location.search).get('scenario') ?? 'normal';
-  const cleaned = query.replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  const cleaned = cleanQuery(query);
   useEffect(() => {
     if (!pending) return undefined;
     const timer = setTimeout(() => {
@@ -55,7 +59,7 @@ export function useDeskSoulseek() {
       const selected = demoTracks[index];
       if (!selected) return;
       setTrack(selected);
-      setQuery(`${selected.artist} - ${selected.title}`);
+      setQuery(cleanQuery(`${selected.artist} - ${selected.title}`));
       setChecked(true);
       setError(null);
     },
@@ -64,10 +68,10 @@ export function useDeskSoulseek() {
     },
     edit: (value: string) => {
       setQuery(value);
-      setChecked(false);
       setError(null);
     },
     search: () => {
+      setQuery(cleaned);
       setChecked(Boolean(cleaned));
       setError(cleaned ? null : 'Add a few letters or numbers to search.');
     },

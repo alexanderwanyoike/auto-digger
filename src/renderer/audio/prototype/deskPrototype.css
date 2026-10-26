@@ -79,7 +79,6 @@
 .desk-soulseek-result button {
   flex-shrink: 0;
 }
-.desk-soulseek-refine,
 .desk-soulseek-private {
   margin-top: 6px;
   color: var(--muted);
@@ -92,11 +91,37 @@
   margin-right: 5px;
   vertical-align: middle;
 }
-.desk-soulseek-refine form {
-  display: grid;
-  justify-items: start;
+.desk-soulseek-refine {
+  display: flex;
+  align-items: end;
   gap: 8px;
-  padding-top: 12px;
+  padding: 10px 0 14px;
+}
+.desk-soulseek-refine > button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  height: 33px;
+}
+.desk-soulseek-results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.desk-audio-prototype .tracklist .desk-soulseek-results > li {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.desk-soulseek-results > li:last-child {
+  border-bottom: 0;
+}
+.desk-soulseek-count {
+  font-size: 9px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
 }
 .desk-soulseek-refine label {
   display: grid;
@@ -112,11 +137,6 @@
   border-radius: 4px;
   padding: 8px;
   font: inherit;
-}
-.desk-soulseek-refine output {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px;
-  overflow-wrap: anywhere;
 }
 @media (max-width: 1000px) {
   .desk-audio-prototype .tracklist > li {
