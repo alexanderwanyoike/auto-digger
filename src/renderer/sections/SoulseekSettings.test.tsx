@@ -5,12 +5,10 @@ import { App } from '../App';
 import type { SoulseekBridge } from '../../shared/soulseek';
 
 test('configures the external service separately from download organisation and clears the entered API key', async () => {
-  const configure = vi
-    .fn<SoulseekBridge['configure']>()
-    .mockResolvedValue({
-      ok: true,
-      value: { url: 'http://127.0.0.1:5030', directory: '/music/slskd', configured: true },
-    });
+  const configure = vi.fn<SoulseekBridge['configure']>().mockResolvedValue({
+    ok: true,
+    value: { url: 'http://127.0.0.1:5030', directory: '/music/slskd', configured: true },
+  });
   window.soulseek = {
     settings: () => Promise.resolve({ ok: true, value: null }),
     configure,
