@@ -18,6 +18,18 @@ const track: LocalTrack = {
   warning: null,
 };
 
+test('queues Soulseek sources without pretending they are YouTube videos and rejects a duplicate pending source', async () => {
+  const execute = vi.fn(() => new Promise<AudioResult<LocalTrack>>(() => undefined));
+  const jobs = createDownloadJobs(execute);
+  const candidateId = 'a'.repeat(32);
+  const input = { provider: 'soulseek', release: loadedRelease, trackIndex: 0, candidateId };
+  expect(jobs.start([input])).toMatchObject({
+    ok: true,
+    value: [{ sourceId: `12-slsk-${candidateId}`, title: 'Quiet Orbit' }],
+  });
+  expect(jobs.start([input])).toMatchObject({ ok: false, error: { code: 'invalid-input' } });
+});
+
 test('queues serially, exposes measured progress, cancels queued/active items and retries only the failed item', async () => {
   const execute = vi.fn(
     (
