@@ -1,5 +1,6 @@
 import { LockKeyhole, Search, X } from 'lucide-react';
 import { demoSoulseekResults } from './demoData';
+import { SoulseekResultsTable } from './SoulseekResultsTable';
 import type { useDeskSoulseek } from './useDeskSoulseek';
 
 export function SoulseekMatches({ state }: { state: ReturnType<typeof useDeskSoulseek> }) {
@@ -62,32 +63,12 @@ export function SoulseekMatches({ state }: { state: ReturnType<typeof useDeskSou
         </p>
       )}
       {state.checked && available.length > 0 && (
-        <>
-          <p className="desk-soulseek-count">{available.length.toString()} matches</p>
-          <ol className="desk-soulseek-results" aria-label="Soulseek search results">
-            {available.map((candidate) => (
-              <li className="desk-soulseek-result" key={candidate.id}>
-                <div>
-                  <strong>{candidate.filename}</strong>
-                  <span>
-                    {candidate.quality} · {candidate.duration} · {candidate.owner}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  className="secondary-button"
-                  aria-label={`Download from ${candidate.owner}`}
-                  disabled={saved || state.pending !== null}
-                  onClick={() => {
-                    state.download(candidate);
-                  }}
-                >
-                  {saved ? 'Track saved' : 'Download'}
-                </button>
-              </li>
-            ))}
-          </ol>
-        </>
+        <SoulseekResultsTable
+          candidates={available}
+          saved={saved}
+          busy={state.pending !== null}
+          download={state.download}
+        />
       )}
       {state.checked && locked.length > 0 && (
         <details className="desk-soulseek-private">

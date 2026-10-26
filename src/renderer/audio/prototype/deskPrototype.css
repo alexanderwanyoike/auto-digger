@@ -36,7 +36,7 @@
   grid-column: 1 / -1;
   min-width: 0;
   margin: 4px 0;
-  padding: 14px;
+  padding: 10px;
   border-left: 2px solid var(--blue);
   background: var(--surface-inset);
   font-size: 10px;
@@ -95,7 +95,7 @@
   display: flex;
   align-items: end;
   gap: 8px;
-  padding: 10px 0 14px;
+  padding: 6px 0 10px;
 }
 .desk-soulseek-refine > button {
   display: flex;
@@ -104,24 +104,72 @@
   flex-shrink: 0;
   height: 33px;
 }
-.desk-soulseek-results {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.desk-audio-prototype .tracklist .desk-soulseek-results > li {
+.desk-soulseek-count {
   display: flex;
-  gap: 12px;
-  padding: 12px 0;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 9px;
+  padding-bottom: 4px;
+}
+.desk-soulseek-table-scroll {
+  max-height: 240px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.desk-soulseek-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+  font-size: 10px;
+}
+.desk-soulseek-table th,
+.desk-soulseek-table td {
+  padding: 5px 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   border-bottom: 1px solid var(--line);
 }
-.desk-soulseek-results > li:last-child {
+.desk-soulseek-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-inset);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 500;
+}
+.desk-soulseek-table td:not(:first-child) {
+  color: var(--muted);
+  font-size: 9px;
+}
+.desk-soulseek-table tr:last-child td {
   border-bottom: 0;
 }
-.desk-soulseek-count {
-  font-size: 9px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--line);
+.desk-soulseek-table tbody tr:hover {
+  background: var(--surface);
+}
+.desk-soulseek-table .icon-button {
+  width: 22px;
+  height: 22px;
+  color: var(--blue);
+}
+.desk-match-quality {
+  width: 94px;
+}
+.desk-match-time {
+  width: 42px;
+}
+.desk-match-peer {
+  width: 86px;
+}
+.desk-match-action {
+  width: 34px;
 }
 .desk-soulseek-refine label {
   display: grid;

@@ -78,6 +78,16 @@ export function demoCandidates(track: DemoTrack): DemoCandidate[] {
       quality: 'MP3 · 192 kbps',
       duration: '07:15',
     },
+    ...Array.from({ length: 37 }, (_, index): DemoCandidate => ({
+      id: `${track.id}-peer-${index.toString()}`,
+      trackId: track.id,
+      provider: 'Soulseek',
+      access: 'public',
+      owner: `record_shelf_${(index + 1).toString().padStart(2, '0')}`,
+      filename: `${track.artist} - ${track.title}.${index % 4 === 0 ? 'flac' : 'mp3'}`,
+      quality: index % 4 === 0 ? 'FLAC · 16 bit' : 'MP3 · 320 kbps',
+      duration: '07:14',
+    })),
     {
       id: `${track.id}-private`,
       trackId: track.id,
