@@ -28,9 +28,15 @@ The normal local URL is `http://127.0.0.1:5030`. Remote URLs must use HTTPS and 
 
 ## 3. Organise your library
 
-Under Downloads in Settings, choose your Auto Digger destination and select Custom for Download organisation. Add Source, Genre, Year, Label, Artist and Release in the order you want. Use the arrows to reorder levels and the remove controls to omit them.
+Under Downloads in Settings, choose your Auto Digger destination and edit Folder layout. Type a relative path using the placeholders shown below the field. For example:
 
-![Ordered folder levels and example path](images/audio-folder-settings.png)
+```text
+<source>/<genre>/<year>/<label>/<artist>/<release>
+```
+
+You can combine values and ordinary text, such as `DJ Music/<source>/<artist>/<year> - <release>`. Leave the field empty to keep files together. Choose Save folder layout when ready. The placeholder reference always remains visible, including placeholders you have removed from your path.
+
+![Folder layout field, persistent placeholder reference and example path](images/audio-folder-settings.png)
 
 The preview illustrates future paths. Genre and label use the first Discogs value. Missing metadata gets an Unknown folder. Release folders include the Discogs ID to keep pressings distinct. Existing downloads stay where they are and remain indexed.
 
