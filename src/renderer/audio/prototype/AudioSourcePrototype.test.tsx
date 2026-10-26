@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, expect, test } from 'vitest';
 import { App } from '../../App';
@@ -39,4 +39,32 @@ test('labels private Soulseek matches, prevents saving them and preserves a priv
   await user.click(screen.getByRole('button', { name: 'Check audio sources' }));
   expect(screen.getByText('Only private matches found on Soulseek.')).toBeVisible();
   expect(screen.queryByText('No matches found on Soulseek.')).not.toBeInTheDocument();
+});
+
+test('keeps a single track row and requires a deliberate second copy across providers', async () => {
+  window.history.replaceState(null, '', '/?prototype=audio-sources&variant=A');
+  const user = userEvent.setup();
+  render(<App />);
+  await user.click(await screen.findByRole('button', { name: 'Check audio sources' }));
+  await user.click(screen.getByRole('button', { name: 'Save demo copy from tape_archive' }));
+  expect(screen.getByRole('status')).toHaveTextContent('Queued in slskd');
+  await user.click(screen.getByRole('button', { name: 'Advance demo transfer' }));
+  await user.click(screen.getByRole('button', { name: 'Advance demo transfer' }));
+  await user.click(screen.getByRole('button', { name: 'Advance demo transfer' }));
+  expect(screen.getByRole('button', { name: 'Save demo copy from tape_archive' })).toBeDisabled();
+
+  await user.click(screen.getByRole('button', { name: 'Save demo copy from harbour_tapes' }));
+  expect(screen.getByText('You already have audio for this track.')).toBeVisible();
+  await user.click(screen.getByRole('button', { name: 'Keep another copy' }));
+  await user.click(screen.getByRole('button', { name: 'Advance demo transfer' }));
+  await user.click(screen.getByRole('button', { name: 'Advance demo transfer' }));
+  await user.click(screen.getByRole('button', { name: 'Advance demo transfer' }));
+
+  const library = screen.getByRole('region', { name: 'Demo library' });
+  expect(within(library).getAllByRole('row', { name: /Quiet Orbit/ })).toHaveLength(1);
+  const copies = screen.getByRole('list', { name: 'Saved copies for Quiet Orbit (Original Mix)' });
+  expect(within(copies).getAllByRole('listitem')).toHaveLength(2);
+  expect(screen.getByText('Preferred: Soulseek')).toBeVisible();
+  await user.click(screen.getByRole('button', { name: 'Use YouTube copy' }));
+  expect(screen.getByText('Preferred: YouTube')).toBeVisible();
 });
