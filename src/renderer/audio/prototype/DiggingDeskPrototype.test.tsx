@@ -95,7 +95,7 @@ test('places editable search above a compact list of matches from different peer
   const form = screen.getByRole('form', { name: 'Refine Soulseek search' });
   const results = screen.getByRole('list', { name: 'Soulseek search results' });
   expect(form).toBeVisible();
-  expect(form.compareDocumentPosition(results) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(form.compareDocumentPosition(results)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   expect(within(results).getAllByRole('listitem')).toHaveLength(3);
   expect(within(results).getByRole('button', { name: 'Download from tape_archive' })).toBeEnabled();
   expect(within(results).getByRole('button', { name: 'Download from deep_shelves' })).toBeEnabled();
