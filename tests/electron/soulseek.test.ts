@@ -29,6 +29,9 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     await page.getByLabel('slskd completed-downloads folder', { exact: true }).fill(directory);
     await page.getByRole('button', { name: 'Connect slskd', exact: true }).click();
     await expect(page.getByText('slskd connection saved.', { exact: true })).toBeVisible();
+    await expect(page.getByLabel('Folder layout')).toHaveValue(
+      '<source>/<genre>/<subgenre>/<year>',
+    );
     await page
       .getByLabel('Folder layout')
       .fill('<source>/<genre>/<subgenre>/<year>/<label>/<artist>/<release>');

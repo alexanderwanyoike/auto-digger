@@ -32,7 +32,9 @@ test('configures the external service separately from download organisation and 
     });
     expect(await screen.findByText('slskd connection saved.')).toBeVisible();
     expect(screen.getByLabelText('slskd API key')).toHaveValue('');
-    expect(screen.getByLabelText('Folder layout')).toHaveValue('');
+    expect(screen.getByLabelText('Folder layout')).toHaveValue(
+      '<source>/<genre>/<subgenre>/<year>',
+    );
   } finally {
     delete window.soulseek;
   }

@@ -23,6 +23,12 @@ test('saves new audio using an editable folder template without relocating exist
   };
   const library = createIndexedLibrary(directory, catalogue, downloader);
   try {
+    await catalogue.preferences.save({
+      material: 'aluminium',
+      accent: 'blue',
+      layout: 'flat',
+      directory: null,
+    });
     const old = await library.download({ release: loadedRelease, videoIndex: 0 });
     expect(old.ok).toBe(true);
     expect(
