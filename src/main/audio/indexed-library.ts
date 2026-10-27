@@ -12,6 +12,8 @@ import { audioFailure } from '../../shared/audio-failure';
 import { downloadSourceId } from '../../shared/download-source-id';
 import { importSoulseekAudio } from './soulseek-library';
 import type { ReceiveSoulseek } from './soulseek-library';
+import type { createAudioPreviews } from './previews';
+import { savePreview } from './save-preview';
 
 export function createIndexedLibrary(
   defaultDirectory: string,
@@ -19,6 +21,7 @@ export function createIndexedLibrary(
   downloader: ReturnType<typeof createDownloader>,
   request?: typeof fetch,
   receiveSoulseek?: ReceiveSoulseek,
+  previews?: ReturnType<typeof createAudioPreviews>,
 ) {
   const libraries = new Map<string, ReturnType<typeof createAudioLibrary>>();
   let busy = false;
@@ -169,13 +172,17 @@ export function createIndexedLibrary(
         const remembered = await catalogue.downloads.rememberDirectory(directory);
         if (!remembered.ok) return audioFailure('storage', remembered.error.message);
         let result: AudioResult<LocalTrack>;
-        if ('provider' in parsed.data) {
+        const cached = await previews?.find(sourceId);
+        if (cached?.ok && cached.value) {
+          result = await savePreview(directory, parsed.data, cached.value, options, request);
+        } else if ('provider' in parsed.data) {
           if (!receiveSoulseek)
             return audioFailure('unavailable', 'Connect slskd in Settings before using Soulseek.');
           result = await importSoulseekAudio(directory, parsed.data, receiveSoulseek, options);
         } else result = await library(directory).download(parsed.data, options);
         if (!result.ok) return result;
         const indexed = await catalogue.downloads.save({ directory, track: result.value });
+        if (indexed.ok) await previews?.adopt(result.value, join(directory, result.value.filename));
         return indexed.ok
           ? result
           : audioFailure(
