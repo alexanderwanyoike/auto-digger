@@ -8,7 +8,7 @@ test('previews YouTube without saving, reuses the temporary file and saves style
   const log = test.info().outputPath('downloads.log');
   const desktop = await electron.launch({
     args: [
-      resolve('tests/encrypted-desktop.cjs'),
+      resolve('tests/delayed-renderer-desktop.cjs'),
       `--user-data-dir=${test.info().outputPath('profile')}`,
     ],
     env: {
