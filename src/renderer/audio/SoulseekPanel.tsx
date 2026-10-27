@@ -23,18 +23,17 @@ export function SoulseekPanel({
   const id = useId();
   const initial = useRef(query).current;
   const state = useSoulseekSearch(window.soulseek, initial);
-  const [assignment, setAssignment] = useState(trackIndex);
   const [limit, setLimit] = useState(40);
   const [error, setError] = useState<string | null>(null);
   const available = state.results?.matches.filter((match) => match.access === 'public') ?? [];
   const saved = audio.tracks.some(
     (track) =>
       track.releaseId === release.id &&
-      track.trackIndex === assignment &&
+      track.trackIndex === trackIndex &&
       track.provider === 'soulseek' &&
       !track.missing,
   );
-  async function download(match: SoulseekMatch) {
+  async function download(match: SoulseekMatch, assignment: number | null) {
     setError(null);
     const result = await audio.download({
       provider: 'soulseek',
@@ -80,24 +79,6 @@ export function SoulseekPanel({
           Search
         </button>
       </form>
-      {trackIndex === null && (
-        <label className="source-assignment soulseek-release-assignment">
-          <span>Save match as</span>
-          <select
-            value={assignment ?? ''}
-            onChange={(event) => {
-              setAssignment(event.target.value === '' ? null : Number(event.target.value));
-            }}
-          >
-            <option value="">Release audio · keep filename</option>
-            {release.tracks.map((track, index) => (
-              <option key={`${track.position}-${track.title}`} value={index}>
-                {track.position} · {track.title}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
       {(state.error ?? error) && <p role="alert">{state.error ?? error}</p>}
       {audio.busy && (
         <p role="status">Downloading in Auto Digger. You can follow or cancel it in Downloads.</p>
@@ -111,9 +92,12 @@ export function SoulseekPanel({
       {available.length > 0 && (
         <SoulseekTable
           matches={available.slice(0, limit)}
-          disabled={audio.busy || (assignment !== null && saved)}
-          onDownload={(match) => {
-            download(match).catch(() => {
+          disabled={audio.busy}
+          release={release}
+          trackIndex={trackIndex}
+          savedIds={audio.tracks.filter((track) => !track.missing).map((track) => track.id)}
+          onDownload={(match, assignment) => {
+            download(match, assignment).catch(() => {
               setError('This download could not finish. Please retry.');
             });
           }}

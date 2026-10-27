@@ -1,20 +1,31 @@
-import { Download } from 'lucide-react';
+import type { DiscogsRelease } from '../../shared/discogs';
 import type { SoulseekMatch } from '../../shared/soulseek';
+import { SoulseekMatchRow } from './SoulseekMatchRow';
 
 export function SoulseekTable({
   matches,
   disabled,
   onDownload,
+  release,
+  trackIndex,
+  savedIds,
 }: {
   matches: SoulseekMatch[];
   disabled: boolean;
-  onDownload: (match: SoulseekMatch) => void;
+  onDownload: (match: SoulseekMatch, assignment: number | null) => void;
+  release: DiscogsRelease;
+  trackIndex: number | null;
+  savedIds: string[];
 }) {
   return (
     <div className="soulseek-table-scroll" role="region" aria-label="Scrollable Soulseek matches">
-      <table className="soulseek-table" aria-label="Soulseek search results">
+      <table
+        className={`soulseek-table${trackIndex === null ? ' soulseek-release-table' : ''}`}
+        aria-label="Soulseek search results"
+      >
         <colgroup>
           <col />
+          {trackIndex === null && <col className="soulseek-assignment" />}
           <col className="soulseek-quality" />
           <col className="soulseek-time" />
           <col className="soulseek-peer" />
@@ -23,6 +34,7 @@ export function SoulseekTable({
         <thead>
           <tr>
             <th scope="col">File</th>
+            {trackIndex === null && <th scope="col">Discogs track</th>}
             <th scope="col">Quality</th>
             <th scope="col">Time</th>
             <th scope="col">Peer</th>
@@ -32,39 +44,16 @@ export function SoulseekTable({
           </tr>
         </thead>
         <tbody>
-          {matches.map((match) => {
-            const filename = match.filename.split(/[\\/]/).at(-1) ?? match.filename;
-            const format = match.filename.split('.').at(-1)?.toUpperCase() ?? 'Audio';
-            const duration =
-              match.length === null
-                ? 'n/a'
-                : `${Math.floor(match.length / 60).toString()}:${(match.length % 60).toString().padStart(2, '0')}`;
-            return (
-              <tr key={match.id}>
-                <td title={match.filename}>{filename}</td>
-                <td>
-                  {format}
-                  {match.bitRate ? ` · ${match.bitRate.toString()}k` : ''}
-                </td>
-                <td>{duration}</td>
-                <td title={match.username}>{match.username}</td>
-                <td>
-                  <button
-                    type="button"
-                    className="icon-button"
-                    aria-label={`Download ${filename} from ${match.username}`}
-                    title={`Download from ${match.username}`}
-                    disabled={disabled}
-                    onClick={() => {
-                      onDownload(match);
-                    }}
-                  >
-                    <Download size={13} aria-hidden="true" />
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
+          {matches.map((match) => (
+            <SoulseekMatchRow
+              key={match.id}
+              match={match}
+              release={release}
+              trackIndex={trackIndex}
+              disabled={disabled || savedIds.includes(`${release.id.toString()}-slsk-${match.id}`)}
+              onDownload={onDownload}
+            />
+          ))}
         </tbody>
       </table>
     </div>
