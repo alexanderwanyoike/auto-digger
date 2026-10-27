@@ -144,7 +144,9 @@ test('cancels only the requested preview and removes temporary files when closin
       new Promise((resolve) => {
         options.signal?.addEventListener(
           'abort',
-          () => resolve({ ok: false, error: { code: 'cancelled', message: 'Cancelled' } }),
+          () => {
+            resolve({ ok: false, error: { code: 'cancelled', message: 'Cancelled' } });
+          },
           { once: true },
         );
       }),
@@ -157,7 +159,9 @@ test('cancels only the requested preview and removes temporary files when closin
       trackIndex: 0,
       candidateId: 'a'.repeat(32),
     });
-    await vi.waitFor(() => expect(receive).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => {
+      expect(receive).toHaveBeenCalledTimes(1);
+    });
     expect(previews.cancel(`12-slsk-${'b'.repeat(32)}`)).toEqual({ ok: true, value: undefined });
     expect(receive.mock.calls[0]?.[1].signal?.aborted).toBe(false);
     previews.cancel(`12-slsk-${'a'.repeat(32)}`);

@@ -24,7 +24,7 @@ export async function savePreview(
       ? preview.track.sourceTitle.slice(0, -extension.length)
       : preview.track.sourceTitle;
   let title = release.tracks[trackIndex ?? -1]?.title ?? sourceTitle;
-  let warning = preview.track.warning;
+  let { warning } = preview.track;
   let temporary: string | undefined;
   let committed: string | undefined;
   try {

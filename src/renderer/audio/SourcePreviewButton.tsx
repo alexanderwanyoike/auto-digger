@@ -39,7 +39,9 @@ export function SourcePreviewButton({
             .then((result) => {
               if (!result.ok) onError(result.error.message);
             })
-            .catch(() => onError('The preview could not be cancelled. Please retry.'));
+            .catch(() => {
+              onError('The preview could not be cancelled. Please retry.');
+            });
           return;
         }
         setPending(true);
@@ -49,7 +51,9 @@ export function SourcePreviewButton({
           .then((result) => {
             if (!result.ok && result.error.code !== 'cancelled') onError(result.error.message);
           })
-          .catch(() => onError('The preview could not start. Please retry.'))
+          .catch(() => {
+            onError('The preview could not start. Please retry.');
+          })
           .finally(() => {
             setPending(false);
             onPendingChange?.(false);

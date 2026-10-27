@@ -54,15 +54,12 @@ export function createAudioPreviews(
   ): Promise<AudioResult<LocalTrack>> {
     try {
       await mkdir(directory, { recursive: true });
-      const result =
-        'provider' in input
-          ? receive
-            ? await importSoulseekAudio(directory, input, receive, { signal })
-            : audioFailure<LocalTrack>(
-                'unavailable',
-                'Connect slskd in Settings before previewing.',
-              )
-          : await youtube.download(input, { signal });
+      let result: AudioResult<LocalTrack>;
+      if ('provider' in input) {
+        if (!receive)
+          return audioFailure('unavailable', 'Connect slskd in Settings before previewing.');
+        result = await importSoulseekAudio(directory, input, receive, { signal });
+      } else result = await youtube.download(input, { signal });
       if (result.ok) {
         entries.set(result.value.id, {
           track: result.value,
