@@ -23,12 +23,18 @@ test('previews YouTube without saving, reuses the temporary file and saves style
   });
   try {
     const page = await desktop.firstWindow();
-    await page.evaluate((release) => window.crate?.save(release), loadedRelease);
+    await page.evaluate((release) => window.crate?.save(release), {
+      ...loadedRelease,
+      videos: [
+        { title: 'Low Tide Quiet Orbit', url: 'https://www.youtube.com/watch?v=slowvideo01' },
+      ],
+    });
     await page.reload();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     const preview = page.getByRole('button', { name: 'Preview audio', exact: true });
     await expect(preview).toBeVisible({ timeout: 2000 });
     await preview.click();
+    await expect(page.getByRole('button', { name: 'Download audio', exact: true })).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible();
     await expect(page.locator('.playback-bar')).toContainText('Preview');
     expect(await page.evaluate(() => window.audioLibrary?.list())).toEqual({ ok: true, value: [] });
@@ -38,7 +44,7 @@ test('previews YouTube without saving, reuses the temporary file and saves style
     await page.getByRole('button', { name: 'Download audio', exact: true }).click();
     await expect
       .poll(() => page.evaluate(() => window.audioLibrary?.list()))
-      .toMatchObject({ ok: true, value: [{ id: '12-abcdefghijk' }] });
+      .toMatchObject({ ok: true, value: [{ id: '12-slowvideo01' }] });
     const saved = await page.evaluate(() => window.audioLibrary?.list());
     if (!saved?.ok || !saved.value[0]) throw new Error('Expected a saved preview');
     const music = await desktop.evaluate(({ app }) => app.getPath('music'));
@@ -61,7 +67,7 @@ test('previews YouTube without saving, reuses the temporary file and saves style
     expect((await readFile(log, 'utf8')).trim().split('\n')).toHaveLength(1);
     await expect(page.locator('.playback-bar')).not.toContainText('Preview ·');
     const alias = await desktop.evaluate(async ({ net }) => {
-      const response = await net.fetch('auto-digger-audio://preview/12-abcdefghijk', {
+      const response = await net.fetch('auto-digger-audio://preview/12-slowvideo01', {
         headers: { Range: 'bytes=0-9' },
       });
       return { status: response.status, size: (await response.arrayBuffer()).byteLength };
