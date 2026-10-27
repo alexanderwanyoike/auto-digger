@@ -18,6 +18,8 @@ if (args.includes('--dump-single-json')) {
     }),
   );
 } else {
+  if (process.env.AUTO_DIGGER_TEST_DOWNLOAD_LOG)
+    fs.appendFileSync(process.env.AUTO_DIGGER_TEST_DOWNLOAD_LOG, 'download\n');
   const target = args[args.indexOf('--output') + 1].replace('%(ext)s', 'mp3');
   if (args.includes('--progress'))
     process.stdout.write(
