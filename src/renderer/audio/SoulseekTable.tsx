@@ -50,7 +50,8 @@ export function SoulseekTable({
               match={match}
               release={release}
               trackIndex={trackIndex}
-              disabled={disabled || savedIds.includes(`${release.id.toString()}-slsk-${match.id}`)}
+              disabled={disabled}
+              saved={savedIds.includes(`${release.id.toString()}-slsk-${match.id}`)}
               onDownload={onDownload}
             />
           ))}

@@ -9,12 +9,14 @@ export function SoulseekMatchRow({
   release,
   trackIndex,
   disabled,
+  saved,
   onDownload,
 }: {
   match: SoulseekMatch;
   release: DiscogsRelease;
   trackIndex: number | null;
   disabled: boolean;
+  saved: boolean;
   onDownload: (match: SoulseekMatch, assignment: number | null) => void;
 }) {
   const filename = match.filename.split(/[\\/]/).at(-1) ?? match.filename;
@@ -32,7 +34,7 @@ export function SoulseekMatchRow({
           <select
             aria-label={`Discogs track for ${filename} from ${match.username}`}
             value={assignment ?? ''}
-            disabled={disabled}
+            disabled={disabled || saved}
             onChange={(event) => {
               setAssignment(event.target.value === '' ? null : Number(event.target.value));
             }}
@@ -53,18 +55,22 @@ export function SoulseekMatchRow({
       <td>{duration}</td>
       <td title={match.username}>{match.username}</td>
       <td>
-        <button
-          type="button"
-          className="icon-button"
-          aria-label={`Download ${filename} from ${match.username}`}
-          title={`Download from ${match.username}`}
-          disabled={disabled}
-          onClick={() => {
-            onDownload(match, assignment);
-          }}
-        >
-          <Download size={13} aria-hidden="true" />
-        </button>
+        {saved ? (
+          <span title="Saved from Soulseek">Saved</span>
+        ) : (
+          <button
+            type="button"
+            className="icon-button"
+            aria-label={`Download ${filename} from ${match.username}`}
+            title={`Download from ${match.username}`}
+            disabled={disabled}
+            onClick={() => {
+              onDownload(match, assignment);
+            }}
+          >
+            <Download size={13} aria-hidden="true" />
+          </button>
+        )}
       </td>
     </tr>
   );
