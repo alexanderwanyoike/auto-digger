@@ -7,7 +7,7 @@ export async function waitForPreview(
 ): Promise<AudioResult<LocalTrack>> {
   if (signal?.aborted) return audioFailure('cancelled', 'This download was cancelled.');
   if (!signal) return task;
-  let onAbort = () => {};
+  let onAbort: (() => void) | undefined;
   const cancelled = new Promise<AudioResult<LocalTrack>>((resolve) => {
     onAbort = () => {
       resolve(audioFailure('cancelled', 'This download was cancelled.'));
@@ -17,6 +17,6 @@ export async function waitForPreview(
   try {
     return await Promise.race([task, cancelled]);
   } finally {
-    signal.removeEventListener('abort', onAbort);
+    if (onAbort) signal.removeEventListener('abort', onAbort);
   }
 }
