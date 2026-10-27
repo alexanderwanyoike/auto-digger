@@ -23,17 +23,19 @@ export async function importSoulseekAudio(
   const received = await receive(input, options);
   if (!received.ok) return received;
   const { file, match } = received.value;
-  const track = input.release.tracks[input.trackIndex];
+  const track = input.trackIndex === null ? undefined : input.release.tracks[input.trackIndex];
   const id = downloadSourceId(input);
   const extension = extname(match.filename).toLowerCase();
   if (
-    !track ||
+    (input.trackIndex !== null && !track) ||
     !id ||
     match.id !== input.candidateId ||
     match.access !== 'public' ||
     !/^\.(mp3|flac|wav|m4a|ogg|opus)$/.test(extension)
   )
     return audioFailure('invalid-input', 'Choose an available audio match and a valid track.');
+  const sourceTitle = match.filename.split(/[\\/]/).at(-1) ?? match.filename;
+  const title = track?.title ?? sourceTitle.slice(0, -extension.length);
   let temporary: string | undefined;
   let committed: string | undefined;
   try {
@@ -50,7 +52,7 @@ export async function importSoulseekAudio(
       'Original audio tags were kept; Discogs metadata is saved in Auto Digger.';
     if (extension === '.mp3') {
       options.onProgress?.(downloadStage('tagging'));
-      const tagged = await tagDownload(staged, input.release, track.title, {
+      const tagged = await tagDownload(staged, input.release, title, {
         trackIndex: input.trackIndex,
       });
       if (!tagged.ok) return tagged;
@@ -63,13 +65,13 @@ export async function importSoulseekAudio(
       videoId: null,
       provider: 'soulseek',
       soulseek: { username: match.username, filename: match.filename, size: match.size },
-      title: track.title,
-      sourceTitle: match.filename.split(/[\\/]/).at(-1) ?? match.filename,
+      title,
+      sourceTitle,
       trackIndex: input.trackIndex,
       artist: input.release.artists.join(' / '),
       album: input.release.title,
       artworkUrl: input.release.artworkUrl,
-      filename: `${filenamePart(input.release.artists.join(', '))} - ${filenamePart(track.title)} [${id}].slsk${extension}`,
+      filename: `${filenamePart(input.release.artists.join(', '))} - ${filenamePart(title)} [${id}].slsk${extension}`,
       warning,
     };
     const destination = join(directory, saved.filename);

@@ -1,7 +1,7 @@
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { useAudioLibrary } from './use-audio-library';
-import { SoulseekPanel } from './SoulseekPanel';
+import { SoulseekSourceRow } from './SoulseekSourceRow';
 
 export function SoulseekSources({
   release,
@@ -10,30 +10,21 @@ export function SoulseekSources({
   release: DiscogsRelease;
   audio: ReturnType<typeof useAudioLibrary>;
 }) {
-  const id = useId();
-  const [trackIndex, setTrackIndex] = useState(0);
-  if (!release.tracks.length)
-    return <p className="source-notice">No tracklist is available to search.</p>;
+  const [expanded, setExpanded] = useState<number | null | undefined>();
   return (
     <div className="soulseek-sources">
-      <label className="source-assignment" htmlFor={id}>
-        <span>Discogs track</span>
-        <select
-          id={id}
-          aria-label="Soulseek track"
-          value={trackIndex}
-          onChange={(event) => {
-            setTrackIndex(Number(event.target.value));
+      {[null, ...release.tracks.map((_track, index) => index)].map((trackIndex) => (
+        <SoulseekSourceRow
+          key={trackIndex ?? 'release'}
+          release={release}
+          trackIndex={trackIndex}
+          audio={audio}
+          expanded={expanded === trackIndex}
+          onToggle={() => {
+            setExpanded(expanded === trackIndex ? undefined : trackIndex);
           }}
-        >
-          {release.tracks.map((track, index) => (
-            <option key={`${track.position}-${track.title}`} value={index}>
-              {track.position} · {track.title}
-            </option>
-          ))}
-        </select>
-      </label>
-      <SoulseekPanel key={trackIndex} release={release} trackIndex={trackIndex} audio={audio} />
+        />
+      ))}
     </div>
   );
 }

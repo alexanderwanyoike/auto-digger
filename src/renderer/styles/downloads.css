@@ -32,11 +32,12 @@
 }
 .source-provider-choice {
   display: flex;
+  justify-content: flex-end;
   gap: 4px;
   padding-bottom: 12px;
 }
 .source-provider-choice button {
-  flex: 1;
+  flex: 0 0 auto;
   min-width: 0;
   padding: 7px 10px;
   border: 1px solid var(--line);
