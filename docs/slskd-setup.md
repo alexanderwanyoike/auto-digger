@@ -42,19 +42,20 @@ This is the default layout for new setups. Saved layouts remain unchanged. Subge
 
 ## 4. Find a track
 
-Open a record on the digging desk. Under Audio sources, choose YouTube or Soulseek in the same provider selector. Choose Soulseek, select the Discogs track, then edit Refine search when needed. Punctuation becomes spaces; the record's title stays unchanged. Both providers use the same download queue and library.
+Open a record on the digging desk. Under Audio sources, choose YouTube or Soulseek in the same provider selector. Choose Soulseek, then open the release-title row or a track row. Edit Refine search when needed. In release results, check each file's Discogs track suggestion and correct unmatched files before saving. Punctuation becomes spaces; the record's title stays unchanged. Both providers use the same download queue and library.
 
 ![Editable search and compact results table](images/soulseek-results.png)
 
 Compare the file, quality, duration and peer. The table scrolls, its headers stay visible, and Show more reveals further results. Private matches are disclosed separately and cannot be downloaded. These screenshots use fictional metadata and a test service, not a live peer's library.
 
-Choose a public match's download icon. Follow progress, cancellation or retry in Downloads. slskd completes the transfer first; Auto Digger then copies it into your configured hierarchy and adds it to the player. The slskd copy is retained. MP3 files receive best-effort Discogs tags. Other supported formats retain their original embedded tags and keep Discogs metadata in Auto Digger's index.
+Use the play icon to preview a public match before saving. Preview audio stays temporary and is kept out of Downloads. Choose the download icon to save it; Auto Digger reuses the prepared audio. Follow progress, cancellation or retry in Downloads. slskd completes the transfer first; Auto Digger then copies it into your configured hierarchy and adds it to the player. The slskd copy is retained. MP3 files receive best-effort Discogs tags, with styles in the Genre tag. Other supported formats retain their original embedded tags and keep Discogs metadata in Auto Digger's index.
 
 ## If a download fails
 
 - Check that slskd is running and signed into Soulseek. Web login alone does not connect the Soulseek account.
 - Check that the API key has ReadWrite permission. Do not escalate it to administrator just to read connection status.
 - If a peer is unavailable, try another public match or refine the query.
+- Waiting for peer means the transfer is queued in Soulseek. You can queue other sources while it waits, or cancel it and choose another peer.
 - If a completed file cannot be found, check the host download-folder mapping and permissions. Auto Digger never imports partial files from the incomplete folder.
 - If the keyring is locked, unlock it and retry saving the connection.
 - Folder changes apply to future files. Missing older files must be restored at their indexed location or downloaded again.

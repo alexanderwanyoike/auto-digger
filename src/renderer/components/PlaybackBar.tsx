@@ -1,4 +1,4 @@
-import { FolderOpen, Pause, Play, Volume2 } from 'lucide-react';
+import { FolderOpen, Pause, Play, Volume2, X } from 'lucide-react';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import { usePlayer } from '../audio/use-player';
 import { RecordArtwork } from './RecordArtwork';
@@ -25,7 +25,10 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
         />
         <div className="playing-info">
           <strong>{track?.title ?? 'Nothing on the deck'}</strong>
-          <span>{description}</span>
+          <span>
+            {track?.preview ? 'Preview · ' : ''}
+            {description}
+          </span>
         </div>
       </div>
       <button
@@ -76,7 +79,7 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
       <div className="player-library">
         <select
           aria-label="Downloaded track"
-          value={track?.id ?? ''}
+          value={track?.preview ? '' : (track?.id ?? '')}
           disabled={audio.tracks.length === 0}
           onChange={(event) => {
             const selected = audio.tracks.find((item) => item.id === event.target.value);
@@ -84,7 +87,7 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
           }}
         >
           <option value="" disabled>
-            Downloads
+            {track?.preview ? 'Preview (not saved)' : 'Downloads'}
           </option>
           {audio.tracks.map((item) => (
             <option key={item.id} value={item.id} disabled={item.missing === true}>
@@ -105,6 +108,25 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
           <FolderOpen size={17} aria-hidden="true" />
         </button>
       </div>
+      {audio.preparingPreview && (
+        <div className="preview-preparation">
+          <span role="status">
+            Preparing {'provider' in audio.preparingPreview ? 'Soulseek' : 'YouTube'} preview ·{' '}
+            {audio.preparingPreview.release.title}
+          </span>
+          <button
+            type="button"
+            className="secondary-button"
+            aria-label="Cancel preparing preview"
+            onClick={() => {
+              if (audio.preparingPreview)
+                audio.cancelPreview(audio.preparingPreview).catch(() => undefined);
+            }}
+          >
+            <X size={13} aria-hidden="true" /> Cancel
+          </button>
+        </div>
+      )}
       {(player.error ?? audio.error) && (
         <p role="alert" className="playback-notice">
           {player.error ?? audio.error}

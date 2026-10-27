@@ -113,6 +113,17 @@
   padding-top: 8px;
   border-top: 1px solid var(--line);
 }
+.preview-preparation {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+}
 @media (max-width: 1000px) {
   .playback-bar {
     grid-template-columns: fit-content(210px) 36px minmax(120px, 1fr) 65px 125px;

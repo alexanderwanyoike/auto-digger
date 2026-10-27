@@ -4,6 +4,7 @@ import type { DownloadJobsBridge } from '../../shared/download-jobs';
 import { useDownloadJobs } from './use-download-jobs';
 import type { PlaybackItem } from '../../shared/playback';
 import { audioFailure } from '../../shared/audio-failure';
+import { downloadSourceId } from '../../shared/download-source-id';
 
 export function downloadedPlayback(track: LocalTrack): PlaybackItem {
   return {
@@ -23,6 +24,8 @@ export function useAudioLibrary(
   const queue = useDownloadJobs(jobsBridge);
   const { completionKey } = queue;
   const actions = useRef(0);
+  const preparing = useRef<DownloadInput | null>(null);
+  const [preparingPreview, setPreparingPreview] = useState<DownloadInput | null>(null);
   const [tracks, setTracks] = useState<LocalTrack[]>([]);
   const [playback, setPlayback] = useState<{ track: PlaybackItem | null; request: number }>({
     track: null,
@@ -145,11 +148,64 @@ export function useAudioLibrary(
     queue,
     downloadBatch,
     playback,
-    busy,
+    preparingPreview,
+    busy: busy && !queue.available,
     error,
     bridge,
     available: Boolean(bridge),
     play,
+    async preview(input: DownloadInput): Promise<AudioResult<LocalTrack>> {
+      const id = downloadSourceId(input);
+      const saved = tracks.find((track) => track.id === id && !track.missing);
+      if (saved) {
+        play(saved);
+        return { ok: true, value: saved };
+      }
+      if (preparing.current)
+        return audioFailure(
+          'busy',
+          'Another preview is preparing. Cancel it before previewing another source.',
+        );
+      preparing.current = input;
+      setPreparingPreview(input);
+      try {
+        const result = window.audioPreviews
+          ? await window.audioPreviews.prepare(input)
+          : audioFailure<LocalTrack>('unavailable', 'Open the desktop app to preview audio.');
+        if (result.ok) {
+          actions.current += 1;
+          setPlayback((previous) => ({
+            track: {
+              ...downloadedPlayback(result.value),
+              url: `auto-digger-audio://preview/${result.value.id}`,
+              preview: true,
+            },
+            request: previous.request + 1,
+          }));
+        }
+        return result;
+      } catch {
+        return audioFailure('unavailable', 'The preview could not start. Please retry.');
+      } finally {
+        preparing.current = null;
+        setPreparingPreview(null);
+      }
+    },
+    async cancelPreview(input: DownloadInput): Promise<AudioResult<undefined>> {
+      const id = downloadSourceId(input);
+      try {
+        const result =
+          id && window.audioPreviews
+            ? await window.audioPreviews.cancel(id)
+            : audioFailure<undefined>('unavailable', 'Choose an active preview.');
+        if (!result.ok) setError(result.error.message);
+        return result;
+      } catch {
+        const message = 'The preview could not be cancelled. Please retry.';
+        setError(message);
+        return audioFailure('unavailable', message);
+      }
+    },
     download,
     reveal,
   };

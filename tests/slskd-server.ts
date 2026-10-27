@@ -22,16 +22,21 @@ function readBody(request: IncomingMessage): Promise<unknown> {
     request.once('error', reject);
   });
 }
-export async function startSlskdFixture(directory: string) {
-  const audio = await readFile(resolve('tests/fixtures/tone.flac'));
+export async function startSlskdFixture(
+  directory: string,
+  waiting = false,
+  format: 'flac' | 'mp3' = 'flac',
+) {
+  const audio = await readFile(resolve(`tests/fixtures/tone.${format}`));
   const transfer = {
     id: '22222222-2222-4222-8222-222222222222',
-    filename: 'Music\\Quiet Orbit.flac',
-    state: 'Completed, Succeeded',
-    bytesTransferred: audio.length,
+    filename: `Music\\Quiet Orbit.${format}`,
+    state: waiting ? 'Queued, Remotely' : 'Completed, Succeeded',
+    bytesTransferred: waiting ? 0 : audio.length,
     size: audio.length,
   };
   let batchId = '';
+  let downloads = 0;
   async function handle(request: IncomingMessage, response: ServerResponse) {
     if (request.headers['x-api-key'] !== 'fixture-key') {
       response.writeHead(401).end();
@@ -63,6 +68,7 @@ export async function startSlskdFixture(directory: string) {
     else if (path === '/api/v0/searches' && request.method === 'POST')
       body = { id: '11111111-1111-4111-8111-111111111111' };
     else if (path.endsWith('/batches') && request.method === 'POST') {
+      downloads += 1;
       const input = z
         .object({
           id: z.uuid(),
@@ -72,7 +78,7 @@ export async function startSlskdFixture(directory: string) {
       batchId = input.id;
       const folder = join(directory, input.options.destination);
       await mkdir(folder, { recursive: true });
-      await writeFile(join(folder, 'Quiet Orbit.flac'), audio);
+      await writeFile(join(folder, `Quiet Orbit.${format}`), audio);
       body = { batch: { id: batchId, transfers: [transfer] }, failures: [] };
     } else if (path.includes('/batches/')) body = { id: batchId, transfers: [transfer] };
     response.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify(body));
@@ -87,6 +93,7 @@ export async function startSlskdFixture(directory: string) {
   const address = server.address();
   if (!address || typeof address === 'string') throw new Error('Expected a TCP fixture');
   return {
+    downloads: () => downloads,
     url: `http://127.0.0.1:${address.port.toString()}`,
     close: () =>
       new Promise<void>((resolveClose, reject) => {
