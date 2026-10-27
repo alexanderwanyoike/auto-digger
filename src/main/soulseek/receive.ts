@@ -49,11 +49,14 @@ export async function receiveFile(
           'unavailable',
           'The Soulseek transfer did not finish. Retry it or choose another peer.',
         );
+      const waiting = transfer.state.includes('Queued');
       options.onProgress?.({
-        ...downloadStage('downloading'),
+        ...downloadStage(waiting ? 'waiting' : 'downloading'),
         bytes: transfer.bytesTransferred,
         totalBytes: match.size,
-        percent: Math.min(100, Math.max(0, (transfer.bytesTransferred / match.size) * 100)),
+        percent: waiting
+          ? null
+          : Math.min(100, Math.max(0, (transfer.bytesTransferred / match.size) * 100)),
         speed: transfer.averageSpeed || null,
         eta: null,
       });
