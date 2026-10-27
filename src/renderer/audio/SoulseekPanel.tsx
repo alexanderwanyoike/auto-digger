@@ -94,6 +94,7 @@ export function SoulseekPanel({
           matches={available.slice(0, limit)}
           disabled={audio.busy}
           release={release}
+          audio={audio}
           trackIndex={trackIndex}
           savedIds={audio.tracks.filter((track) => !track.missing).map((track) => track.id)}
           onDownload={(match, assignment) =>

@@ -10,6 +10,15 @@ import { createDiscogsBridge } from './bridge';
 import { createCatalogueBridge } from './catalogue-bridge';
 import { createAudioBridge } from './audio-bridge';
 import { createSoulseekBridge } from './soulseek-bridge';
+import { createAudioPreviewsBridge } from './audio-previews-bridge';
+
+contextBridge.exposeInMainWorld(
+  'audioPreviews',
+  createAudioPreviewsBridge(async (channel, input) => {
+    const result: unknown = await ipcRenderer.invoke(channel, input);
+    return result;
+  }),
+);
 
 contextBridge.exposeInMainWorld(
   'soulseek',

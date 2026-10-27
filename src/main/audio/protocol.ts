@@ -2,6 +2,7 @@ import { net, protocol } from 'electron';
 import { stat } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import type { createIndexedLibrary } from './indexed-library';
+import type { createAudioPreviews } from './previews';
 import { audioContentType } from './content-type';
 
 export function registerAudioScheme() {
@@ -13,12 +14,17 @@ export function registerAudioScheme() {
   ]);
 }
 
-export function registerAudioProtocol(library: ReturnType<typeof createIndexedLibrary>) {
+export function registerAudioProtocol(
+  library: ReturnType<typeof createIndexedLibrary>,
+  previews: ReturnType<typeof createAudioPreviews>,
+) {
   protocol.handle('auto-digger-audio', async (request) => {
     const url = new URL(request.url);
-    if (url.hostname !== 'track' || !['GET', 'HEAD'].includes(request.method))
+    if (!['track', 'preview'].includes(url.hostname) || !['GET', 'HEAD'].includes(request.method))
       return new Response(null, { status: 404 });
-    const track = await library.locate(url.pathname.slice(1));
+    const track = await (url.hostname === 'preview' ? previews : library).locate(
+      url.pathname.slice(1),
+    );
     if (!track.ok) return new Response(null, { status: 404 });
     try {
       const { file } = track.value;

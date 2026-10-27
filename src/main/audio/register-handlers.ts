@@ -5,11 +5,14 @@ import type { AudioResult } from '../../shared/audio';
 import { audioFailure } from '../../shared/audio-failure';
 import type { createIndexedLibrary } from './indexed-library';
 import type { createDownloader } from './downloader';
+import { audioPreviewChannels } from '../../shared/audio-previews';
+import type { createAudioPreviews } from './previews';
 
 export function registerAudioHandlers(
   window: BrowserWindow,
   library: ReturnType<typeof createIndexedLibrary>,
   downloader: ReturnType<typeof createDownloader>,
+  previews: ReturnType<typeof createAudioPreviews>,
 ) {
   const handle = (
     channel: string,
@@ -37,6 +40,14 @@ export function registerAudioHandlers(
       : Promise.resolve(audioFailure('invalid-input', 'Choose a supported YouTube source.')),
   );
   handle(audioChannels.download, (input) => library.download(input));
+  handle(audioPreviewChannels.prepare, (input) => previews.prepare(input));
+  handle(audioPreviewChannels.cancel, (input) =>
+    Promise.resolve(
+      typeof input === 'string'
+        ? previews.cancel(input)
+        : audioFailure('invalid-input', 'Choose an active preview.'),
+    ),
+  );
   handle(audioChannels.reveal, async (input) => {
     if (input === undefined) {
       const ready = await library.list();

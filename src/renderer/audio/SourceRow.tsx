@@ -4,6 +4,7 @@ import type { AudioResult, AudioSource, LocalTrack } from '../../shared/audio';
 import type { DiscogsRelease } from '../../shared/discogs';
 import { sourceAssignment } from './source-assignment';
 import { SourceDownloadButton } from './SourceDownloadButton';
+import { SourcePreviewButton } from './SourcePreviewButton';
 import type { useAudioLibrary } from './use-audio-library';
 
 export function SourceRow({
@@ -28,6 +29,7 @@ export function SourceRow({
   const id = useId();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
   const video = release.videos[index];
   if (!video) return null;
   const { sourceTitle, selected } = sourceAssignment(release, index, checked, saved, manual);
@@ -78,6 +80,15 @@ export function SourceRow({
         </span>
       </div>
       <div className="source-actions">
+        {!available && (
+          <SourcePreviewButton
+            input={{ release, videoIndex: index, trackIndex: selected }}
+            audio={audio}
+            disabled={audio.busy || !checked?.ok}
+            onError={setError}
+            onPendingChange={setPreviewing}
+          />
+        )}
         {available && (
           <button
             type="button"
@@ -96,7 +107,7 @@ export function SourceRow({
             job={job}
             pending={pending}
             tagging={Boolean(available)}
-            disabled={audio.busy || (!available && !checked?.ok)}
+            disabled={audio.busy || previewing || (!available && !checked?.ok)}
             onDownload={() => {
               download().catch(() => {
                 setPending(false);

@@ -1,5 +1,7 @@
 import { app, BrowserWindow, nativeImage } from 'electron';
 import { join } from 'node:path';
+import { mkdtemp } from 'node:fs/promises';
+import { createAudioPreviews } from './audio/previews';
 import { createApplicationUpdates } from './updates/runtime';
 import { registerUpdateHandlers } from './updates/register-handlers';
 import { registerStoreLinkHandlers } from './links/register-handlers';
@@ -33,6 +35,7 @@ let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
 let crateStore: ReturnType<typeof createLegacyCrateStore> | undefined;
 let catalogueStore: ReturnType<typeof createCatalogueStore> | undefined;
 let audioLibrary: ReturnType<typeof createIndexedLibrary> | undefined;
+let audioPreviews: ReturnType<typeof createAudioPreviews> | undefined;
 let downloadJobs: ReturnType<typeof createDownloadJobs> | undefined;
 let soulseekSettings: ReturnType<typeof createSoulseekSettings> | undefined;
 let soulseek: ReturnType<typeof createSoulseekService> | undefined;
@@ -50,6 +53,7 @@ app.on('before-quit', (event) => {
     closingCatalogue = true;
     Promise.resolve(researchRuntime?.stop())
       .then(() => downloadJobs?.close())
+      .then(() => audioPreviews?.close())
       .then(() => soulseek?.close())
       .then(() => catalogueStore?.close())
       .then((result) => {
@@ -132,6 +136,11 @@ export async function createWindow(): Promise<Result<undefined, string>> {
       soulseekSettings ? soulseekSettings.load() : Promise.resolve({ ok: true, value: null }),
     );
     registerSoulseekHandlers(window, soulseekSettings, soulseek);
+    audioPreviews ??= createAudioPreviews(
+      await mkdtemp(join(app.getPath('temp'), 'auto-digger-previews-')),
+      downloader,
+      soulseek.receive,
+    );
     if (!audioLibrary) {
       audioLibrary = createIndexedLibrary(
         downloadsDirectory,
@@ -139,13 +148,14 @@ export async function createWindow(): Promise<Result<undefined, string>> {
         downloader,
         fetch,
         soulseek.receive,
+        audioPreviews,
       );
-      registerAudioProtocol(audioLibrary);
+      registerAudioProtocol(audioLibrary, audioPreviews);
     }
     const library = audioLibrary;
     downloadJobs ??= createDownloadJobs((input, options) => library.download(input, options));
     registerDownloadJobHandlers(window, downloadJobs);
-    registerAudioHandlers(window, audioLibrary, downloader);
+    registerAudioHandlers(window, audioLibrary, downloader, audioPreviews);
     registerDiscogsHandlers(window, discogsSession);
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event) => {
