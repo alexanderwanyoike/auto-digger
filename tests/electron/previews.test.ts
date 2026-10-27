@@ -23,6 +23,8 @@ test('previews YouTube without saving, reuses the temporary file and saves style
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
+    await page.waitForLoadState('load');
     await page.evaluate((release) => window.crate?.save(release), {
       ...loadedRelease,
       videos: [
