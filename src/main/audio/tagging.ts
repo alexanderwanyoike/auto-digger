@@ -24,7 +24,7 @@ export async function tagDownload(
     album: release.title,
     artist: release.artists.join(' / '),
     performerInfo: release.artists.join(' / '),
-    genre: [...new Set([...release.genres, ...release.styles])].join(' / '),
+    genre: [...new Set(release.styles)].join(' / '),
     publisher: release.labels.map((label) => label.name).join(' / '),
     userDefinedUrl: [
       {
