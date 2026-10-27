@@ -69,3 +69,66 @@ test('previews YouTube outside the library and saves the cached bytes with corre
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('receives Soulseek audio once, keeps it out of Downloads until saved and retains its encoding', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'auto-digger-slsk-preview-'));
+  const catalogue = createCatalogueStore(join(root, 'catalog.sqlite'));
+  const file = join(root, 'peer.flac');
+  const receive = vi.fn(() =>
+    Promise.resolve({
+      ok: true as const,
+      value: {
+        file,
+        match: {
+          id: 'a'.repeat(32),
+          username: 'peer',
+          filename: 'Quiet Orbit.flac',
+          size: 5,
+          bitRate: null,
+          length: 60,
+          access: 'public' as const,
+        },
+      },
+    }),
+  );
+  const downloader = { probe: vi.fn(), download: vi.fn() };
+  const previews = createAudioPreviews(join(root, 'temporary'), downloader, receive);
+  const library = createIndexedLibrary(
+    join(root, 'library'),
+    catalogue,
+    downloader,
+    fetch,
+    receive,
+    previews,
+  );
+  const input = {
+    provider: 'soulseek' as const,
+    release: loadedRelease,
+    trackIndex: 0,
+    candidateId: 'a'.repeat(32),
+  };
+  try {
+    await writeFile(file, 'audio');
+    const preview = await previews.prepare(input);
+    expect(preview).toMatchObject({
+      ok: true,
+      value: { title: 'Quiet Orbit', provider: 'soulseek' },
+    });
+    expect(await library.list()).toEqual({ ok: true, value: [] });
+    expect(await previews.prepare(input)).toEqual(preview);
+    const saved = await library.download(input);
+    expect(saved).toMatchObject({
+      ok: true,
+      value: { provider: 'soulseek', title: 'Quiet Orbit' },
+    });
+    expect(receive).toHaveBeenCalledTimes(1);
+    const located = await library.locate(`12-slsk-${input.candidateId}`);
+    if (!located.ok) throw new Error(located.error.message);
+    expect(await readFile(located.value.file, 'utf8')).toBe('audio');
+    expect(await readFile(file, 'utf8')).toBe('audio');
+  } finally {
+    await previews.close();
+    await catalogue.close();
+    await rm(root, { recursive: true, force: true });
+  }
+});
