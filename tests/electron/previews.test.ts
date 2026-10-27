@@ -78,3 +78,86 @@ test('previews YouTube without saving, reuses the temporary file and saves style
     await desktop.close();
   }
 });
+
+test('previews a Soulseek EP result, then saves the same MP3 with Discogs assignment and style tags', async () => {
+  const { mkdir } = await import('node:fs/promises');
+  const { startSlskdFixture } = await import('../slskd-server');
+  const directory = test.info().outputPath('completed');
+  await mkdir(directory, { recursive: true });
+  const service = await startSlskdFixture(directory, false, 'mp3');
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encrypted-desktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('profile')}`,
+    ],
+    env: Object.fromEntries(
+      Object.entries(process.env).filter(
+        (entry): entry is [string, string] =>
+          typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
+      ),
+    ),
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.getByLabel('slskd URL', { exact: true }).fill(service.url);
+    await page.getByLabel('slskd API key', { exact: true }).fill('fixture-key');
+    await page.getByLabel('slskd completed-downloads folder', { exact: true }).fill(directory);
+    await page.getByRole('button', { name: 'Connect slskd', exact: true }).click();
+    await expect(page.getByText('slskd connection saved.', { exact: true })).toBeVisible();
+    await page.evaluate((release) => window.crate?.save(release), { ...loadedRelease, videos: [] });
+    await page.reload();
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    await page.getByRole('button', { name: 'Soulseek', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Search release · Quiet Orbit EP', exact: true })
+      .click();
+    const preview = page.getByRole('button', {
+      name: 'Preview Quiet Orbit.mp3 from archive_peer',
+      exact: true,
+    });
+    await expect(preview).toBeVisible({ timeout: 2000 });
+    await preview.click();
+    await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible();
+    expect(await page.evaluate(() => window.audioLibrary?.list())).toEqual({ ok: true, value: [] });
+    await expect(preview).toBeEnabled();
+    await preview.click();
+    await expect(preview).toBeEnabled();
+    await page
+      .getByRole('button', { name: 'Download Quiet Orbit.mp3 from archive_peer', exact: true })
+      .click();
+    await expect(
+      page
+        .getByRole('table', { name: 'Soulseek search results' })
+        .getByText('Saved', { exact: true }),
+    ).toBeVisible();
+    const result = await page.evaluate(() => window.audioLibrary?.list());
+    if (!result?.ok || !result.value[0]) throw new Error('Expected a saved Soulseek preview');
+    expect(result.value[0]).toMatchObject({
+      title: 'Quiet Orbit',
+      trackIndex: 0,
+      provider: 'soulseek',
+    });
+    const music = await desktop.evaluate(({ app }) => app.getPath('music'));
+    const file = join(
+      music,
+      'Auto Digger',
+      'Soulseek',
+      'Electronic',
+      'Deep House',
+      '1998',
+      result.value[0].filename,
+    );
+    expect(await NodeID3.Promise.read(file)).toMatchObject({
+      title: 'Quiet Orbit',
+      artist: 'Low Tide',
+      album: 'Quiet Orbit EP',
+      genre: 'Deep House',
+      trackNumber: '1',
+    });
+    expect(service.downloads()).toBe(1);
+  } finally {
+    await desktop.close();
+    await service.close();
+  }
+});
