@@ -29,6 +29,7 @@ export function SourceRow({
   const id = useId();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
   const video = release.videos[index];
   if (!video) return null;
   const { sourceTitle, selected } = sourceAssignment(release, index, checked, saved, manual);
@@ -85,6 +86,7 @@ export function SourceRow({
             audio={audio}
             disabled={audio.busy || !checked?.ok}
             onError={setError}
+            onPendingChange={setPreviewing}
           />
         )}
         {available && (
@@ -105,7 +107,7 @@ export function SourceRow({
             job={job}
             pending={pending}
             tagging={Boolean(available)}
-            disabled={audio.busy || (!available && !checked?.ok)}
+            disabled={audio.busy || previewing || (!available && !checked?.ok)}
             onDownload={() => {
               download().catch(() => {
                 setPending(false);

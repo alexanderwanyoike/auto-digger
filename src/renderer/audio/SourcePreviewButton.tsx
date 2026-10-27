@@ -9,12 +9,14 @@ export function SourcePreviewButton({
   disabled,
   label = 'Preview audio',
   onError,
+  onPendingChange,
 }: {
   input: DownloadInput;
   audio: ReturnType<typeof useAudioLibrary>;
   disabled: boolean;
   label?: string;
   onError: (message: string | null) => void;
+  onPendingChange?: (pending: boolean) => void;
 }) {
   const [pending, setPending] = useState(false);
   return (
@@ -41,13 +43,17 @@ export function SourcePreviewButton({
           return;
         }
         setPending(true);
+        onPendingChange?.(true);
         audio
           .preview(input)
           .then((result) => {
             if (!result.ok && result.error.code !== 'cancelled') onError(result.error.message);
           })
           .catch(() => onError('The preview could not start. Please retry.'))
-          .finally(() => setPending(false));
+          .finally(() => {
+            setPending(false);
+            onPendingChange?.(false);
+          });
       }}
     >
       {pending ? <X size={13} aria-hidden="true" /> : <Play size={13} aria-hidden="true" />}
