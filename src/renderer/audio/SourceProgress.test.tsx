@@ -133,6 +133,7 @@ test('can queue a YouTube source while a Soulseek request is waiting for a peer'
     );
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
     await user.click(screen.getByRole('button', { name: 'Soulseek', exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Search A1 · Quiet Orbit', exact: true }));
     await user.click(
       await screen.findByRole('button', { name: 'Download Quiet Orbit.flac from peer' }),
     );
