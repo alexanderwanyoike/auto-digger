@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import NodeID3 from 'node-id3';
@@ -63,6 +63,20 @@ test('previews YouTube outside the library and saves the cached bytes with corre
     ).toBe(true);
     expect(await previews.locate('12-abcdefghijk')).toEqual(located);
     await expect(readFile(temporary.value.file)).rejects.toMatchObject({ code: 'ENOENT' });
+    expect(await library.download(input)).toMatchObject({
+      ok: true,
+      value: { title: 'Quiet Orbit', trackIndex: 0 },
+    });
+    expect(await library.download({ ...input, trackIndex: 1 })).toMatchObject({
+      ok: true,
+      value: { title: 'Night Tide', trackIndex: 1 },
+    });
+    expect(await library.locate('12-abcdefghijk')).toEqual(located);
+    expect(await previews.locate('12-abcdefghijk')).toEqual(located);
+    expect(
+      (await readdir(join(located.value.file, '..'))).filter((name) => name.endsWith('.mp3')),
+    ).toEqual([located.value.track.filename]);
+    expect(download).toHaveBeenCalledTimes(1);
     await previews.close();
     expect(
       (await readFile(located.value.file)).includes(Buffer.from('original audio payload')),
