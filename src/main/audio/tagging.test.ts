@@ -31,7 +31,7 @@ test('tags the matched Discogs track and front cover, retaining audio when artwo
       artist: 'Low Tide',
       year: '1998',
       trackNumber: '1',
-      genre: 'Electronic / Deep House',
+      genre: 'Deep House',
       image: { mime: 'image/jpeg', type: { id: 3 } },
     });
     expect((await readFile(file)).includes(Buffer.from('audio-payload'))).toBe(true);
