@@ -42,7 +42,7 @@ This is the default layout for new setups. Saved layouts remain unchanged. Subge
 
 ## 4. Find a track
 
-Open a record on the digging desk. Under Audio sources, choose YouTube or Soulseek in the same provider selector. Choose Soulseek, select the Discogs track, then edit Refine search when needed. Punctuation becomes spaces; the record's title stays unchanged. Both providers use the same download queue and library.
+Open a record on the digging desk. Under Audio sources, choose YouTube or Soulseek in the same provider selector. Choose Soulseek, then open the release-title row or a track row. Edit Refine search when needed. In release results, check each file's Discogs track suggestion and correct unmatched files before saving. Punctuation becomes spaces; the record's title stays unchanged. Both providers use the same download queue and library.
 
 ![Editable search and compact results table](images/soulseek-results.png)
 

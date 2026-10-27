@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Search, LockKeyhole } from 'lucide-react';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { SoulseekMatch } from '../../shared/soulseek';
@@ -11,15 +11,18 @@ export function SoulseekPanel({
   release,
   trackIndex,
   audio,
+  query,
+  onEdit,
 }: {
   release: DiscogsRelease;
-  trackIndex: number;
+  trackIndex: number | null;
   audio: ReturnType<typeof useAudioLibrary>;
+  query: string;
+  onEdit: (query: string) => void;
 }) {
-  const state = useSoulseekSearch(
-    window.soulseek,
-    `${release.artists.join(' ')} ${release.tracks[trackIndex]?.title ?? ''}`,
-  );
+  const id = useId();
+  const initial = useRef(query).current;
+  const state = useSoulseekSearch(window.soulseek, initial);
   const [limit, setLimit] = useState(40);
   const [error, setError] = useState<string | null>(null);
   const available = state.results?.matches.filter((match) => match.access === 'public') ?? [];
@@ -30,12 +33,12 @@ export function SoulseekPanel({
       track.provider === 'soulseek' &&
       !track.missing,
   );
-  async function download(match: SoulseekMatch) {
+  async function download(match: SoulseekMatch, assignment: number | null) {
     setError(null);
     const result = await audio.download({
       provider: 'soulseek',
       release,
-      trackIndex,
+      trackIndex: assignment,
       candidateId: match.id,
     });
     if (!result.ok) setError(result.error.message);
@@ -53,14 +56,15 @@ export function SoulseekPanel({
           state.search(state.query).catch(() => undefined);
         }}
       >
-        <label htmlFor="soulseek-query">
+        <label htmlFor={id}>
           Refine search
           <input
-            id="soulseek-query"
+            id={id}
             aria-label="Refine Soulseek search"
             value={state.query}
             onChange={(event) => {
               state.edit(event.target.value);
+              onEdit(event.target.value);
             }}
             maxLength={256}
           />
@@ -88,9 +92,12 @@ export function SoulseekPanel({
       {available.length > 0 && (
         <SoulseekTable
           matches={available.slice(0, limit)}
-          disabled={audio.busy || saved}
-          onDownload={(match) => {
-            download(match).catch(() => {
+          disabled={audio.busy}
+          release={release}
+          trackIndex={trackIndex}
+          savedIds={audio.tracks.filter((track) => !track.missing).map((track) => track.id)}
+          onDownload={(match, assignment) => {
+            download(match, assignment).catch(() => {
               setError('This download could not finish. Please retry.');
             });
           }}

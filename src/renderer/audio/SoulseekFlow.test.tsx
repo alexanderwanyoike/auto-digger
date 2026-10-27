@@ -91,8 +91,17 @@ test('refines a real search, keeps private matches separate and downloads a publ
       'aria-pressed',
       'true',
     );
-    expect(sources.getByRole('combobox', { name: 'Soulseek track' })).toHaveDisplayValue(
-      'A1 · Quiet Orbit',
+    expect(search).not.toHaveBeenCalled();
+    expect(sources.getByRole('button', { name: 'Search release · Quiet Orbit EP' })).toBeVisible();
+    expect(sources.getByRole('button', { name: 'Search A1 · Quiet Orbit' })).toBeVisible();
+    expect(sources.getByRole('button', { name: 'Search B1 · Night Tide' })).toBeVisible();
+    await user.click(sources.getByRole('button', { name: 'Search release · Quiet Orbit EP' }));
+    expect(await screen.findByRole('textbox', { name: 'Refine Soulseek search' })).toHaveValue(
+      'Low Tide Quiet Orbit EP',
+    );
+    await user.click(sources.getByRole('button', { name: 'Search A1 · Quiet Orbit' }));
+    expect(await screen.findByRole('textbox', { name: 'Refine Soulseek search' })).toHaveValue(
+      'Low Tide Quiet Orbit',
     );
     const table = await screen.findByRole('table', { name: 'Soulseek search results' });
     expect(within(table).getByRole('columnheader', { name: 'Quality' })).toBeVisible();
@@ -113,7 +122,7 @@ test('refines a real search, keeps private matches separate and downloads a publ
       release,
       trackIndex: 0,
     });
-    await user.selectOptions(sources.getByRole('combobox', { name: 'Soulseek track' }), '1');
+    await user.click(sources.getByRole('button', { name: 'Search B1 · Night Tide' }));
     expect(await screen.findByRole('textbox', { name: 'Refine Soulseek search' })).toHaveValue(
       'Low Tide Night Tide',
     );
@@ -124,7 +133,7 @@ test('refines a real search, keeps private matches separate and downloads a publ
     expect(screen.getByRole('textbox', { name: 'Refine Soulseek search' })).toHaveValue(
       'Low Tide Night Tide',
     );
-    await user.selectOptions(sources.getByRole('combobox', { name: 'Soulseek track' }), '0');
+    await user.click(sources.getByRole('button', { name: 'Search A1 · Quiet Orbit' }));
     expect(await screen.findByText('Saved from Soulseek')).toBeVisible();
     await user.click(sources.getByRole('button', { name: 'YouTube' }));
     expect(
