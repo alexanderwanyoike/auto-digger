@@ -1,4 +1,5 @@
 export interface PlaybackItem {
+  preview?: boolean;
   id: string;
   title: string;
   artist: string;

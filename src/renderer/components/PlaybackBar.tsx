@@ -25,7 +25,10 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
         />
         <div className="playing-info">
           <strong>{track?.title ?? 'Nothing on the deck'}</strong>
-          <span>{description}</span>
+          <span>
+            {track?.preview ? 'Preview · ' : ''}
+            {description}
+          </span>
         </div>
       </div>
       <button
@@ -76,7 +79,7 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
       <div className="player-library">
         <select
           aria-label="Downloaded track"
-          value={track?.id ?? ''}
+          value={track?.preview ? '' : (track?.id ?? '')}
           disabled={audio.tracks.length === 0}
           onChange={(event) => {
             const selected = audio.tracks.find((item) => item.id === event.target.value);
@@ -84,7 +87,7 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
           }}
         >
           <option value="" disabled>
-            Downloads
+            {track?.preview ? 'Preview (not saved)' : 'Downloads'}
           </option>
           {audio.tracks.map((item) => (
             <option key={item.id} value={item.id} disabled={item.missing === true}>

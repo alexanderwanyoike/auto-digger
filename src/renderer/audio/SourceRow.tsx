@@ -4,6 +4,7 @@ import type { AudioResult, AudioSource, LocalTrack } from '../../shared/audio';
 import type { DiscogsRelease } from '../../shared/discogs';
 import { sourceAssignment } from './source-assignment';
 import { SourceDownloadButton } from './SourceDownloadButton';
+import { SourcePreviewButton } from './SourcePreviewButton';
 import type { useAudioLibrary } from './use-audio-library';
 
 export function SourceRow({
@@ -78,6 +79,14 @@ export function SourceRow({
         </span>
       </div>
       <div className="source-actions">
+        {!available && (
+          <SourcePreviewButton
+            input={{ release, videoIndex: index, trackIndex: selected }}
+            audio={audio}
+            disabled={audio.busy || !checked?.ok}
+            onError={setError}
+          />
+        )}
         {available && (
           <button
             type="button"
