@@ -77,7 +77,7 @@ export interface YouTubeDownloadInput {
 export const soulseekDownloadInputSchema = z.object({
   provider: z.literal('soulseek'),
   release: releaseSchema,
-  trackIndex: z.number().int().nonnegative(),
+  trackIndex: z.number().int().nonnegative().nullable(),
   candidateId: z.string().regex(/^[a-f0-9]{32}$/),
 });
 export type SoulseekDownloadInput = z.infer<typeof soulseekDownloadInputSchema>;

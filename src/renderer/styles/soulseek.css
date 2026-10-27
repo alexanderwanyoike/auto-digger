@@ -8,7 +8,43 @@
 }
 .soulseek-sources {
   border-top: 1px solid var(--line);
-  padding-top: 11px;
+}
+.soulseek-source {
+  border-bottom: 1px solid var(--line);
+}
+.soulseek-source-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+  text-align: left;
+}
+.soulseek-source-toggle > svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.soulseek-source-toggle[aria-expanded='true'] > svg:first-child {
+  transform: rotate(90deg);
+}
+.soulseek-source-position {
+  min-width: 42px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.soulseek-source-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.soulseek-source > div {
+  padding-bottom: 10px;
 }
 .soulseek-matches {
   min-width: 0;
@@ -115,6 +151,18 @@
 }
 .soulseek-quality {
   width: 82px;
+}
+.soulseek-assignment {
+  width: 180px;
+}
+.soulseek-table .source-assignment {
+  display: table-cell;
+}
+.soulseek-table .source-assignment select {
+  font-size: 9px;
+}
+.soulseek-release-table {
+  min-width: 620px;
 }
 .soulseek-time {
   width: 42px;

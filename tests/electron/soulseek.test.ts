@@ -53,8 +53,26 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
       'aria-pressed',
       'true',
     );
-    await sources.getByRole('button', { name: 'Soulseek', exact: true }).click();
-    await expect(sources.getByRole('combobox', { name: 'Soulseek track' })).toHaveValue('0');
+    const choice = sources.getByRole('group', { name: 'Download from' });
+    const youtubeButton = choice.getByRole('button', { name: 'YouTube', exact: true });
+    const soulseekButton = choice.getByRole('button', { name: 'Soulseek', exact: true });
+    const geometryOf = await Promise.all([
+      sources.boundingBox(),
+      youtubeButton.boundingBox(),
+      soulseekButton.boundingBox(),
+    ]);
+    const [sourceBox, youtubeBox, soulseekBox] = geometryOf;
+    if (!sourceBox || !youtubeBox || !soulseekBox) throw new Error('Expected source controls');
+    expect(youtubeBox.width).toBeLessThan(150);
+    expect(soulseekBox.width).toBeLessThan(150);
+    expect(
+      Math.abs(soulseekBox.x + soulseekBox.width - sourceBox.x - sourceBox.width),
+    ).toBeLessThan(2);
+    await soulseekButton.click();
+    await expect(
+      sources.getByRole('button', { name: 'Search release · Quiet Orbit EP' }),
+    ).toBeVisible();
+    await sources.getByRole('button', { name: 'Search A1 · Quiet Orbit' }).click();
     const table = page.getByRole('table', { name: 'Soulseek search results' });
     await expect(table.getByRole('row')).toHaveCount(41);
     const geometry = await table.evaluate((element) => ({

@@ -126,3 +126,54 @@ test('imports completed Soulseek audio into the configured library and retains i
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('saves release-title search audio without inventing a Discogs track assignment', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-digger-release-audio-'));
+  const catalogue = createCatalogueStore(join(directory, 'catalog.sqlite'));
+  const file = join(directory, 'incoming.flac');
+  const candidateId = 'd'.repeat(32);
+  const receive = vi.fn(() =>
+    Promise.resolve({
+      ok: true as const,
+      value: {
+        file,
+        match: {
+          id: candidateId,
+          username: 'peer',
+          filename: 'Music\\Quiet Orbit EP.flac',
+          size: 5,
+          bitRate: null,
+          length: null,
+          access: 'public' as const,
+        },
+      },
+    }),
+  );
+  try {
+    await writeFile(file, 'audio');
+    const library = createIndexedLibrary(
+      directory,
+      catalogue,
+      { probe: vi.fn(), download: vi.fn() },
+      fetch,
+      receive,
+    );
+    const saved = await library.download({
+      provider: 'soulseek',
+      release: { ...loadedRelease, tracks: [] },
+      candidateId,
+      trackIndex: null,
+    });
+    expect(saved).toMatchObject({
+      ok: true,
+      value: { title: 'Quiet Orbit EP', trackIndex: null, album: 'Quiet Orbit EP' },
+    });
+    if (!saved.ok) throw new Error(saved.error.message);
+    const located = await library.locate(saved.value.id);
+    if (!located.ok) throw new Error(located.error.message);
+    expect(await readFile(located.value.file, 'utf8')).toBe('audio');
+  } finally {
+    await catalogue.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});

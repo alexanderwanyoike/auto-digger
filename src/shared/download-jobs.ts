@@ -5,6 +5,7 @@ import type { AudioResult, DownloadInput } from './audio';
 export const downloadStageSchema = z.enum([
   'queued',
   'preparing',
+  'waiting',
   'downloading',
   'converting',
   'tagging',
