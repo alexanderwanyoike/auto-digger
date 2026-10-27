@@ -1,4 +1,4 @@
-import { FolderOpen, Pause, Play, Volume2 } from 'lucide-react';
+import { FolderOpen, Pause, Play, Volume2, X } from 'lucide-react';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import { usePlayer } from '../audio/use-player';
 import { RecordArtwork } from './RecordArtwork';
@@ -108,6 +108,25 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
           <FolderOpen size={17} aria-hidden="true" />
         </button>
       </div>
+      {audio.preparingPreview && (
+        <div className="preview-preparation">
+          <span role="status">
+            Preparing {'provider' in audio.preparingPreview ? 'Soulseek' : 'YouTube'} preview ·{' '}
+            {audio.preparingPreview.release.title}
+          </span>
+          <button
+            type="button"
+            className="secondary-button"
+            aria-label="Cancel preparing preview"
+            onClick={() => {
+              if (audio.preparingPreview)
+                audio.cancelPreview(audio.preparingPreview).catch(() => undefined);
+            }}
+          >
+            <X size={13} aria-hidden="true" /> Cancel
+          </button>
+        </div>
+      )}
       {(player.error ?? audio.error) && (
         <p role="alert" className="playback-notice">
           {player.error ?? audio.error}

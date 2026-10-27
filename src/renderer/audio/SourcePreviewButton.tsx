@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Play, X } from 'lucide-react';
 import type { DownloadInput } from '../../shared/audio';
+import { downloadSourceId } from '../../shared/download-source-id';
 import type { useAudioLibrary } from './use-audio-library';
 
 export function SourcePreviewButton({
@@ -18,7 +19,12 @@ export function SourcePreviewButton({
   onError: (message: string | null) => void;
   onPendingChange?: (pending: boolean) => void;
 }) {
-  const [pending, setPending] = useState(false);
+  const pending = Boolean(
+    audio.preparingPreview && downloadSourceId(audio.preparingPreview) === downloadSourceId(input),
+  );
+  useEffect(() => {
+    onPendingChange?.(pending);
+  }, [onPendingChange, pending]);
   return (
     <button
       type="button"
@@ -44,8 +50,6 @@ export function SourcePreviewButton({
             });
           return;
         }
-        setPending(true);
-        onPendingChange?.(true);
         audio
           .preview(input)
           .then((result) => {
@@ -53,10 +57,6 @@ export function SourcePreviewButton({
           })
           .catch(() => {
             onError('The preview could not start. Please retry.');
-          })
-          .finally(() => {
-            setPending(false);
-            onPendingChange?.(false);
           });
       }}
     >

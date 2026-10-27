@@ -24,6 +24,8 @@ export function useAudioLibrary(
   const queue = useDownloadJobs(jobsBridge);
   const { completionKey } = queue;
   const actions = useRef(0);
+  const preparing = useRef<DownloadInput | null>(null);
+  const [preparingPreview, setPreparingPreview] = useState<DownloadInput | null>(null);
   const [tracks, setTracks] = useState<LocalTrack[]>([]);
   const [playback, setPlayback] = useState<{ track: PlaybackItem | null; request: number }>({
     track: null,
@@ -146,6 +148,7 @@ export function useAudioLibrary(
     queue,
     downloadBatch,
     playback,
+    preparingPreview,
     busy: busy && !queue.available,
     error,
     bridge,
@@ -158,6 +161,13 @@ export function useAudioLibrary(
         play(saved);
         return { ok: true, value: saved };
       }
+      if (preparing.current)
+        return audioFailure(
+          'busy',
+          'Another preview is preparing. Cancel it before previewing another source.',
+        );
+      preparing.current = input;
+      setPreparingPreview(input);
       try {
         const result = window.audioPreviews
           ? await window.audioPreviews.prepare(input)
@@ -176,13 +186,25 @@ export function useAudioLibrary(
         return result;
       } catch {
         return audioFailure('unavailable', 'The preview could not start. Please retry.');
+      } finally {
+        preparing.current = null;
+        setPreparingPreview(null);
       }
     },
     async cancelPreview(input: DownloadInput): Promise<AudioResult<undefined>> {
       const id = downloadSourceId(input);
-      return id && window.audioPreviews
-        ? window.audioPreviews.cancel(id)
-        : audioFailure('unavailable', 'Choose an active preview.');
+      try {
+        const result =
+          id && window.audioPreviews
+            ? await window.audioPreviews.cancel(id)
+            : audioFailure<undefined>('unavailable', 'Choose an active preview.');
+        if (!result.ok) setError(result.error.message);
+        return result;
+      } catch {
+        const message = 'The preview could not be cancelled. Please retry.';
+        setError(message);
+        return audioFailure('unavailable', message);
+      }
     },
     download,
     reveal,

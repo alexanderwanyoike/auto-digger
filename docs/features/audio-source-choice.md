@@ -10,7 +10,7 @@ The tracklist remains record metadata, rather than a second download entry point
 
 ## Preview before saving
 
-Use the play icon beside a YouTube source or public Soulseek result to preview it. The player labels temporary audio as Preview. Previewing keeps the audio out of Downloads and the library folders until you choose Download. A Soulseek preview must receive the peer file before it can play; use the same control to cancel preparation. Other sources can still join the download queue.
+Use the play icon beside a YouTube source or public Soulseek result to preview it. The player labels temporary audio as Preview. Previewing keeps the audio out of Downloads and the library folders until you choose Download. A Soulseek preview must receive the peer file before it can play; use the same control to cancel preparation. While preparing, the bottom player also shows Cancel, which remains available when switching providers, search rows or pages. Other sources can still join the download queue. Preparation state follows the existing application-owned React hook pattern, keeping the source controls and persistent player in sync.
 
 Temporary audio is cached for this app session, with at most ten recently used sources, and cleared on quit. Previewing again reuses the cached file. Saving uses those bytes, applies the current Discogs track assignment and style-only MP3 genre tags, and places the file in the configured download hierarchy. The staged-copy and hard-link publication pattern follows the existing audio library and works across volumes; temporary audio is removed after a successful library commit. Active playback can still resolve its preview URL after promotion. Existing saved files play directly.
 
