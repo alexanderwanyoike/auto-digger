@@ -8,6 +8,7 @@ import type { createDownloader } from './downloader';
 import { createAudioLibrary } from './library';
 import { importSoulseekAudio } from './soulseek-library';
 import type { ReceiveSoulseek } from './soulseek-library';
+import { waitForPreview } from './wait-for-preview';
 
 export interface PreviewAudio {
   track: LocalTrack;
@@ -35,7 +36,11 @@ export function createAudioPreviews(
         ),
       );
   }
-  async function find(id: string): Promise<AudioResult<PreviewAudio | null>> {
+  async function find(id: string, signal?: AbortSignal): Promise<AudioResult<PreviewAudio | null>> {
+    if (active?.id === id) {
+      const prepared = await waitForPreview(active.task, signal);
+      if (!prepared.ok) return prepared;
+    }
     const entry = entries.get(id);
     if (!entry) return { ok: true, value: null };
     try {
