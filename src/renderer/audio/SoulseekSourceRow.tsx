@@ -19,7 +19,7 @@ export function SoulseekSourceRow({
 }) {
   const id = useId();
   const track = trackIndex === null ? undefined : release.tracks[trackIndex];
-  const position = track?.position || (trackIndex === null ? 'Release' : 'Track');
+  const position = track?.position ?? (trackIndex === null ? 'Release' : 'Track');
   const title = track?.title ?? release.title;
   const [query, setQuery] = useState(`${release.artists.join(' ')} ${title}`);
   return (
