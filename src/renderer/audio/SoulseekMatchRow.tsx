@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, LoaderCircle } from 'lucide-react';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { SoulseekMatch } from '../../shared/soulseek';
 import { matchTrack } from '../../shared/match-track';
@@ -17,10 +17,11 @@ export function SoulseekMatchRow({
   trackIndex: number | null;
   disabled: boolean;
   saved: boolean;
-  onDownload: (match: SoulseekMatch, assignment: number | null) => void;
+  onDownload: (match: SoulseekMatch, assignment: number | null) => Promise<void>;
 }) {
   const filename = match.filename.split(/[\\/]/).at(-1) ?? match.filename;
   const [assignment, setAssignment] = useState(trackIndex ?? matchTrack(release, filename));
+  const [pending, setPending] = useState(false);
   const format = match.filename.split('.').at(-1)?.toUpperCase() ?? 'Audio';
   const duration =
     match.length === null
@@ -34,7 +35,7 @@ export function SoulseekMatchRow({
           <select
             aria-label={`Discogs track for ${filename} from ${match.username}`}
             value={assignment ?? ''}
-            disabled={disabled || saved}
+            disabled={disabled || saved || pending}
             onChange={(event) => {
               setAssignment(event.target.value === '' ? null : Number(event.target.value));
             }}
@@ -63,12 +64,22 @@ export function SoulseekMatchRow({
             className="icon-button"
             aria-label={`Download ${filename} from ${match.username}`}
             title={`Download from ${match.username}`}
-            disabled={disabled}
+            disabled={disabled || pending}
+            aria-busy={pending}
             onClick={() => {
-              onDownload(match, assignment);
+              setPending(true);
+              onDownload(match, assignment)
+                .finally(() => {
+                  setPending(false);
+                })
+                .catch(() => undefined);
             }}
           >
-            <Download size={13} aria-hidden="true" />
+            {pending ? (
+              <LoaderCircle size={13} className="source-spinner" aria-hidden="true" />
+            ) : (
+              <Download size={13} aria-hidden="true" />
+            )}
           </button>
         )}
       </td>

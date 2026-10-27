@@ -12,7 +12,7 @@ export function SoulseekTable({
 }: {
   matches: SoulseekMatch[];
   disabled: boolean;
-  onDownload: (match: SoulseekMatch, assignment: number | null) => void;
+  onDownload: (match: SoulseekMatch, assignment: number | null) => Promise<void>;
   release: DiscogsRelease;
   trackIndex: number | null;
   savedIds: string[];

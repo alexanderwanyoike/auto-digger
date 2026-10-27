@@ -97,7 +97,7 @@ export function SoulseekPanel({
           trackIndex={trackIndex}
           savedIds={audio.tracks.filter((track) => !track.missing).map((track) => track.id)}
           onDownload={(match, assignment) => {
-            download(match, assignment).catch(() => {
+            return download(match, assignment).catch(() => {
               setError('This download could not finish. Please retry.');
             });
           }}
