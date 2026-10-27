@@ -63,6 +63,10 @@ test('previews YouTube outside the library and saves the cached bytes with corre
     ).toBe(true);
     expect(await previews.locate('12-abcdefghijk')).toEqual(located);
     await expect(readFile(temporary.value.file)).rejects.toMatchObject({ code: 'ENOENT' });
+    await previews.close();
+    expect(
+      (await readFile(located.value.file)).includes(Buffer.from('original audio payload')),
+    ).toBe(true);
   } finally {
     await previews.close();
     await catalogue.close();
@@ -129,6 +133,40 @@ test('receives Soulseek audio once, keeps it out of Downloads until saved and re
   } finally {
     await previews.close();
     await catalogue.close();
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('cancels only the requested preview and removes temporary files when closing', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'auto-digger-preview-cancel-'));
+  const receive = vi.fn<import('./soulseek-library').ReceiveSoulseek>(
+    (_input, options) =>
+      new Promise((resolve) => {
+        options.signal?.addEventListener(
+          'abort',
+          () => resolve({ ok: false, error: { code: 'cancelled', message: 'Cancelled' } }),
+          { once: true },
+        );
+      }),
+  );
+  const previews = createAudioPreviews(root, { probe: vi.fn(), download: vi.fn() }, receive);
+  try {
+    const pending = previews.prepare({
+      provider: 'soulseek',
+      release: loadedRelease,
+      trackIndex: 0,
+      candidateId: 'a'.repeat(32),
+    });
+    await vi.waitFor(() => expect(receive).toHaveBeenCalledTimes(1));
+    expect(previews.cancel(`12-slsk-${'b'.repeat(32)}`)).toEqual({ ok: true, value: undefined });
+    expect(receive.mock.calls[0]?.[1].signal?.aborted).toBe(false);
+    previews.cancel(`12-slsk-${'a'.repeat(32)}`);
+    expect(await pending).toMatchObject({ ok: false, error: { code: 'cancelled' } });
+    expect(await previews.locate(`12-slsk-${'a'.repeat(32)}`)).toMatchObject({ ok: false });
+    expect(await previews.close()).toEqual({ ok: true, value: undefined });
+    await expect(readFile(root)).rejects.toMatchObject({ code: 'ENOENT' });
+  } finally {
+    await previews.close();
     await rm(root, { recursive: true, force: true });
   }
 });
