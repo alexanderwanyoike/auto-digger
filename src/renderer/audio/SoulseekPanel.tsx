@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Search, LockKeyhole } from 'lucide-react';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { SoulseekMatch } from '../../shared/soulseek';
@@ -11,22 +11,26 @@ export function SoulseekPanel({
   release,
   trackIndex,
   audio,
+  query,
+  onEdit,
 }: {
   release: DiscogsRelease;
-  trackIndex: number;
+  trackIndex: number | null;
   audio: ReturnType<typeof useAudioLibrary>;
+  query: string;
+  onEdit: (query: string) => void;
 }) {
-  const state = useSoulseekSearch(
-    window.soulseek,
-    `${release.artists.join(' ')} ${release.tracks[trackIndex]?.title ?? ''}`,
-  );
+  const id = useId();
+  const initial = useRef(query).current;
+  const state = useSoulseekSearch(window.soulseek, initial);
+  const [assignment, setAssignment] = useState(trackIndex);
   const [limit, setLimit] = useState(40);
   const [error, setError] = useState<string | null>(null);
   const available = state.results?.matches.filter((match) => match.access === 'public') ?? [];
   const saved = audio.tracks.some(
     (track) =>
       track.releaseId === release.id &&
-      track.trackIndex === trackIndex &&
+      track.trackIndex === assignment &&
       track.provider === 'soulseek' &&
       !track.missing,
   );
@@ -35,7 +39,7 @@ export function SoulseekPanel({
     const result = await audio.download({
       provider: 'soulseek',
       release,
-      trackIndex,
+      trackIndex: assignment,
       candidateId: match.id,
     });
     if (!result.ok) setError(result.error.message);
@@ -53,14 +57,15 @@ export function SoulseekPanel({
           state.search(state.query).catch(() => undefined);
         }}
       >
-        <label htmlFor="soulseek-query">
+        <label htmlFor={id}>
           Refine search
           <input
-            id="soulseek-query"
+            id={id}
             aria-label="Refine Soulseek search"
             value={state.query}
             onChange={(event) => {
               state.edit(event.target.value);
+              onEdit(event.target.value);
             }}
             maxLength={256}
           />
@@ -75,6 +80,24 @@ export function SoulseekPanel({
           Search
         </button>
       </form>
+      {trackIndex === null && (
+        <label className="source-assignment soulseek-release-assignment">
+          <span>Save match as</span>
+          <select
+            value={assignment ?? ''}
+            onChange={(event) => {
+              setAssignment(event.target.value === '' ? null : Number(event.target.value));
+            }}
+          >
+            <option value="">Release audio · keep filename</option>
+            {release.tracks.map((track, index) => (
+              <option key={`${track.position}-${track.title}`} value={index}>
+                {track.position} · {track.title}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       {(state.error ?? error) && <p role="alert">{state.error ?? error}</p>}
       {audio.busy && (
         <p role="status">Downloading in Auto Digger. You can follow or cancel it in Downloads.</p>
@@ -88,7 +111,7 @@ export function SoulseekPanel({
       {available.length > 0 && (
         <SoulseekTable
           matches={available.slice(0, limit)}
-          disabled={audio.busy || saved}
+          disabled={audio.busy || (assignment !== null && saved)}
           onDownload={(match) => {
             download(match).catch(() => {
               setError('This download could not finish. Please retry.');
