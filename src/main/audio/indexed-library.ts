@@ -172,7 +172,7 @@ export function createIndexedLibrary(
         const remembered = await catalogue.downloads.rememberDirectory(directory);
         if (!remembered.ok) return audioFailure('storage', remembered.error.message);
         let result: AudioResult<LocalTrack>;
-        const cached = await previews?.find(sourceId, options.signal);
+        const cached = available ? undefined : await previews?.find(sourceId, options.signal);
         if (cached && !cached.ok) return cached;
         if (cached?.ok && cached.value) {
           result = await savePreview(directory, parsed.data, cached.value, options, request);
