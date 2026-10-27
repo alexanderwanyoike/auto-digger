@@ -22,6 +22,7 @@ test('previews YouTube without saving, reuses the temporary file and saves style
     },
   });
   try {
+    process.stdout.write('[DEBUG-release-preview] desktop launched\n');
     const page = await desktop.firstWindow();
     await page.evaluate((release) => window.crate?.save(release), {
       ...loadedRelease,
@@ -34,14 +35,18 @@ test('previews YouTube without saving, reuses the temporary file and saves style
     const preview = page.getByRole('button', { name: 'Preview audio', exact: true });
     await expect(preview).toBeVisible({ timeout: 2000 });
     await preview.click();
+    process.stdout.write('[DEBUG-release-preview] first preview requested\n');
     await expect(page.getByRole('button', { name: 'Download audio', exact: true })).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible();
     await expect(page.locator('.playback-bar')).toContainText('Preview');
+    process.stdout.write('[DEBUG-release-preview] preview playing\n');
     expect(await page.evaluate(() => window.audioLibrary?.list())).toEqual({ ok: true, value: [] });
     await expect(preview).toBeEnabled();
     await preview.click();
+    process.stdout.write('[DEBUG-release-preview] cached preview requested\n');
     await expect(preview).toBeEnabled();
     await page.getByRole('button', { name: 'Download audio', exact: true }).click();
+    process.stdout.write('[DEBUG-release-preview] save requested\n');
     await expect
       .poll(() => page.evaluate(() => window.audioLibrary?.list()))
       .toMatchObject({ ok: true, value: [{ id: '12-slowvideo01' }] });
@@ -65,6 +70,7 @@ test('previews YouTube without saving, reuses the temporary file and saves style
       trackNumber: '1',
     });
     expect((await readFile(log, 'utf8')).trim().split('\n')).toHaveLength(1);
+    process.stdout.write('[DEBUG-release-preview] saved file checked\n');
     await expect(page.locator('.playback-bar')).not.toContainText('Preview ·');
     const alias = await desktop.evaluate(async ({ net }) => {
       const response = await net.fetch('auto-digger-audio://preview/12-slowvideo01', {
@@ -72,10 +78,13 @@ test('previews YouTube without saving, reuses the temporary file and saves style
       });
       return { status: response.status, size: (await response.arrayBuffer()).byteLength };
     });
+    process.stdout.write('[DEBUG-release-preview] alias fetched\n');
     expect(alias).toEqual({ status: 206, size: 10 });
     await page.screenshot({ path: test.info().outputPath('saved-preview.png') });
   } finally {
+    process.stdout.write('[DEBUG-release-preview] closing desktop\n');
     await desktop.close();
+    process.stdout.write('[DEBUG-release-preview] desktop closed\n');
   }
 });
 
