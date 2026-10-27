@@ -1,6 +1,7 @@
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { SoulseekMatch } from '../../shared/soulseek';
 import { SoulseekMatchRow } from './SoulseekMatchRow';
+import type { useAudioLibrary } from './use-audio-library';
 
 export function SoulseekTable({
   matches,
@@ -9,6 +10,7 @@ export function SoulseekTable({
   release,
   trackIndex,
   savedIds,
+  audio,
 }: {
   matches: SoulseekMatch[];
   disabled: boolean;
@@ -16,6 +18,7 @@ export function SoulseekTable({
   release: DiscogsRelease;
   trackIndex: number | null;
   savedIds: string[];
+  audio: ReturnType<typeof useAudioLibrary>;
 }) {
   return (
     <div className="soulseek-table-scroll" role="region" aria-label="Scrollable Soulseek matches">
@@ -49,6 +52,7 @@ export function SoulseekTable({
               key={match.id}
               match={match}
               release={release}
+              audio={audio}
               trackIndex={trackIndex}
               disabled={disabled}
               saved={savedIds.includes(`${release.id.toString()}-slsk-${match.id}`)}
