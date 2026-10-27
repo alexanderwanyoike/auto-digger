@@ -33,8 +33,22 @@ test('matches each release search filename independently and lets the user corre
     stop: () => Promise.resolve({ ok: true, value: undefined }),
   };
   const download = vi.fn<AudioBridge['download']>().mockResolvedValue({
-    ok: false,
-    error: { code: 'network', message: 'Fixture transfer not started' },
+    ok: true,
+    value: {
+      id: `12-slsk-${'3'.repeat(32)}`,
+      releaseId: 12,
+      provider: 'soulseek',
+      videoId: null,
+      soulseek: { username: 'peer', filename: '03 - Unknown.mp3', size: 123 },
+      title: 'Night Tide',
+      sourceTitle: '03 - Unknown.mp3',
+      trackIndex: 1,
+      artist: 'Low Tide',
+      album: release.title,
+      artworkUrl: null,
+      filename: 'Night Tide.slsk.mp3',
+      warning: null,
+    },
   });
   const user = userEvent.setup();
   try {
@@ -75,6 +89,7 @@ test('matches each release search filename independently and lets the user corre
       candidateId: '3'.repeat(32),
       trackIndex: 1,
     });
+    expect(await table.findByText('Saved', { exact: true })).toBeVisible();
   } finally {
     delete window.soulseek;
   }
