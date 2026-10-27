@@ -174,3 +174,42 @@ test('cancels only the requested preview and removes temporary files when closin
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('cancels a save waiting for a preparing preview without aborting that preview', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'auto-digger-preview-wait-'));
+  const receive = vi.fn<import('./soulseek-library').ReceiveSoulseek>(
+    (_input, options) =>
+      new Promise((resolve) => {
+        options.signal?.addEventListener(
+          'abort',
+          () => {
+            resolve({ ok: false, error: { code: 'cancelled', message: 'Cancelled' } });
+          },
+          { once: true },
+        );
+      }),
+  );
+  const previews = createAudioPreviews(root, { probe: vi.fn(), download: vi.fn() }, receive);
+  const id = `12-slsk-${'a'.repeat(32)}`;
+  const pending = previews.prepare({
+    provider: 'soulseek',
+    release: loadedRelease,
+    trackIndex: 0,
+    candidateId: 'a'.repeat(32),
+  });
+  try {
+    await vi.waitFor(() => {
+      expect(receive).toHaveBeenCalledTimes(1);
+    });
+    const controller = new AbortController();
+    const saving = previews.find(id, controller.signal);
+    controller.abort();
+    expect(await saving).toMatchObject({ ok: false, error: { code: 'cancelled' } });
+    expect(receive.mock.calls[0]?.[1].signal?.aborted).toBe(false);
+  } finally {
+    previews.cancel(id);
+    await pending;
+    await previews.close();
+    await rm(root, { recursive: true, force: true });
+  }
+});
