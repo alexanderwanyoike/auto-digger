@@ -96,11 +96,11 @@ export function SoulseekPanel({
           release={release}
           trackIndex={trackIndex}
           savedIds={audio.tracks.filter((track) => !track.missing).map((track) => track.id)}
-          onDownload={(match, assignment) => {
+          onDownload={(match, assignment) =>
             download(match, assignment).catch(() => {
               setError('This download could not finish. Please retry.');
-            });
-          }}
+            })
+          }
         />
       )}
       {available.length > limit && (

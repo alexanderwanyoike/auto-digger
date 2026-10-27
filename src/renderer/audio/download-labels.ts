@@ -3,6 +3,7 @@ import type { DownloadProgress } from '../../shared/download-jobs';
 export const downloadLabels: Record<DownloadProgress['stage'], string> = {
   queued: 'Queued',
   preparing: 'Preparing',
+  waiting: 'Waiting for peer',
   downloading: 'Downloading',
   converting: 'Converting to MP3',
   tagging: 'Writing Discogs tags',

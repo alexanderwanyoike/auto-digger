@@ -145,7 +145,7 @@ export function useAudioLibrary(
     queue,
     downloadBatch,
     playback,
-    busy,
+    busy: busy && !queue.available,
     error,
     bridge,
     available: Boolean(bridge),

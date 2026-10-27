@@ -22,13 +22,13 @@ function readBody(request: IncomingMessage): Promise<unknown> {
     request.once('error', reject);
   });
 }
-export async function startSlskdFixture(directory: string) {
+export async function startSlskdFixture(directory: string, waiting = false) {
   const audio = await readFile(resolve('tests/fixtures/tone.flac'));
   const transfer = {
     id: '22222222-2222-4222-8222-222222222222',
     filename: 'Music\\Quiet Orbit.flac',
-    state: 'Completed, Succeeded',
-    bytesTransferred: audio.length,
+    state: waiting ? 'Queued, Remotely' : 'Completed, Succeeded',
+    bytesTransferred: waiting ? 0 : audio.length,
     size: audio.length,
   };
   let batchId = '';
