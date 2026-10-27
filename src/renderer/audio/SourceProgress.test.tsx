@@ -63,7 +63,7 @@ test('keeps download progress inside the original source button without insertin
 
 test('can queue a YouTube source while a Soulseek request is waiting for a peer', async () => {
   let jobs: DownloadJob[] = [];
-  const start = vi.fn<DownloadJobsBridge['start']>().mockImplementation(async (inputs) => {
+  const start = vi.fn<DownloadJobsBridge['start']>().mockImplementation((inputs) => {
     const input = inputs[0];
     if (!input) throw new Error('Expected a source');
     const soulseek = 'provider' in input;
@@ -79,7 +79,7 @@ test('can queue a YouTube source while a Soulseek request is waiting for a peer'
       error: null,
     };
     jobs = [...jobs, job];
-    return { ok: true, value: [job] };
+    return Promise.resolve({ ok: true, value: [job] });
   });
   window.downloadJobs = {
     list: () => Promise.resolve({ ok: true, value: jobs }),
