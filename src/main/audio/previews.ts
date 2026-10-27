@@ -6,6 +6,8 @@ import { audioFailure } from '../../shared/audio-failure';
 import { downloadSourceId } from '../../shared/download-source-id';
 import type { createDownloader } from './downloader';
 import { createAudioLibrary } from './library';
+import { importSoulseekAudio } from './soulseek-library';
+import type { ReceiveSoulseek } from './soulseek-library';
 
 export interface PreviewAudio {
   track: LocalTrack;
@@ -15,6 +17,7 @@ export interface PreviewAudio {
 export function createAudioPreviews(
   directory: string,
   downloader: ReturnType<typeof createDownloader>,
+  receive?: ReceiveSoulseek,
   request: typeof fetch = fetch,
 ) {
   const entries = new Map<string, PreviewAudio & { owned: boolean }>();
@@ -53,7 +56,12 @@ export function createAudioPreviews(
       await mkdir(directory, { recursive: true });
       const result =
         'provider' in input
-          ? audioFailure<LocalTrack>('unavailable', 'Soulseek previews are not available yet.')
+          ? receive
+            ? await importSoulseekAudio(directory, input, receive, { signal })
+            : audioFailure<LocalTrack>(
+                'unavailable',
+                'Connect slskd in Settings before previewing.',
+              )
           : await youtube.download(input, { signal });
       if (result.ok) {
         entries.set(result.value.id, {
