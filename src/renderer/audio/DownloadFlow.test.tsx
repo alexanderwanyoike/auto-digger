@@ -62,7 +62,7 @@ test('shows all sources, suggests track matches, accepts corrections and loads d
   const rows = Array.from(
     within(sources)
       .getByRole('list', { name: 'YouTube audio sources' })
-      .querySelectorAll('li.audio-source'),
+      .querySelectorAll<HTMLLIElement>('li.audio-source'),
   );
   expect(rows).toHaveLength(2);
   const [first, second] = rows;
@@ -104,7 +104,9 @@ test('keeps saved sources playable offline and lets their track assignment be co
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   await user.click(screen.getByText('1 unmatched upload'));
   const rows = Array.from(
-    screen.getByRole('list', { name: 'YouTube audio sources' }).querySelectorAll('li.audio-source'),
+    screen
+      .getByRole('list', { name: 'YouTube audio sources' })
+      .querySelectorAll<HTMLLIElement>('li.audio-source'),
   );
   const row = rows[1];
   if (!row) throw new Error('Expected second source');
