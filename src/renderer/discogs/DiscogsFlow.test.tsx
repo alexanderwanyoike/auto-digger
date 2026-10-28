@@ -4,6 +4,7 @@ import { expect, test, vi } from 'vitest';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { identityResponse, loadedRelease } from '../../../tests/discogs-fixtures';
 import { App } from '../App';
+import { ReleaseDetails } from './ReleaseDetails';
 
 function mockBridge(): DiscogsBridge {
   return {
@@ -137,4 +138,9 @@ test('retries a saved connection without asking for the token again', async () =
   await user.click(screen.getByRole('button', { name: 'Reconnect saved account' }));
   expect(await screen.findByRole('button', { name: 'Connected as quiet-digger' })).toBeEnabled();
   expect(bridge.connect).not.toHaveBeenCalled();
+});
+
+test('keeps plain artist credits separated when release details have no browsing callback', () => {
+  render(<ReleaseDetails release={{ ...loadedRelease, artists: ['Low Tide', 'Still Waters'] }} />);
+  expect(screen.getByText('Low Tide, Still Waters')).toBeVisible();
 });
