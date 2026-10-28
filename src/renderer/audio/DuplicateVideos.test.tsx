@@ -44,9 +44,10 @@ test('shows and probes each video ID once while keeping distinct uploads and ori
     />,
   );
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
-  const rows = within(screen.getByRole('list', { name: 'YouTube audio sources' })).getAllByRole(
-    'listitem',
-  );
+  const list = screen.getByRole('list', { name: 'YouTube audio sources' });
+  const summary = list.querySelector('summary');
+  if (summary) await user.click(summary);
+  const rows = Array.from(list.querySelectorAll<HTMLLIElement>('li.audio-source'));
   expect(rows).toHaveLength(2);
   const second = rows[1];
   if (!second) throw new Error('Expected alternate upload');
