@@ -70,7 +70,9 @@ test('shows all sources, suggests track matches, accepts corrections and loads d
   expect(within(first).getByLabelText('Discogs track')).toHaveValue('0');
   expect(within(second).getByLabelText('Discogs track')).toHaveValue('');
   await user.selectOptions(within(second).getByLabelText('Discogs track'), '1');
-  await user.click(await within(second).findByRole('button', { name: 'Download audio' }));
+  const assigned = screen.getByText('Unknown upload').closest('li');
+  if (!assigned) throw new Error('Expected assigned upload');
+  await user.click(await within(assigned).findByRole('button', { name: 'Download audio' }));
   expect(bridge.download).toHaveBeenCalledWith({ release, videoIndex: 1, trackIndex: 1 });
   const player = screen.getByRole('contentinfo', { name: 'Playback' });
   expect(await within(player).findByText('Evening Mix')).toBeInTheDocument();
@@ -113,7 +115,9 @@ test('keeps saved sources playable offline and lets their track assignment be co
   expect(within(row).getByRole('button', { name: 'Play track' })).toBeEnabled();
   expect(within(row).getByLabelText('Discogs track')).toHaveValue('');
   await user.selectOptions(within(row).getByLabelText('Discogs track'), '1');
-  await user.click(within(row).getByRole('button', { name: 'Update tags' }));
+  const assigned = screen.getByText('Unknown upload').closest('li');
+  if (!assigned) throw new Error('Expected assigned upload');
+  await user.click(within(assigned).getByRole('button', { name: 'Update tags' }));
   expect(bridge.download).toHaveBeenCalledWith({ release, videoIndex: 1, trackIndex: 1 });
   expect(
     within(screen.getByRole('contentinfo', { name: 'Playback' })).getByText('Evening Mix'),
