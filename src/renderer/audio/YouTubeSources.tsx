@@ -6,6 +6,7 @@ import { videoId } from '../../shared/youtube-video-id';
 import type { useAudioLibrary } from './use-audio-library';
 import { useSources } from './use-sources';
 import { SourceRow } from './SourceRow';
+import { uniqueVideoIndexes } from './unique-video-indexes';
 
 export function YouTubeSources({
   release,
@@ -16,13 +17,14 @@ export function YouTubeSources({
 }) {
   const [manual, setManual] = useState<Record<number, number | null>>({});
   const { results, retry } = useSources(release, audio.bridge);
+  const indexes = uniqueVideoIndexes(release.videos);
   const saved = release.videos.map((video) =>
     audio.tracks.find(
       (track) => track.releaseId === release.id && track.videoId === videoId(video.url),
     ),
   );
   const assignments = release.videos.map((_video, index) =>
-    results[index]?.ok || (saved[index] && !saved[index].missing)
+    indexes.includes(index) && (results[index]?.ok || (saved[index] && !saved[index].missing))
       ? sourceAssignment(release, index, results[index], saved[index], manual[index]).selected
       : null,
   );
@@ -32,15 +34,15 @@ export function YouTubeSources({
         <ReleaseDownload
           release={release}
           assignments={assignments}
-          checking={release.videos.some((_video, index) => !results[index])}
+          checking={indexes.some((index) => !results[index])}
           audio={audio}
         />
       )}
       {release.videos.length ? (
         <ol className="source-list" aria-label="YouTube audio sources">
-          {release.videos.map((video, index) => (
+          {indexes.map((index) => (
             <SourceRow
-              key={`${release.id.toString()}-${index.toString()}-${video.url}`}
+              key={`${release.id.toString()}-${index.toString()}-${release.videos[index]?.url ?? ''}`}
               release={release}
               index={index}
               audio={audio}
