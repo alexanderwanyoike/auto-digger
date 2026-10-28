@@ -14,6 +14,14 @@ yarn prototype:apis
 
 Open Settings. API feasibility appears at the top only in the prototype. It uses a separate scratch profile at the operating system's temporary directory, in a fresh `auto-digger-api-prototype-*` directory for each launch, with its own empty `Music` folder. Existing crates and download settings are not migrated into it. Normal launches do not expose the prototype bridge or its Settings controls.
 
+To try Cosine alongside your existing crates and downloads, close the running Auto Digger window and launch explicitly with:
+
+```sh
+yarn prototype:apis --use-profile
+```
+
+This mode keeps the normal Electron app identity, profile, encrypted account access and music path. Its normal crate and download actions operate on that profile. It does not migrate or copy credentials. The default command still creates an isolated scratch profile; profile reuse requires this explicit option. Both modes keep Cosine credentials in session memory only.
+
 Choose a service, enter its credential and click **Use for this session**. Cosine uses an API key; Beatport and Bandcamp use issued OAuth access tokens. A store login is separate from API access. Credentials remain in main-process memory, the input clears after submission, and **Forget session keys** clears all three. Quitting the prototype forgets them. No credentials or raw upstream error bodies are written to the repository or returned in reports. This experiment does not implement token acquisition or refresh. Probe requests do not modify crates or download audio. Opening a linked release uses the existing digging desk in the scratch profile; its normal save and audio controls are available there.
 
 Requests use fixed HTTPS service endpoints, an identifying User-Agent, a 15-second timeout and no redirects. The design follows the app's existing narrow main-process IPC bridges, typed Results and Zod response validation. This is disposable probe code, not a shared production catalogue model.
@@ -68,7 +76,8 @@ Cosine identifies a recording using its own ID and returns optional links to cat
 - Live desktop verification used the real preload and IPC bridge. The user entered the Cosine key locally. Search, the supplied YouTube URL and recommendations all succeeded. Anonymous Beatport and Bandcamp requests returned HTTP 401.
 - Screenshots show the actual desktop Settings panel and live Cosine response. Credential fields were empty at capture time.
 - `VITEST_MAX_WORKERS=2 yarn verify` passed all 237 tests across 79 files, formatting, lint, strict types and build. The unchanged renderer SearchFlow test hit its five-second timeout under default full concurrency; it passed alone and with bounded workers. No timeout was increased.
-- `xvfb-run --auto-servernum yarn test:electron` passed all 49 desktop checks. The one-command `yarn prototype:apis` launcher was also exercised with the final scratch profile and music directory.
+- `xvfb-run --auto-servernum yarn test:electron` passed all 50 desktop checks. The one-command `yarn prototype:apis` launcher was also exercised with the final scratch profile and music directory.
+- A profile-reuse regression first failed because the prototype replaced the chosen profile, app identity and music path. The opt-in mode now keeps all three, a saved crate and the Cosine panel. Default simultaneous scratch-profile isolation still passes. A manual native demo retained one sample crate and a real local audio file across the switch; its screenshot contains synthetic data.
 - Full repository and desktop checks are recorded in the PR description. Existing desktop checks run against isolated synthetic fixtures; they do not establish live Beatport or Bandcamp access.
 
 ## Next steps
