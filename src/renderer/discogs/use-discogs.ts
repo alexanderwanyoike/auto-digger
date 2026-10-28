@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { DigResult } from '../../shared/dig';
-import { filtersSchema } from '../../shared/search';
+import { emptyFilters } from '../../shared/default-filters';
 import type { DigFilters, SearchPage } from '../../shared/search';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type {
@@ -98,15 +98,10 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
         return Promise.resolve(
           discogsFailure('invalid-input', 'Open a release before browsing its artist.'),
         );
-      const origin = { release, matches, filters, digging };
-      const parsed = filtersSchema.safeParse({ artist });
-      if (!parsed.success)
-        return Promise.resolve(
-          discogsFailure('invalid-input', 'This artist name cannot be used as a search filter.'),
-        );
-      const criteria = parsed.data;
+      const origin = artistBrowse?.origin ?? { release, matches, filters, digging };
+      const criteria: DigFilters = { ...emptyFilters, artist };
       return perform(
-        (api) => api.search({ filters: criteria, page: 1 }),
+        (api) => api.search({ filters: criteria, page: 1, context: 'artist' }),
         (value) => {
           setArtistBrowse({ artist, origin });
           setRelease(null);
@@ -137,7 +132,8 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
         return Promise.resolve(discogsFailure('invalid-input', 'Apply search filters first.'));
       setRelease(null);
       return perform(
-        (api) => api.dig({ filters, reset }),
+        (api) =>
+          api.dig({ filters, reset, ...(artistBrowse ? { context: 'artist' as const } : {}) }),
         (value) => {
           setDigging(value);
           setRelease(value.release);
@@ -149,14 +145,20 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
     },
     filters,
     search: (criteria: DigFilters, page = 1) => {
-      if (JSON.stringify(criteria) !== JSON.stringify(filters)) {
+      const sameFilters = JSON.stringify(criteria) === JSON.stringify(filters);
+      if (!sameFilters) {
         setDigging(null);
         setArtistBrowse(null);
       }
       setMatches(null);
       setRelease(null);
       return perform(
-        (api) => api.search({ filters: criteria, page }),
+        (api) =>
+          api.search({
+            filters: criteria,
+            page,
+            ...(artistBrowse && sameFilters ? { context: 'artist' as const } : {}),
+          }),
         (value) => {
           setMatches(value);
           setFilters(criteria);
