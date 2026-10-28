@@ -41,9 +41,12 @@ test('keeps preview cancellation available across provider and page changes', as
     await expect.poll(() => service.downloads()).toBe(1);
     await page.getByRole('button', { name: 'YouTube', exact: true }).click();
     const cancel = page
-      .getByRole('contentinfo', { name: 'Playback' })
+      .getByRole('region', { name: 'App status' })
       .getByRole('button', { name: 'Cancel preparing preview', exact: true });
     await expect(cancel).toBeVisible();
+    await expect(page.getByRole('contentinfo', { name: 'Playback' })).not.toContainText(
+      'Preparing Soulseek',
+    );
     await page.getByRole('button', { name: 'Downloads', exact: true }).click();
     await expect(cancel).toBeVisible();
     expect(await page.evaluate(() => window.audioLibrary?.list())).toEqual({ ok: true, value: [] });
