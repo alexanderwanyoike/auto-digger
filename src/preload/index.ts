@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import { createApiFeasibilityBridge } from './api-feasibility-prototype-bridge';
 import { createSavedFiltersBridge } from './saved-filters-bridge';
 import { createUpdatesBridge } from './updates-bridge';
 import { createResearchAccessBridge } from './research-access-bridge';
@@ -11,6 +12,16 @@ import { createCatalogueBridge } from './catalogue-bridge';
 import { createAudioBridge } from './audio-bridge';
 import { createSoulseekBridge } from './soulseek-bridge';
 import { createAudioPreviewsBridge } from './audio-previews-bridge';
+
+if (process.argv.includes('--api-feasibility-prototype')) {
+  contextBridge.exposeInMainWorld(
+    'apiFeasibility',
+    createApiFeasibilityBridge(async (channel, input) => {
+      const result: unknown = await ipcRenderer.invoke(channel, input);
+      return result;
+    }),
+  );
+}
 
 contextBridge.exposeInMainWorld(
   'audioPreviews',

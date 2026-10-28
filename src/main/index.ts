@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog } from 'electron';
 import { join } from 'node:path';
+import { mkdirSync, mkdtempSync } from 'node:fs';
 import { integrateAppImage } from './desktop/app-image';
 import { applicationId } from './application-id';
 import { createWindow } from './create-window';
@@ -22,6 +23,14 @@ async function openWindow() {
 }
 
 app.setName('Auto Digger');
+if (process.env.AUTO_DIGGER_API_PROTOTYPE === '1') {
+  app.setName('Auto Digger API Prototype');
+  const profile = mkdtempSync(join(app.getPath('temp'), 'auto-digger-api-prototype-'));
+  const music = join(profile, 'Music');
+  mkdirSync(music);
+  app.setPath('userData', profile);
+  app.setPath('music', music);
+}
 registerAudioScheme();
 app.setAppUserModelId(applicationId);
 if (!app.requestSingleInstanceLock()) {

@@ -30,6 +30,7 @@ import { registerSoulseekHandlers } from './soulseek/register-handlers';
 import { createResearchService } from './research/service';
 import { createResearchRuntime } from './research/runtime';
 import { registerResearchHandlers } from './research/register-handlers';
+import { registerApiFeasibility } from './prototypes/register-api-feasibility';
 
 let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
 let crateStore: ReturnType<typeof createLegacyCrateStore> | undefined;
@@ -98,6 +99,8 @@ export async function createWindow(): Promise<Result<undefined, string>> {
         nodeIntegration: false,
         sandbox: true,
         webSecurity: true,
+        additionalArguments:
+          process.env.AUTO_DIGGER_API_PROTOTYPE === '1' ? ['--api-feasibility-prototype'] : [],
       },
     });
     catalogueStore ??= createCatalogueStore(
@@ -106,6 +109,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     );
     crateStore ??= createLegacyCrateStore(catalogueStore);
     registerCatalogueHandlers(window, catalogueStore);
+    registerApiFeasibility(window);
     registerPreferencesHandlers(window, catalogueStore.preferences);
     registerSavedFiltersHandlers(window, catalogueStore.filters);
     registerStoreLinkHandlers(window);

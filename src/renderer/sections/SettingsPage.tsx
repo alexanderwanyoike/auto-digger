@@ -6,6 +6,7 @@ import { DownloadSettings } from './DownloadSettings';
 import { AppearanceSettings } from './AppearanceSettings';
 import { AboutSettings } from './AboutSettings';
 import { SoulseekSettings } from './SoulseekSettings';
+import { ApiFeasibilityPrototype } from './ApiFeasibilityPrototype';
 
 export function SettingsPage({
   session,
@@ -22,6 +23,7 @@ export function SettingsPage({
 }) {
   return (
     <section className="section-page settings-page" aria-label="App settings">
+      {window.apiFeasibility && <ApiFeasibilityPrototype />}
       <AppearanceSettings
         preferences={preferences}
         appearance={appearance}
