@@ -221,3 +221,19 @@ summary:focus-visible {
     animation: none;
   }
 }
+.source-alternatives {
+  padding: 0 0 10px;
+  font-size: 9px;
+  color: var(--muted);
+}
+.source-alternatives summary {
+  width: fit-content;
+  padding: 4px 0;
+  cursor: pointer;
+  color: var(--blue);
+}
+.source-alternatives .source-list {
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid var(--line);
+}
