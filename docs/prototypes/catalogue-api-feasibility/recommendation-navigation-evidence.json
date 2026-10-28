@@ -1,0 +1,23 @@
+{
+  "navigation": "Recorded Cosine response -> live Discogs Free -> Back; query and both year filters preserved",
+  "exact": {
+    "id": 75566,
+    "title": "Free",
+    "trackIndex": 0,
+    "matchedTrack": "Free (Red Carpet Mix)"
+  },
+  "mismatch": {
+    "trackIndex": null
+  },
+  "invalid": {
+    "ok": false,
+    "error": {
+      "code": "invalid-input",
+      "message": "Choose a recommendation with a specific Discogs release link."
+    }
+  },
+  "library": {
+    "ok": true,
+    "value": []
+  }
+}
