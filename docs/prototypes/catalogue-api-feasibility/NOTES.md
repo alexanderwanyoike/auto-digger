@@ -56,6 +56,8 @@ The prototype now offers **Open release** beside linked recommendations. It acce
 
 Live public Discogs verification opened Joe Silva's **Free**, release `75566`, with **Free (Red Carpet Mix)** at track index 0. An invented mix stayed unconfirmed. The native navigation demo replayed the previously recorded Cosine response, then used the real preload/IPC and live Discogs metadata to open the release and return. The new screenshots explicitly label that replay; they do not claim a new authenticated Cosine request. The earlier authenticated Cosine checks remain the live recommendation evidence.
 
+The latest check used the user-entered key in the combined running app throughout: the supplied YouTube URL returned **Sherwood / Billabong** (HTTP 200); its similar request with years 2000 to 2010 returned ten recommendations (HTTP 200); **Joe Silva / Free (Red Carpet Mix)** opened Discogs release **75566 / Free**. Back retained all recommendation records, the seed query, operation and both year bounds. The saved-audio count stayed unchanged. See [live flow evidence](live-flow-evidence.json). The new cropped screenshots show the authenticated response and opened release, excluding credential controls and private profile panels. No key was read or recorded; the running session remains available.
+
 This proves one linked-release route, not general resolution by artist/title. Recommendations without a specific Discogs release link, master links, other catalogues and competing release versions still need a candidate-selection design. No fuzzy fallback is implemented.
 
 ### Filter implications
