@@ -33,14 +33,16 @@ test.each([
 });
 
 test('keeps missing and ambiguous mix matches unconfirmed instead of picking another version', async () => {
-  const fetcher = vi.fn<typeof fetch>().mockImplementation(async () =>
-    Response.json({
-      ...releaseResponse,
-      tracklist: [
-        { position: 'A', title: 'Quiet Orbit (Instrumental Mix)' },
-        { position: 'B', title: 'Quiet Orbit (Vocal Mix)' },
-      ],
-    }),
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(() =>
+    Promise.resolve(
+      Response.json({
+        ...releaseResponse,
+        tracklist: [
+          { position: 'A', title: 'Quiet Orbit (Instrumental Mix)' },
+          { position: 'B', title: 'Quiet Orbit (Vocal Mix)' },
+        ],
+      }),
+    ),
   );
   expect(await loadRecommendationRelease(input, fetcher)).toMatchObject({
     ok: true,
