@@ -13,5 +13,7 @@ export function sourceAssignment(
     ? checked.value.title
     : (saved?.sourceTitle ?? release.videos[index]?.title ?? '');
   const suggestion = saved ? saved.trackIndex : matchTrack(release, sourceTitle);
-  return { sourceTitle, selected: manual === undefined ? suggestion : manual };
+  const assignment = manual === undefined ? suggestion : manual;
+  const selected = assignment !== null && release.tracks[assignment] ? assignment : null;
+  return { sourceTitle, selected };
 }
