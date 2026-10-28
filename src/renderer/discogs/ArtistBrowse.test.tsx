@@ -64,6 +64,7 @@ test('browses an artist without old filters and restores the EP and original sea
     page: 1,
   });
   expect(await screen.findByText('Artist search · Low Tide')).toBeVisible();
+  expect(screen.getByText('Uses only the artist. Your digging filters are kept.')).toBeVisible();
   await user.click(screen.getByRole('button', { name: 'Back to Quiet Orbit EP' }));
   expect(await screen.findByRole('heading', { name: 'Quiet Orbit EP' })).toBeVisible();
   expect(screen.getByLabelText('Label')).toHaveValue('Still Records');
