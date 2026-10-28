@@ -130,3 +130,58 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
     Reflect.deleteProperty(window, 'audioPreviews');
   }
 });
+
+test('ignores late recommendations after closing and presents a retryable provider failure', async () => {
+  let complete: (value: unknown) => void = () => undefined;
+  const similar = vi
+    .fn()
+    .mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          complete = resolve;
+        }),
+    )
+    .mockResolvedValue({
+      ok: false,
+      error: { code: 'rate-limited', message: 'Wait a minute before retrying.' },
+    });
+  Reflect.set(window, 'cosine', {
+    status: () => Promise.resolve({ ok: true, value: { configured: true } }),
+    similar,
+  });
+  const user = userEvent.setup();
+  try {
+    render(
+      <App
+        crate={{
+          list: () => Promise.resolve({ ok: true, value: [loadedRelease] }),
+          save: vi.fn(),
+          remove: vi.fn(),
+        }}
+      />,
+    );
+    await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
+    await user.click(await screen.findByRole('button', { name: 'Find similar to Quiet Orbit' }));
+    await user.click(screen.getByRole('button', { name: 'Back to Quiet Orbit EP' }));
+    complete({
+      ok: true,
+      value: {
+        seed: {
+          id: '1',
+          artist: 'Low Tide',
+          title: 'Quiet Orbit',
+          releaseId: 12,
+          youtubeUrl: loadedRelease.videos[0]?.url,
+        },
+        tracks: [],
+      },
+    });
+    expect(screen.queryByRole('region', { name: 'Recommendations' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Find similar to Quiet Orbit' }));
+    expect(await screen.findByText('Wait a minute before retrying.')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Back to Quiet Orbit EP' }));
+    expect(await screen.findByRole('heading', { name: 'Quiet Orbit EP' })).toBeVisible();
+  } finally {
+    Reflect.deleteProperty(window, 'cosine');
+  }
+});
