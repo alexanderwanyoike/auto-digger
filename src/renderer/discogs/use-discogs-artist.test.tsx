@@ -22,7 +22,9 @@ test('keeps the original EP return point through deeper artist browsing and scop
     openSettings: vi.fn(),
   };
   const { result } = renderHook(() => useDiscogs(bridge));
-  await waitFor(() => expect(result.current.busy).toBe(false));
+  await waitFor(() => {
+    expect(result.current.busy).toBe(false);
+  });
   const original = { ...emptyFilters, year: '1998', label: 'Still Records' };
   await act(async () => {
     await result.current.search(original);
