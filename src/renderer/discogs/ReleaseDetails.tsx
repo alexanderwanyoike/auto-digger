@@ -22,26 +22,22 @@ export function ReleaseDetails({
           <span className="eyebrow blue-text">DISCOGS / r{release.id}</span>
           <h2 id="release-title">{release.title}</h2>
           <p className="release-artist">
-            {release.artists.length
-              ? release.artists.map((artist) =>
-                  onBrowseArtist ? (
-                    <button
-                      key={artist}
-                      type="button"
-                      className="artist-browse-link"
-                      aria-label={`Browse releases by ${artist}`}
-                      disabled={artistBrowsingDisabled}
-                      onClick={() => {
-                        onBrowseArtist(artist);
-                      }}
-                    >
-                      {artist}
-                    </button>
-                  ) : (
-                    <span key={artist}>{artist}</span>
-                  ),
-                )
-              : 'Artist not listed'}
+            {onBrowseArtist && release.artists.length
+              ? release.artists.map((artist) => (
+                  <button
+                    key={artist}
+                    type="button"
+                    className="artist-browse-link"
+                    aria-label={`Browse releases by ${artist}`}
+                    disabled={artistBrowsingDisabled}
+                    onClick={() => {
+                      onBrowseArtist(artist);
+                    }}
+                  >
+                    {artist}
+                  </button>
+                ))
+              : release.artists.join(', ') || 'Artist not listed'}
           </p>
           <p>
             {release.year ?? 'Year not listed'} · {release.country ?? 'Country not listed'}
