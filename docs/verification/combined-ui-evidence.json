@@ -3,15 +3,22 @@
   "heads": {
     "footer-preview-status": "da497f8f61c6f4ec7e876c04d4de8c0521a2275d",
     "deduplicate-youtube-videos": "5fb1f296dae308951e52ef0157d4e3fb60c8b6b1",
-    "compact-track-sources": "15672070ace68129cc0978146e805485dc6b30ec",
-    "artist-release-browsing": "2d8f125d627102f0ef804be2d8e17e6c8865fa93"
+    "compact-track-sources": "1662732a2af085f520b223fdaea0319a13992660",
+    "artist-release-browsing": "58a92c3670cce415b5b5ae09eefacada326f81c0"
   },
   "checks": {
-    "unitAndUi": 227,
-    "unitFiles": 80,
-    "desktop": 48,
+    "unitAndUi": 231,
+    "unitFiles": 82,
+    "desktop": 50,
     "verify": "VITEST_MAX_WORKERS=2 yarn verify",
     "desktopCommand": "xvfb-run --auto-servernum yarn test:electron"
   },
-  "resolution": "Keep compact SourceGroup rendering and unique indexes; assignments must require indexes.includes(index); checking uses indexes.some(index => !results[index])."
+  "reviewRegressions": [
+    "Offline saved track with stale assignment remains playable and correctable",
+    "Original return point survives deeper artist browsing",
+    "Artist search, pagination and digging preserve primary unseen-release history",
+    "Renderer does not import runtime search schemas"
+  ],
+  "resolution": "Keep compact SourceGroup rendering and unique indexes; assignments require indexes.includes(index); checking uses indexes.some(index => !results[index]).",
+  "data": "Synthetic Discogs and audio fixtures; real native preload, IPC, tagging, playback and persistence"
 }
