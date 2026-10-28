@@ -150,3 +150,29 @@ test('resolves a verified pressing, preserves the candidate upload and leaves am
   request.mockResolvedValueOnce(Response.json({ ...releaseResponse, id: 99 }));
   expect((await api.resolve(recommendation)).ok).toBe(false);
 });
+
+test('refuses ambiguous track identities even when Cosine attaches them to the same upload', async () => {
+  const request = vi.fn<typeof fetch>().mockResolvedValue(
+    Response.json({
+      success: true,
+      data: [
+        {
+          id: '1',
+          artist: 'Low Tide',
+          track: 'Quiet Orbit (Club Mix)',
+          video_uri: 'https://youtu.be/abcdefghijk',
+        },
+        {
+          id: '2',
+          artist: 'Low Tide',
+          track: 'Quiet Orbit (Dub Mix)',
+          video_uri: 'https://youtu.be/abcdefghijk',
+        },
+      ],
+    }),
+  );
+  expect(
+    await createCosineService(store(), request).similar({ url: 'https://youtu.be/abcdefghijk' }),
+  ).toMatchObject({ ok: false, error: { code: 'ambiguous' } });
+  expect(request).toHaveBeenCalledTimes(1);
+});
