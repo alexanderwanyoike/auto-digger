@@ -62,6 +62,7 @@ test('browses an artist without old filters and restores the EP and original sea
       title: '',
     },
     page: 1,
+    context: 'artist',
   });
   expect(await screen.findByText('Artist search · Low Tide')).toBeVisible();
   expect(screen.getByText('Uses only the artist. Your digging filters are kept.')).toBeVisible();
