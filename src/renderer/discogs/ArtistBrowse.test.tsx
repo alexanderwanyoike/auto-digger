@@ -15,27 +15,25 @@ test('browses an artist without old filters and restores the EP and original sea
     format: [],
     title: '',
   };
-  const search = vi
-    .fn<DiscogsBridge['search']>()
-    .mockResolvedValue({
-      ok: true,
-      value: {
-        page: 1,
-        pages: 1,
-        perPage: 50,
-        items: 1,
-        releases: [
-          {
-            id: 12,
-            title: 'Low Tide - Quiet Orbit EP',
-            year: '1998',
-            labels: [],
-            formats: [],
-            artworkUrl: null,
-          },
-        ],
-      },
-    });
+  const search = vi.fn<DiscogsBridge['search']>().mockResolvedValue({
+    ok: true,
+    value: {
+      page: 1,
+      pages: 1,
+      perPage: 50,
+      items: 1,
+      releases: [
+        {
+          id: 12,
+          title: 'Low Tide - Quiet Orbit EP',
+          year: '1998',
+          labels: [],
+          formats: [],
+          artworkUrl: null,
+        },
+      ],
+    },
+  });
   const bridge: DiscogsBridge = {
     account: () => Promise.resolve({ ok: true, value: identityResponse }),
     search,
