@@ -1,0 +1,131 @@
+.recommendations-heading {
+  padding: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.recommendations-heading > button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+.recommendations-heading .eyebrow {
+  color: var(--blue);
+  font-size: 8px;
+}
+.recommendations-heading h2 {
+  font-size: 21px;
+  line-height: 1.4;
+  margin: 8px 0;
+}
+.recommendations-heading p {
+  font-size: 11px;
+  color: var(--muted);
+}
+.recommendation-refine {
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+}
+.recommendation-refine summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.recommendation-refine form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin-top: 12px;
+}
+.recommendation-refine label {
+  display: grid;
+  gap: 5px;
+}
+.recommendation-refine input {
+  width: 100px;
+}
+.recommendations-count {
+  padding: 18px 24px 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 9px;
+  color: var(--muted);
+}
+.recommendation-list {
+  margin: 0;
+  padding: 0 24px 24px;
+  list-style: none;
+}
+.recommendation-list > li {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+}
+.recommendation-credit {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  overflow-wrap: anywhere;
+}
+.recommendation-credit strong {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.recommendation-credit span,
+.recommendation-credit small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.recommendation-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+}
+.recommendation-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px;
+  font-size: 9px;
+}
+.recommendations-notice {
+  margin: 18px 24px;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.audio-source:has(.source-recommend) {
+  grid-template-columns: minmax(0, 1fr) 132px;
+}
+.source-actions:has(.source-recommend) {
+  width: 132px;
+}
+.cosine-settings form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+.cosine-settings label {
+  display: grid;
+  gap: 6px;
+  font-size: 11px;
+}
+.cosine-setting-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+@media (max-width: 1000px) {
+  .recommendation-list > li {
+    align-items: start;
+    flex-direction: column;
+    gap: 10px;
+  }
+}

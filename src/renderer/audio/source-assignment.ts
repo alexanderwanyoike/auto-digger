@@ -12,6 +12,9 @@ export function sourceAssignment(
   const sourceTitle = checked?.ok
     ? checked.value.title
     : (saved?.sourceTitle ?? release.videos[index]?.title ?? '');
-  const suggestion = saved ? saved.trackIndex : matchTrack(release, sourceTitle);
+  const cosineTrackIndex = release.videos[index]?.cosineTrackIndex;
+  const proposed =
+    cosineTrackIndex === undefined ? matchTrack(release, sourceTitle) : cosineTrackIndex;
+  const suggestion = saved ? saved.trackIndex : proposed;
   return { sourceTitle, selected: manual === undefined ? suggestion : manual };
 }

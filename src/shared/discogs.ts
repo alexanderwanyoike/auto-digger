@@ -39,7 +39,13 @@ export const releaseSchema = z.object({
   formats: z.array(z.string()),
   artworkUrl: z.string().nullable(),
   tracks: z.array(z.object({ position: z.string(), title: z.string(), duration: z.string() })),
-  videos: z.array(z.object({ title: z.string(), url: z.string() })),
+  videos: z.array(
+    z.object({
+      title: z.string(),
+      url: z.string(),
+      cosineTrackIndex: z.number().int().nonnegative().nullable().optional(),
+    }),
+  ),
 });
 export type DiscogsRelease = z.infer<typeof releaseSchema>;
 

@@ -4,7 +4,7 @@ import type { DiscogsResult } from '../../shared/discogs';
 
 export async function requestDiscogs<T>(
   path: string,
-  token: string,
+  token: string | null,
   schema: z.ZodType<T>,
   request: typeof fetch,
   signal?: AbortSignal,
@@ -13,7 +13,7 @@ export async function requestDiscogs<T>(
   try {
     response = await request(`https://api.discogs.com${path}`, {
       headers: {
-        Authorization: `Discogs token=${token}`,
+        ...(token ? { Authorization: `Discogs token=${token}` } : {}),
         'User-Agent': 'AutoDigger/0.1 (+https://github.com/alexanderwanyoike/auto-digger)',
       },
       signal: signal
