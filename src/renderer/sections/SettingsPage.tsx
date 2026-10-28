@@ -7,6 +7,10 @@ import { AppearanceSettings } from './AppearanceSettings';
 import { AboutSettings } from './AboutSettings';
 import { SoulseekSettings } from './SoulseekSettings';
 import { ApiFeasibilityPrototype } from './ApiFeasibilityPrototype';
+import type {
+  ApiProbeItem,
+  ApiRecommendationRelease,
+} from '../../shared/api-feasibility-prototype';
 
 export function SettingsPage({
   session,
@@ -14,16 +18,20 @@ export function SettingsPage({
   onAppearance,
   onConnect,
   preferences,
+  hidden = false,
+  onOpenRecommendation,
 }: {
   preferences: ReturnType<typeof usePreferences>;
   session: ReturnType<typeof useDiscogs>;
   appearance: Appearance;
   onAppearance: (appearance: Appearance) => void;
   onConnect: () => void;
+  hidden?: boolean;
+  onOpenRecommendation: (value: ApiRecommendationRelease, item: ApiProbeItem) => void;
 }) {
   return (
-    <section className="section-page settings-page" aria-label="App settings">
-      {window.apiFeasibility && <ApiFeasibilityPrototype />}
+    <section className="section-page settings-page" aria-label="App settings" hidden={hidden}>
+      {window.apiFeasibility && <ApiFeasibilityPrototype onOpenRelease={onOpenRecommendation} />}
       <AppearanceSettings
         preferences={preferences}
         appearance={appearance}

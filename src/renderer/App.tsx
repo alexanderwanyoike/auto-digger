@@ -48,6 +48,7 @@ export function App({
   const crate = useCrate(crateBridge, catalogue);
   const session = useDiscogs(discogs);
   const [connectionOpen, setConnectionOpen] = useState(false);
+  const [recommendationBack, setRecommendationBack] = useState<string | null>(null);
   const { appearance, selectAppearance, storageAvailable } = useAppearance();
   return (
     <div className="app-shell">
@@ -116,9 +117,23 @@ export function App({
             <SectionIcon size={17} aria-hidden="true" />
             <h1>{section}</h1>
           </div>
-          {section === 'Digging desk' && (
-            <span className="toolbar-note">A fresh pair of ears.</span>
-          )}
+          {section === 'Digging desk' &&
+            (recommendationBack ? (
+              <div className="api-probe-actions">
+                <span className="toolbar-note">{recommendationBack}</span>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => {
+                    setSection('Settings');
+                  }}
+                >
+                  Back to recommendations
+                </button>
+              </div>
+            ) : (
+              <span className="toolbar-note">A fresh pair of ears.</span>
+            ))}
         </div>
         {section === 'Crates' && (
           <CratesPage
@@ -131,8 +146,16 @@ export function App({
           />
         )}
         {section === 'Downloads' && <DownloadsPage audio={audio} />}
-        {section === 'Settings' && (
+        {(section === 'Settings' || Boolean(window.apiFeasibility)) && (
           <SettingsPage
+            hidden={section !== 'Settings'}
+            onOpenRecommendation={(value, item) => {
+              setRecommendationBack(
+                `${item.artist} · ${item.title}${value.trackIndex === null ? ' · check track/version' : ''}`,
+              );
+              session.openSavedRelease(value.release);
+              setSection('Digging desk');
+            }}
             preferences={preferences}
             session={session}
             appearance={appearance}

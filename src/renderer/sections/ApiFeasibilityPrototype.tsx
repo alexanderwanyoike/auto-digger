@@ -5,6 +5,8 @@ import type {
   ApiPrototypeError,
   ApiPrototypeStatus,
   ApiProvider,
+  ApiProbeItem,
+  ApiRecommendationRelease,
 } from '../../shared/api-feasibility-prototype';
 import { ApiProbeResults, cosineOperations } from './ApiProbeResults';
 import '../styles/api-feasibility-prototype.css';
@@ -36,7 +38,11 @@ const services = {
   },
 };
 
-export function ApiFeasibilityPrototype() {
+export function ApiFeasibilityPrototype({
+  onOpenRelease,
+}: {
+  onOpenRelease: (value: ApiRecommendationRelease, item: ApiProbeItem) => void;
+}) {
   const bridge = window.apiFeasibility;
   const [provider, setProvider] = useState<ApiProvider>('cosine');
   const [token, setToken] = useState('');
@@ -113,6 +119,27 @@ export function ApiFeasibilityPrototype() {
     }
   }
   const service = services[provider];
+  async function openRelease(item: ApiProbeItem) {
+    if (!bridge || !item.sourceUrl) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await bridge.loadRecommendation({
+        sourceUrl: item.sourceUrl,
+        artist: item.artist,
+        title: item.title,
+      });
+      if (result.ok) onOpenRelease(result.value, item);
+      else setError(result.error);
+    } catch {
+      setError({
+        code: 'unavailable',
+        message: 'The release could not open. Your recommendations are still available.',
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <section
       className="settings-card api-feasibility-prototype"
@@ -284,6 +311,9 @@ export function ApiFeasibilityPrototype() {
         report={report}
         error={error}
         busy={busy}
+        onOpen={(item) => {
+          openRelease(item).catch(() => undefined);
+        }}
         onSimilar={(id) => {
           setOperation('similar');
           setQuery(id);

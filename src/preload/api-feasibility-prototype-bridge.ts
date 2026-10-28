@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   apiProbeReportSchema,
+  apiRecommendationReleaseSchema,
   apiPrototypeErrorSchema,
   apiPrototypeStatusSchema,
 } from '../shared/api-feasibility-prototype';
@@ -36,5 +37,6 @@ export function createApiFeasibilityBridge(
       call('configure', apiPrototypeStatusSchema, { provider, token }),
     forget: () => call('forget', apiPrototypeStatusSchema),
     probe: (input) => call('probe', apiProbeReportSchema, input),
+    loadRecommendation: (input) => call('release', apiRecommendationReleaseSchema, input),
   };
 }

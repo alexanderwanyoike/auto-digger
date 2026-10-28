@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron';
 import type { BrowserWindow } from 'electron';
 import { createApiFeasibilityPrototype } from './api-feasibility';
+import { loadRecommendationRelease } from './recommendation-release';
 
 const service = createApiFeasibilityPrototype();
 
@@ -11,6 +12,7 @@ export function registerApiFeasibility(window: BrowserWindow) {
     configure: (input: unknown) => service.configure(input),
     forget: () => service.forget(),
     probe: (input: unknown) => service.probe(input),
+    release: (input: unknown) => loadRecommendationRelease(input),
   };
   Object.entries(operations).forEach(([operation, handler]) => {
     const channel = `api-feasibility:${operation}`;

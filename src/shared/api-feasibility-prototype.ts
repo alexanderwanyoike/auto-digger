@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Result } from './result';
+import { releaseSchema } from './discogs';
 
 export const apiProviderSchema = z.enum(['cosine', 'beatport', 'bandcamp']);
 export type ApiProvider = z.infer<typeof apiProviderSchema>;
@@ -34,6 +35,18 @@ export const apiProbeReportSchema = z.object({
   items: z.array(apiProbeItemSchema),
   note: z.string(),
 });
+export type ApiProbeItem = z.infer<typeof apiProbeItemSchema>;
+export const apiRecommendationInputSchema = z.object({
+  sourceUrl: z.string().max(2048),
+  title: z.string().trim().min(1).max(500),
+  artist: z.string().trim().min(1).max(500),
+});
+export type ApiRecommendationInput = z.infer<typeof apiRecommendationInputSchema>;
+export const apiRecommendationReleaseSchema = z.object({
+  release: releaseSchema,
+  trackIndex: z.number().int().nonnegative().nullable(),
+});
+export type ApiRecommendationRelease = z.infer<typeof apiRecommendationReleaseSchema>;
 export type ApiProbeReport = z.infer<typeof apiProbeReportSchema>;
 export const apiPrototypeErrorSchema = z.object({
   code: z.enum([
@@ -58,4 +71,7 @@ export interface ApiFeasibilityBridge {
   ) => Promise<ApiPrototypeResult<ApiPrototypeStatus>>;
   forget: () => Promise<ApiPrototypeResult<ApiPrototypeStatus>>;
   probe: (input: ApiProbeInput) => Promise<ApiPrototypeResult<ApiProbeReport>>;
+  loadRecommendation: (
+    input: ApiRecommendationInput,
+  ) => Promise<ApiPrototypeResult<ApiRecommendationRelease>>;
 }

@@ -1,6 +1,9 @@
 .api-feasibility-prototype {
   width: 100%;
 }
+.settings-page[hidden] {
+  display: none;
+}
 .api-feasibility-prototype h2 {
   margin-top: 7px;
 }

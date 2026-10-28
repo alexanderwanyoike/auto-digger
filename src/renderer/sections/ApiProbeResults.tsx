@@ -2,6 +2,7 @@ import type {
   ApiProbeInput,
   ApiProbeReport,
   ApiPrototypeError,
+  ApiProbeItem,
 } from '../../shared/api-feasibility-prototype';
 
 export function ApiProbeResults({
@@ -9,11 +10,13 @@ export function ApiProbeResults({
   error,
   busy,
   onSimilar,
+  onOpen,
 }: {
   report: ApiProbeReport | null;
   error: ApiPrototypeError | null;
   busy: boolean;
   onSimilar: (query: string) => void;
+  onOpen: (item: ApiProbeItem) => void;
 }) {
   const evidence = report ?? error;
   return (
@@ -51,17 +54,32 @@ export function ApiProbeResults({
                     </td>
                     <td>
                       {report.provider === 'cosine' && (
-                        <button
-                          type="button"
-                          className="secondary-button"
-                          disabled={busy}
-                          aria-label={`Similar tracks for ${item.title}`}
-                          onClick={() => {
-                            onSimilar(item.id);
-                          }}
-                        >
-                          Similar tracks
-                        </button>
+                        <div className="api-probe-actions">
+                          <button
+                            type="button"
+                            className="secondary-button"
+                            disabled={busy}
+                            aria-label={`Similar tracks for ${item.title}`}
+                            onClick={() => {
+                              onSimilar(item.id);
+                            }}
+                          >
+                            Similar tracks
+                          </button>
+                          {item.sourceUrl && (
+                            <button
+                              type="button"
+                              className="secondary-button"
+                              disabled={busy}
+                              aria-label={`Open release for ${item.title}`}
+                              onClick={() => {
+                                onOpen(item);
+                              }}
+                            >
+                              Open release
+                            </button>
+                          )}
+                        </div>
                       )}
                     </td>
                   </tr>
