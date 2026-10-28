@@ -1,0 +1,17 @@
+{
+  "base": "b12329a6c2012e9d6bd57ce7f067f30a3101e0b1",
+  "heads": {
+    "footer-preview-status": "da497f8f61c6f4ec7e876c04d4de8c0521a2275d",
+    "deduplicate-youtube-videos": "5fb1f296dae308951e52ef0157d4e3fb60c8b6b1",
+    "compact-track-sources": "15672070ace68129cc0978146e805485dc6b30ec",
+    "artist-release-browsing": "2d8f125d627102f0ef804be2d8e17e6c8865fa93"
+  },
+  "checks": {
+    "unitAndUi": 227,
+    "unitFiles": 80,
+    "desktop": 48,
+    "verify": "VITEST_MAX_WORKERS=2 yarn verify",
+    "desktopCommand": "xvfb-run --auto-servernum yarn test:electron"
+  },
+  "resolution": "Keep compact SourceGroup rendering and unique indexes; assignments must require indexes.includes(index); checking uses indexes.some(index => !results[index])."
+}
