@@ -20,23 +20,19 @@ test('shows one source per track and reveals alternate and unmatched uploads on 
       url: `https://www.youtube.com/watch?v=example000${index.toString()}`,
     })),
   };
-  const probe = vi
-    .fn<AudioBridge['probe']>()
-    .mockImplementation((url) =>
-      Promise.resolve({
-        ok: true,
-        value: {
-          videoId: new URL(url).searchParams.get('v') ?? '',
-          title: titles[Number(url.at(-1))] ?? '',
-        },
-      }),
-    );
-  const download = vi
-    .fn<AudioBridge['download']>()
-    .mockResolvedValue({
-      ok: false,
-      error: { code: 'storage', message: 'Download fixture stopped' },
-    });
+  const probe = vi.fn<AudioBridge['probe']>().mockImplementation((url) =>
+    Promise.resolve({
+      ok: true,
+      value: {
+        videoId: new URL(url).searchParams.get('v') ?? '',
+        title: titles[Number(url.at(-1))] ?? '',
+      },
+    }),
+  );
+  const download = vi.fn<AudioBridge['download']>().mockResolvedValue({
+    ok: false,
+    error: { code: 'storage', message: 'Download fixture stopped' },
+  });
   const user = userEvent.setup();
   render(
     <App
