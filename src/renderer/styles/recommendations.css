@@ -108,6 +108,7 @@
   width: 132px;
 }
 .cosine-settings form {
+  width: min(100%, 420px);
   display: grid;
   gap: 12px;
   margin-top: 16px;
@@ -130,5 +131,5 @@
   }
 }
 .cosine-settings input {
-  width: min(100%, 420px);
+  width: 100%;
 }
