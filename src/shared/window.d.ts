@@ -10,9 +10,11 @@ import type { CatalogueBridge } from './catalogue';
 import type { AudioBridge } from './audio';
 import type { AudioPreviewBridge } from './audio-previews';
 import type { SoulseekBridge } from './soulseek';
+import type { ApiFeasibilityBridge } from './api-feasibility-prototype';
 
 declare global {
   interface Window {
+    apiFeasibility?: ApiFeasibilityBridge;
     audioPreviews?: AudioPreviewBridge;
     soulseek?: SoulseekBridge;
     savedFilters?: SavedFiltersBridge;

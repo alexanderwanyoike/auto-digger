@@ -1,0 +1,108 @@
+{
+  "verifiedAt": "2026-10-28T18:13:32.640Z",
+  "seedUrl": "https://www.youtube.com/watch?v=nKp_mHmhbYY",
+  "lookupStatus": 200,
+  "lookup": [
+    {
+      "id": "1275523",
+      "title": "Billabong",
+      "artist": "Sherwood",
+      "sourceUrl": "https://discogs.com/release/91686",
+      "youtubeUrl": "https://www.youtube.com/watch?v=nKp_mHmhbYY"
+    }
+  ],
+  "recommendationStatus": 200,
+  "startYear": 2000,
+  "endYear": 2010,
+  "recommendations": [
+    {
+      "id": "672077",
+      "title": "Free (Red Carpet Mix)",
+      "artist": "Joe Silva",
+      "sourceUrl": "https://discogs.com/release/75566",
+      "youtubeUrl": "https://www.youtube.com/watch?v=Fpoh7DDxGfc",
+      "score": 0.94588256
+    },
+    {
+      "id": "2260563",
+      "title": "Within My Soul",
+      "artist": "Hugo Madrid",
+      "sourceUrl": "https://discogs.com/release/1736139",
+      "youtubeUrl": "https://www.youtube.com/watch?v=WnnlRgZpKKk",
+      "score": 0.94252586
+    },
+    {
+      "id": "378170",
+      "title": "King Pharoah's Plague (Jay Tripwire Remix)",
+      "artist": "Yabby You",
+      "sourceUrl": "https://discogs.com/release/242553",
+      "youtubeUrl": "https://www.youtube.com/watch?v=gAYwi6CTUuU",
+      "score": 0.94233495
+    },
+    {
+      "id": "216745",
+      "title": "Sambando",
+      "artist": "Mustafa",
+      "sourceUrl": "https://discogs.com/release/64724",
+      "youtubeUrl": "https://www.youtube.com/watch?v=8D9TjPU7zWU",
+      "score": 0.9418967
+    },
+    {
+      "id": "5529448",
+      "title": "Set You Off",
+      "artist": "Craig Law",
+      "sourceUrl": "https://discogs.com/release/2321228",
+      "youtubeUrl": "https://www.youtube.com/watch?v=BsIi8IzeXh8",
+      "score": 0.9413132
+    },
+    {
+      "id": "187443",
+      "title": "Ever Been To...?",
+      "artist": "Lo-Motion",
+      "sourceUrl": "https://discogs.com/release/11487",
+      "youtubeUrl": "https://www.youtube.com/watch?v=zQrTtrU1vwo",
+      "score": 0.9404695
+    },
+    {
+      "id": "275522",
+      "title": "Bak Fo Mo",
+      "artist": "Blakkat",
+      "sourceUrl": "https://discogs.com/release/114758",
+      "youtubeUrl": "https://www.youtube.com/watch?v=-wQBmec23rQ",
+      "score": 0.9384492
+    },
+    {
+      "id": "372529",
+      "title": "Stay All Night",
+      "artist": "Hipp-E",
+      "sourceUrl": "https://discogs.com/release/152695",
+      "youtubeUrl": "https://www.youtube.com/watch?v=Sv1H06IA9lA",
+      "score": 0.9382043
+    },
+    {
+      "id": "368788",
+      "title": "Just Be Yourself",
+      "artist": "Vinyl Assassins",
+      "sourceUrl": "https://discogs.com/release/172226",
+      "youtubeUrl": "https://www.youtube.com/watch?v=jBvpHvoatG0",
+      "score": 0.9375972
+    },
+    {
+      "id": "5522697",
+      "title": "Big Black Boots (Mix 2)",
+      "artist": "J Devere Marley",
+      "sourceUrl": "https://discogs.com/release/1724910",
+      "youtubeUrl": "https://www.youtube.com/watch?v=gx3A9vrUiWY",
+      "score": 0.9366516
+    }
+  ],
+  "openedRelease": {
+    "id": 75566,
+    "title": "Free",
+    "artist": "Joe Silva",
+    "track": "Free (Red Carpet Mix)"
+  },
+  "returnedToSameRecommendations": true,
+  "queryAndYearsRetained": true,
+  "noAudioAdded": true
+}

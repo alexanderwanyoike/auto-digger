@@ -1,0 +1,8 @@
+{
+  "profileReused": true,
+  "normalAppIdentity": true,
+  "retainedCrates": 1,
+  "retainedAudio": 1,
+  "cosineSettings": true,
+  "credentials": "session only; no live authenticated request in this demo"
+}

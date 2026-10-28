@@ -11,6 +11,7 @@
     "node": ">=22.16.0 <23"
   },
   "scripts": {
+    "prototype:apis": "node --experimental-strip-types scripts/prototype-apis.ts",
     "dev": "yarn extension:build && electron-vite dev",
     "dev:web": "vite --config vite.config.ts --host 127.0.0.1",
     "start": "electron-vite preview",
