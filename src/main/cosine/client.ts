@@ -57,7 +57,7 @@ export async function fetchSimilar(
     lookupSchema,
   );
   if (!lookup.ok) return lookup;
-  const candidates = distinctTracks(lookup.value);
+  const candidates = [...new Map(lookup.value.map((item) => [item.id, item])).values()];
   if (!candidates.length)
     return cosineFailure('not-found', 'Cosine has not indexed this upload. Try another upload.');
   if (candidates.length !== 1)
