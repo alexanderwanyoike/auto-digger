@@ -2,7 +2,11 @@ import { spawn } from 'node:child_process';
 
 const child = spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['dev'], {
   stdio: 'inherit',
-  env: { ...process.env, AUTO_DIGGER_API_PROTOTYPE: '1' },
+  env: {
+    ...process.env,
+    AUTO_DIGGER_API_PROTOTYPE: '1',
+    AUTO_DIGGER_API_PROTOTYPE_USE_PROFILE: process.argv.includes('--use-profile') ? '1' : '0',
+  },
 });
 child.on('error', () => {
   process.stderr.write('Could not launch the API prototype. Run yarn install first.\n');

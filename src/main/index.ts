@@ -23,7 +23,10 @@ async function openWindow() {
 }
 
 app.setName('Auto Digger');
-if (process.env.AUTO_DIGGER_API_PROTOTYPE === '1') {
+if (
+  process.env.AUTO_DIGGER_API_PROTOTYPE === '1' &&
+  process.env.AUTO_DIGGER_API_PROTOTYPE_USE_PROFILE !== '1'
+) {
   app.setName('Auto Digger API Prototype');
   const profile = mkdtempSync(join(app.getPath('temp'), 'auto-digger-api-prototype-'));
   const music = join(profile, 'Music');
