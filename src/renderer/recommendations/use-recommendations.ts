@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { Recommendation, Recommendations, ResolvedRecommendation } from '../../shared/cosine';
 import type { useAudioLibrary } from '../audio/use-audio-library';
-import type { RecommendationSeed } from './RecommendationsContext';
+import type { RecommendationSeed } from './recommendations-context';
 
 export function useRecommendations(
   release: DiscogsRelease | null,

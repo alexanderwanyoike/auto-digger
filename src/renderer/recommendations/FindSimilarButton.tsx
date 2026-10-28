@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { AudioLines } from 'lucide-react';
-import type { RecommendationSeed } from './RecommendationsContext';
-import { RecommendationsContext } from './RecommendationsContext';
+import type { RecommendationSeed } from './recommendations-context';
+import { RecommendationsContext } from './recommendations-context';
 
 export function FindSimilarButton({
   seed,

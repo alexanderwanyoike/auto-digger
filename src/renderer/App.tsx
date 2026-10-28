@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
 import { useRecommendations } from './recommendations/use-recommendations';
-import { RecommendationsContext } from './recommendations/RecommendationsContext';
+import { RecommendationsContext } from './recommendations/recommendations-context';
 import { RecommendationsView } from './recommendations/RecommendationsView';
 import { useSavedFilters } from './filters/use-saved-filters';
 import { UpdateNotice } from './components/UpdateNotice';
