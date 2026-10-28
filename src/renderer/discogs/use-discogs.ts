@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { DigResult } from '../../shared/dig';
+import { filtersSchema } from '../../shared/search';
 import type { DigFilters, SearchPage } from '../../shared/search';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type {
@@ -19,7 +20,17 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
   const [busy, setBusy] = useState(Boolean(bridge));
   const [error, setError] = useState<DiscogsError | null>(null);
 
+  const [artistBrowse, setArtistBrowse] = useState<{
+    artist: string;
+    origin: {
+      release: DiscogsRelease;
+      matches: SearchPage | null;
+      filters: DigFilters | null;
+      digging: DigResult | null;
+    };
+  } | null>(null);
   const clearSession = () => {
+    setArtistBrowse(null);
     setDigging(null);
     setMatches(null);
     setFilters(null);
@@ -81,6 +92,40 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
 
   return {
     account,
+    artistBrowse,
+    browseArtist: (artist: string) => {
+      if (!release || busy)
+        return Promise.resolve(
+          discogsFailure('invalid-input', 'Open a release before browsing its artist.'),
+        );
+      const origin = { release, matches, filters, digging };
+      const parsed = filtersSchema.safeParse({ artist });
+      if (!parsed.success)
+        return Promise.resolve(
+          discogsFailure('invalid-input', 'This artist name cannot be used as a search filter.'),
+        );
+      const criteria = parsed.data;
+      return perform(
+        (api) => api.search({ filters: criteria, page: 1 }),
+        (value) => {
+          setArtistBrowse({ artist, origin });
+          setRelease(null);
+          setMatches(value);
+          setFilters(criteria);
+          setDigging(null);
+        },
+      );
+    },
+    returnFromArtist: () => {
+      if (!artistBrowse) return;
+      const { origin } = artistBrowse;
+      setRelease(origin.release);
+      setMatches(origin.matches);
+      setFilters(origin.filters);
+      setDigging(origin.digging);
+      setArtistBrowse(null);
+      setError(null);
+    },
     openSavedRelease: (saved: DiscogsRelease) => {
       setRelease(saved);
       setError(null);
@@ -104,7 +149,10 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
     },
     filters,
     search: (criteria: DigFilters, page = 1) => {
-      if (JSON.stringify(criteria) !== JSON.stringify(filters)) setDigging(null);
+      if (JSON.stringify(criteria) !== JSON.stringify(filters)) {
+        setDigging(null);
+        setArtistBrowse(null);
+      }
       setMatches(null);
       setRelease(null);
       return perform(
