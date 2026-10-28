@@ -72,3 +72,36 @@ test('browses an artist without old filters and restores the EP and original sea
   expect(await screen.findByRole('button', { name: /Low Tide - Quiet Orbit EP/ })).toBeVisible();
   expect(search).toHaveBeenNthCalledWith(1, { filters: original, page: 1 });
 });
+
+test('keeps the originating release visible when artist search fails', async () => {
+  const bridge: DiscogsBridge = {
+    account: () => Promise.resolve({ ok: true, value: identityResponse }),
+    search: () =>
+      Promise.resolve({
+        ok: false,
+        error: { code: 'network', message: 'Artist search is offline' },
+      }),
+    loadRelease: vi.fn(),
+    connect: vi.fn(),
+    dig: vi.fn(),
+    disconnect: vi.fn(),
+    openSettings: vi.fn(),
+  };
+  const user = userEvent.setup();
+  render(
+    <App
+      discogs={bridge}
+      crate={{
+        list: () => Promise.resolve({ ok: true, value: [loadedRelease] }),
+        save: vi.fn(),
+        remove: vi.fn(),
+      }}
+    />,
+  );
+  await screen.findByRole('button', { name: 'Connected as quiet-digger' });
+  await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
+  await user.click(screen.getByRole('button', { name: 'Browse releases by Low Tide' }));
+  expect(await screen.findByRole('alert')).toHaveTextContent('Artist search is offline');
+  expect(screen.getByRole('heading', { name: 'Quiet Orbit EP' })).toBeVisible();
+  expect(screen.queryByText('Artist search · Low Tide')).toBeNull();
+});
