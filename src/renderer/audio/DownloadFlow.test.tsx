@@ -58,9 +58,12 @@ test('shows all sources, suggests track matches, accepts corrections and loads d
   render(<App crate={crate} audioLibrary={bridge} />);
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   const sources = screen.getByRole('region', { name: 'Audio sources' });
-  const rows = within(
-    within(sources).getByRole('list', { name: 'YouTube audio sources' }),
-  ).getAllByRole('listitem');
+  await user.click(within(sources).getByText('1 unmatched upload'));
+  const rows = Array.from(
+    within(sources)
+      .getByRole('list', { name: 'YouTube audio sources' })
+      .querySelectorAll('li.audio-source'),
+  );
   expect(rows).toHaveLength(2);
   const [first, second] = rows;
   if (!first || !second) throw new Error('Expected two sources');
@@ -99,8 +102,9 @@ test('keeps saved sources playable offline and lets their track assignment be co
   const user = userEvent.setup();
   render(<App crate={crate} audioLibrary={bridge} />);
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
-  const rows = within(screen.getByRole('list', { name: 'YouTube audio sources' })).getAllByRole(
-    'listitem',
+  await user.click(screen.getByText('1 unmatched upload'));
+  const rows = Array.from(
+    screen.getByRole('list', { name: 'YouTube audio sources' }).querySelectorAll('li.audio-source'),
   );
   const row = rows[1];
   if (!row) throw new Error('Expected second source');
