@@ -81,9 +81,9 @@ test('requests lookup then similar tracks, preserves mix names and deduplicates 
       ],
     },
   });
-  expect(String(request.mock.calls[0]?.[0])).toContain('/tracks/lookup?url=');
-  expect(String(request.mock.calls[1]?.[0])).toContain('/tracks/1/similar?');
-  expect(String(request.mock.calls[1]?.[0])).toContain('start_year=2000');
+  expect(request.mock.calls[0]?.[0]).toContain('/tracks/lookup?url=');
+  expect(request.mock.calls[1]?.[0]).toContain('/tracks/1/similar?');
+  expect(request.mock.calls[1]?.[0]).toContain('start_year=2000');
   expect(new Headers(request.mock.calls[0]?.[1]?.headers).get('Authorization')).toBe(
     'Bearer private-key',
   );

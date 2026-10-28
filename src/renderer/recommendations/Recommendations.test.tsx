@@ -19,17 +19,15 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
     title: 'Later EP',
     artists: ['Still Waters'],
     tracks: [{ position: 'A1', title: item.title, duration: '6:00' }],
-    videos: [{ title: 'Still Waters - ' + item.title, url: item.youtubeUrl, cosineTrackIndex: 0 }],
+    videos: [{ title: `Still Waters - ${item.title}`, url: item.youtubeUrl, cosineTrackIndex: 0 }],
   };
-  const similar = vi
-    .fn()
-    .mockResolvedValue({
-      ok: true,
-      value: {
-        seed: { ...item, id: '1', artist: 'Low Tide', title: 'Quiet Orbit' },
-        tracks: [item],
-      },
-    });
+  const similar = vi.fn().mockResolvedValue({
+    ok: true,
+    value: {
+      seed: { ...item, id: '1', artist: 'Low Tide', title: 'Quiet Orbit' },
+      tracks: [item],
+    },
+  });
   const resolve = vi
     .fn()
     .mockResolvedValue({ ok: true, value: { release: related, trackIndex: 0, videoIndex: 0 } });
@@ -43,24 +41,22 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
     similar,
     resolve,
   });
-  const prepare = vi
-    .fn()
-    .mockResolvedValue({
-      ok: true,
-      value: {
-        id: '13-lmnopqrstuv',
-        releaseId: 13,
-        videoId: 'lmnopqrstuv',
-        title: item.title,
-        sourceTitle: item.title,
-        trackIndex: 0,
-        artist: item.artist,
-        album: 'Later EP',
-        artworkUrl: null,
-        filename: 'Later.yt.mp3',
-        warning: null,
-      },
-    });
+  const prepare = vi.fn().mockResolvedValue({
+    ok: true,
+    value: {
+      id: '13-lmnopqrstuv',
+      releaseId: 13,
+      videoId: 'lmnopqrstuv',
+      title: item.title,
+      sourceTitle: item.title,
+      trackIndex: 0,
+      artist: item.artist,
+      album: 'Later EP',
+      artworkUrl: null,
+      filename: 'Later.yt.mp3',
+      warning: null,
+    },
+  });
   Reflect.set(window, 'audioPreviews', { prepare, cancel: vi.fn() });
   const user = userEvent.setup();
   try {
@@ -105,6 +101,7 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
     await user.click(await screen.findByRole('button', { name: 'Find similar to Quiet Orbit' }));
     const results = await screen.findByRole('region', { name: 'Recommendations' });
     expect(await within(results).findByText(item.title)).toBeVisible();
+    await user.click(within(results).getByText('Refine recommendations'));
     await user.type(within(results).getByLabelText('From year'), '2000');
     await user.type(within(results).getByLabelText('To year'), '2010');
     await user.click(within(results).getByRole('button', { name: 'Refresh recommendations' }));
@@ -113,17 +110,19 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
       fromYear: 2000,
       toYear: 2010,
     });
-    await user.click(within(results).getByRole('button', { name: 'Preview ' + item.title }));
+    await user.click(within(results).getByRole('button', { name: `Preview ${item.title}` }));
     expect(prepare).toHaveBeenCalledWith({ release: related, videoIndex: 0, trackIndex: 0 });
     await user.click(
-      within(results).getByRole('button', { name: 'Open release for ' + item.title }),
+      within(results).getByRole('button', { name: `Open release for ${item.title}` }),
     );
     expect(await screen.findByRole('heading', { name: 'Later EP' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Back to recommendations' }));
-    expect(await within(results).findByText(item.title)).toBeVisible();
-    expect(within(results).getByLabelText('From year')).toHaveValue(2000);
+    const returned = await screen.findByRole('region', { name: 'Recommendations' });
+    expect(await within(returned).findByText(item.title)).toBeVisible();
+    await user.click(within(returned).getByText('Refine recommendations'));
+    expect(within(returned).getByLabelText('From year')).toHaveValue(2000);
     expect(similar).toHaveBeenCalledTimes(2);
-    await user.click(within(results).getByRole('button', { name: 'Back to Quiet Orbit EP' }));
+    await user.click(within(returned).getByRole('button', { name: 'Back to Quiet Orbit EP' }));
     expect(await screen.findByRole('heading', { name: 'Quiet Orbit EP' })).toBeVisible();
     expect(screen.getByLabelText('Label')).toHaveValue('Keep this label');
   } finally {
