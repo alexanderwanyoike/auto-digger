@@ -14,23 +14,19 @@ test('shows and probes each video ID once while keeping distinct uploads and ori
       { title: 'Low Tide Quiet Orbit', url: 'https://www.youtube.com/watch?v=lmnopqrstuv' },
     ],
   };
-  const probe = vi
-    .fn<AudioBridge['probe']>()
-    .mockImplementation((url) =>
-      Promise.resolve({
-        ok: true,
-        value: {
-          videoId: url.includes('lmnopqrstuv') ? 'lmnopqrstuv' : 'abcdefghijk',
-          title: 'Low Tide Quiet Orbit',
-        },
-      }),
-    );
-  const download = vi
-    .fn<AudioBridge['download']>()
-    .mockResolvedValue({
-      ok: false,
-      error: { code: 'storage', message: 'Download fixture stopped' },
-    });
+  const probe = vi.fn<AudioBridge['probe']>().mockImplementation((url) =>
+    Promise.resolve({
+      ok: true,
+      value: {
+        videoId: url.includes('lmnopqrstuv') ? 'lmnopqrstuv' : 'abcdefghijk',
+        title: 'Low Tide Quiet Orbit',
+      },
+    }),
+  );
+  const download = vi.fn<AudioBridge['download']>().mockResolvedValue({
+    ok: false,
+    error: { code: 'storage', message: 'Download fixture stopped' },
+  });
   const user = userEvent.setup();
   render(
     <App
