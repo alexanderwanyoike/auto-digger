@@ -1,8 +1,8 @@
 import type { CosineQuery, CosineResult, Recommendations } from '../../shared/cosine';
 import { cosineFailure } from '../../shared/cosine-failure';
-import { videoId } from '../../shared/youtube-video-id';
-import { distinctTracks, lookupSchema, similarSchema } from './response';
+import { distinctTracks, similarSchema } from './response';
 import { createCosineRequest } from './request';
+import { discoverSeeds } from './discovery';
 
 export async function fetchSimilar(
   query: CosineQuery,
@@ -10,15 +10,9 @@ export async function fetchSimilar(
   request: typeof fetch,
 ): Promise<CosineResult<Recommendations>> {
   const read = createCosineRequest(key, request);
-  const url = `https://www.youtube.com/watch?v=${videoId(query.url) ?? ''}`;
-  const lookup = await read(
-    `tracks/lookup?${new URLSearchParams({ url }).toString()}`,
-    lookupSchema,
-  );
-  if (!lookup.ok) return lookup;
-  const candidates = [...new Map(lookup.value.map((item) => [item.id, item])).values()];
-  if (!candidates.length)
-    return cosineFailure('not-found', 'Cosine has not indexed this upload. Try another upload.');
+  const discovered = await discoverSeeds(query, read);
+  if (!discovered.ok) return discovered;
+  const candidates = discovered.value;
   if (candidates.length !== 1)
     return cosineFailure(
       'ambiguous',
@@ -38,8 +32,8 @@ export async function fetchSimilar(
     ? {
         ok: true,
         value: {
-          seed: { ...seed, youtubeUrl: url },
-          tracks: distinctTracks(similar.value, { ...seed, youtubeUrl: url }),
+          seed,
+          tracks: distinctTracks(similar.value, seed),
         },
       }
     : similar;

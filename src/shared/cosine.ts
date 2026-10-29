@@ -40,9 +40,12 @@ export const cosineQuerySchema = z
       .string()
       .max(2048)
       .refine((url) => videoId(url) !== null),
+    artist: z.string().trim().min(1).max(500).optional(),
+    title: z.string().trim().min(1).max(500).optional(),
     fromYear: z.number().int().min(1900).max(2030).optional(),
     toYear: z.number().int().min(1900).max(2030).optional(),
   })
+  .refine((value) => (value.artist === undefined) === (value.title === undefined))
   .refine(
     (value) =>
       value.fromYear === undefined || value.toYear === undefined || value.fromYear <= value.toYear,
