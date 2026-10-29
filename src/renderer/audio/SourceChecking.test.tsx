@@ -39,13 +39,14 @@ test.each(['success', 'failure'] as const)(
       within(control).getByRole('progressbar', { name: 'Checking audio availability' }),
     ).not.toHaveAttribute('aria-valuenow');
     expect(screen.queryByText('Checking…')).not.toBeInTheDocument();
-    await act(async () =>
+    await act(() => {
       finish(
         outcome === 'success'
           ? { ok: true, value: { videoId: 'abcdefghijk', title: 'Quiet Orbit' } }
           : { ok: false, error: { code: 'network', message: 'Could not check this upload.' } },
-      ),
-    );
+      );
+      return Promise.resolve();
+    });
     expect(
       screen.queryByRole('progressbar', { name: 'Checking audio availability' }),
     ).not.toBeInTheDocument();
@@ -58,12 +59,13 @@ test.each(['success', 'failure'] as const)(
       expect(
         within(control).getByRole('progressbar', { name: 'Checking audio availability' }),
       ).toBeVisible();
-      await act(async () =>
+      await act(() => {
         finish({
           ok: true,
           value: { videoId: 'abcdefghijk', title: 'Quiet Orbit' },
-        }),
-      );
+        });
+        return Promise.resolve();
+      });
       expect(control).toBeEnabled();
     }
   },

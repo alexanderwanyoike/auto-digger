@@ -2,7 +2,7 @@ import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import { loadedRelease } from '../discogs-fixtures';
 
-for (const width of [1180, 900]) {
+[1180, 900].forEach((width) => {
   test(`keeps source controls steady while checking at ${width.toString()}px`, async () => {
     const desktop = await electron.launch({
       args: [
@@ -59,4 +59,4 @@ for (const width of [1180, 900]) {
       await desktop.close();
     }
   });
-}
+});
