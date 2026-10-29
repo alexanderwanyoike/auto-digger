@@ -12,29 +12,22 @@ export async function fetchSimilar(
   const read = createCosineRequest(key, request);
   const discovered = await discoverSeeds(query, read);
   if (!discovered.ok) return discovered;
-  const candidates = discovered.value;
-  if (candidates.length !== 1)
-    return cosineFailure(
-      'ambiguous',
-      'Cosine found several versions for this upload. Try a more specific upload.',
-    );
-  const seed = candidates[0];
-  if (!seed || !/^[\w-]{1,100}$/.test(seed.id))
+  const seeds = discovered.value;
+  const seed = seeds[0];
+  if (!seed || seeds.some((item) => !/^[\w-]{1,100}$/.test(item.id)))
     return cosineFailure('invalid-response', 'Cosine returned an invalid track reference.');
   const params = new URLSearchParams({ limit: '10', page: '1' });
   if (query.fromYear !== undefined) params.set('start_year', query.fromYear.toString());
   if (query.toYear !== undefined) params.set('end_year', query.toYear.toString());
-  const similar = await read(
-    `tracks/${encodeURIComponent(seed.id)}/similar?${params.toString()}`,
-    similarSchema,
+  const results = await Promise.all(
+    seeds.map((item) =>
+      read(`tracks/${encodeURIComponent(item.id)}/similar?${params.toString()}`, similarSchema),
+    ),
   );
-  return similar.ok
-    ? {
-        ok: true,
-        value: {
-          seed,
-          tracks: distinctTracks(similar.value, seed),
-        },
-      }
-    : similar;
+  const tracks = [];
+  for (const result of results) {
+    if (!result.ok) return result;
+    tracks.push(...result.value);
+  }
+  return { ok: true, value: { seed, seeds, tracks: distinctTracks(tracks, seeds) } };
 }

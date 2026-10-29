@@ -43,9 +43,12 @@ export const lookupSchema = z
 export const similarSchema = z
   .object({ success: z.literal(true), data: z.object({ similar_tracks: z.array(track) }) })
   .transform((value) => value.data.similar_tracks.map(mapTrack));
-export function distinctTracks(items: Recommendation[], seed?: Recommendation): Recommendation[] {
-  const ids = new Set<string>(seed ? [seed.id] : []);
-  const videos = new Set<string>(seed?.youtubeUrl ? [seed.youtubeUrl] : []);
+export function distinctTracks(
+  items: Recommendation[],
+  seeds: Recommendation[] = [],
+): Recommendation[] {
+  const ids = new Set(seeds.map((seed) => seed.id));
+  const videos = new Set(seeds.flatMap((seed) => (seed.youtubeUrl ? [seed.youtubeUrl] : [])));
   return items
     .filter((item) => {
       if (ids.has(item.id) || (item.youtubeUrl && videos.has(item.youtubeUrl))) return false;

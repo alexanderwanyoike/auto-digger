@@ -40,7 +40,9 @@ export async function discoverSeeds(
   );
   if (!lookup.ok && lookup.error.code !== 'not-found') return lookup;
   const linked = [
-    ...new Map((lookup.ok ? lookup.value : []).map((item) => [item.id, item])).values(),
+    ...new Map(
+      (lookup.ok ? lookup.value : []).map((item) => [item.id, { ...item, youtubeUrl: url }]),
+    ).values(),
   ];
   if (linked.length > 1)
     return cosineFailure(
