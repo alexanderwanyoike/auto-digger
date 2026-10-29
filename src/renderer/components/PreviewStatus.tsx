@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { LoaderCircle, X } from 'lucide-react';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 
 export function PreviewStatus({ audio }: { audio: ReturnType<typeof useAudioLibrary> }) {
@@ -6,6 +6,12 @@ export function PreviewStatus({ audio }: { audio: ReturnType<typeof useAudioLibr
   if (!pending) return null;
   return (
     <div className="preview-status">
+      <LoaderCircle
+        className="source-spinner preview-status-spinner"
+        size={12}
+        role="progressbar"
+        aria-label="Preparing audio preview"
+      />
       <span role="status">
         Preparing {'provider' in pending ? 'Soulseek' : 'YouTube'} preview · {pending.release.title}
       </span>
