@@ -32,7 +32,7 @@ test.each(['success', 'failure'] as const)(
       />,
     );
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
-    const control = screen.getByRole('button', { name: 'Download audio', exact: true });
+    const control = screen.getByRole('button', { name: 'Download audio' });
     expect(control).toBeDisabled();
     expect(control).toHaveAttribute('aria-busy', 'true');
     expect(
