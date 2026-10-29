@@ -20,7 +20,7 @@ globalThis.fetch = (input, init) => {
   const headers = new Headers(init?.headers);
   if (url.origin === 'https://cosine.club') {
     if (process.env.AUTO_DIGGER_TEST_COSINE_LOG)
-      appendFileSync(process.env.AUTO_DIGGER_TEST_COSINE_LOG, `${url.pathname + url.search  }\n`);
+      appendFileSync(process.env.AUTO_DIGGER_TEST_COSINE_LOG, `${url.pathname + url.search}\n`);
     if (headers.get('Authorization') !== 'Bearer synthetic-cosine-key')
       return Promise.resolve(Response.json({ success: false }, { status: 401 }));
     if (url.pathname === '/api/v1/search')
