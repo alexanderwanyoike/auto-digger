@@ -28,8 +28,20 @@ export function SourceDownloadButton({
       : Math.floor(active.percent);
   const idleLabel = tagging ? 'Update tags' : 'Download audio';
   const label = active ? `Cancel download ${active.title}` : idleLabel;
+  const idleTitle = checkingSource ? 'Checking audio availability' : label;
   const stageLabel = active ? downloadLabels[active.stage] : 'Preparing';
   const Icon = tagging ? Tags : Download;
+  const icon = checkingSource ? (
+    <LoaderCircle
+      className="source-spinner"
+      size={14}
+      role="progressbar"
+      aria-label="Checking audio availability"
+      aria-hidden={false}
+    />
+  ) : (
+    <Icon size={14} aria-hidden="true" />
+  );
   return (
     <button
       type="button"
@@ -38,9 +50,7 @@ export function SourceDownloadButton({
       title={
         active
           ? `${downloadLabels[active.stage]} · ${percent === undefined ? 'Please wait' : `${percent.toString()}%`} · Cancel download`
-          : checkingSource
-            ? 'Checking audio availability'
-            : label
+          : idleTitle
       }
       aria-busy={busy || checkingSource}
       disabled={active ? active.stage === 'cancelling' : disabled || pending || checkingSource}
@@ -63,16 +73,8 @@ export function SourceDownloadButton({
             {percent === undefined ? '…' : `${percent.toString()}%`}
           </span>
         </>
-      ) : checkingSource ? (
-        <LoaderCircle
-          className="source-spinner"
-          size={14}
-          role="progressbar"
-          aria-label="Checking audio availability"
-          aria-hidden={false}
-        />
       ) : (
-        <Icon size={14} aria-hidden="true" />
+        icon
       )}
     </button>
   );
