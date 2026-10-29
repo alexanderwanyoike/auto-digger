@@ -12,7 +12,7 @@ export async function fetchSimilar(
   const read = createCosineRequest(key, request);
   const discovered = await discoverSeeds(query, read);
   if (!discovered.ok) return discovered;
-  const seeds = discovered.value.seeds;
+  const { seeds } = discovered.value;
   const seed = seeds[0];
   if (!seed || seeds.some((item) => !/^[\w-]{1,100}$/.test(item.id)))
     return cosineFailure('invalid-response', 'Cosine returned an invalid track reference.');
@@ -26,7 +26,7 @@ export async function fetchSimilar(
   );
   const successful = results.filter((result) => result.ok);
   const failed = results.find((result) => !result.ok);
-  if (!successful.length && failed && !failed.ok) return failed;
+  if (!successful.length && failed) return failed;
   return {
     ok: true,
     value: {
