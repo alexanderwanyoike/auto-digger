@@ -19,10 +19,23 @@ globalThis.fetch = (input, init) => {
   const url = new URL(input);
   const headers = new Headers(init?.headers);
   if (url.origin === 'https://cosine.club') {
+    if (process.env.AUTO_DIGGER_TEST_COSINE_LOG)
+      appendFileSync(process.env.AUTO_DIGGER_TEST_COSINE_LOG, url.pathname + url.search + '\n');
     if (headers.get('Authorization') !== 'Bearer synthetic-cosine-key')
       return Promise.resolve(Response.json({ success: false }, { status: 401 }));
+    if (url.pathname === '/api/v1/search')
+      return Promise.resolve(Response.json({ success: true, data: [source, source] }));
     if (url.pathname === '/api/v1/tracks/lookup')
-      return Promise.resolve(Response.json({ success: true, data: [source] }));
+      return Promise.resolve(Response.json({ success: true, data: [{ ...source, id: '5' }] }));
+    if (url.pathname === '/api/v1/tracks/5/similar')
+      return Promise.resolve(
+        Response.json({
+          success: true,
+          data: {
+            similar_tracks: [related, { id: '6', artist: 'Deep Current', track: 'New Dawn' }],
+          },
+        }),
+      );
     return Promise.resolve(
       Response.json({
         success: true,

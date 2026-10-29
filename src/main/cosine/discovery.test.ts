@@ -188,3 +188,22 @@ test.each(['search', 'lookup', 'similar'])(
     ).toMatchObject({ ok: true, value: { incomplete: true, tracks: [{ id: '20' }] } });
   },
 );
+
+test('requests recommendations once when artist/title and YouTube identify the same Cosine track', async () => {
+  const request = vi.fn<typeof fetch>().mockImplementation((input) => {
+    const url = requestUrl(input);
+    if (url.pathname.endsWith('/similar'))
+      return Promise.resolve(Response.json({ success: true, data: { similar_tracks: [] } }));
+    return Promise.resolve(
+      Response.json({ success: true, data: [{ id: '1', artist: 'Sherwood', track: 'Billabong' }] }),
+    );
+  });
+  expect(
+    await createCosineService(credentials(), request).similar({
+      url: 'https://youtu.be/nKp_mHmhbYY',
+      artist: 'Sherwood (2)',
+      title: 'Billabong',
+    }),
+  ).toMatchObject({ ok: true, value: { seeds: [{ id: '1' }], tracks: [], incomplete: false } });
+  expect(request).toHaveBeenCalledTimes(3);
+});

@@ -7,6 +7,7 @@ import { loadedRelease } from '../discogs-fixtures';
 test('remembers Cosine securely, previews recommendations, opens the EP and saves the cached upload', async () => {
   const profile = test.info().outputPath('profile');
   const log = test.info().outputPath('requests.log');
+  const cosineLog = test.info().outputPath('cosine.log');
   const launch = () =>
     electron.launch({
       args: [resolve('tests/cosine-desktop.cjs'), `--user-data-dir=${profile}`],
@@ -18,6 +19,7 @@ test('remembers Cosine securely, previews recommendations, opens the EP and save
           ),
         ),
         AUTO_DIGGER_TEST_DOWNLOAD_LOG: log,
+        AUTO_DIGGER_TEST_COSINE_LOG: cosineLog,
       },
     });
   let desktop = await launch();
@@ -59,7 +61,13 @@ test('remembers Cosine securely, previews recommendations, opens the EP and save
     await page.screenshot({ path: test.info().outputPath('find-similar.png') });
     await similarButton.click();
     const results = page.getByRole('region', { name: 'Recommendations', exact: true });
-    await expect(results.locator('.recommendation-list > li')).toHaveCount(2);
+    await expect(results.locator('.recommendation-list > li')).toHaveCount(3);
+    await expect(results.getByText('Based on 2 confirmed matches', { exact: true })).toBeVisible();
+    await expect(results.getByText('New Dawn', { exact: true })).toBeVisible();
+    const requests = (await readFile(cosineLog, 'utf8')).trim().split('\n');
+    expect(requests[0]).toContain('/search?q=Low+Tide+-+Quiet+Orbit');
+    expect(requests[1]).toContain('/tracks/lookup?');
+    expect(requests.filter((request) => request.includes('/similar?'))).toHaveLength(2);
     const cover = results.getByRole('img', { name: 'Later EP record sleeve' });
     await expect(cover).toHaveAttribute('src', 'https://i.discogs.com/cosine-fixture.svg');
     await expect
