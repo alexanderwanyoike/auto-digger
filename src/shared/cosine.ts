@@ -31,7 +31,8 @@ export const recommendationSchema = z.object({
 export type Recommendation = z.infer<typeof recommendationSchema>;
 export const recommendationsSchema = z.object({
   seed: recommendationSchema,
-  seeds: z.array(recommendationSchema).max(11).optional(),
+  seeds: z.array(recommendationSchema).max(20).optional(),
+  incomplete: z.boolean().optional(),
   tracks: z.array(recommendationSchema).max(10),
 });
 export type Recommendations = z.infer<typeof recommendationsSchema>;
