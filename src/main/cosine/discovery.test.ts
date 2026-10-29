@@ -1,6 +1,12 @@
 import { expect, test, vi } from 'vitest';
 import { createCosineService } from './service';
 
+function requestUrl(input: Parameters<typeof fetch>[0]) {
+  if (typeof input === 'string') return new URL(input);
+  if (input instanceof URL) return input;
+  return new URL(input.url);
+}
+
 function credentials() {
   return {
     load: vi.fn().mockResolvedValue({ ok: true, value: 'private-key' }),
@@ -11,9 +17,7 @@ function credentials() {
 
 test('searches artist and full title before YouTube and recommends from a confirmed name match when the upload is unindexed', async () => {
   const request = vi.fn<typeof fetch>().mockImplementation((input) => {
-    const url = new URL(
-      typeof input === 'string' ? input : input instanceof URL ? input.href : input.url,
-    );
+    const url = requestUrl(input);
     if (url.pathname === '/api/v1/search')
       return Promise.resolve(
         Response.json({
@@ -58,9 +62,7 @@ test('searches artist and full title before YouTube and recommends from a confir
 test('combines recommendations from distinct confirmed name and YouTube seeds in order without repeating IDs, uploads or source tracks', async () => {
   const calls: string[] = [];
   const request = vi.fn<typeof fetch>().mockImplementation((input) => {
-    const url = new URL(
-      typeof input === 'string' ? input : input instanceof URL ? input.href : input.url,
-    );
+    const url = requestUrl(input);
     calls.push(url.pathname + url.search);
     if (url.pathname === '/api/v1/search')
       return Promise.resolve(
@@ -142,9 +144,7 @@ test.each(['search', 'lookup', 'similar'])(
   'retains available recommendations and marks incomplete results when %s fails',
   async (failed) => {
     const request = vi.fn<typeof fetch>().mockImplementation((input) => {
-      const url = new URL(
-        typeof input === 'string' ? input : input instanceof URL ? input.href : input.url,
-      );
+      const url = requestUrl(input);
       if (
         (failed === 'search' && url.pathname.endsWith('/search')) ||
         (failed === 'lookup' && url.pathname.endsWith('/lookup')) ||
