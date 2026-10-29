@@ -199,6 +199,9 @@ test('ignores late recommendations after closing and presents a retryable provid
     expect(screen.queryByRole('region', { name: 'Recommendations' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Find similar to Quiet Orbit' }));
     expect(await screen.findByText('Wait a minute before retrying.')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Retry recommendations' }));
+    expect(similar).toHaveBeenCalledTimes(3);
+    expect(await screen.findByText('Wait a minute before retrying.')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Back to Quiet Orbit EP' }));
     expect(await screen.findByRole('heading', { name: 'Quiet Orbit EP' })).toBeVisible();
   } finally {
