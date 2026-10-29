@@ -98,7 +98,9 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
     expect(within(settings).getByLabelText('Cosine Club API key')).toHaveValue('');
     await user.click(screen.getByRole('button', { name: 'Digging desk' }));
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
-    await user.click(await screen.findByRole('button', { name: 'Find similar to Quiet Orbit' }));
+    const findSimilar = await screen.findByRole('button', { name: 'Find similar to Quiet Orbit' });
+    expect(within(findSimilar).getByText('Find similar')).toBeVisible();
+    await user.click(findSimilar);
     const results = await screen.findByRole('region', { name: 'Recommendations' });
     expect(await within(results).findByText(item.title)).toBeVisible();
     await user.click(within(results).getByText('Refine recommendations'));
