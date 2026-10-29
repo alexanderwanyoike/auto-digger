@@ -70,8 +70,11 @@ export function useRecommendations(
     clear();
     try {
       const url = source.release.videos[source.videoIndex]?.url ?? '';
+      const artist = source.release.artists[0]?.trim();
+      const title = source.title.trim();
       const result = await bridge.similar({
         url,
+        ...(artist && title ? { artist, title } : {}),
         ...(from ? { fromYear: Number(from) } : {}),
         ...(to ? { toYear: Number(to) } : {}),
       });

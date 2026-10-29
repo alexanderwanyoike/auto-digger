@@ -20,6 +20,9 @@ export function RecommendationsView({ model }: { model: ReturnType<typeof useRec
         <span className="eyebrow">COSINE CLUB</span>
         <h2>Similar to {model.seed?.title}</h2>
         <p>{model.data?.seed.artist ?? model.seed?.release.artists.join(', ')}</p>
+        {model.data?.seeds && model.data.seeds.length > 1 && (
+          <p>Based on {model.data.seeds.length} confirmed matches</p>
+        )}
       </header>
       <details className="recommendation-refine">
         <summary>Refine recommendations</summary>
@@ -67,6 +70,11 @@ export function RecommendationsView({ model }: { model: ReturnType<typeof useRec
       {model.busy && (
         <p role="status" className="recommendations-notice">
           Finding similar tracks…
+        </p>
+      )}
+      {model.data?.incomplete && (
+        <p role="status" className="recommendations-notice">
+          Some matches were unavailable. Showing the recommendations we could load.
         </p>
       )}
       {model.error && (
