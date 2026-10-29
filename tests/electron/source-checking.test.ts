@@ -30,7 +30,9 @@ import { loadedRelease } from '../discogs-fixtures';
       await expect(spinner).toBeVisible();
       await expect(download).toBeDisabled();
       await expect(page.getByText('Checking…', { exact: true })).toHaveCount(0);
-      const assignment = page.getByLabel('Discogs track', { exact: true });
+      const assignment = page
+        .getByRole('list', { name: 'YouTube audio sources', exact: true })
+        .getByRole('combobox');
       const preview = page.getByRole('button', { name: 'Preview audio', exact: true });
       const before = await Promise.all([
         assignment.boundingBox(),
