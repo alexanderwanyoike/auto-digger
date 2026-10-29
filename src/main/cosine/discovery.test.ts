@@ -207,3 +207,40 @@ test('requests recommendations once when artist/title and YouTube identify the s
   ).toMatchObject({ ok: true, value: { seeds: [{ id: '1' }], tracks: [], incomplete: false } });
   expect(request).toHaveBeenCalledTimes(3);
 });
+
+test('keeps a conflicting YouTube recording out of confirmed artist/title recommendations', async () => {
+  const request = vi.fn<typeof fetch>().mockImplementation((input) => {
+    const url = requestUrl(input);
+    if (url.pathname.endsWith('/search'))
+      return Promise.resolve(
+        Response.json({
+          success: true,
+          data: [{ id: '1', artist: 'Low Tide', track: 'Quiet Orbit (Dub)' }],
+        }),
+      );
+    if (url.pathname.endsWith('/lookup'))
+      return Promise.resolve(
+        Response.json({
+          success: true,
+          data: [{ id: '3', artist: 'Another Artist', track: 'Different Song' }],
+        }),
+      );
+    return Promise.resolve(
+      Response.json({
+        success: true,
+        data: { similar_tracks: [{ id: '20', artist: 'Still Waters', track: 'Later Orbit' }] },
+      }),
+    );
+  });
+  expect(
+    await createCosineService(credentials(), request).similar({
+      url: 'https://youtu.be/abcdefghijk',
+      artist: 'Low Tide',
+      title: 'Quiet Orbit (Dub)',
+    }),
+  ).toMatchObject({
+    ok: true,
+    value: { seeds: [{ id: '1' }], incomplete: true, tracks: [{ id: '20' }] },
+  });
+  expect(request).toHaveBeenCalledTimes(3);
+});
