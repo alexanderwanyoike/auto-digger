@@ -1,5 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { createCosineService } from './service';
+import { createCosineRequest } from './request';
+import { lookupSchema } from './response';
 
 function timedSignal(milliseconds: number) {
   const controller = new AbortController();
@@ -56,4 +58,61 @@ test('allows a slow Cosine recommendation response to finish beyond fifteen seco
     vi.useRealTimers();
     vi.restoreAllMocks();
   }
+});
+
+test('reports an expired Cosine deadline as a timeout without blaming the local connection', async () => {
+  vi.useFakeTimers();
+  vi.spyOn(AbortSignal, 'timeout').mockImplementation(timedSignal);
+  const request = vi.fn<typeof fetch>().mockImplementation(
+    (_input, init) =>
+      new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener(
+          'abort',
+          () => {
+            const reason: unknown = init.signal?.reason;
+            reject(reason);
+          },
+          { once: true },
+        );
+      }),
+  );
+  try {
+    let settled = false;
+    const pending = createCosineRequest('private-key', request)('search?q=track', lookupSchema);
+    pending
+      .then(() => {
+        settled = true;
+      })
+      .catch(() => undefined);
+    await vi.advanceTimersByTimeAsync(44000);
+    expect(settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(1000);
+    const result = await pending;
+    expect(result).toMatchObject({
+      ok: false,
+      error: { code: 'timeout', message: 'Cosine took too long to respond. Please try again.' },
+    });
+    expect(JSON.stringify(result)).not.toContain('private-key');
+  } finally {
+    vi.clearAllTimers();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  }
+});
+
+test.each([
+  {
+    name: 'invalid JSON',
+    request: () => Promise.resolve(new Response('<html>Busy upstream</html>')),
+    code: 'invalid-response',
+  },
+  {
+    name: 'connection failure',
+    request: () => Promise.reject(new TypeError('Connection failed private-key')),
+    code: 'network',
+  },
+])('distinguishes $name without leaking provider details', async ({ request, code }) => {
+  const result = await createCosineRequest('private-key', request)('search?q=track', lookupSchema);
+  expect(result).toMatchObject({ ok: false, error: { code } });
+  expect(JSON.stringify(result)).not.toContain('private-key');
 });
