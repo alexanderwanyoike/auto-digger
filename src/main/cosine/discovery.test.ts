@@ -137,3 +137,54 @@ test('combines recommendations from distinct confirmed name and YouTube seeds in
     expect.arrayContaining([expect.stringContaining('start_year=2000&end_year=2010')]),
   );
 });
+
+test.each(['search', 'lookup', 'similar'])(
+  'retains available recommendations and marks incomplete results when %s fails',
+  async (failed) => {
+    const request = vi.fn<typeof fetch>().mockImplementation((input) => {
+      const url = new URL(
+        typeof input === 'string' ? input : input instanceof URL ? input.href : input.url,
+      );
+      if (
+        (failed === 'search' && url.pathname.endsWith('/search')) ||
+        (failed === 'lookup' && url.pathname.endsWith('/lookup')) ||
+        (failed === 'similar' && url.pathname.includes('/tracks/3/'))
+      )
+        return Promise.resolve(Response.json({}, { status: 503 }));
+      if (url.pathname.endsWith('/search'))
+        return Promise.resolve(
+          Response.json({
+            success: true,
+            data: [{ id: '1', artist: 'Low Tide', track: 'Quiet Orbit' }],
+          }),
+        );
+      if (url.pathname.endsWith('/lookup'))
+        return Promise.resolve(
+          Response.json({
+            success: true,
+            data: [
+              {
+                id: '3',
+                artist: 'Low Tide',
+                track: 'Quiet Orbit',
+                video_uri: 'https://youtu.be/abcdefghijk',
+              },
+            ],
+          }),
+        );
+      return Promise.resolve(
+        Response.json({
+          success: true,
+          data: { similar_tracks: [{ id: '20', artist: 'Still Waters', track: 'Later Orbit' }] },
+        }),
+      );
+    });
+    expect(
+      await createCosineService(credentials(), request).similar({
+        url: 'https://youtu.be/abcdefghijk',
+        artist: 'Low Tide',
+        title: 'Quiet Orbit',
+      }),
+    ).toMatchObject({ ok: true, value: { incomplete: true, tracks: [{ id: '20' }] } });
+  },
+);
