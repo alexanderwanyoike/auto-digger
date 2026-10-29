@@ -106,6 +106,7 @@ export function SourceRow({
           <SourceDownloadButton
             job={job}
             pending={pending}
+            checking={!available && !checked && audio.available}
             tagging={Boolean(available)}
             disabled={audio.busy || previewing || (!available && !checked?.ok)}
             onDownload={() => {
@@ -132,7 +133,6 @@ export function SourceRow({
             <FolderOpen size={13} aria-hidden="true" />
           </button>
         )}
-        {!available && !checked && audio.available && <span role="status">Checking…</span>}
         {!audio.available && <span>Open the desktop app to download audio.</span>}
         {!available && checked && !checked.ok && (
           <button

@@ -5,6 +5,7 @@ import { downloadLabels } from './download-labels';
 export function SourceDownloadButton({
   job,
   pending,
+  checking,
   disabled,
   tagging,
   onDownload,
@@ -12,6 +13,7 @@ export function SourceDownloadButton({
 }: {
   job: DownloadJob | undefined;
   pending: boolean;
+  checking: boolean;
   disabled: boolean;
   tagging: boolean;
   onDownload: () => void;
@@ -19,6 +21,7 @@ export function SourceDownloadButton({
 }) {
   const active = job && !['complete', 'failed', 'cancelled'].includes(job.stage) ? job : undefined;
   const busy = pending || Boolean(active);
+  const checkingSource = checking && !busy;
   const percent =
     active?.percent === null || active?.percent === undefined
       ? undefined
@@ -35,10 +38,12 @@ export function SourceDownloadButton({
       title={
         active
           ? `${downloadLabels[active.stage]} · ${percent === undefined ? 'Please wait' : `${percent.toString()}%`} · Cancel download`
-          : label
+          : checkingSource
+            ? 'Checking audio availability'
+            : label
       }
-      aria-busy={busy}
-      disabled={active ? active.stage === 'cancelling' : disabled || pending}
+      aria-busy={busy || checkingSource}
+      disabled={active ? active.stage === 'cancelling' : disabled || pending || checkingSource}
       onClick={() => {
         if (active) onCancel(active.id);
         else onDownload();
@@ -58,6 +63,14 @@ export function SourceDownloadButton({
             {percent === undefined ? '…' : `${percent.toString()}%`}
           </span>
         </>
+      ) : checkingSource ? (
+        <LoaderCircle
+          className="source-spinner"
+          size={14}
+          role="progressbar"
+          aria-label="Checking audio availability"
+          aria-hidden={false}
+        />
       ) : (
         <Icon size={14} aria-hidden="true" />
       )}
