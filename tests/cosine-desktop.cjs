@@ -46,6 +46,7 @@ globalThis.fetch = (input, init) => {
       Response.json({
         id: 13,
         title: 'Later EP',
+        images: [{ type: 'primary', uri: 'https://i.discogs.com/cosine-fixture.svg' }],
         artists: [{ name: 'Still Waters' }],
         year: 2002,
         genres: ['Electronic'],

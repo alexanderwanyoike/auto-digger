@@ -42,11 +42,31 @@ test('remembers Cosine securely, previews recommendations, opens the EP and save
     await desktop.close();
     desktop = await launch();
     page = await desktop.firstWindow();
+    await page.route('https://i.discogs.com/cosine-fixture.svg', (route) =>
+      route.fulfill({
+        path: resolve('tests/fixtures/record-sleeve.svg'),
+        contentType: 'image/svg+xml',
+      }),
+    );
     await page.getByLabel('Label', { exact: true }).fill('Keep this label');
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
-    await page.getByRole('button', { name: 'Find similar to Quiet Orbit', exact: true }).click();
+    const similarButton = page.getByRole('button', {
+      name: 'Find similar to Quiet Orbit',
+      exact: true,
+    });
+    await expect(similarButton).toHaveText('Find similar');
+    await similarButton.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: test.info().outputPath('find-similar.png') });
+    await similarButton.click();
     const results = page.getByRole('region', { name: 'Recommendations', exact: true });
     await expect(results.locator('.recommendation-list > li')).toHaveCount(2);
+    const cover = results.getByRole('img', { name: 'Later EP record sleeve' });
+    await expect(cover).toHaveAttribute('src', 'https://i.discogs.com/cosine-fixture.svg');
+    await expect
+      .poll(() =>
+        cover.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0),
+      )
+      .toBe(true);
     await expect(
       results.getByRole('button', { name: 'Open release for Later Orbit (Dub Mix)', exact: true }),
     ).toBeDisabled();
