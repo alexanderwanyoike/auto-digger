@@ -26,6 +26,11 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
     ok: true,
     value: {
       seed: { ...item, id: '1', artist: 'Low Tide', title: 'Quiet Orbit' },
+      seeds: [
+        { ...item, id: '1', artist: 'Low Tide', title: 'Quiet Orbit' },
+        { ...item, id: '5', artist: 'Low Tide', title: 'Quiet Orbit (Dub)' },
+      ],
+      incomplete: true,
       tracks: [item],
     },
   });
@@ -104,6 +109,12 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
     await user.click(findSimilar);
     const results = await screen.findByRole('region', { name: 'Recommendations' });
     expect(await within(results).findByText(item.title)).toBeVisible();
+    expect(within(results).getByText('Based on 2 confirmed matches')).toBeVisible();
+    expect(
+      within(results).getByText(
+        'Some matches were unavailable. Showing the recommendations we could load.',
+      ),
+    ).toBeVisible();
     expect(
       await within(results).findByRole('img', { name: 'Later EP record sleeve' }),
     ).toHaveAttribute('src', related.artworkUrl);
@@ -113,6 +124,8 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
     await user.click(within(results).getByRole('button', { name: 'Refresh recommendations' }));
     expect(similar).toHaveBeenLastCalledWith({
       url: loadedRelease.videos[0]?.url,
+      artist: 'Low Tide',
+      title: 'Quiet Orbit',
       fromYear: 2000,
       toYear: 2010,
     });
