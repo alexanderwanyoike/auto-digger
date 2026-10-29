@@ -29,3 +29,15 @@ The screenshots use synthetic catalogue/API data and audio to keep the demo dete
 ![Compact recommendation layout at the minimum window size](narrow-window.png)
 
 ![Find similar at the minimum window size](narrow-track-action.png)
+
+## Timeout and retry verification
+
+A live Wanted (Original Mix) retry took about 14 seconds while the request deadline was 15 seconds. Other direct calls completed in 3 to 5 seconds after that; the original transient exception was not captured, so its exact cause is not proven. The client did have a reproducible classification defect: deadline expiry and invalid JSON were both reported as connection failures.
+
+A fake-clock regression demonstrates a valid 18-second response failing with the old limit and completing with the new bounded 45-second deadline. Further checks distinguish deadline expiry, invalid JSON and transport errors without exposing credentials or upstream payloads. The classification follows the existing Discogs request boundary's Result handling.
+
+The native fixture injects timeout-shaped transport failures, checks the dedicated message, retries from the same desk view and returns to the original EP. Manually exercised and inspected the same error/recovery journey in Electron. The screenshots show synthetic fixture failures, not a claim to have captured the original live exception. No automatic retry is added.
+
+![Explicit timeout with a visible retry action](timeout.png)
+
+![Recommendations restored after retry](retry-recovered.png)
