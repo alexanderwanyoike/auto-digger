@@ -17,6 +17,7 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
     ...loadedRelease,
     id: 13,
     title: 'Later EP',
+    artworkUrl: 'https://i.discogs.com/later-ep.jpg',
     artists: ['Still Waters'],
     tracks: [{ position: 'A1', title: item.title, duration: '6:00' }],
     videos: [{ title: `Still Waters - ${item.title}`, url: item.youtubeUrl, cosineTrackIndex: 0 }],
@@ -103,6 +104,9 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
     await user.click(findSimilar);
     const results = await screen.findByRole('region', { name: 'Recommendations' });
     expect(await within(results).findByText(item.title)).toBeVisible();
+    expect(
+      await within(results).findByRole('img', { name: 'Later EP record sleeve' }),
+    ).toHaveAttribute('src', related.artworkUrl);
     await user.click(within(results).getByText('Refine recommendations'));
     await user.type(within(results).getByLabelText('From year'), '2000');
     await user.type(within(results).getByLabelText('To year'), '2010');
@@ -114,6 +118,7 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
     });
     await user.click(within(results).getByRole('button', { name: `Preview ${item.title}` }));
     expect(prepare).toHaveBeenCalledWith({ release: related, videoIndex: 0, trackIndex: 0 });
+    expect(resolve).toHaveBeenCalledTimes(2);
     await user.click(
       within(results).getByRole('button', { name: `Open release for ${item.title}` }),
     );
