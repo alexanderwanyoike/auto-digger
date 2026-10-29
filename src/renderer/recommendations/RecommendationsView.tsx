@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import { ArrowLeft, ArrowUpRight, Play, RefreshCw } from 'lucide-react';
 import type { useRecommendations } from './use-recommendations';
+import { RecordArtwork } from '../components/RecordArtwork';
 import '../styles/recommendations.css';
 
 export function RecommendationsView({ model }: { model: ReturnType<typeof useRecommendations> }) {
@@ -82,10 +83,23 @@ export function RecommendationsView({ model }: { model: ReturnType<typeof useRec
           <ol className="recommendation-list">
             {model.data.tracks.map((item) => (
               <li key={item.id}>
-                <div className="recommendation-credit">
-                  <strong>{item.title}</strong>
-                  <span>{item.artist}</span>
-                  {item.releaseId === null && <small>No linked release</small>}
+                <div className="recommendation-record">
+                  <RecordArtwork
+                    className="recommendation-artwork"
+                    url={
+                      item.releaseId === null ? null : (model.covers[item.releaseId]?.url ?? null)
+                    }
+                    title={
+                      item.releaseId === null
+                        ? item.title
+                        : (model.covers[item.releaseId]?.title ?? item.title)
+                    }
+                  />
+                  <div className="recommendation-credit">
+                    <strong>{item.title}</strong>
+                    <span>{item.artist}</span>
+                    {item.releaseId === null && <small>No linked release</small>}
+                  </div>
                 </div>
                 <div className="recommendation-actions">
                   <button

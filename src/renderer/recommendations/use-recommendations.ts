@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRecommendationReleases } from './use-recommendation-releases';
 import type { DiscogsRelease } from '../../shared/discogs';
-import type { Recommendation, Recommendations, ResolvedRecommendation } from '../../shared/cosine';
+import type { Recommendation, Recommendations } from '../../shared/cosine';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import type { RecommendationSeed } from './recommendations-context';
 
@@ -24,19 +25,19 @@ export function useRecommendations(
   const generation = useRef(0);
   const firstOrigin = useRef<DiscogsRelease | null>(null);
   const expectedRelease = useRef<DiscogsRelease | null>(null);
-  const resolved = useRef(new Map<string, ResolvedRecommendation>());
+  const { covers, read, clear } = useRecommendationReleases(bridge, data);
   const dismiss = useCallback(() => {
     generation.current += 1;
     firstOrigin.current = null;
     expectedRelease.current = null;
-    resolved.current.clear();
+    clear();
     setView(null);
     setOrigin(null);
     setData(null);
     setBusy(false);
     setActing(null);
     setError(null);
-  }, []);
+  }, [clear]);
   useEffect(() => {
     let active = true;
     bridge
@@ -66,7 +67,7 @@ export function useRecommendations(
     setActing(null);
     setError(null);
     setData(null);
-    resolved.current.clear();
+    clear();
     try {
       const url = source.release.videos[source.videoIndex]?.url ?? '';
       const result = await bridge.similar({
@@ -99,14 +100,12 @@ export function useRecommendations(
     setActing(item.id);
     setError(null);
     try {
-      const cached = resolved.current.get(item.id);
-      const result = cached ? { ok: true as const, value: cached } : await bridge.resolve(item);
+      const result = await read(item);
       if (version !== generation.current) return;
       if (!result.ok) {
         setError(result.error.message);
         return;
       }
-      resolved.current.set(item.id, result.value);
       if (preview) {
         if (result.value.videoIndex === null) {
           setError('This recommendation has no YouTube preview.');
@@ -133,6 +132,7 @@ export function useRecommendations(
   }
   return {
     bridge,
+    covers,
     configured,
     connectionError,
     view,

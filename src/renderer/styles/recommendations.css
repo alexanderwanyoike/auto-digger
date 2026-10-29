@@ -134,9 +134,33 @@
   width: 100%;
 }
 
-.source-actions .source-recommend {
+.audio-source .source-actions .source-recommend {
   width: auto;
   flex: 0 0 auto;
   padding: 0 8px;
   white-space: nowrap;
+}
+
+.recommendation-record {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.recommendation-artwork {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+}
+.recommendation-artwork .cover-placeholder span {
+  display: none;
+}
+.recommendation-artwork .cover-placeholder svg {
+  width: 26px;
+  height: 26px;
+}
+@media (max-width: 1000px) {
+  .recommendation-actions {
+    margin-left: 60px;
+  }
 }
