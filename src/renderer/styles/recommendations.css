@@ -102,10 +102,10 @@
   line-height: 1.7;
 }
 .audio-source:has(.source-recommend) {
-  grid-template-columns: minmax(0, 1fr) 132px;
+  grid-template-columns: minmax(0, 1fr) 200px;
 }
 .source-actions:has(.source-recommend) {
-  width: 132px;
+  width: 200px;
 }
 .cosine-settings form {
   width: min(100%, 420px);
@@ -132,4 +132,11 @@
 }
 .cosine-settings input {
   width: 100%;
+}
+
+.source-actions .source-recommend {
+  width: auto;
+  flex: 0 0 auto;
+  padding: 0 8px;
+  white-space: nowrap;
 }

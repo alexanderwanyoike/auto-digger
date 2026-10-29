@@ -24,6 +24,7 @@ export function FindSimilarButton({
       }}
     >
       <AudioLines size={13} aria-hidden="true" />
+      <span>Find similar</span>
     </button>
   );
 }
