@@ -58,13 +58,13 @@ export function useRecommendationReleases(
   useEffect(() => {
     let active = true;
     const version = revision.current;
-    const items = [
-      ...new Map(
-        data?.tracks
-          .filter((item) => item.releaseId !== null)
-          .map((item) => [item.releaseId, item]),
-      ).values(),
-    ];
+    const seen = new Set<number>();
+    const items =
+      data?.tracks.filter((item) => {
+        if (item.releaseId === null || seen.has(item.releaseId)) return false;
+        seen.add(item.releaseId);
+        return true;
+      }) ?? [];
     async function next(index: number): Promise<void> {
       if (!active || version !== revision.current) return;
       const item = items[index];
