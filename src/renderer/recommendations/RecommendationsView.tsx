@@ -78,9 +78,20 @@ export function RecommendationsView({ model }: { model: ReturnType<typeof useRec
         </p>
       )}
       {model.error && (
-        <p role="alert" className="recommendations-notice">
-          {model.error}
-        </p>
+        <div className="recommendations-notice">
+          <p role="alert">{model.error}</p>
+          {!model.data && (
+            <button
+              type="button"
+              className="source-folder"
+              aria-label="Retry recommendations"
+              disabled={model.busy}
+              onClick={model.refresh}
+            >
+              Try again
+            </button>
+          )}
+        </div>
       )}
       {model.data && (
         <>
