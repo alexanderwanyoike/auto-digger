@@ -14,6 +14,14 @@ function normalise(value: string) {
 function artistName(value: string) {
   return value.replace(/\s+\(\d+\)$/, '').trim();
 }
+function matchesName(item: Recommendation, artist: string | undefined, title: string | undefined) {
+  return Boolean(
+    artist &&
+    title &&
+    normalise(artistName(item.artist)) === normalise(artistName(artist)) &&
+    normalise(item.title) === normalise(title),
+  );
+}
 export async function discoverSeeds(
   query: CosineQuery,
   read: ReturnType<typeof createCosineRequest>,
@@ -29,11 +37,7 @@ export async function discoverSeeds(
     if (!searched.ok && searched.error.code !== 'not-found') failure = searched.error;
     if (searched.ok)
       named = searched.value
-        .filter(
-          (item) =>
-            normalise(artistName(item.artist)) === normalise(artist) &&
-            normalise(item.title) === normalise(query.title ?? ''),
-        )
+        .filter((item) => matchesName(item, query.artist, query.title))
         .slice(0, 10);
   }
   const url = `https://www.youtube.com/watch?v=${videoId(query.url) ?? ''}`;
@@ -49,13 +53,7 @@ export async function discoverSeeds(
     ).values(),
   ];
   if (linked.length > 1) {
-    const confirmed = linked.filter(
-      (item) =>
-        query.artist &&
-        query.title &&
-        normalise(artistName(item.artist)) === normalise(artistName(query.artist)) &&
-        normalise(item.title) === normalise(query.title),
-    );
+    const confirmed = linked.filter((item) => matchesName(item, query.artist, query.title));
     if (confirmed.length) linked = confirmed.slice(0, 10);
     else {
       const error = {
@@ -66,6 +64,13 @@ export async function discoverSeeds(
       failure ??= error;
       linked = [];
     }
+  }
+  if (named.length && linked.some((item) => !matchesName(item, query.artist, query.title))) {
+    linked = linked.filter((item) => matchesName(item, query.artist, query.title));
+    failure ??= {
+      code: 'ambiguous',
+      message: 'The YouTube recording did not match the confirmed artist and title.',
+    };
   }
   const candidates = [...new Map([...named, ...linked].map((item) => [item.id, item])).values()];
   if (!candidates.length && failure) return { ok: false, error: failure };
