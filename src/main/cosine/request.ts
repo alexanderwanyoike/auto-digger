@@ -42,7 +42,16 @@ export function createCosineRequest(key: string, request: typeof fetch) {
             'invalid-response',
             'Cosine returned recommendations the app could not read.',
           );
-    } catch {
+    } catch (error) {
+      const name =
+        typeof error === 'object' && error !== null && 'name' in error ? error.name : null;
+      if (signal.aborted || name === 'TimeoutError')
+        return cosineFailure('timeout', 'Cosine took too long to respond. Please try again.');
+      if (name === 'SyntaxError')
+        return cosineFailure(
+          'invalid-response',
+          'Cosine returned a response the app could not read. Please retry.',
+        );
       return cosineFailure('network', 'Could not reach Cosine. Check your connection and retry.');
     }
   };

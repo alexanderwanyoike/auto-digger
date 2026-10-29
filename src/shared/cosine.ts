@@ -12,6 +12,7 @@ export const cosineErrorSchema = z.object({
     'ambiguous',
     'rate-limited',
     'network',
+    'timeout',
     'invalid-response',
     'storage',
     'unavailable',
