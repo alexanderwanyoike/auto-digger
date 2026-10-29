@@ -1,56 +1,15 @@
-import type { z } from 'zod';
 import type { CosineQuery, CosineResult, Recommendations } from '../../shared/cosine';
 import { cosineFailure } from '../../shared/cosine-failure';
 import { videoId } from '../../shared/youtube-video-id';
 import { distinctTracks, lookupSchema, similarSchema } from './response';
+import { createCosineRequest } from './request';
 
 export async function fetchSimilar(
   query: CosineQuery,
   key: string,
   request: typeof fetch,
 ): Promise<CosineResult<Recommendations>> {
-  async function read<T>(path: string, schema: z.ZodType<T>): Promise<CosineResult<T>> {
-    try {
-      const response = await request(`https://cosine.club/api/v1/${path}`, {
-        headers: {
-          Authorization: `Bearer ${key}`,
-          'User-Agent': 'AutoDigger/0.1 (https://github.com/alexanderwanyoike/auto-digger)',
-          Accept: 'application/json',
-        },
-        redirect: 'error',
-        signal: AbortSignal.timeout(15000),
-      });
-      if ([401, 403].includes(response.status))
-        return cosineFailure('unauthorized', 'Cosine rejected the API key. Update it in Settings.');
-      if (response.status === 404)
-        return cosineFailure(
-          'not-found',
-          'Cosine has not indexed this upload. Try another upload of the track.',
-        );
-      if (response.status === 429)
-        return cosineFailure(
-          'rate-limited',
-          'Cosine is busy. Wait a minute before requesting more recommendations.',
-        );
-      if (!response.ok)
-        return cosineFailure('network', 'Cosine could not complete the request. Please retry.');
-      const raw: unknown = await response.json();
-      const clean: unknown = JSON.parse(
-        JSON.stringify(raw, (_name, value: unknown) =>
-          typeof value === 'string' ? value.split(key).join('[redacted]') : value,
-        ),
-      );
-      const parsed = schema.safeParse(clean);
-      return parsed.success
-        ? { ok: true, value: parsed.data }
-        : cosineFailure(
-            'invalid-response',
-            'Cosine returned recommendations the app could not read.',
-          );
-    } catch {
-      return cosineFailure('network', 'Could not reach Cosine. Check your connection and retry.');
-    }
-  }
+  const read = createCosineRequest(key, request);
   const url = `https://www.youtube.com/watch?v=${videoId(query.url) ?? ''}`;
   const lookup = await read(
     `tracks/lookup?${new URLSearchParams({ url }).toString()}`,
