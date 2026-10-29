@@ -39,6 +39,9 @@ test('shows preparation and cancellation in the app footer without expanding the
     const footer = screen.getByRole('region', { name: 'App status' });
     expect(within(footer).getByRole('status')).toHaveTextContent('Preparing YouTube preview');
     expect(
+      within(footer).getByRole('progressbar', { name: 'Preparing audio preview' }),
+    ).toBeVisible();
+    expect(
       within(screen.getByRole('contentinfo', { name: 'Playback' })).queryByText(
         /Preparing YouTube/,
       ),
@@ -46,6 +49,7 @@ test('shows preparation and cancellation in the app footer without expanding the
     await user.click(within(footer).getByRole('button', { name: 'Cancel preparing preview' }));
     expect(cancel).toHaveBeenCalledWith('12-abcdefghijk');
     expect(await within(footer).findByText('DISCOGS DISCOVERY')).toBeVisible();
+    expect(within(footer).queryByRole('progressbar')).not.toBeInTheDocument();
   } finally {
     Reflect.deleteProperty(window, 'audioPreviews');
   }
