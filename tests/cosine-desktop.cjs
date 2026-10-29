@@ -15,6 +15,7 @@ const related = {
   video_uri: 'https://youtu.be/lmnopqrstuv',
   external_link: 'https://www.discogs.com/release/13',
 };
+let expiredRequests = 0;
 globalThis.fetch = (input, init) => {
   const url = new URL(input);
   const headers = new Headers(init?.headers);
@@ -23,6 +24,12 @@ globalThis.fetch = (input, init) => {
       appendFileSync(process.env.AUTO_DIGGER_TEST_COSINE_LOG, `${url.pathname + url.search}\n`);
     if (headers.get('Authorization') !== 'Bearer synthetic-cosine-key')
       return Promise.resolve(Response.json({ success: false }, { status: 401 }));
+    if (process.env.AUTO_DIGGER_TEST_COSINE_TIMEOUT === '1' && expiredRequests < 2) {
+      expiredRequests += 1;
+      const error = new Error('Synthetic expired request');
+      error.name = 'TimeoutError';
+      return Promise.reject(error);
+    }
     if (url.pathname === '/api/v1/search')
       return Promise.resolve(Response.json({ success: true, data: [source, source] }));
     if (url.pathname === '/api/v1/tracks/lookup')

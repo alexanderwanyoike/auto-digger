@@ -152,3 +152,51 @@ test('remembers Cosine securely, previews recommendations, opens the EP and save
     await desktop.close();
   }
 });
+
+test('shows an accurate Cosine timeout and retries without losing the original EP', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/cosine-desktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('timeout-profile')}`,
+    ],
+    env: {
+      ...Object.fromEntries(
+        Object.entries(process.env).filter(
+          (entry): entry is [string, string] =>
+            typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
+        ),
+      ),
+      AUTO_DIGGER_TEST_COSINE_TIMEOUT: '1',
+    },
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
+    await page.evaluate(async (release) => {
+      await window.cosine?.saveKey('synthetic-cosine-key');
+      await window.crate?.save(release);
+    }, loadedRelease);
+    await page.reload();
+    await page.route('https://i.discogs.com/cosine-fixture.svg', (route) =>
+      route.fulfill({
+        path: resolve('tests/fixtures/record-sleeve.svg'),
+        contentType: 'image/svg+xml',
+      }),
+    );
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    await page.getByRole('button', { name: 'Find similar to Quiet Orbit', exact: true }).click();
+    const results = page.getByRole('region', { name: 'Recommendations', exact: true });
+    await expect(results.getByRole('alert')).toHaveText(
+      'Cosine took too long to respond. Please try again.',
+    );
+    await page.screenshot({ path: test.info().outputPath('timeout.png') });
+    await results.getByRole('button', { name: 'Retry recommendations', exact: true }).click();
+    await expect(results.locator('.recommendation-list > li')).toHaveCount(3);
+    await expect(results.getByRole('alert')).toHaveCount(0);
+    await page.screenshot({ path: test.info().outputPath('recovered.png') });
+    await results.getByRole('button', { name: 'Back to Quiet Orbit EP', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
+  } finally {
+    await desktop.close();
+  }
+});

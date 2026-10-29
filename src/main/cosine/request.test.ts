@@ -36,7 +36,8 @@ test('allows a slow Cosine recommendation response to finish beyond fifteen seco
         'abort',
         () => {
           clearTimeout(timer);
-          reject(init.signal?.reason);
+          const reason: unknown = init.signal?.reason;
+          reject(reason instanceof Error ? reason : new Error('Request aborted'));
         },
         { once: true },
       );
@@ -70,7 +71,7 @@ test('reports an expired Cosine deadline as a timeout without blaming the local 
           'abort',
           () => {
             const reason: unknown = init.signal?.reason;
-            reject(reason);
+            reject(reason instanceof Error ? reason : new Error('Request aborted'));
           },
           { once: true },
         );
