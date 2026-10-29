@@ -4,6 +4,7 @@ import { cosineFailure } from '../../shared/cosine-failure';
 
 export function createCosineRequest(key: string, request: typeof fetch) {
   return async function read<T>(path: string, schema: z.ZodType<T>): Promise<CosineResult<T>> {
+    const signal = AbortSignal.timeout(45000);
     try {
       const response = await request(`https://cosine.club/api/v1/${path}`, {
         headers: {
@@ -12,7 +13,7 @@ export function createCosineRequest(key: string, request: typeof fetch) {
           Accept: 'application/json',
         },
         redirect: 'error',
-        signal: AbortSignal.timeout(15000),
+        signal,
       });
       if ([401, 403].includes(response.status))
         return cosineFailure('unauthorized', 'Cosine rejected the API key. Update it in Settings.');
