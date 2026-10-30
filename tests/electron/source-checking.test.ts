@@ -6,7 +6,7 @@ import { loadedRelease } from '../discogs-fixtures';
   test(`keeps source controls steady while checking at ${width.toString()}px`, async () => {
     const desktop = await electron.launch({
       args: [
-        resolve('tests/encrypted-desktop.cjs'),
+        resolve('tests/delayed-renderer-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       env: {
