@@ -6,7 +6,7 @@ import { loadedRelease } from '../discogs-fixtures';
   test(`keeps source controls steady while checking at ${width.toString()}px`, async () => {
     const desktop = await electron.launch({
       args: [
-        resolve('tests/encrypted-desktop.cjs'),
+        resolve('tests/delayed-renderer-desktop.cjs'),
         `--user-data-dir=${test.info().outputPath('profile')}`,
       ],
       env: {
@@ -21,6 +21,7 @@ import { loadedRelease } from '../discogs-fixtures';
     });
     try {
       const page = await desktop.firstWindow();
+      await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
       await page.setViewportSize({ width, height: 860 });
       await page.evaluate((release) => window.crate?.save(release), loadedRelease);
       await page.reload();
