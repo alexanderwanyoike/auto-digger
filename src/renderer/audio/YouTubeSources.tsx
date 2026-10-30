@@ -6,6 +6,7 @@ import { videoId } from '../../shared/youtube-video-id';
 import type { useAudioLibrary } from './use-audio-library';
 import { useSources } from './use-sources';
 import { SourceRow } from './SourceRow';
+import { SourceGroup } from './SourceGroup';
 import { uniqueVideoIndexes } from './unique-video-indexes';
 
 export function YouTubeSources({
@@ -28,6 +29,25 @@ export function YouTubeSources({
       ? sourceAssignment(release, index, results[index], saved[index], manual[index]).selected
       : null,
   );
+  const selections = release.videos.map(
+    (_video, index) =>
+      sourceAssignment(release, index, results[index], saved[index], manual[index]).selected,
+  );
+  const renderSource = (index: number) => (
+    <SourceRow
+      key={`${release.id.toString()}-${index.toString()}`}
+      release={release}
+      index={index}
+      audio={audio}
+      checked={results[index]}
+      saved={saved[index]}
+      manual={manual[index]}
+      onAssign={(trackIndex) => {
+        setManual((previous) => ({ ...previous, [index]: trackIndex }));
+      }}
+      retry={() => retry(index)}
+    />
+  );
   return (
     <>
       {release.videos.length > 0 && (
@@ -40,21 +60,18 @@ export function YouTubeSources({
       )}
       {release.videos.length ? (
         <ol className="source-list" aria-label="YouTube audio sources">
-          {indexes.map((index) => (
-            <SourceRow
-              key={`${release.id.toString()}-${index.toString()}-${release.videos[index]?.url ?? ''}`}
-              release={release}
-              index={index}
-              audio={audio}
-              checked={results[index]}
-              saved={saved[index]}
-              manual={manual[index]}
-              onAssign={(trackIndex) => {
-                setManual((previous) => ({ ...previous, [index]: trackIndex }));
-              }}
-              retry={() => retry(index)}
+          {release.tracks.map((track, trackIndex) => (
+            <SourceGroup
+              key={`${track.position}-${track.title}`}
+              indexes={indexes.filter((index) => selections[index] === trackIndex)}
+              renderSource={renderSource}
             />
           ))}
+          <SourceGroup
+            unmatched
+            indexes={indexes.filter((index) => selections[index] === null)}
+            renderSource={renderSource}
+          />
         </ol>
       ) : (
         <p className="source-notice">
