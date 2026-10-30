@@ -39,3 +39,12 @@ The build follows Muzo's static-site approach and GitHub's [custom Pages workflo
 Vite's [multi-page build pattern](https://vite.dev/guide/build#multi-page-app) includes all three HTML entries and shares the existing site stylesheet. The guides share contents navigation and horizontally scrollable commands; they need no client JavaScript. The Soulseek guide imports the existing fictional fixture screenshots from `docs/images/`; Vite bundles them into the Pages artifact without a second copy of the source images. Native and Docker routes cover macOS, Windows and Linux, then rejoin one shared configuration section. Native download links were checked against the official slskd 0.26.2 release assets. The Docker example follows slskd's documented folder mapping and configuration with read-only sharing and a persistent restart policy. Platform instructions explain opening Terminal/PowerShell, extracting ZIPs and copying folder addresses. The existing macOS app guide starts with Apple's normal approval route, keeping the project quarantine workaround in a clearly labelled disclosure. No upstream source is copied.
 
 MCP steps use the app's exported Claude Desktop extension and generated local-client configuration. They follow the linked official client documentation. The macOS command follows Jolt's scoped `xattr -dr com.apple.quarantine` pattern, adapted to Auto Digger's installed bundle. Showbiz's broader `xattr -cr` example was checked; this guide removes only the quarantine attribute. The instructions do not run commands or change a client's configuration automatically.
+
+## Cosine Club guide
+
+The recommendations guide lives at `site/cosine/index.html` and publishes to
+`/auto-digger/cosine/`. Home and Setup link to it. It reuses the existing static
+HTML setup layout and Vite multi-page pattern. Images reuse the production
+Cosine verification screenshots, with fictional metadata and no private keys.
+The guide links directly to Cosine's signed-in API page and follows the actual
+Settings labels, recommendation actions and error handling.
