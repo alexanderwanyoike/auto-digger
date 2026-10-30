@@ -32,6 +32,7 @@ export const filtersSchema = z.object({
 });
 export type DigFilters = z.infer<typeof filtersSchema>;
 export const searchInputSchema = z.object({
+  context: z.literal('artist').optional(),
   filters: filtersSchema,
   page: z.number().int().min(1).max(200),
 });

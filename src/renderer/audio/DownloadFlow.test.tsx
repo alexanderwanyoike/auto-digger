@@ -58,16 +58,21 @@ test('shows all sources, suggests track matches, accepts corrections and loads d
   render(<App crate={crate} audioLibrary={bridge} />);
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   const sources = screen.getByRole('region', { name: 'Audio sources' });
-  const rows = within(
-    within(sources).getByRole('list', { name: 'YouTube audio sources' }),
-  ).getAllByRole('listitem');
+  await user.click(within(sources).getByText('1 unmatched upload'));
+  const rows = Array.from(
+    within(sources)
+      .getByRole('list', { name: 'YouTube audio sources' })
+      .querySelectorAll<HTMLLIElement>('li.audio-source'),
+  );
   expect(rows).toHaveLength(2);
   const [first, second] = rows;
   if (!first || !second) throw new Error('Expected two sources');
   expect(within(first).getByLabelText('Discogs track')).toHaveValue('0');
   expect(within(second).getByLabelText('Discogs track')).toHaveValue('');
   await user.selectOptions(within(second).getByLabelText('Discogs track'), '1');
-  await user.click(await within(second).findByRole('button', { name: 'Download audio' }));
+  const assigned = screen.getByTitle('Unknown upload').closest('li');
+  if (!assigned) throw new Error('Expected assigned upload');
+  await user.click(await within(assigned).findByRole('button', { name: 'Download audio' }));
   expect(bridge.download).toHaveBeenCalledWith({ release, videoIndex: 1, trackIndex: 1 });
   const player = screen.getByRole('contentinfo', { name: 'Playback' });
   expect(await within(player).findByText('Evening Mix')).toBeInTheDocument();
@@ -99,15 +104,20 @@ test('keeps saved sources playable offline and lets their track assignment be co
   const user = userEvent.setup();
   render(<App crate={crate} audioLibrary={bridge} />);
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
-  const rows = within(screen.getByRole('list', { name: 'YouTube audio sources' })).getAllByRole(
-    'listitem',
+  await user.click(screen.getByText('1 unmatched upload'));
+  const rows = Array.from(
+    screen
+      .getByRole('list', { name: 'YouTube audio sources' })
+      .querySelectorAll<HTMLLIElement>('li.audio-source'),
   );
   const row = rows[1];
   if (!row) throw new Error('Expected second source');
   expect(within(row).getByRole('button', { name: 'Play track' })).toBeEnabled();
   expect(within(row).getByLabelText('Discogs track')).toHaveValue('');
   await user.selectOptions(within(row).getByLabelText('Discogs track'), '1');
-  await user.click(within(row).getByRole('button', { name: 'Update tags' }));
+  const assigned = screen.getByTitle('Unknown upload').closest('li');
+  if (!assigned) throw new Error('Expected assigned upload');
+  await user.click(within(assigned).getByRole('button', { name: 'Update tags' }));
   expect(bridge.download).toHaveBeenCalledWith({ release, videoIndex: 1, trackIndex: 1 });
   expect(
     within(screen.getByRole('contentinfo', { name: 'Playback' })).getByText('Evening Mix'),
