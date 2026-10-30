@@ -21,6 +21,7 @@ import { loadedRelease } from '../discogs-fixtures';
     });
     try {
       const page = await desktop.firstWindow();
+      await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
       await page.setViewportSize({ width, height: 860 });
       await page.evaluate((release) => window.crate?.save(release), loadedRelease);
       await page.reload();
