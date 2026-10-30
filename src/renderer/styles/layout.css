@@ -174,3 +174,27 @@ h1 {
   letter-spacing: 0;
   white-space: nowrap;
 }
+.preview-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+  letter-spacing: normal;
+}
+.preview-status [role='status'] {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.preview-status-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  padding: 4px;
+}

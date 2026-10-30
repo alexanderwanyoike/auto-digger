@@ -25,7 +25,7 @@ export function YouTubeSources({
     ),
   );
   const assignments = release.videos.map((_video, index) =>
-    results[index]?.ok || (saved[index] && !saved[index].missing)
+    indexes.includes(index) && (results[index]?.ok || (saved[index] && !saved[index].missing))
       ? sourceAssignment(release, index, results[index], saved[index], manual[index]).selected
       : null,
   );
@@ -54,7 +54,7 @@ export function YouTubeSources({
         <ReleaseDownload
           release={release}
           assignments={assignments}
-          checking={release.videos.some((_video, index) => !results[index])}
+          checking={indexes.some((index) => !results[index])}
           audio={audio}
         />
       )}

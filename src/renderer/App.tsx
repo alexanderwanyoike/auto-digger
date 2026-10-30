@@ -18,6 +18,7 @@ import { FilterPanel } from './components/FilterPanel';
 import { DiscoveryPanel } from './components/DiscoveryPanel';
 import { CratePanel } from './components/CratePanel';
 import { PlaybackBar } from './components/PlaybackBar';
+import { PreviewStatus } from './components/PreviewStatus';
 import type { AudioBridge } from '../shared/audio';
 import { useAudioLibrary } from './audio/use-audio-library';
 import appIcon from '../../resources/icons/icon.svg';
@@ -161,10 +162,14 @@ export function App({
         </p>
       )}
       <PlaybackBar audio={audio} />
-      <div className="status-bar">
-        <span>
-          <span className="blue-dot" /> DISCOGS DISCOVERY
-        </span>
+      <div className="status-bar" role="region" aria-label="App status">
+        {audio.preparingPreview ? (
+          <PreviewStatus audio={audio} />
+        ) : (
+          <span>
+            <span className="blue-dot" /> DISCOGS DISCOVERY
+          </span>
+        )}
         <UpdateNotice />
       </div>
       {connectionOpen && (
