@@ -103,3 +103,36 @@ test('builds a discoverable Soulseek guide with project-prefixed links and scree
     }),
   );
 });
+
+test('publishes the recommendations guide with reachable navigation and bundled assets', async () => {
+  await promisify(execFile)('yarn', ['site:build'], { timeout: 30_000 });
+  document.documentElement.innerHTML = await readFile(resolve('site/dist/index.html'), 'utf8');
+  const guide = document.querySelector('.features a[href="cosine/"]');
+  expect(guide).not.toBeNull();
+  document.documentElement.innerHTML = await readFile(
+    resolve('site/dist/setup/index.html'),
+    'utf8',
+  );
+  expect(document.querySelector('a[href="../cosine/"]')).not.toBeNull();
+  document.documentElement.innerHTML = await readFile(
+    resolve('site/dist/cosine/index.html'),
+    'utf8',
+  );
+  const pageUrl = new URL('https://alexanderwanyoike.github.io/auto-digger/cosine/');
+  await Promise.all(
+    Array.from(document.querySelectorAll('a[href], link[href], img[src]')).map(async (element) => {
+      const url = new URL(
+        element.getAttribute('href') ?? element.getAttribute('src') ?? '',
+        pageUrl,
+      );
+      if (url.origin !== pageUrl.origin) return;
+      expect(url.pathname).toMatch(/^\/auto-digger\//);
+      const relative = url.pathname.slice('/auto-digger/'.length);
+      await access(
+        resolve('site/dist', relative.endsWith('/') ? `${relative}index.html` : relative),
+      );
+      if (url.pathname === pageUrl.pathname && url.hash)
+        expect(document.getElementById(url.hash.slice(1))).not.toBeNull();
+    }),
+  );
+});
