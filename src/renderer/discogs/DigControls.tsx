@@ -32,7 +32,11 @@ export function DigControls({ session }: { session: ReturnType<typeof useDiscogs
           {session.digging.limited && <span> · Limited to Discogs’ first 10,000 results.</span>}
         </p>
       )}
-      <p>Uses the last applied search filters.</p>
+      <p>
+        {session.artistBrowse
+          ? 'Uses only the artist. Your digging filters are kept.'
+          : 'Uses the last applied search filters.'}
+      </p>
     </div>
   );
 }

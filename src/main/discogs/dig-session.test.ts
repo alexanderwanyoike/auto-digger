@@ -64,3 +64,44 @@ test('applying different filters resets history even when returning before the n
     value: { seen: 1, release: { id: 12 } },
   });
 });
+
+test('artist searches, pagination and digging preserve the original unseen-release history', async () => {
+  const request = vi.fn<typeof fetch>().mockImplementation((input) => {
+    const url = typeof input === 'string' ? input : '';
+    if (url.endsWith('/oauth/identity')) return Promise.resolve(Response.json(identityResponse));
+    const body = url.includes('/database/search?')
+      ? {
+          pagination: {
+            page: Number(new URL(url).searchParams.get('page')),
+            pages: 1,
+            per_page: 50,
+            items: 1,
+          },
+          results: [{ id: 12, title: 'Quiet Orbit EP' }],
+        }
+      : releaseResponse;
+    return Promise.resolve(Response.json(body));
+  });
+  const session = createDiscogsSession(request);
+  const filters = { style: ['Deep House'] };
+  await session.connect('token');
+  expect(await session.dig({ filters })).toMatchObject({ ok: true, value: { seen: 1 } });
+  await session.search({ filters: { artist: 'Low Tide' }, page: 1, context: 'artist' });
+  await session.search({ filters: { artist: 'Low Tide' }, page: 2, context: 'artist' });
+  expect(await session.dig({ filters: { artist: 'Low Tide' }, context: 'artist' })).toMatchObject({
+    ok: true,
+    value: { seen: 1 },
+  });
+  expect(await session.dig({ filters })).toMatchObject({ ok: false, error: { code: 'exhausted' } });
+  expect(await session.dig({ filters: { artist: 'Low Tide' }, context: 'artist' })).toMatchObject({
+    ok: false,
+    error: { code: 'exhausted' },
+  });
+  session.disconnect();
+  await session.connect('token');
+  expect(await session.dig({ filters })).toMatchObject({ ok: true, value: { seen: 1 } });
+  expect(await session.dig({ filters: { artist: 'Low Tide' }, context: 'artist' })).toMatchObject({
+    ok: true,
+    value: { seen: 1 },
+  });
+});
