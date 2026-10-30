@@ -1,6 +1,8 @@
 import { app, BrowserWindow, nativeImage } from 'electron';
 import { join } from 'node:path';
 import { mkdtemp } from 'node:fs/promises';
+import { createCosineService } from './cosine/service';
+import { registerCosineHandlers } from './cosine/register-handlers';
 import { createAudioPreviews } from './audio/previews';
 import { createApplicationUpdates } from './updates/runtime';
 import { registerUpdateHandlers } from './updates/register-handlers';
@@ -31,6 +33,7 @@ import { createResearchService } from './research/service';
 import { createResearchRuntime } from './research/runtime';
 import { registerResearchHandlers } from './research/register-handlers';
 
+let cosine: ReturnType<typeof createCosineService> | undefined;
 let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
 let crateStore: ReturnType<typeof createLegacyCrateStore> | undefined;
 let catalogueStore: ReturnType<typeof createCatalogueStore> | undefined;
@@ -109,6 +112,10 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     registerPreferencesHandlers(window, catalogueStore.preferences);
     registerSavedFiltersHandlers(window, catalogueStore.filters);
     registerStoreLinkHandlers(window);
+    cosine ??= createCosineService(
+      createTokenStore(join(app.getPath('userData'), 'cosine-key.bin'), electronEncryption),
+    );
+    registerCosineHandlers(window, cosine);
     updates ??= createApplicationUpdates();
     registerUpdateHandlers(window, updates);
     discogsSession ??= createRememberedSession(

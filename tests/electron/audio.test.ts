@@ -96,9 +96,12 @@ test('plays downloaded sources in the bottom bar with seek, volume and offline t
     await page.getByRole('button', { name: 'Open Quiet Orbit EP' }).click();
     const sources = page.getByRole('region', { name: 'Audio sources' });
     const sourceList = sources.getByRole('list', { name: 'YouTube audio sources' });
-    const first = sourceList.getByRole('listitem').nth(0);
-    const second = sourceList.getByRole('listitem').nth(1);
-    await expect(sourceList.getByRole('listitem')).toHaveCount(3);
+    await sourceList.getByText('2 unmatched uploads', { exact: true }).click();
+    const first = sourceList.locator('li.audio-source').nth(0);
+    const second = sourceList
+      .locator('li.audio-source')
+      .filter({ has: page.getByTitle('Unknown upload', { exact: true }) });
+    await expect(sourceList.locator('li.audio-source')).toHaveCount(3);
     await expect(first.getByLabel('Discogs track')).toHaveValue('0');
     await second.getByLabel('Discogs track').selectOption('');
     await expect(first.getByRole('button', { name: 'Download audio' })).toBeEnabled();

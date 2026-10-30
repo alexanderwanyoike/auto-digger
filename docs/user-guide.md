@@ -32,6 +32,14 @@ Choose the download icon to save a source. It becomes a spinner with measured pr
 
 Private, removed or restricted sources show a readable error with **Check again**. yt-dlp, FFmpeg and FFprobe must be installed and available on `PATH`; update yt-dlp if extraction stops working.
 
+## Find similar tracks
+
+Open Settings, scroll to Cosine Club, paste your API key and choose **Save Cosine key**. Get a key from [Cosine Club's API page](https://cosine.club/account/api) after signing in. Auto Digger remembers it on this device using operating-system encryption.
+
+Open a record, choose YouTube under Audio sources and select **Find similar** beside an upload. Preview the suggestions, refine by year and choose **Open release** for linked Discogs releases. Check the mix before saving a release to your crate. Back links preserve the recommendations while you explore. Preview requires both a YouTube source and a linked Discogs release. Results without a linked release cannot be opened or previewed.
+
+See the [Cosine Club setup guide](https://alexanderwanyoike.github.io/auto-digger/cosine/) for illustrated steps and troubleshooting.
+
 ## Saved audio and the player
 
 Files initially live in the operating system's `Music/Auto Digger` folder, with names such as `Artist - Track [release-video].yt.mp3`. Downloads use best-effort Discogs artist, album, year, genre/style and matched-track tags, plus available front-cover artwork. Missing metadata leaves usable audio with a notice. **Update tags** can correct a saved assignment offline.

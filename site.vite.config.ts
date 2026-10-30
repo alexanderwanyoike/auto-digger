@@ -14,6 +14,7 @@ export default defineConfig({
         home: resolve(import.meta.dirname, 'site/index.html'),
         setup: resolve(import.meta.dirname, 'site/setup/index.html'),
         soulseek: resolve(import.meta.dirname, 'site/soulseek/index.html'),
+        cosine: resolve(import.meta.dirname, 'site/cosine/index.html'),
       },
     },
   },

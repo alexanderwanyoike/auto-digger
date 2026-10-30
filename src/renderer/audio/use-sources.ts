@@ -2,13 +2,17 @@ import { useEffect, useState } from 'react';
 import type { AudioBridge, AudioResult, AudioSource } from '../../shared/audio';
 import type { DiscogsRelease } from '../../shared/discogs';
 import { audioFailure } from '../../shared/audio-failure';
+import { uniqueVideoIndexes } from './unique-video-indexes';
 
 export function useSources(release: DiscogsRelease, bridge: AudioBridge | undefined) {
   const [results, setResults] = useState<Record<number, AudioResult<AudioSource> | null>>({});
   useEffect(() => {
     let active = true;
     setResults({});
-    async function check(index: number): Promise<void> {
+    const indexes = uniqueVideoIndexes(release.videos);
+    async function check(position: number): Promise<void> {
+      const index = indexes[position];
+      if (index === undefined) return;
       const video = release.videos[index];
       if (!video || !bridge) return;
       let result: AudioResult<AudioSource>;
@@ -19,7 +23,7 @@ export function useSources(release: DiscogsRelease, bridge: AudioBridge | undefi
       }
       if (!active) return;
       setResults((previous) => ({ ...previous, [index]: result }));
-      await check(index + 1);
+      await check(position + 1);
     }
     check(0).catch(() => undefined);
     return () => {

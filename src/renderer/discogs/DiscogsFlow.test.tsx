@@ -138,3 +138,9 @@ test('retries a saved connection without asking for the token again', async () =
   expect(await screen.findByRole('button', { name: 'Connected as quiet-digger' })).toBeEnabled();
   expect(bridge.connect).not.toHaveBeenCalled();
 });
+
+test('keeps plain artist credits separated when release details have no browsing callback', async () => {
+  const { ReleaseDetails } = await import('./ReleaseDetails');
+  render(<ReleaseDetails release={{ ...loadedRelease, artists: ['Low Tide', 'Still Waters'] }} />);
+  expect(screen.getByText('Low Tide, Still Waters')).toBeVisible();
+});

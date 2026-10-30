@@ -9,6 +9,8 @@ if (id === 'xxxxxxxxxxx') {
   process.exit(1);
 }
 if (args.includes('--dump-single-json')) {
+  const delay = Number(process.env.AUTO_DIGGER_TEST_PROBE_DELAY || '0');
+  if (delay > 0) await new Promise((done) => setTimeout(done, delay));
   process.stdout.write(
     JSON.stringify({
       id,

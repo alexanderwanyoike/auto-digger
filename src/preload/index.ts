@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import { createCosineBridge } from './cosine-bridge';
 import { createSavedFiltersBridge } from './saved-filters-bridge';
 import { createUpdatesBridge } from './updates-bridge';
 import { createResearchAccessBridge } from './research-access-bridge';
@@ -111,6 +112,14 @@ contextBridge.exposeInMainWorld(
 contextBridge.exposeInMainWorld(
   'savedFilters',
   createSavedFiltersBridge(async (channel, input) => {
+    const result: unknown = await ipcRenderer.invoke(channel, input);
+    return result;
+  }),
+);
+
+contextBridge.exposeInMainWorld(
+  'cosine',
+  createCosineBridge(async (channel, input) => {
     const result: unknown = await ipcRenderer.invoke(channel, input);
     return result;
   }),
