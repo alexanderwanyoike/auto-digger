@@ -3,6 +3,7 @@ import { filtersSchema } from './search';
 import { releaseSchema } from './discogs';
 
 export const digInputSchema = z.object({
+  context: z.literal('artist').optional(),
   filters: filtersSchema,
   reset: z.boolean().default(false),
 });

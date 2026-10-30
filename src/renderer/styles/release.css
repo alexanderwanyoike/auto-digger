@@ -190,3 +190,29 @@
     padding: 18px;
   }
 }
+.artist-browse-link {
+  border: 0;
+  padding: 0;
+  margin-right: 8px;
+  font: inherit;
+  color: inherit;
+  background: none;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.artist-browse-link:hover:not(:disabled),
+.artist-browse-link:focus-visible {
+  color: var(--blue);
+  text-decoration-color: currentColor;
+}
+.artist-browse-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+}

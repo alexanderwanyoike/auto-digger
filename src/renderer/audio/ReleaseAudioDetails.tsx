@@ -9,13 +9,21 @@ export function ReleaseAudioDetails({
   release,
   audio,
   crate,
+  onBrowseArtist,
+  artistBrowsingDisabled,
 }: {
   release: DiscogsRelease;
   audio: ReturnType<typeof useAudioLibrary>;
   crate: ReturnType<typeof useCrate>;
+  onBrowseArtist: (artist: string) => void;
+  artistBrowsingDisabled: boolean;
 }) {
   return (
-    <ReleaseDetails release={release}>
+    <ReleaseDetails
+      release={release}
+      onBrowseArtist={onBrowseArtist}
+      artistBrowsingDisabled={artistBrowsingDisabled}
+    >
       <SaveToCrate release={release} crate={crate} />
       <DownloadSources release={release} audio={audio} />
     </ReleaseDetails>

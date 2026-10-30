@@ -20,6 +20,19 @@ export function ReleaseWorkspace({
   const [formError, setFormError] = useState<string | null>(null);
   return (
     <section className="release-workspace" aria-label="Discogs releases">
+      {session.artistBrowse && (
+        <div className="artist-browse-context">
+          <span>Artist search · {session.artistBrowse.artist}</span>
+          <button
+            type="button"
+            className="secondary-button"
+            disabled={session.busy}
+            onClick={session.returnFromArtist}
+          >
+            Back to {session.artistBrowse.origin.release.title}
+          </button>
+        </div>
+      )}
       <form
         className="release-lookup"
         onSubmit={(event) => {
@@ -80,6 +93,10 @@ export function ReleaseWorkspace({
         <ReleaseAudioDetails
           key={`${session.release.id.toString()}-${session.release.artworkUrl ?? ''}`}
           release={session.release}
+          artistBrowsingDisabled={!session.account || session.busy}
+          onBrowseArtist={(artist) => {
+            session.browseArtist(artist).catch(() => undefined);
+          }}
           crate={crate}
           audio={audio}
         />

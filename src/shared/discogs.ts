@@ -39,15 +39,29 @@ export const releaseSchema = z.object({
   formats: z.array(z.string()),
   artworkUrl: z.string().nullable(),
   tracks: z.array(z.object({ position: z.string(), title: z.string(), duration: z.string() })),
-  videos: z.array(z.object({ title: z.string(), url: z.string() })),
+  videos: z.array(
+    z.object({
+      title: z.string(),
+      url: z.string(),
+      cosineTrackIndex: z.number().int().nonnegative().nullable().optional(),
+    }),
+  ),
 });
 export type DiscogsRelease = z.infer<typeof releaseSchema>;
 
 export interface DiscogsBridge {
   account: () => Promise<DiscogsResult<DiscogsAccount | null>>;
   connect: (token: string) => Promise<DiscogsResult<DiscogsAccount>>;
-  dig: (input: { filters: DigFilters; reset: boolean }) => Promise<DiscogsResult<DigResult>>;
-  search: (input: { filters: DigFilters; page: number }) => Promise<DiscogsResult<SearchPage>>;
+  dig: (input: {
+    filters: DigFilters;
+    reset: boolean;
+    context?: 'artist';
+  }) => Promise<DiscogsResult<DigResult>>;
+  search: (input: {
+    filters: DigFilters;
+    page: number;
+    context?: 'artist';
+  }) => Promise<DiscogsResult<SearchPage>>;
   loadRelease: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
   disconnect: () => Promise<DiscogsResult<undefined>>;
   openSettings: () => Promise<DiscogsResult<undefined>>;

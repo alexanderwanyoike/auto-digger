@@ -1,3 +1,5 @@
+import type { useRecommendations } from '../recommendations/use-recommendations';
+import { CosineSettings } from './CosineSettings';
 import type { useDiscogs } from '../discogs/use-discogs';
 import type { Appearance } from '../theme/preferences';
 import type { usePreferences } from './use-preferences';
@@ -13,7 +15,9 @@ export function SettingsPage({
   onAppearance,
   onConnect,
   preferences,
+  recommendations,
 }: {
+  recommendations: ReturnType<typeof useRecommendations>;
   preferences: ReturnType<typeof usePreferences>;
   session: ReturnType<typeof useDiscogs>;
   appearance: Appearance;
@@ -46,6 +50,7 @@ export function SettingsPage({
       </div>
       <DownloadSettings preferences={preferences} />
       <SoulseekSettings />
+      <CosineSettings model={recommendations} />
       <ResearchSettings />
       <AboutSettings />
       {preferences.error && (

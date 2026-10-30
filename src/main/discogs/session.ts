@@ -15,18 +15,22 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
   let account: DiscogsAccount | null = null;
   let acceptedToken: string | null = null;
   let revision = 0;
-  const digger = createDigger(
-    (filters, page) => searchDiscogs({ filters, page }, acceptedToken ?? '', request),
-    (id) =>
-      requestDiscogs(
-        `/releases/${id.toString()}`,
-        acceptedToken ?? '',
-        releaseMetadataSchema,
-        request,
-      ),
-  );
+  const createSessionDigger = () =>
+    createDigger(
+      (filters, page) => searchDiscogs({ filters, page }, acceptedToken ?? '', request),
+      (id) =>
+        requestDiscogs(
+          `/releases/${id.toString()}`,
+          acceptedToken ?? '',
+          releaseMetadataSchema,
+          request,
+        ),
+    );
+  const digger = createSessionDigger();
+  const artistDigger = createSessionDigger();
   const clear = () => {
     digger.reset();
+    artistDigger.reset();
     revision += 1;
     account = null;
     acceptedToken = null;
@@ -46,7 +50,8 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       const parsed = digInputSchema.safeParse(input);
       if (!parsed.success) return discogsFailure('invalid-input', 'Use valid digging filters.');
       const started = revision;
-      const result = await digger.next(parsed.data.filters, parsed.data.reset);
+      const activeDigger = parsed.data.context === 'artist' ? artistDigger : digger;
+      const result = await activeDigger.next(parsed.data.filters, parsed.data.reset);
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();
@@ -66,7 +71,10 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();
-      if (result.ok) digger.apply(parsed.data.filters);
+      if (result.ok) {
+        const activeDigger = parsed.data.context === 'artist' ? artistDigger : digger;
+        activeDigger.apply(parsed.data.filters);
+      }
       return result;
     },
     async researchSearch(input: unknown, signal?: AbortSignal): Promise<DiscogsResult<SearchPage>> {

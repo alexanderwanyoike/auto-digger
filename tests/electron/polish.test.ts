@@ -85,7 +85,9 @@ test('keeps source controls and row positions fixed while a download reports pro
     });
     await page.reload();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP' }).click();
-    const rows = page.getByRole('list', { name: 'YouTube audio sources' }).getByRole('listitem');
+    const list = page.getByRole('list', { name: 'YouTube audio sources' });
+    await list.getByText('1 alternate upload', { exact: true }).click();
+    const rows = list.locator('li.audio-source');
     await expect(rows).toHaveCount(2);
     const first = rows.nth(0);
     const second = rows.nth(1);

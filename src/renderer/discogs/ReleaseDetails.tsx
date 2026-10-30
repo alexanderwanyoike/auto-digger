@@ -6,9 +6,13 @@ import type { DiscogsRelease } from '../../shared/discogs';
 export function ReleaseDetails({
   release,
   children,
+  onBrowseArtist,
+  artistBrowsingDisabled = false,
 }: {
   release: DiscogsRelease;
   children?: ReactNode;
+  onBrowseArtist?: (artist: string) => void;
+  artistBrowsingDisabled?: boolean;
 }) {
   return (
     <article className="release-details" aria-labelledby="release-title">
@@ -17,7 +21,24 @@ export function ReleaseDetails({
         <div className="release-credits">
           <span className="eyebrow blue-text">DISCOGS / r{release.id}</span>
           <h2 id="release-title">{release.title}</h2>
-          <p className="release-artist">{release.artists.join(', ') || 'Artist not listed'}</p>
+          <p className="release-artist">
+            {onBrowseArtist && release.artists.length
+              ? release.artists.map((artist) => (
+                  <button
+                    key={artist}
+                    type="button"
+                    className="artist-browse-link"
+                    aria-label={`Browse releases by ${artist}`}
+                    disabled={artistBrowsingDisabled}
+                    onClick={() => {
+                      onBrowseArtist(artist);
+                    }}
+                  >
+                    {artist}
+                  </button>
+                ))
+              : release.artists.join(', ') || 'Artist not listed'}
+          </p>
           <p>
             {release.year ?? 'Year not listed'} · {release.country ?? 'Country not listed'}
           </p>
@@ -70,7 +91,10 @@ export function ReleaseDetails({
       )}
       <p className="video-note">
         {release.videos.length} YouTube {release.videos.length === 1 ? 'video' : 'videos'} attached
-        · Videos are provided by Discogs contributors.
+        ·{' '}
+        {release.videos.some((video) => video.cosineTrackIndex !== undefined)
+          ? 'Includes a Cosine recommendation. Check the version before saving.'
+          : 'Videos are provided by Discogs contributors.'}
       </p>
     </article>
   );
