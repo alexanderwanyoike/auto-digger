@@ -91,7 +91,10 @@ export function ReleaseDetails({
       )}
       <p className="video-note">
         {release.videos.length} YouTube {release.videos.length === 1 ? 'video' : 'videos'} attached
-        · Videos are provided by Discogs contributors.
+        ·{' '}
+        {release.videos.some((video) => video.cosineTrackIndex !== undefined)
+          ? 'Includes a Cosine recommendation. Check the version before saving.'
+          : 'Videos are provided by Discogs contributors.'}
       </p>
     </article>
   );

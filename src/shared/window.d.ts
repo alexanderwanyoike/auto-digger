@@ -1,3 +1,4 @@
+import type { CosineBridge } from './cosine';
 import type { SavedFiltersBridge } from './saved-filters';
 import type { UpdatesBridge } from './updates';
 import type { ResearchAccessBridge } from './research-access';
@@ -13,6 +14,7 @@ import type { SoulseekBridge } from './soulseek';
 
 declare global {
   interface Window {
+    cosine?: CosineBridge;
     audioPreviews?: AudioPreviewBridge;
     soulseek?: SoulseekBridge;
     savedFilters?: SavedFiltersBridge;

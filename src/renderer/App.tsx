@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
+import { useRecommendations } from './recommendations/use-recommendations';
+import { RecommendationsContext } from './recommendations/recommendations-context';
+import { RecommendationsView } from './recommendations/RecommendationsView';
 import { useSavedFilters } from './filters/use-saved-filters';
 import { UpdateNotice } from './components/UpdateNotice';
 import { usePreferences } from './sections/use-preferences';
@@ -48,8 +51,21 @@ export function App({
   const audio = useAudioLibrary(audioBridge);
   const crate = useCrate(crateBridge, catalogue);
   const session = useDiscogs(discogs);
+  const recommendations = useRecommendations(session.release, session.openSavedRelease, audio);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const { appearance, selectAppearance, storageAvailable } = useAppearance();
+  const recommendationActions = useMemo(
+    () => ({ enabled: recommendations.configured, find: recommendations.find }),
+    [recommendations.configured, recommendations.find],
+  );
+  let desk = <DiscoveryPanel />;
+  if (session.account || session.release)
+    desk = (
+      <RecommendationsContext.Provider value={recommendationActions}>
+        <ReleaseWorkspace session={session} crate={crate} audio={audio} />
+      </RecommendationsContext.Provider>
+    );
+  if (recommendations.view === 'list') desk = <RecommendationsView model={recommendations} />;
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -117,7 +133,12 @@ export function App({
             <SectionIcon size={17} aria-hidden="true" />
             <h1>{section}</h1>
           </div>
-          {section === 'Digging desk' && (
+          {section === 'Digging desk' && recommendations.view === 'release' && (
+            <button type="button" className="source-folder" onClick={recommendations.back}>
+              Back to recommendations
+            </button>
+          )}
+          {section === 'Digging desk' && recommendations.view !== 'release' && (
             <span className="toolbar-note">A fresh pair of ears.</span>
           )}
         </div>
@@ -126,6 +147,7 @@ export function App({
             disabled={session.busy}
             crate={crate}
             onOpen={(release) => {
+              recommendations.dismiss();
               session.openSavedRelease(release);
               setSection('Digging desk');
             }}
@@ -135,6 +157,7 @@ export function App({
         {section === 'Settings' && (
           <SettingsPage
             preferences={preferences}
+            recommendations={recommendations}
             session={session}
             appearance={appearance}
             onAppearance={selectAppearance}
@@ -147,12 +170,15 @@ export function App({
         {section === 'Digging desk' && (
           <div className="workspace">
             <FilterPanel session={session} filters={filters} />
-            {session.account || session.release ? (
-              <ReleaseWorkspace session={session} crate={crate} audio={audio} />
-            ) : (
-              <DiscoveryPanel />
-            )}
-            <CratePanel crate={crate} disabled={session.busy} onOpen={session.openSavedRelease} />
+            {desk}
+            <CratePanel
+              crate={crate}
+              disabled={session.busy}
+              onOpen={(release) => {
+                recommendations.dismiss();
+                session.openSavedRelease(release);
+              }}
+            />
           </div>
         )}
       </main>

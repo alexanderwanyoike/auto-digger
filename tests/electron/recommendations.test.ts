@@ -1,0 +1,202 @@
+import { _electron as electron, expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import NodeID3 from 'node-id3';
+import { loadedRelease } from '../discogs-fixtures';
+
+test('remembers Cosine securely, previews recommendations, opens the EP and saves the cached upload', async () => {
+  const profile = test.info().outputPath('profile');
+  const log = test.info().outputPath('requests.log');
+  const cosineLog = test.info().outputPath('cosine.log');
+  const launch = () =>
+    electron.launch({
+      args: [resolve('tests/cosine-desktop.cjs'), `--user-data-dir=${profile}`],
+      env: {
+        ...Object.fromEntries(
+          Object.entries(process.env).filter(
+            (entry): entry is [string, string] =>
+              typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
+          ),
+        ),
+        AUTO_DIGGER_TEST_DOWNLOAD_LOG: log,
+        AUTO_DIGGER_TEST_COSINE_LOG: cosineLog,
+      },
+    });
+  let desktop = await launch();
+  try {
+    let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
+    await page.getByLabel('Personal token').fill('synthetic-discogs-token');
+    await page.getByRole('button', { name: 'Connect account', exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }),
+    ).toBeEnabled();
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    const settings = page.getByRole('region', { name: 'Cosine Club settings' });
+    await settings.getByLabel('Cosine Club API key').fill('synthetic-cosine-key');
+    await settings.getByRole('button', { name: 'Save Cosine key', exact: true }).click();
+    await expect(settings.getByText('Cosine key saved.', { exact: true })).toBeVisible();
+    await expect(settings.getByLabel('Cosine Club API key')).toHaveValue('');
+    expect((await readFile(join(profile, 'cosine-key.bin'))).toString()).not.toContain(
+      'synthetic-cosine-key',
+    );
+    await page.evaluate((release) => window.crate?.save(release), loadedRelease);
+    await desktop.close();
+    desktop = await launch();
+    page = await desktop.firstWindow();
+    await page.route('https://i.discogs.com/cosine-fixture.svg', (route) =>
+      route.fulfill({
+        path: resolve('tests/fixtures/record-sleeve.svg'),
+        contentType: 'image/svg+xml',
+      }),
+    );
+    await page.getByLabel('Label', { exact: true }).fill('Keep this label');
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    const similarButton = page.getByRole('button', {
+      name: 'Find similar to Quiet Orbit',
+      exact: true,
+    });
+    await expect(similarButton).toHaveText('Find similar');
+    await similarButton.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: test.info().outputPath('find-similar.png') });
+    await similarButton.click();
+    const results = page.getByRole('region', { name: 'Recommendations', exact: true });
+    await expect(results.locator('.recommendation-list > li')).toHaveCount(3);
+    await expect(results.getByText('Based on 2 confirmed matches', { exact: true })).toBeVisible();
+    await expect(results.getByText('New Dawn', { exact: true })).toBeVisible();
+    const requests = (await readFile(cosineLog, 'utf8')).trim().split('\n');
+    expect(requests[0]).toContain('/search?q=Low+Tide+-+Quiet+Orbit');
+    expect(requests[1]).toContain('/tracks/lookup?');
+    expect(requests.filter((request) => request.includes('/similar?'))).toHaveLength(2);
+    const cover = results.getByRole('img', { name: 'Later EP record sleeve' });
+    await expect(cover).toHaveAttribute('src', 'https://i.discogs.com/cosine-fixture.svg');
+    await expect
+      .poll(() =>
+        cover.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0),
+      )
+      .toBe(true);
+    await expect(
+      results.getByRole('button', { name: 'Open release for Later Orbit (Dub Mix)', exact: true }),
+    ).toBeDisabled();
+    await results.getByText('Refine recommendations', { exact: true }).click();
+    await results.getByLabel('From year').fill('2000');
+    await results.getByLabel('To year').fill('2010');
+    await results.getByRole('button', { name: 'Refresh recommendations', exact: true }).click();
+    await results
+      .getByRole('button', { name: 'Preview Later Orbit (Club Mix)', exact: true })
+      .click();
+    await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible();
+    expect(await page.evaluate(() => window.audioLibrary?.list())).toEqual({ ok: true, value: [] });
+    await expect(
+      results.getByRole('button', { name: 'Open release for Later Orbit (Club Mix)', exact: true }),
+    ).toBeEnabled();
+    await page.screenshot({ path: test.info().outputPath('recommendations.png') });
+    await results
+      .getByRole('button', { name: 'Open release for Later Orbit (Club Mix)', exact: true })
+      .click();
+    await expect(page.getByRole('heading', { name: 'Later EP', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Download audio', exact: true }).click();
+    await expect
+      .poll(() => page.evaluate(() => window.audioLibrary?.list()))
+      .toMatchObject({
+        ok: true,
+        value: [
+          {
+            title: 'Later Orbit (Club Mix)',
+            artist: 'Still Waters',
+            album: 'Later EP',
+            trackIndex: 0,
+          },
+        ],
+      });
+    const saved = await page.evaluate(() => window.audioLibrary?.list());
+    if (!saved?.ok || !saved.value[0]) throw new Error('Expected saved recommendation');
+    const music = await desktop.evaluate(({ app }) => app.getPath('music'));
+    expect(
+      await NodeID3.Promise.read(
+        join(
+          music,
+          'Auto Digger',
+          'YouTube',
+          'Electronic',
+          'Deep House',
+          '2002',
+          saved.value[0].filename,
+        ),
+      ),
+    ).toMatchObject({
+      title: 'Later Orbit (Club Mix)',
+      artist: 'Still Waters',
+      album: 'Later EP',
+      genre: 'Deep House',
+    });
+    expect((await readFile(log, 'utf8')).trim().split('\n')).toHaveLength(1);
+    await page.screenshot({ path: test.info().outputPath('linked-release.png') });
+    await page.getByRole('button', { name: 'Back to recommendations', exact: true }).click();
+    await results.getByText('Refine recommendations', { exact: true }).click();
+    await expect(results.getByLabel('From year')).toHaveValue('2000');
+    await results.getByRole('button', { name: 'Back to Quiet Orbit EP', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
+    await expect(page.getByLabel('Label', { exact: true })).toHaveValue('Keep this label');
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.getByRole('button', { name: 'Forget Cosine key', exact: true }).click();
+    expect(await page.evaluate(() => window.cosine?.status())).toEqual({
+      ok: true,
+      value: { configured: false },
+    });
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Find similar to Quiet Orbit', exact: true }),
+    ).toHaveCount(0);
+  } finally {
+    await desktop.close();
+  }
+});
+
+test('shows an accurate Cosine timeout and retries without losing the original EP', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/cosine-desktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('timeout-profile')}`,
+    ],
+    env: {
+      ...Object.fromEntries(
+        Object.entries(process.env).filter(
+          (entry): entry is [string, string] =>
+            typeof entry[1] === 'string' && entry[0] !== 'ELECTRON_RUN_AS_NODE',
+        ),
+      ),
+      AUTO_DIGGER_TEST_COSINE_TIMEOUT: '1',
+    },
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
+    await page.evaluate(async (release) => {
+      await window.cosine?.saveKey('synthetic-cosine-key');
+      await window.crate?.save(release);
+    }, loadedRelease);
+    await page.reload();
+    await page.route('https://i.discogs.com/cosine-fixture.svg', (route) =>
+      route.fulfill({
+        path: resolve('tests/fixtures/record-sleeve.svg'),
+        contentType: 'image/svg+xml',
+      }),
+    );
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    await page.getByRole('button', { name: 'Find similar to Quiet Orbit', exact: true }).click();
+    const results = page.getByRole('region', { name: 'Recommendations', exact: true });
+    await expect(results.getByRole('alert')).toHaveText(
+      'Cosine took too long to respond. Please try again.',
+    );
+    await page.screenshot({ path: test.info().outputPath('timeout.png') });
+    await results.getByRole('button', { name: 'Retry recommendations', exact: true }).click();
+    await expect(results.locator('.recommendation-list > li')).toHaveCount(3);
+    await expect(results.getByRole('alert')).toHaveCount(0);
+    await page.screenshot({ path: test.info().outputPath('recovered.png') });
+    await results.getByRole('button', { name: 'Back to Quiet Orbit EP', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
+  } finally {
+    await desktop.close();
+  }
+});
