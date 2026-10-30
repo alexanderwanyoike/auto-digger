@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cosine Club setup | Auto Digger</title>
+    <meta
+      name="description"
+      content="Set up Cosine Club recommendations in Auto Digger. Add your key, find similar tracks and open linked Discogs releases."
+    />
+    <meta name="theme-color" content="#111316" />
+    <link rel="canonical" href="https://alexanderwanyoike.github.io/auto-digger/cosine/" />
+    <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="../setup/setup.css" />
+  </head>
+  <body class="setup-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header wrap">
+      <a class="brand" href="../" aria-label="Auto Digger home"
+        ><img src="../icon.svg" alt="" width="32" height="32" />Auto Digger</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="../#features">Features</a><a href="../#research">MCP</a
+        ><a href="../#get-started">Downloads</a><a href="../setup/">Setup</a
+        ><a href="https://github.com/alexanderwanyoike/auto-digger">GitHub</a>
+      </nav>
+    </header>
+    <main id="main" class="setup-layout wrap" tabindex="-1">
+      <aside class="setup-contents">
+        <nav aria-label="On this page">
+          <p>On this page</p>
+          <a href="#key">Get your Cosine key</a>
+          <a href="#connect">Connect Auto Digger</a>
+          <a href="#similar">Find similar tracks</a>
+          <a href="#releases">Open a release</a>
+          <a href="#troubleshooting">Troubleshooting</a>
+        </nav>
+      </aside>
+      <article class="setup-copy">
+        <header class="setup-intro">
+          <p><a href="../setup/">Setup</a> / Recommendations</p>
+          <h1>Cosine Club setup</h1>
+          <p>Follow a track you like to more records with a similar sound.</p>
+          <p>
+            These steps are the same on Mac, Windows and Linux. You need Auto Digger 0.1.9 or later,
+            an internet connection and a Cosine Club account.
+          </p>
+        </header>
+        <section id="key" aria-labelledby="key-title">
+          <h2 id="key-title">1. Get your Cosine key</h2>
+          <ol>
+            <li>
+              Open <a href="https://cosine.club/account/api">Cosine Club's API page</a> in your
+              browser.
+            </li>
+            <li>
+              Sign in to your Cosine Club account. If you do not have one, choose
+              <strong>Sign up here</strong> on its sign-in page.
+            </li>
+            <li>Follow the instructions on that page to get an API key, then copy the key.</li>
+          </ol>
+          <p>
+            An API key is a private access code that lets Auto Digger ask Cosine Club for
+            recommendations. It is different from your account password. Keep it private.
+          </p>
+        </section>
+        <section id="connect" aria-labelledby="connect-title">
+          <h2 id="connect-title">2. Connect Auto Digger</h2>
+          <ol>
+            <li>
+              Open Auto Digger and click the <strong>Settings cog</strong> at the right of the
+              navigation bar.
+            </li>
+            <li>Scroll to <strong>Cosine Club</strong>.</li>
+            <li>
+              Paste your key into <strong>Cosine Club API key</strong> and choose
+              <strong>Save Cosine key</strong>.
+            </li>
+            <li>Look for <strong>Cosine key saved.</strong> The field clears after saving.</li>
+          </ol>
+          <p>
+            Auto Digger remembers the key on this computer using operating-system encryption. An
+            empty field after saving is normal. To replace it, paste a new key and save again.
+            <strong>Forget Cosine key</strong> removes the saved connection.
+          </p>
+          <figure class="app-figure">
+            <img
+              src="../../docs/verification/cosine-recommendations/settings.png"
+              width="1440"
+              height="1000"
+              alt="Auto Digger Settings showing the Cosine Club API key field, Save Cosine key button and saved confirmation"
+              loading="lazy"
+            />
+            <figcaption>
+              The saved key stays hidden. These screenshots use a separate demo profile.
+            </figcaption>
+          </figure>
+        </section>
+        <section id="similar" aria-labelledby="similar-title">
+          <h2 id="similar-title">3. Find similar tracks</h2>
+          <ol>
+            <li>
+              Return to <strong>Digging desk</strong> and open a record, either from your crate or a
+              Discogs search.
+            </li>
+            <li>In <strong>Audio sources</strong>, choose <strong>YouTube</strong>.</li>
+            <li>
+              Find the track you want to explore. If it has alternate uploads, expand that track's
+              row to choose another version.
+            </li>
+            <li>
+              Wait for the source check to finish, then choose <strong>Find similar</strong> beside
+              its preview and download controls.
+            </li>
+            <li>
+              Preview the recommendations with their play buttons. Previewing keeps audio temporary
+              until you choose to download it.
+            </li>
+          </ol>
+          <p>
+            Auto Digger searches the artist and full track title first, then checks the YouTube
+            link. It combines recommendations from confirmed matches and removes duplicates.
+            Different mixes remain separate, so listen and check the version before saving.
+          </p>
+          <p>
+            Use <strong>Refine recommendations</strong> to narrow results by year. This has its own
+            controls and does not change your digging filters.
+          </p>
+          <figure class="app-figure">
+            <img
+              src="../../docs/verification/cosine-recommendations/track-action-detail.png"
+              width="814"
+              height="108"
+              alt="Find similar button beside a YouTube track's preview and download buttons"
+              loading="lazy"
+            />
+          </figure>
+          <figure class="app-figure">
+            <img
+              src="../../docs/verification/cosine-recommendations/recommendations.png"
+              width="1440"
+              height="1000"
+              alt="Similar tracks with release artwork, preview buttons, Open release actions and a Back to Quiet Orbit EP link"
+              loading="lazy"
+            />
+            <figcaption>
+              Artwork appears when a linked release can be loaded. Other tracks use a placeholder.
+            </figcaption>
+          </figure>
+        </section>
+        <section id="releases" aria-labelledby="releases-title">
+          <h2 id="releases-title">4. Open a release and keep digging</h2>
+          <p>
+            Choose <strong>Open release</strong> when a recommendation has a linked Discogs release.
+            This opens its record in Auto Digger, where you can review the tracklist, preview audio
+            and use <strong>Save release to crate</strong>.
+          </p>
+          <p>
+            Check the release and mix before saving. A recommendation is a starting point for
+            digging.
+          </p>
+          <p>
+            <strong>No linked release</strong> means Cosine did not provide a Discogs release link.
+            Preview and Open release are unavailable for that result. Use its artist and title to
+            look for the record on Discogs.
+          </p>
+          <p>
+            Use the <strong>Back to…</strong> link to return to the recommendation list or the
+            record you started from. Your results and recommendation filters stay available while
+            you explore.
+          </p>
+        </section>
+        <section id="troubleshooting" aria-labelledby="troubleshooting-title">
+          <h2 id="troubleshooting-title">Troubleshooting</h2>
+          <dl class="setup-problems">
+            <div>
+              <dt>Find similar is missing?</dt>
+              <dd>
+                Check that you are using Auto Digger 0.1.9 or later, save your Cosine key in
+                Settings, then choose YouTube under Audio sources. The action appears beside
+                individual uploads.
+              </dd>
+            </div>
+            <div>
+              <dt>The button is disabled?</dt>
+              <dd>
+                Wait for the source check to finish. If the upload cannot be checked, use Check
+                again or choose another upload.
+              </dd>
+            </div>
+            <div>
+              <dt>The key is saved, but recommendations say it is invalid?</dt>
+              <dd>
+                Saving remembers the key on this device. The first recommendation request checks
+                access with Cosine. Copy your current API key from Cosine's API page and save it
+                again, without extra spaces.
+              </dd>
+            </div>
+            <div>
+              <dt>No confirmed match or no recommendations?</dt>
+              <dd>
+                Cosine may not have that recording or mix in its catalogue. Try another upload of
+                the same track or another track on the EP. You can also check the artist and title
+                on <a href="https://cosine.club/">cosine.club</a>.
+              </dd>
+            </div>
+            <div>
+              <dt>Cosine could not be reached, timed out or is busy?</dt>
+              <dd>
+                Check your internet connection. Use <strong>Try again</strong> to repeat the request
+                without leaving the results page. If the service asks you to slow down, wait before
+                trying again.
+              </dd>
+            </div>
+            <div>
+              <dt>Only some results arrived?</dt>
+              <dd>
+                You can explore the available recommendations. Retry later if Auto Digger reports
+                that part of the request could not finish.
+              </dd>
+            </div>
+            <div>
+              <dt>The key cannot be saved?</dt>
+              <dd>
+                Unlock your computer's password manager or desktop keyring, then retry. Keep keys
+                out of bug reports and screenshots.
+              </dd>
+            </div>
+          </dl>
+          <p>
+            Service information:
+            <a href="https://cosine.club/account/api">Cosine Club API access</a> and
+            <a href="https://registry.scalar.com/@cosine/apis/cosineclub-api/"
+              >official API reference</a
+            >.
+          </p>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer wrap">
+      <span>Auto Digger · Open source</span>
+      <div>
+        <a href="../">Home</a><a href="../setup/">Setup</a
+        ><a href="https://github.com/alexanderwanyoike/auto-digger">GitHub</a>
+      </div>
+    </footer>
+  </body>
+</html>
