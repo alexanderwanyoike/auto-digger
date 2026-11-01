@@ -5,7 +5,7 @@ import { siteDownloads } from './scripts/site-downloads';
 export default defineConfig({
   plugins: [siteDownloads()],
   root: resolve(import.meta.dirname, 'site'),
-  base: '/auto-digger/',
+  base: './',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
