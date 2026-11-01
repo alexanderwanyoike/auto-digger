@@ -4,6 +4,34 @@ import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { expect, test } from 'vitest';
 
+test('serves every page and its local assets from a custom-domain root', async () => {
+  await promisify(execFile)('yarn', ['site:build'], { timeout: 30_000 });
+  await Promise.all(
+    ['index.html', 'setup/index.html', 'soulseek/index.html', 'cosine/index.html'].map(
+      async (page) => {
+        const pageDocument = new DOMParser().parseFromString(
+          await readFile(resolve('site/dist', page), 'utf8'),
+          'text/html',
+        );
+        const pageUrl = new URL(page, 'https://auto-digger.alphaneuron.net/');
+        const references = Array.from(
+          pageDocument.querySelectorAll('a[href], link[href], img[src]'),
+        );
+        expect(references.length).toBeGreaterThan(0);
+        await Promise.all(
+          references.map(async (element) => {
+            const reference = element.getAttribute('href') ?? element.getAttribute('src') ?? '';
+            const url = new URL(reference, pageUrl);
+            if (url.origin !== pageUrl.origin) return;
+            const path = url.pathname.slice(1);
+            await access(resolve('site/dist', path.endsWith('/') ? `${path}index.html` : path));
+          }),
+        );
+      },
+    ),
+  );
+});
+
 test('builds a self-contained Pages artifact with working project-prefixed assets', async () => {
   await promisify(execFile)('yarn', ['site:build'], { timeout: 30_000 });
   document.documentElement.innerHTML = await readFile(resolve('site/dist/index.html'), 'utf8');
