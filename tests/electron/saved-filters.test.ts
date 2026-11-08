@@ -79,6 +79,16 @@ test('restores named filters, their results page and the current draft after res
     await expect(page.locator('input[name="format"]')).toHaveValue('Album');
     await page.getByRole('button', { name: 'Search releases', exact: true }).click();
     await expect(page.getByText('Page 2 of 3', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Next page', exact: true }).click();
+    await expect(page.getByText('Page 3 of 3', { exact: true })).toBeVisible();
+    await page.getByLabel('Year', { exact: true }).fill('2001');
+    await page.getByRole('button', { name: 'Search releases', exact: true }).click();
+    await expect(page.getByText('Page 1 of 3', { exact: true })).toBeVisible();
+    const picker = page.getByRole('combobox', { name: 'Saved filters', exact: true });
+    await picker.selectOption('');
+    await picker.selectOption({ label: 'Nineties house' });
+    await page.getByRole('button', { name: 'Search releases', exact: true }).click();
+    await expect(page.getByText('Page 3 of 3', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Delete saved filters', exact: true }).click();
     await expect(
       page
