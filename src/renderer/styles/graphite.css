@@ -1,0 +1,95 @@
+:root[data-material='graphite'],
+.material-thumbnail[data-material='graphite'] {
+  --body: #ededee;
+  --surface: #fafafb;
+  --surface-raised: #fff;
+  --surface-inset: #f0f0f2;
+  --line: #dadadd;
+  --text: #222224;
+  --muted: #5c5c61;
+  --faint: #727277;
+  --shadow: none;
+}
+:root[data-theme='dark'][data-material='graphite'],
+:root[data-theme='dark'] .material-thumbnail[data-material='graphite'] {
+  --body: #141415;
+  --surface: #1c1c1e;
+  --surface-raised: #222225;
+  --surface-inset: #18181a;
+  --line: #343437;
+  --text: #ededee;
+  --muted: #b4b4b9;
+  --faint: #8b8b92;
+}
+
+:root[data-material='graphite'] {
+  --control: color-mix(in srgb, var(--surface-raised) 94%, var(--text));
+  --control-hover: color-mix(in srgb, var(--surface-raised) 88%, var(--text));
+}
+:root[data-material='graphite']
+  :is(.app-shell, .app-header, .section-nav, .playback-bar, .status-bar),
+.material-thumbnail[data-material='graphite'] .material-mini-header {
+  background: var(--body);
+}
+:root[data-material='graphite'] .workspace {
+  column-gap: 6px;
+}
+:root[data-material='graphite'] .workspace > * {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+:root[data-material='graphite'] :is(.discovery-panel, .cover-placeholder) {
+  background: var(--surface);
+}
+:root[data-material='graphite'] .empty-sleeves span:last-child {
+  background: var(--surface);
+}
+
+:root[data-material='graphite'] .section-nav button {
+  margin-block: 5px;
+  padding-block: 7px;
+  border-radius: 7px;
+}
+:root[data-material='graphite'] .section-nav button:hover {
+  background: var(--control);
+  color: var(--text);
+}
+:root[data-material='graphite'] .section-nav button[aria-current='page'] {
+  border-bottom-color: transparent;
+  background: color-mix(in srgb, var(--blue) 15%, var(--surface-raised));
+}
+:root[data-material='graphite'] .section-nav button:focus-visible {
+  outline-offset: -2px;
+}
+
+:root[data-material='graphite'] :is(.secondary-button, .play-button) {
+  border-radius: 8px;
+  background: var(--control);
+  box-shadow: none;
+}
+:root[data-material='graphite'] :is(.secondary-button, .play-button):not(:disabled):hover {
+  background: var(--control-hover);
+  border-color: var(--line);
+  color: var(--text);
+}
+:root[data-material='graphite'] .primary-button {
+  border-radius: 8px;
+}
+:root[data-material='graphite'] .primary-button:not(:disabled) {
+  background: var(--blue);
+  border-color: transparent;
+  color: var(--blue-on);
+}
+:root[data-material='graphite'] .primary-button:not(:disabled):hover {
+  background: color-mix(in srgb, var(--blue) 90%, var(--surface));
+}
+:root[data-material='graphite'] .primary-button:disabled {
+  background: var(--control);
+  border-color: var(--line);
+  color: var(--faint);
+}
+:root[data-material='graphite']
+  :where(input:not([type='radio'], [type='checkbox'], [type='range']), select, .taxonomy__control) {
+  border-radius: 7px;
+  background-color: var(--surface-inset);
+}
