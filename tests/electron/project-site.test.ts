@@ -1,7 +1,34 @@
 import { _electron as electron, expect, test } from '@playwright/test';
+import type { Locator } from '@playwright/test';
 import { resolve } from 'node:path';
 import { preview } from 'vite';
 import siteConfig from '../../site.vite.config';
+
+async function expectImagesLoaded(images: Locator) {
+  const page = images.page();
+  const top = await page.evaluate(() => window.scrollY);
+  await expect(images.first()).toBeAttached();
+  await (
+    await images.all()
+  ).reduce<Promise<void>>(
+    (previous, image) =>
+      previous.then(async () => {
+        await image.scrollIntoViewIfNeeded();
+        await expect
+          .poll(() =>
+            image.evaluate(
+              (element) =>
+                element instanceof HTMLImageElement && element.complete && element.naturalWidth > 0,
+            ),
+          )
+          .toBe(true);
+      }),
+    Promise.resolve(),
+  );
+  await page.evaluate((position) => {
+    window.scrollTo({ top: position, behavior: 'instant' });
+  }, top);
+}
 
 [390, 1280].forEach((width) => {
   test(`project site is readable and navigable at ${width.toString()}px`, async () => {
@@ -34,20 +61,7 @@ import siteConfig from '../../site.vite.config';
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       ).toBe(true);
-      await expect
-        .poll(() =>
-          page
-            .locator('img')
-            .evaluateAll((elements) =>
-              elements.every(
-                (element) =>
-                  element instanceof HTMLImageElement &&
-                  element.complete &&
-                  element.naturalWidth > 0,
-              ),
-            ),
-        )
-        .toBe(true);
+      await expectImagesLoaded(page.locator('img'));
       await page.getByRole('link', { name: 'Skip to content', exact: true }).focus();
       await page.keyboard.press('Enter');
       await expect(page.getByRole('main')).toBeFocused();
@@ -106,20 +120,7 @@ import siteConfig from '../../site.vite.config';
       await expect(
         page.getByRole('heading', { name: '4. Find a track', exact: true }),
       ).toBeInViewport();
-      await expect
-        .poll(() =>
-          page
-            .locator('main img')
-            .evaluateAll((elements) =>
-              elements.every(
-                (element) =>
-                  element instanceof HTMLImageElement &&
-                  element.complete &&
-                  element.naturalWidth > 0,
-              ),
-            ),
-        )
-        .toBe(true);
+      await expectImagesLoaded(page.locator('main img'));
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       ).toBe(true);
