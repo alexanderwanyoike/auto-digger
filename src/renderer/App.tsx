@@ -30,7 +30,6 @@ const sectionIcons = {
   'Digging desk': Radio,
   Crates: Library,
   Downloads: ListMusic,
-  Settings: SettingsIcon,
 };
 
 export function App({
@@ -44,7 +43,7 @@ export function App({
   audioLibrary?: AudioBridge;
   catalogue?: CatalogueBridge;
 }) {
-  const [section, setSection] = useState<keyof typeof sectionIcons>('Digging desk');
+  const [section, setSection] = useState<keyof typeof sectionIcons | 'Settings'>('Digging desk');
   const preferences = usePreferences(window.preferences);
   const filters = useSavedFilters(window.savedFilters);
   const audio = useAudioLibrary(audioBridge);
