@@ -139,20 +139,23 @@ export function App({
         </p>
       )}
       <main>
-        <div className="desk-toolbar">
-          <div className="desk-title">
-            <SectionIcon size={17} aria-hidden="true" />
-            <h1>{section}</h1>
+        {section === 'Digging desk' ? (
+          <h1 className="sr-only">{section}</h1>
+        ) : (
+          <div className="desk-toolbar">
+            <div className="desk-title">
+              <SectionIcon size={17} aria-hidden="true" />
+              <h1>{section}</h1>
+            </div>
           </div>
-          {section === 'Digging desk' && recommendations.view === 'release' && (
+        )}
+        {section === 'Digging desk' && recommendations.view === 'release' && (
+          <div className="desk-toolbar">
             <button type="button" className="source-folder" onClick={recommendations.back}>
               Back to recommendations
             </button>
-          )}
-          {section === 'Digging desk' && recommendations.view !== 'release' && (
-            <span className="toolbar-note">A fresh pair of ears.</span>
-          )}
-        </div>
+          </div>
+        )}
         {section === 'Crates' && (
           <CratesPage
             disabled={session.busy}
