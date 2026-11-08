@@ -148,11 +148,7 @@ async function expectPanelEnds(panel: Locator, heading: string, footer: string) 
       await page.reload();
       await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).waitFor();
       await expect(crate.getByLabel('20 saved releases', { exact: true })).toBeVisible();
-      const scrollbar = await crate.locator('.desk-panel-scroll').evaluate((element) => ({
-        gutter: element.getBoundingClientRect().width - element.clientWidth,
-        thumbRadius: getComputedStyle(element, '::-webkit-scrollbar-thumb').borderTopLeftRadius,
-      }));
-      expect(scrollbar).toEqual({ gutter: 10, thumbRadius: '999px' });
+      await expect(crate.locator('.desk-panel-scroll')).toHaveCSS('scrollbar-width', 'thin');
       await crate
         .getByRole('button', { name: 'Open Archive record 20', exact: true })
         .scrollIntoViewIfNeeded();
