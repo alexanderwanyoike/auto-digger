@@ -47,7 +47,7 @@ test('persists validated appearance and download preferences independently of cr
     expect(await store.preferences.read()).toMatchObject({
       ok: true,
       value: {
-        material: 'aluminium',
+        material: 'graphite',
         accent: 'blue',
         layout: 'custom',
         folderTemplate: '<source>/<genre>/<subgenre>/<year>',

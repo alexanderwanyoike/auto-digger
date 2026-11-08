@@ -47,7 +47,6 @@
 
 :root[data-material='aluminium'] .filter-panel,
 :root[data-material='aluminium'] .crate-panel,
-:root[data-material='aluminium'] .section-nav,
 .material-thumbnail[data-material='aluminium'] .material-mini-sidebar {
   background: var(--metal-panel-finish);
   background-size:

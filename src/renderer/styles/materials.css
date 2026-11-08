@@ -190,24 +190,6 @@
   --blue-soft: #452d38;
   --blue-on: #301c25;
 }
-:root[data-material='graphite'],
-.material-thumbnail[data-material='graphite'] {
-  --surface: #eef0f1;
-  --surface-raised: #f8f9fa;
-  --surface-inset: #e5e7e9;
-  --metal-top: #e8ebed;
-  --metal-bottom: #dde1e4;
-  --line: #cdd2d6;
-}
-:root[data-theme='dark'][data-material='graphite'],
-:root[data-theme='dark'] .material-thumbnail[data-material='graphite'] {
-  --surface: #24272a;
-  --surface-raised: #2d3034;
-  --surface-inset: #1d2023;
-  --metal-top: #31353a;
-  --metal-bottom: #272b2f;
-  --line: #41464c;
-}
 :root[data-material='paper'],
 .material-thumbnail[data-material='paper'] {
   --surface: #f5efe2;
@@ -287,7 +269,6 @@
 }
 :root[data-material='carbon'] .app-header,
 :root[data-material='carbon'] .playback-bar,
-:root[data-material='carbon'] .section-nav,
 :root[data-material='carbon'] .status-bar {
   background: var(--body);
   border-color: transparent;

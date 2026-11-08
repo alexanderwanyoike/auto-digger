@@ -20,6 +20,9 @@ import { contrast } from '../contrast';
     });
     try {
       const page = await desktop.firstWindow();
+      await page.getByRole('button', { name: 'Settings', exact: true }).click();
+      await page.getByRole('radio', { name: 'Brushed aluminium', exact: true }).check();
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await selectAppearance(page, mode);
       await expect(page.locator('html')).toHaveAttribute('data-material', 'aluminium');
       await page.evaluate(async () => {

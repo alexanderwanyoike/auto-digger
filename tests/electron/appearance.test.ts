@@ -21,10 +21,11 @@ import { resolve } from 'node:path';
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
       const appearance = page.getByRole('region', { name: 'Appearance settings' });
       const material = appearance.getByRole('group', { name: 'Material', exact: true });
-      await expect(
-        material.getByRole('radio', { name: 'Brushed aluminium', exact: true }),
-      ).toBeChecked();
-      await material.getByRole('radio', { name: 'Brushed aluminium', exact: true }).focus();
+      await expect(material.getByRole('radio', { name: 'Graphite', exact: true })).toBeChecked();
+      const aluminium = material.getByRole('radio', { name: 'Brushed aluminium', exact: true });
+      await aluminium.check();
+      await expect(page.locator('html')).toHaveAttribute('data-material', 'aluminium');
+      await aluminium.focus();
       await page.keyboard.press('ArrowRight');
       await expect(page.locator('html')).toHaveAttribute('data-material', 'ceramic');
       await expect(material.getByRole('radio', { name: 'Ceramic', exact: true })).toBeFocused();

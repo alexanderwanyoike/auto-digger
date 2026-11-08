@@ -55,7 +55,8 @@ test('shows a pending material choice immediately and restores the saved choice 
     throw new Error('No pending save');
   };
   window.preferences = {
-    read: () => Promise.resolve({ ok: true, value: defaultPreferences }),
+    read: () =>
+      Promise.resolve({ ok: true, value: { ...defaultPreferences, material: 'aluminium' } }),
     save: () =>
       new Promise((resolveSave) => {
         complete = resolveSave;

@@ -38,7 +38,7 @@ export const preferencesSchema = z.object({
 });
 export type Preferences = z.infer<typeof preferencesSchema>;
 export const defaultPreferences: Preferences = {
-  material: 'aluminium',
+  material: 'graphite',
   accent: 'blue',
   layout: 'custom',
   folderTemplate: '<source>/<genre>/<subgenre>/<year>',
