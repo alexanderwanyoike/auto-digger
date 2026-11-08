@@ -16,9 +16,11 @@ test('keeps navigation and playback compact in the desktop workspace', async () 
     await expect(banner).toBeVisible();
     expect((await banner.boundingBox())?.height).toBeLessThanOrEqual(50);
     expect((await playback.boundingBox())?.height).toBeLessThanOrEqual(60);
-    await expect(page.getByRole('button', { name: 'Search releases', exact: true })).toBeInViewport({
-      ratio: 1,
-    });
+    await expect(page.getByRole('button', { name: 'Search releases', exact: true })).toBeInViewport(
+      {
+        ratio: 1,
+      },
+    );
 
     const navigation = banner.getByRole('navigation', { name: 'Main sections' });
     const desk = navigation.getByRole('button', { name: 'Digging desk', exact: true });
