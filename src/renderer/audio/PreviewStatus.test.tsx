@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import type { AudioBridge, AudioResult, LocalTrack } from '../../shared/audio';
@@ -48,8 +48,7 @@ test('shows preparation and cancellation in the app footer without expanding the
     ).toBeNull();
     await user.click(within(footer).getByRole('button', { name: 'Cancel preparing preview' }));
     expect(cancel).toHaveBeenCalledWith('12-abcdefghijk');
-    expect(await within(footer).findByText('DISCOGS DISCOVERY')).toBeVisible();
-    expect(within(footer).queryByRole('progressbar')).not.toBeInTheDocument();
+    await waitFor(() => expect(footer).toBeEmptyDOMElement());
   } finally {
     Reflect.deleteProperty(window, 'audioPreviews');
   }
@@ -111,8 +110,7 @@ test.each(['success', 'failure'])(
         );
         await pending;
       });
-      expect(await within(footer).findByText('DISCOGS DISCOVERY')).toBeVisible();
-      expect(within(footer).queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(footer).toBeEmptyDOMElement();
     } finally {
       Reflect.deleteProperty(window, 'audioPreviews');
     }
