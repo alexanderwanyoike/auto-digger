@@ -34,15 +34,18 @@
 :root[data-material='graphite'] .workspace {
   column-gap: 6px;
 }
-:root[data-material='graphite'] .workspace > * {
-  border: 1px solid var(--line);
+:root[data-material='graphite'] :is(.workspace > *, .appearance-settings, .connection-dialog) {
   border-radius: 12px;
 }
-:root[data-material='graphite'] :is(.discovery-panel, .cover-placeholder) {
+:root[data-material='graphite'] .workspace > * {
+  border: 1px solid var(--line);
+}
+:root[data-material='graphite']
+  :is(.discovery-panel, .cover-placeholder, .empty-sleeves span:last-child) {
   background: var(--surface);
 }
-:root[data-material='graphite'] .empty-sleeves span:last-child {
-  background: var(--surface);
+.material-thumbnail[data-material='graphite'] {
+  border-radius: 8px;
 }
 
 :root[data-material='graphite'] .section-nav button {
