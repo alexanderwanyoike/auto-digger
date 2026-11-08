@@ -2,7 +2,6 @@
 .workspace > .crate-panel {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--line);
   overflow: hidden;
 }
 .filter-panel > .panel-heading,
@@ -26,6 +25,7 @@
 }
 .filter-panel > .desk-panel-scroll {
   scrollbar-width: none;
+  scroll-padding-block: 5px;
 }
 @media (min-height: 901px) {
   .filter-panel fieldset {

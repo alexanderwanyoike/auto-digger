@@ -287,7 +287,6 @@
 }
 :root[data-material='carbon'] .app-header,
 :root[data-material='carbon'] .playback-bar,
-:root[data-material='carbon'] .section-nav,
 :root[data-material='carbon'] .status-bar {
   background: var(--body);
   border-color: transparent;

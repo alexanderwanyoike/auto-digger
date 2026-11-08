@@ -45,7 +45,6 @@ export function App({
   catalogue?: CatalogueBridge;
 }) {
   const [section, setSection] = useState<keyof typeof sectionIcons>('Digging desk');
-  const SectionIcon = sectionIcons[section];
   const preferences = usePreferences(window.preferences);
   const filters = useSavedFilters(window.savedFilters);
   const audio = useAudioLibrary(audioBridge);
@@ -70,12 +69,44 @@ export function App({
     <div className="app-shell">
       <header className="app-header">
         <div className="wordmark">
-          <img src={appIcon} width={28} height={28} alt="" aria-hidden="true" />
+          <img src={appIcon} width={24} height={24} alt="" aria-hidden="true" />
           <span>
             auto digger<span className="wordmark-period">.</span>
           </span>
         </div>
-        <span className="header-caption">A place for good records.</span>
+        <nav className="section-nav" aria-label="Main sections">
+          <div className="section-switcher">
+            {(['Digging desk', 'Crates', 'Downloads'] as const).map((item) => {
+              const Icon = sectionIcons[item];
+              return (
+                <button
+                  type="button"
+                  key={item}
+                  aria-current={section === item ? 'page' : undefined}
+                  onClick={() => {
+                    setSection(item);
+                    if (item === 'Crates' && crate.catalogue.available)
+                      crate.reload().catch(() => undefined);
+                  }}
+                >
+                  <Icon size={14} aria-hidden="true" />
+                  {item}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            aria-label="Settings"
+            title="Settings"
+            aria-current={section === 'Settings' ? 'page' : undefined}
+            onClick={() => {
+              setSection('Settings');
+            }}
+          >
+            <SettingsIcon size={17} aria-hidden="true" />
+          </button>
+        </nav>
         <button
           type="button"
           className="connection-status"
@@ -91,7 +122,9 @@ export function App({
           }}
         >
           <span className={session.account ? 'blue-dot' : 'status-dot'} />
-          {session.account ? `Connected as ${session.account.username}` : 'Discogs not connected'}
+          <span>
+            {session.account ? `Connected as ${session.account.username}` : 'Discogs not connected'}
+          </span>
         </button>
       </header>
       {!storageAvailable && (
@@ -99,47 +132,13 @@ export function App({
           Appearance works for this session, but could not be saved on this device.
         </p>
       )}
-      <nav className="section-nav" aria-label="Main sections">
-        {(['Digging desk', 'Crates', 'Downloads'] as const).map((item) => (
-          <button
-            type="button"
-            key={item}
-            aria-current={section === item ? 'page' : undefined}
-            onClick={() => {
-              setSection(item);
-              if (item === 'Crates' && crate.catalogue.available)
-                crate.reload().catch(() => undefined);
-            }}
-          >
-            {item}
-          </button>
-        ))}
-        <button
-          type="button"
-          className="settings-nav"
-          aria-label="Settings"
-          title="Settings"
-          aria-current={section === 'Settings' ? 'page' : undefined}
-          onClick={() => {
-            setSection('Settings');
-          }}
-        >
-          <SettingsIcon size={17} aria-hidden="true" />
-        </button>
-      </nav>
       <main>
         <div className="desk-toolbar">
-          <div className="desk-title">
-            <SectionIcon size={17} aria-hidden="true" />
-            <h1>{section}</h1>
-          </div>
+          <h1>{section}</h1>
           {section === 'Digging desk' && recommendations.view === 'release' && (
             <button type="button" className="source-folder" onClick={recommendations.back}>
               Back to recommendations
             </button>
-          )}
-          {section === 'Digging desk' && recommendations.view !== 'release' && (
-            <span className="toolbar-note">A fresh pair of ears.</span>
           )}
         </div>
         {section === 'Crates' && (

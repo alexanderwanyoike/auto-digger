@@ -2,43 +2,84 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--surface);
+  background: var(--surface-inset);
 }
 .app-header {
-  height: 64px;
-  padding: 0 30px;
+  height: 50px;
+  padding: 0 22px;
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 16px;
   border-bottom: 1px solid var(--line);
   background: linear-gradient(var(--metal-top), var(--metal-bottom));
 }
 .wordmark {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 20px;
+  gap: 8px;
+  font-size: 15px;
   font-weight: 800;
-  letter-spacing: -1.1px;
+  letter-spacing: -0.5px;
   white-space: nowrap;
 }
 .wordmark-period {
   color: var(--blue);
 }
-.header-caption {
-  padding-left: 25px;
-  border-left: 1px solid var(--line);
-  font-size: 11px;
+.section-nav {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.section-switcher {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--surface-inset);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.section-nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
   color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.section-nav button:hover {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+.section-nav button[aria-current='page'] {
+  background: var(--blue-soft);
+  color: var(--text);
+}
+.section-nav button[aria-current='page'] svg {
+  color: var(--blue);
+}
+.section-nav button:focus-visible {
+  outline-offset: -2px;
 }
 .connection-status {
   display: flex;
   align-items: center;
   gap: 7px;
-  margin-left: auto;
+  max-width: 28%;
   font-size: 10px;
   white-space: nowrap;
   color: var(--muted);
+}
+.connection-status > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 main {
   display: flex;
@@ -50,48 +91,29 @@ main {
   justify-content: space-between;
   align-items: center;
   gap: 15px;
-  min-height: 62px;
-  padding: 16px 30px;
-}
-.desk-title {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-.desk-title > svg {
-  color: var(--blue);
+  min-height: 42px;
+  padding: 6px 24px;
 }
 h1 {
   font-size: 15px;
   font-weight: 750;
   letter-spacing: -0.4px;
 }
-.toolbar-note {
-  font-size: 10px;
-  color: var(--muted);
-}
 .workspace {
   display: grid;
   grid-template-columns: 225px minmax(310px, 1fr) 230px;
   flex: 1;
-  margin: 0 24px 24px;
-  min-height: 516px;
-  border: 0;
-  border-radius: 0;
+  margin: 0 8px 8px;
+  column-gap: 6px;
   overflow: hidden;
+}
+.workspace > * {
+  border: 1px solid var(--line);
 }
 .filter-panel,
 .crate-panel {
-  padding: 20px 20px;
+  padding: 16px;
   background: var(--surface-raised);
-}
-.filter-panel {
-  border-right: 1px solid var(--line);
-}
-.crate-panel {
-  display: flex;
-  flex-direction: column;
-  border-left: 1px solid var(--line);
 }
 .panel-heading {
   display: flex;
@@ -117,12 +139,12 @@ h1 {
   color: var(--muted);
 }
 .status-bar {
-  min-height: 30px;
+  min-height: 24px;
   display: flex;
   gap: 15px;
   justify-content: space-between;
   align-items: center;
-  padding: 0 26px;
+  padding: 0 22px;
   font-size: 8px;
   letter-spacing: 0.6px;
   color: var(--muted);
@@ -140,27 +162,16 @@ h1 {
   }
   .filter-panel,
   .crate-panel {
-    padding: 26px;
+    padding: 18px;
   }
 }
 @media (max-width: 1000px) {
   .workspace {
     grid-template-columns: 195px minmax(290px, 1fr) 190px;
-    margin: 0 16px 16px;
   }
   .filter-panel,
   .crate-panel {
-    padding: 20px 15px;
-  }
-  .app-header {
-    gap: 18px;
-    padding: 0 22px;
-  }
-  .header-caption {
-    display: none;
-  }
-  .desk-toolbar {
-    padding: 16px 22px;
+    padding: 14px;
   }
 }
 

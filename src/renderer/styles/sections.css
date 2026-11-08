@@ -1,23 +1,3 @@
-.section-nav {
-  display: flex;
-  gap: 8px;
-  padding: 0 24px;
-  border-bottom: 1px solid var(--line);
-  background: var(--surface-raised);
-}
-.section-nav button {
-  color: var(--muted);
-  background: none;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  padding: 12px 16px;
-  font-size: 11px;
-}
-.section-nav button[aria-current='page'] {
-  border-bottom-color: var(--blue);
-  color: var(--text);
-  font-weight: 750;
-}
 .section-page {
   margin: 0 24px 24px;
   padding: 0;
@@ -206,19 +186,6 @@
 .about-app strong {
   font-size: 14px;
 }
-@media (max-height: 900px) {
-  .workspace {
-    min-height: 470px;
-  }
-  .crate-panel {
-    max-height: max(470px, calc(100vh - 300px));
-  }
-  .desk-toolbar {
-    min-height: 50px;
-    padding-block: 12px;
-  }
-}
-
 .store-links {
   display: flex;
   flex-wrap: wrap;
@@ -238,7 +205,6 @@
   min-height: 0;
 }
 .app-header,
-.section-nav,
 .desk-toolbar,
 .playback-bar,
 .status-bar {
@@ -264,10 +230,4 @@ main {
 }
 .crate-management .primary-button {
   width: auto;
-}
-
-.section-nav .settings-nav {
-  margin-left: auto;
-  display: grid;
-  place-items: center;
 }
