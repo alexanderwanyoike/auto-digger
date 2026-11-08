@@ -20,7 +20,7 @@ Combine label, artist, a year (`1998`) or inclusive range (`1990-1999`), title, 
 
 Submit **Search releases** to apply your filters. Browse sleeves, choose **Dig a random release**, then **Dig again**. Draft filter edits take effect on the next search. Reset digging starts a fresh session with the applied filters. You can also load a numeric Discogs release ID directly.
 
-Use **Save filters** to name a filter selection. Choose it from **Saved filters** to fill the form, then search when ready. Saving with the same name updates that selection; a different name saves a new one. The trash icon removes the selected preset. Named filters and your last valid draft stay on this device after restarting.
+Use **Save filters** to name a filter selection and bookmark its current results page. Choose a preset from **Saved filters**, then choose **Search releases** to resume from that page. Paging through the selected preset updates its bookmark. Editing its criteria starts a search from page one. Saving with the same name updates that selection; a different name saves a new one. The trash icon removes the selected preset. Named filters, their bookmarked pages and your last valid draft stay on this device after restarting.
 
 Discogs search exposes up to the first 10,000 matching results. Narrow broad criteria to explore further. Seen release IDs and cached search pages stay in memory for the session.
 
