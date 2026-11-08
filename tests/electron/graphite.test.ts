@@ -14,7 +14,7 @@ test('opens with rounded matte surfaces in light and dark mode', async () => {
     await page.setViewportSize({ width: 900, height: 780 });
     await expect(page.locator('html')).toHaveAttribute('data-material', 'graphite');
     const banner = page.getByRole('banner');
-    const navigation = page.getByRole('navigation', { name: 'Main sections' });
+    const navigation = banner.getByRole('navigation', { name: 'Main sections' });
     const playback = page.getByRole('contentinfo', { name: 'Playback' });
     const filters = page.getByRole('complementary', { name: 'The starting point' });
     const release = page.getByRole('region', { name: 'Your next find starts here.', exact: true });
@@ -34,10 +34,7 @@ test('opens with rounded matte surfaces in light and dark mode', async () => {
               expect(pane).toHaveCSS('border-radius', '12px'),
             ),
           );
-          const header = await banner.boundingBox();
-          const tabs = await navigation.boundingBox();
-          if (!header || !tabs) throw new Error('Missing desktop navigation');
-          expect(tabs.y).toBeGreaterThanOrEqual(header.y + header.height);
+          await expect(navigation).toBeInViewport({ ratio: 1 });
         }),
       Promise.resolve(),
     );
