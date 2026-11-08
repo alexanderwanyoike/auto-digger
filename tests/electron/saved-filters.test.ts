@@ -45,8 +45,10 @@ test('restores named filters, their results page and the current draft after res
     await page.getByLabel('Label', { exact: true }).fill('Still Records');
     await page.getByRole('combobox', { name: 'Genre', exact: true }).fill('Electronic');
     await page.getByRole('option', { name: 'Electronic', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Genre', exact: true }).press('Escape');
     await page.getByRole('combobox', { name: 'Release type', exact: true }).fill('Album');
     await page.getByRole('option', { name: 'Album', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Release type', exact: true }).press('Escape');
     await page.getByRole('button', { name: 'Search releases', exact: true }).click();
     await page.getByRole('button', { name: 'Next page', exact: true }).click();
     await expect(page.getByText('Page 2 of 3', { exact: true })).toBeVisible();
