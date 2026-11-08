@@ -17,6 +17,7 @@ import { createTokenStore } from './credentials/token-store';
 import { electronEncryption } from './credentials/electron-encryption';
 import { createDiscogsSession } from './discogs/session';
 import { registerDiscogsHandlers } from './discogs/register-handlers';
+import { createDiscover } from './discovery/discover';
 import { createIndexedLibrary } from './audio/indexed-library';
 import { registerSavedFiltersHandlers } from './filters/register-handlers';
 import { registerFollowingHandlers } from './following/register-handlers';
@@ -165,7 +166,14 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     downloadJobs ??= createDownloadJobs((input, options) => library.download(input, options));
     registerDownloadJobHandlers(window, downloadJobs);
     registerAudioHandlers(window, audioLibrary, downloader, audioPreviews);
-    registerDiscogsHandlers(window, discogsSession);
+    registerDiscogsHandlers(window, discogsSession, {
+      discover: createDiscover(
+        discogsSession.search,
+        catalogueStore.following.read,
+        catalogueStore.discoveryHistory.known,
+      ),
+      markOpened: catalogueStore.discoveryHistory.opened,
+    });
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event) => {
       event.preventDefault();

@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 
-export const catalogueVersion = 4;
+export const catalogueVersion = 5;
 
 export function upgradeCatalogue(database: DatabaseSync) {
   database.exec(`
@@ -21,6 +21,7 @@ export function upgradeCatalogue(database: DatabaseSync) {
       kind TEXT NOT NULL CHECK(kind IN ('artist', 'label', 'genre')),
       name TEXT NOT NULL
     ) STRICT;
+    CREATE TABLE IF NOT EXISTS opened_releases (id INTEGER PRIMARY KEY) STRICT;
     PRAGMA user_version=${catalogueVersion.toString()};
     COMMIT;
   `);

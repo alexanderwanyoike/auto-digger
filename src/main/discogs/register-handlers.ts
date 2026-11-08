@@ -4,12 +4,21 @@ import { discogsChannels } from '../../shared/discogs';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';
 import type { createRememberedSession } from './remembered-session';
+import type { createDiscover } from '../discovery/discover';
+import type { createDiscoveryHistory } from '../discovery/history';
 
 type Operation = (input: unknown) => DiscogsResult<unknown> | Promise<DiscogsResult<unknown>>;
 
 export function registerDiscogsHandlers(
   window: BrowserWindow,
   session: ReturnType<typeof createRememberedSession>,
+  {
+    discover,
+    markOpened,
+  }: {
+    discover: ReturnType<typeof createDiscover>;
+    markOpened: ReturnType<typeof createDiscoveryHistory>['opened'];
+  },
 ) {
   const handle = (channel: string, operation: Operation) => {
     ipcMain.removeHandler(channel);
@@ -28,11 +37,23 @@ export function registerDiscogsHandlers(
       }
     });
   };
-  handle(discogsChannels.dig, (input) => session.dig(input));
+  const remember = async <T>(result: DiscogsResult<T>, releaseId: (value: T) => number) => {
+    if (result.ok) {
+      const saved = await markOpened(releaseId(result.value));
+      if (!saved.ok) process.stderr.write(`${saved.error.message}\n`);
+    }
+    return result;
+  };
+  handle(discogsChannels.dig, async (input) =>
+    remember(await session.dig(input), (value) => value.release.id),
+  );
   handle(discogsChannels.search, (input) => session.search(input));
+  handle(discogsChannels.discover, discover);
   handle(discogsChannels.account, () => session.account());
   handle(discogsChannels.connect, (input) => session.connect(input));
-  handle(discogsChannels.loadRelease, (input) => session.loadRelease(input));
+  handle(discogsChannels.loadRelease, async (input) =>
+    remember(await session.loadRelease(input), (value) => value.id),
+  );
   handle(discogsChannels.disconnect, () => session.disconnect());
   handle(discogsChannels.openSettings, async () => {
     await shell.openExternal('https://www.discogs.com/settings/developers');

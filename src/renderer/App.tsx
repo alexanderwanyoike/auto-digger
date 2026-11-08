@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Compass, Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
-import { FollowingPanel } from './following/FollowingPanel';
+import { ExplorePage } from './explore/ExplorePage';
 import { FollowingContext } from './following/following-context';
 import { useFollowing } from './following/use-following';
 import { useRecommendations } from './recommendations/use-recommendations';
@@ -165,7 +165,15 @@ export function App({
           />
         )}
         {section === 'Downloads' && <DownloadsPage audio={audio} />}
-        {section === 'Explore' && <FollowingPanel following={following} />}
+        {section === 'Explore' && (
+          <ExplorePage
+            bridge={discogs}
+            connected={Boolean(session.account)}
+            following={following}
+            crate={crate}
+            audio={audio}
+          />
+        )}
         {section === 'Settings' && (
           <SettingsPage
             preferences={preferences}

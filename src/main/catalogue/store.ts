@@ -1,6 +1,7 @@
 import type { DatabaseSync } from 'node:sqlite';
 import { createSavedFiltersStore } from '../filters/store';
 import { createFollowingStore } from '../following/store';
+import { createDiscoveryHistory } from '../discovery/history';
 import { createResearchStore } from '../research/store';
 import { createDownloadIndex } from '../audio/download-index';
 import { createPreferencesStore } from '../settings/store';
@@ -64,6 +65,7 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
     preferences: createPreferencesStore(getConnection),
     filters: createSavedFiltersStore(getConnection),
     following: createFollowingStore(getConnection),
+    discoveryHistory: createDiscoveryHistory(getConnection),
     downloads: createDownloadIndex(getConnection),
     research: createResearchStore(getConnection),
     annotate: (input: unknown, signal?: AbortSignal) =>

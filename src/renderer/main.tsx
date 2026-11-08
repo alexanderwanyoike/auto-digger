@@ -29,6 +29,7 @@ import './styles/desk-panels.css';
 import './styles/graphite.css';
 import './styles/field-focus.css';
 import './styles/following.css';
+import './styles/explore.css';
 
 const container = document.getElementById('root');
 
