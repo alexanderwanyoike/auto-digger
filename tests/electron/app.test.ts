@@ -64,7 +64,9 @@ const darkGraphiteField = 'rgb(24, 24, 26)';
       }));
       expect(layout.width).toBeLessThanOrEqual(layout.viewportWidth);
       expect(layout.height).toBeLessThanOrEqual(layout.viewportHeight);
-      await expect(page.getByText('Built for the long way round.')).toBeInViewport({ ratio: 1 });
+      await expect(page.getByRole('contentinfo', { name: 'Playback' })).toBeInViewport({
+        ratio: 1,
+      });
       await page.screenshot({
         path: `test-results/phase-1-${width.toString()}-light.png`,
         fullPage: true,
@@ -192,7 +194,7 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     await expect(page.locator('iframe')).toHaveCount(0);
     expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
     await page.setViewportSize({ width: 1180, height: 780 });
-    await expect(page.getByText('Built for the long way round.', { exact: true })).toBeInViewport({
+    await expect(page.getByRole('contentinfo', { name: 'Playback' })).toBeInViewport({
       ratio: 1,
     });
     await page.screenshot({ path: 'test-results/phase-2-release-light.png', fullPage: true });

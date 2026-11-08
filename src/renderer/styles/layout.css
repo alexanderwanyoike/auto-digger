@@ -129,10 +129,11 @@ h1 {
   background: linear-gradient(var(--metal-top), var(--metal-bottom));
   border-top: 1px solid var(--line);
 }
-.status-bar > span:first-child {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.status-bar:empty {
+  display: none;
+}
+.status-bar > :is(.update-notice, [role='status']) {
+  margin-inline-start: auto;
 }
 @media (min-width: 1400px) {
   .workspace {
