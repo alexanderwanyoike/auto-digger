@@ -64,19 +64,21 @@ h1 {
   font-weight: 750;
   letter-spacing: -0.4px;
 }
-.toolbar-note {
-  font-size: 10px;
-  color: var(--muted);
+.desk-toolbar > .source-folder {
+  margin-inline-start: auto;
 }
 .workspace {
   display: grid;
   grid-template-columns: 225px minmax(310px, 1fr) 230px;
   flex: 1;
-  margin: 0 24px 24px;
+  margin: 12px 24px 24px;
   min-height: 516px;
   border: 0;
   border-radius: 0;
   overflow: hidden;
+}
+.desk-toolbar + .workspace {
+  margin-top: 0;
 }
 .filter-panel,
 .crate-panel {
@@ -144,7 +146,8 @@ h1 {
 @media (max-width: 1000px) {
   .workspace {
     grid-template-columns: 195px minmax(290px, 1fr) 190px;
-    margin: 0 16px 16px;
+    margin-inline: 16px;
+    margin-bottom: 16px;
   }
   .filter-panel,
   .crate-panel {
