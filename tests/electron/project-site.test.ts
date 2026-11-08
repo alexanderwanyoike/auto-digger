@@ -11,6 +11,9 @@ import siteConfig from '../../site.vite.config';
     const desktop = await electron.launch({
       args: [
         resolve('tests/site-desktop.cjs'),
+        // Keep lazy images outside the viewport deferred across Chromium environments.
+        '--force-effective-connection-type=4G',
+        '--blink-settings=lazyLoadingImageMarginPx4G=0',
         `--user-data-dir=${test.info().outputPath('profile')}`,
         address,
       ],
