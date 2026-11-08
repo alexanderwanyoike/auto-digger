@@ -30,4 +30,4 @@ Cosine Club searches primary artist/full track title first, then the selected Yo
 
 **Explore** is Auto Digger's launch destination for discovering releases. With Discogs connected, the feed shows releases even when the listener has empty crates and follows nobody.
 
-A **taste signal** is evidence of the listener's musical preferences that shapes the Explore feed. Saving a release to a crate contributes a taste signal.
+A **taste signal** is evidence of the listener's musical preferences that shapes the Explore feed. Saving a release to a crate contributes a taste signal using the release's Discogs styles.
