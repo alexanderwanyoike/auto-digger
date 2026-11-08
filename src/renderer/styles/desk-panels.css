@@ -26,6 +26,7 @@
 }
 .filter-panel > .desk-panel-scroll {
   scrollbar-width: none;
+  scroll-padding-block: 5px;
 }
 @media (min-height: 901px) {
   .filter-panel fieldset {
