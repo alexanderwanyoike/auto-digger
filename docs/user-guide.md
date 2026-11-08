@@ -28,6 +28,10 @@ Use the bookmark beside an artist or label on a release to follow it. Choose a g
 
 Choose a followed artist, label or genre in **Explore** to browse its catalogue. Choose **Discover unseen releases** to draw a batch from the current topic or from **All followed**. Explore skips records you have opened or saved to a crate. To compare two years within a genre, choose the genre, enter both years and choose **Compare years**.
 
+## Make track playlists
+
+Create a named list in **Playlists**. On a release, use the heart beside a track to add it to **Likes**, or the list icon to add it to one of your named playlists. Auto Digger reuses a saved file or queues an unambiguous YouTube match in **Downloads**. If you need to select a source, choose **Choose audio** beside the entry to return to the release. You can then pick a YouTube upload or find a file on Soulseek. Removing a track from one playlist keeps its local audio and other playlist entries.
+
 ## Download audio
 
 Every attached video has its own source row. **Discogs track** names the release track; **YouTube video** names the upload. Auto Digger matches unambiguous complete titles. Correct a suggestion or choose **Keep video title** when a source covers something different. Multiple videos can map to one track.
