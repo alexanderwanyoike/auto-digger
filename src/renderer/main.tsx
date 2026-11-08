@@ -28,6 +28,7 @@ import './styles/aluminium.css';
 import './styles/desk-panels.css';
 import './styles/graphite.css';
 import './styles/field-focus.css';
+import './styles/following.css';
 
 const container = document.getElementById('root');
 
