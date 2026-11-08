@@ -20,6 +20,7 @@ test('restores named filters, their results page and the current draft after res
   let desktop = await electron.launch(options);
   try {
     let page = await desktop.firstWindow();
+    await page.setViewportSize({ width: 1280, height: 920 });
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     const stubSearch = () =>
       desktop.evaluate(() => {
