@@ -1,5 +1,15 @@
 import { useMemo, useState } from 'react';
-import { Compass, Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
+import {
+  Compass,
+  Library,
+  ListMusic,
+  ListPlus,
+  Radio,
+  Settings as SettingsIcon,
+} from 'lucide-react';
+import { PlaylistsPage } from './playlists/PlaylistsPage';
+import { PlaylistsContext } from './playlists/playlists-context';
+import { usePlaylists } from './playlists/use-playlists';
 import { ExplorePage } from './explore/ExplorePage';
 import { FollowingContext } from './following/following-context';
 import { useFollowing } from './following/use-following';
@@ -33,6 +43,7 @@ const sectionIcons = {
   'Digging desk': Radio,
   Explore: Compass,
   Crates: Library,
+  Playlists: ListPlus,
   Downloads: ListMusic,
   Settings: SettingsIcon,
 };
@@ -54,6 +65,7 @@ export function App({
   const filters = useSavedFilters(window.savedFilters);
   const following = useFollowing(window.following);
   const audio = useAudioLibrary(audioBridge);
+  const playlists = usePlaylists(window.playlists, audio);
   const crate = useCrate(crateBridge, catalogue);
   const session = useDiscogs(discogs, filters.rememberPage);
   const recommendations = useRecommendations(session.release, session.openSavedRelease, audio);
@@ -82,24 +94,26 @@ export function App({
         </div>
         <nav className="section-nav" aria-label="Main sections">
           <div className="section-switcher">
-            {(['Digging desk', 'Explore', 'Crates', 'Downloads'] as const).map((item) => {
-              const Icon = sectionIcons[item];
-              return (
-                <button
-                  type="button"
-                  key={item}
-                  aria-current={section === item ? 'page' : undefined}
-                  onClick={() => {
-                    setSection(item);
-                    if (item === 'Crates' && crate.catalogue.available)
-                      crate.reload().catch(() => undefined);
-                  }}
-                >
-                  <Icon size={14} aria-hidden="true" />
-                  {item}
-                </button>
-              );
-            })}
+            {(['Digging desk', 'Explore', 'Crates', 'Playlists', 'Downloads'] as const).map(
+              (item) => {
+                const Icon = sectionIcons[item];
+                return (
+                  <button
+                    type="button"
+                    key={item}
+                    aria-current={section === item ? 'page' : undefined}
+                    onClick={() => {
+                      setSection(item);
+                      if (item === 'Crates' && crate.catalogue.available)
+                        crate.reload().catch(() => undefined);
+                    }}
+                  >
+                    <Icon size={14} aria-hidden="true" />
+                    {item}
+                  </button>
+                );
+              },
+            )}
           </div>
           <button
             type="button"
@@ -165,14 +179,27 @@ export function App({
           />
         )}
         {section === 'Downloads' && <DownloadsPage audio={audio} />}
-        {section === 'Explore' && (
-          <ExplorePage
-            bridge={discogs}
-            connected={Boolean(session.account)}
-            following={following}
-            crate={crate}
+        {section === 'Playlists' && (
+          <PlaylistsPage
+            playlists={playlists}
             audio={audio}
+            onOpen={(release) => {
+              recommendations.dismiss();
+              session.openSavedRelease(release);
+              setSection('Digging desk');
+            }}
           />
+        )}
+        {section === 'Explore' && (
+          <PlaylistsContext.Provider value={playlists}>
+            <ExplorePage
+              bridge={discogs}
+              connected={Boolean(session.account)}
+              following={following}
+              crate={crate}
+              audio={audio}
+            />
+          </PlaylistsContext.Provider>
         )}
         {section === 'Settings' && (
           <SettingsPage
@@ -191,7 +218,7 @@ export function App({
           <div className="workspace">
             <FollowingContext.Provider value={following}>
               <FilterPanel session={session} filters={filters} />
-              {desk}
+              <PlaylistsContext.Provider value={playlists}>{desk}</PlaylistsContext.Provider>
             </FollowingContext.Provider>
             <CratePanel
               crate={crate}
@@ -219,6 +246,19 @@ export function App({
             disabled={following.busy}
           >
             Reload following
+          </button>
+        </p>
+      )}
+      {playlists.error && !connectionOpen && (
+        <p role="alert" className="request-error">
+          {playlists.error}{' '}
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={playlists.reload}
+            disabled={playlists.busy}
+          >
+            Reload playlists
           </button>
         </p>
       )}

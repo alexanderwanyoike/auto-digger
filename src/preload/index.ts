@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { createCosineBridge } from './cosine-bridge';
 import { createSavedFiltersBridge } from './saved-filters-bridge';
 import { createFollowingBridge } from './following-bridge';
+import { createPlaylistsBridge } from './playlists-bridge';
 import { createUpdatesBridge } from './updates-bridge';
 import { createResearchAccessBridge } from './research-access-bridge';
 import { createDownloadJobsBridge } from './download-jobs-bridge';
@@ -121,6 +122,14 @@ contextBridge.exposeInMainWorld(
 contextBridge.exposeInMainWorld(
   'following',
   createFollowingBridge(async (channel, input) => {
+    const result: unknown = await ipcRenderer.invoke(channel, input);
+    return result;
+  }),
+);
+
+contextBridge.exposeInMainWorld(
+  'playlists',
+  createPlaylistsBridge(async (channel, input) => {
     const result: unknown = await ipcRenderer.invoke(channel, input);
     return result;
   }),

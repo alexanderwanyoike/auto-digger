@@ -21,6 +21,7 @@ import { createDiscover } from './discovery/discover';
 import { createIndexedLibrary } from './audio/indexed-library';
 import { registerSavedFiltersHandlers } from './filters/register-handlers';
 import { registerFollowingHandlers } from './following/register-handlers';
+import { registerPlaylistsHandlers } from './playlists/register-handlers';
 import { registerPreferencesHandlers } from './settings/register-handlers';
 import { createCommandRunner } from './audio/command';
 import { createDownloadJobs } from './audio/jobs';
@@ -114,6 +115,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     registerPreferencesHandlers(window, catalogueStore.preferences);
     registerSavedFiltersHandlers(window, catalogueStore.filters);
     registerFollowingHandlers(window, catalogueStore.following);
+    registerPlaylistsHandlers(window, catalogueStore.playlists);
     registerStoreLinkHandlers(window);
     cosine ??= createCosineService(
       createTokenStore(join(app.getPath('userData'), 'cosine-key.bin'), electronEncryption),

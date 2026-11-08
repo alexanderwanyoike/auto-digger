@@ -30,6 +30,7 @@ import './styles/graphite.css';
 import './styles/field-focus.css';
 import './styles/following.css';
 import './styles/explore.css';
+import './styles/playlists.css';
 
 const container = document.getElementById('root');
 
