@@ -5,7 +5,11 @@ import type { CatalogueResult } from '../../shared/catalogue';
 import { catalogueFailure } from '../../shared/catalogue-failure';
 import { filtersSchema } from '../../shared/search';
 import { emptyFilters } from '../../shared/default-filters';
-import { savedFiltersSchema, savePresetSchema } from '../../shared/saved-filters';
+import {
+  rememberPresetPageSchema,
+  savedFiltersSchema,
+  savePresetSchema,
+} from '../../shared/saved-filters';
 import type { SavedFilters, SavedFiltersResult } from '../../shared/saved-filters';
 
 function readSnapshot(database: DatabaseSync): SavedFiltersResult {
@@ -82,6 +86,23 @@ export function createSavedFiltersStore(connection: () => Promise<CatalogueResul
           : [...current.presets, preset];
         return { ok: true, value: { ...current, presets } };
       });
+    },
+    rememberPage(input: unknown): Promise<SavedFiltersResult> {
+      const parsed = rememberPresetPageSchema.safeParse(input);
+      if (!parsed.success)
+        return Promise.resolve(catalogueFailure('invalid-input', 'Choose a valid results page.'));
+      const { id, filters, page } = parsed.data;
+      return change((current) => ({
+        ok: true,
+        value: {
+          ...current,
+          presets: current.presets.map((preset) =>
+            preset.id === id && JSON.stringify(preset.filters) === JSON.stringify(filters)
+              ? { ...preset, page }
+              : preset,
+          ),
+        },
+      }));
     },
     removePreset(input: unknown): Promise<SavedFiltersResult> {
       const parsed = z.uuid().safeParse(input);

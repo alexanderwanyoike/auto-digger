@@ -14,11 +14,17 @@ export const savedFiltersSchema = z.object({
   presets: z.array(filterPresetSchema).max(200),
 });
 export const savePresetSchema = filterPresetSchema.partial({ id: true }).strict();
+export const rememberPresetPageSchema = filterPresetSchema
+  .pick({ id: true, filters: true })
+  .extend({
+    page: searchInputSchema.shape.page,
+  });
 export type SavedFilters = z.infer<typeof savedFiltersSchema>;
 export type SavedFiltersResult = CatalogueResult<SavedFilters>;
 export interface SavedFiltersBridge {
   read: () => Promise<SavedFiltersResult>;
   saveDraft: (filters: DigFilters) => Promise<SavedFiltersResult>;
   savePreset: (input: z.input<typeof savePresetSchema>) => Promise<SavedFiltersResult>;
+  rememberPage: (input: z.infer<typeof rememberPresetPageSchema>) => Promise<SavedFiltersResult>;
   removePreset: (id: string) => Promise<SavedFiltersResult>;
 }

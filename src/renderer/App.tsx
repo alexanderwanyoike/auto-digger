@@ -50,7 +50,7 @@ export function App({
   const filters = useSavedFilters(window.savedFilters);
   const audio = useAudioLibrary(audioBridge);
   const crate = useCrate(crateBridge, catalogue);
-  const session = useDiscogs(discogs);
+  const session = useDiscogs(discogs, filters.rememberPage);
   const recommendations = useRecommendations(session.release, session.openSavedRelease, audio);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const { appearance, selectAppearance, storageAvailable } = useAppearance();

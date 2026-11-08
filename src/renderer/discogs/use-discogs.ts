@@ -11,7 +11,10 @@ import type {
   DiscogsResult,
 } from '../../shared/discogs';
 
-export function useDiscogs(bridge: DiscogsBridge | undefined) {
+export function useDiscogs(
+  bridge: DiscogsBridge | undefined,
+  onSearchPage?: (criteria: DigFilters, page: number) => Promise<void>,
+) {
   const [account, setAccount] = useState<DiscogsAccount | null>(null);
   const [release, setRelease] = useState<DiscogsRelease | null>(null);
   const [digging, setDigging] = useState<DigResult | null>(null);
@@ -64,7 +67,7 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
 
   async function perform<T>(
     operation: (api: DiscogsBridge) => Promise<DiscogsResult<T>>,
-    apply?: (value: T) => void,
+    apply?: (value: T) => void | Promise<void>,
   ): Promise<DiscogsResult<T>> {
     setBusy(true);
     setError(null);
@@ -79,7 +82,7 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
         'Could not contact the desktop. Please restart Auto Digger.',
       );
     }
-    if (result.ok) apply?.(result.value);
+    if (result.ok) await apply?.(result.value);
     else {
       setError(result.error);
       if (result.error.code === 'unauthorized') {
@@ -159,9 +162,10 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
             page,
             ...(artistBrowse && sameFilters ? { context: 'artist' as const } : {}),
           }),
-        (value) => {
+        async (value) => {
           setMatches(value);
           setFilters(criteria);
+          if (!artistBrowse || !sameFilters) await onSearchPage?.(criteria, value.page);
         },
       );
     },

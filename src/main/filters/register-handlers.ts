@@ -33,5 +33,6 @@ export function registerSavedFiltersHandlers(
   handle('filters:read', () => store.read());
   handle('filters:draft', (input) => store.saveDraft(input));
   handle('filters:save', (input) => store.savePreset(input));
+  handle('filters:remember-page', (input) => store.rememberPage(input));
   handle('filters:remove', (input) => store.removePreset(input));
 }

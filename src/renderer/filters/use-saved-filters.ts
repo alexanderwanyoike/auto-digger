@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DigFilters } from '../../shared/search';
+import { sameSearchFilters } from '../../shared/search';
 import { emptyFilters } from '../../shared/default-filters';
 import type {
   SavedFilters,
@@ -91,6 +92,14 @@ export function useSavedFilters(bridge: SavedFiltersBridge | undefined) {
     available: Boolean(bridge) && ready,
     save: (name: string, page: number, id?: string) =>
       mutate((api) => api.savePreset({ name, filters: draft, page, ...(id ? { id } : {}) })),
+    rememberPage: async (criteria: DigFilters, page: number) => {
+      if (
+        selectedPreset &&
+        selectedPreset.page !== page &&
+        sameSearchFilters(criteria, selectedPreset.filters)
+      )
+        await mutate((api) => api.rememberPage({ id: selectedPreset.id, filters: criteria, page }));
+    },
     remove: (id: string) => mutate((api) => api.removePreset(id)),
   };
 }
