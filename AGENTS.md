@@ -10,7 +10,7 @@ Follow TDD with separate atomic commits for the failing test, passing implementa
 
 Use kebab-case filenames for modules, hooks, fixtures, scripts, styles and data files. React component files and their matching tests use PascalCase. Keep exported TypeScript identifiers in their conventional casing.
 
-Run `yarn verify` and `xvfb-run --auto-servernum yarn test:electron` before handing off coding changes. Ask whether the user wants a code review after delivering a coding PR.
+Run `yarn verify` and `xvfb-run --auto-servernum yarn test:electron` before handing off coding changes.
 
 Do not use Unicode U+2014. Comments explain constraints and rationale only. Prefer restrained visuals and plain language.
 
