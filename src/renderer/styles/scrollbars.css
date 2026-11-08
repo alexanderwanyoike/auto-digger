@@ -1,0 +1,32 @@
+:root {
+  --scrollbar-thumb: color-mix(in srgb, var(--muted) 55%, var(--line));
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--muted) 80%, var(--line));
+}
+
+@media (forced-colors: none) {
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) transparent;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-color: var(--scrollbar-thumb);
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover,
+  ::-webkit-scrollbar-thumb:active {
+    background-color: var(--scrollbar-thumb-hover);
+  }
+}
