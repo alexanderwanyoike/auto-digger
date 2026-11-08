@@ -24,6 +24,8 @@ Use **Save filters** to name a filter selection and bookmark its current results
 
 Discogs search exposes up to the first 10,000 matching results. Narrow broad criteria to explore further. Seen release IDs and cached search pages stay in memory for the session.
 
+Use the bookmark beside an artist or label on a release to follow it. Choose a genre in the filter and use its bookmark to follow the genre. Open **Explore** to see and manage what you follow. Your following list stays on this device.
+
 ## Download audio
 
 Every attached video has its own source row. **Discogs track** names the release track; **YouTube video** names the upload. Auto Digger matches unambiguous complete titles. Correct a suggestion or choose **Keep video title** when a source covers something different. Multiple videos can map to one track.
