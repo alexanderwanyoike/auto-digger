@@ -66,7 +66,7 @@ test('keeps a whole EP after restart, reopens it disconnected and persists remov
     await expect(page.getByRole('button', { name: 'Download audio', exact: true })).toBeEnabled();
     await expect(page.getByRole('button', { name: 'Load release', exact: true })).toBeDisabled();
     await page.setViewportSize({ width: 900, height: 780 });
-    await expect(page.getByText('Built for the long way round.', { exact: true })).toBeInViewport({
+    await expect(page.getByRole('contentinfo', { name: 'Playback' })).toBeInViewport({
       ratio: 1,
     });
     await page.screenshot({ path: 'test-results/phase-6-crate-light.png' });

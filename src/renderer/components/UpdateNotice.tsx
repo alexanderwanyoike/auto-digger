@@ -41,7 +41,7 @@ export function UpdateNotice() {
       setBusy(false);
     }
   }
-  if (!bridge || state.stage === 'disabled') return <span>Built for the long way round.</span>;
+  if (!bridge || state.stage === 'disabled') return null;
   if (state.stage === 'checking') return <span role="status">Checking for updates...</span>;
   if (state.stage === 'downloading')
     return <span role="status">Downloading update · {state.percent}%</span>;
