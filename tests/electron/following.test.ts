@@ -52,6 +52,7 @@ test('follows artists, labels and genres and manages them after restarting', asy
     await expect(label).toHaveAttribute('aria-pressed', 'true');
     await page.getByRole('combobox', { name: 'Genre', exact: true }).fill('Electronic');
     await page.getByRole('option', { name: 'Electronic', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Genre', exact: true }).press('Escape');
     const genre = page.getByRole('button', { name: 'Follow genre Electronic', exact: true });
     await genre.click();
     await expect(genre).toHaveAttribute('aria-pressed', 'true');
