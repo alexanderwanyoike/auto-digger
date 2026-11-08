@@ -15,7 +15,7 @@ test('edits a folder path while keeping every placeholder visible and preserves 
     read: () =>
       Promise.resolve({
         ok: true,
-        value: { ...defaultPreferences, directory: '/music/Auto Digger' },
+        value: { ...defaultPreferences, material: 'aluminium', directory: '/music/Auto Digger' },
       }),
     save,
     chooseDirectory: vi.fn(),

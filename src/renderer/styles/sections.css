@@ -1,25 +1,48 @@
 .section-nav {
   display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
   gap: 8px;
-  padding: 0 24px;
-  border-bottom: 1px solid var(--line);
-  background: var(--surface-raised);
+}
+.section-switcher {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--surface-inset);
+  border: 1px solid var(--line);
+  border-radius: 8px;
 }
 .section-nav button {
-  color: var(--muted);
-  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 9px;
   border: 0;
-  border-bottom: 2px solid transparent;
-  padding: 12px 16px;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
   font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.section-nav button:hover {
+  background: var(--surface-raised);
+  color: var(--text);
 }
 .section-nav button[aria-current='page'] {
-  border-bottom-color: var(--blue);
+  background: var(--blue-soft);
   color: var(--text);
-  font-weight: 750;
+}
+.section-nav button[aria-current='page'] svg {
+  color: var(--blue);
+}
+.section-nav button:focus-visible {
+  outline-offset: -2px;
 }
 .section-page {
-  margin: 0 24px 24px;
+  margin: 12px 24px 24px;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -29,16 +52,6 @@
   max-height: calc(100vh - 290px);
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
-}
-.section-intro {
-  display: grid;
-  gap: 8px;
-  margin-bottom: 18px;
-  color: var(--muted);
-  font-size: 12px;
-}
-.section-intro .eyebrow {
-  color: var(--blue);
 }
 .section-page label,
 .crate-picker {
@@ -238,7 +251,6 @@
   min-height: 0;
 }
 .app-header,
-.section-nav,
 .desk-toolbar,
 .playback-bar,
 .status-bar {
@@ -264,10 +276,4 @@ main {
 }
 .crate-management .primary-button {
   width: auto;
-}
-
-.section-nav .settings-nav {
-  margin-left: auto;
-  display: grid;
-  place-items: center;
 }

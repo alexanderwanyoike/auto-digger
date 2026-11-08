@@ -2,6 +2,8 @@ import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import { selectAppearance } from '../appearance';
 
+const darkGraphiteField = 'rgb(24, 24, 26)';
+
 [900, 1180].forEach((width) => {
   test(`desktop desk opens safely, remembers appearance and fits ${width.toString()}x780`, async () => {
     const environment = Object.fromEntries(
@@ -40,7 +42,7 @@ import { selectAppearance } from '../appearance';
       await selectAppearance(page, 'Dark');
       await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
         'background-color',
-        'rgb(37, 41, 46)',
+        darkGraphiteField,
       );
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
       await page.reload();
@@ -62,7 +64,9 @@ import { selectAppearance } from '../appearance';
       }));
       expect(layout.width).toBeLessThanOrEqual(layout.viewportWidth);
       expect(layout.height).toBeLessThanOrEqual(layout.viewportHeight);
-      await expect(page.getByText('Built for the long way round.')).toBeInViewport({ ratio: 1 });
+      await expect(page.getByRole('contentinfo', { name: 'Playback' })).toBeInViewport({
+        ratio: 1,
+      });
       await page.screenshot({
         path: `test-results/phase-1-${width.toString()}-light.png`,
         fullPage: true,
@@ -70,7 +74,7 @@ import { selectAppearance } from '../appearance';
       await selectAppearance(page, 'Dark');
       await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
         'background-color',
-        'rgb(37, 41, 46)',
+        darkGraphiteField,
       );
       await page.screenshot({
         path: `test-results/phase-1-${width.toString()}-dark.png`,
@@ -190,7 +194,7 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     await expect(page.locator('iframe')).toHaveCount(0);
     expect(await page.evaluate(() => 'require' in window || 'process' in window)).toBe(false);
     await page.setViewportSize({ width: 1180, height: 780 });
-    await expect(page.getByText('Built for the long way round.', { exact: true })).toBeInViewport({
+    await expect(page.getByRole('contentinfo', { name: 'Playback' })).toBeInViewport({
       ratio: 1,
     });
     await page.screenshot({ path: 'test-results/phase-2-release-light.png', fullPage: true });
@@ -202,14 +206,14 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
     await selectAppearance(page, 'Dark');
     await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
       'background-color',
-      'rgb(37, 41, 46)',
+      darkGraphiteField,
     );
     await page.screenshot({ path: 'test-results/artwork-record-and-crate-dark.png' });
     await selectAppearance(page, 'Light');
     await selectAppearance(page, 'Dark');
     await expect(page.locator('.taxonomy__control').first()).toHaveCSS(
       'background-color',
-      'rgb(37, 41, 46)',
+      darkGraphiteField,
     );
     await page.screenshot({ path: 'test-results/phase-2-release-dark.png', fullPage: true });
     await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).click();
