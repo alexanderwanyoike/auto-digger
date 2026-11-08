@@ -227,13 +227,7 @@ export function App({
       )}
       <PlaybackBar audio={audio} />
       <div className="status-bar" role="region" aria-label="App status">
-        {audio.preparingPreview ? (
-          <PreviewStatus audio={audio} />
-        ) : (
-          <span>
-            <span className="blue-dot" /> DISCOGS DISCOVERY
-          </span>
-        )}
+        <PreviewStatus audio={audio} />
         <UpdateNotice />
       </div>
       {connectionOpen && (
