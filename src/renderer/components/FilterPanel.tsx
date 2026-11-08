@@ -5,6 +5,7 @@ import { TaxonomySelect } from './TaxonomySelect';
 import { GenreStyleFilters } from './GenreStyleFilters';
 import { releaseTypes } from '../../shared/release-types';
 import type { useDiscogs } from '../discogs/use-discogs';
+import { sameSearchFilters } from '../../shared/search';
 
 const fields = [
   ['label', 'Label', 'Any label'],
@@ -20,6 +21,15 @@ export function FilterPanel({
   session: ReturnType<typeof useDiscogs>;
   filters: ReturnType<typeof useSavedFilters>;
 }) {
+  const primary = session.artistBrowse?.origin ?? session;
+  const appliedPage = sameSearchFilters(filters.draft, primary.filters)
+    ? primary.matches?.page
+    : undefined;
+  const { selectedPreset } = filters;
+  const savedPage =
+    selectedPreset && sameSearchFilters(filters.draft, selectedPreset.filters)
+      ? selectedPreset.page
+      : 1;
   return (
     <aside className="filter-panel" aria-labelledby="filters-heading">
       <div className="panel-heading">
@@ -28,11 +38,11 @@ export function FilterPanel({
         </h2>
       </div>
       <div className="desk-panel-scroll">
-        <SavedFilterPicker filters={filters} />
+        <SavedFilterPicker filters={filters} page={appliedPage ?? savedPage} />
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            session.search(filters.draft).catch(() => undefined);
+            session.search(filters.draft, savedPage).catch(() => undefined);
           }}
         >
           <fieldset disabled={!session.account || session.busy}>

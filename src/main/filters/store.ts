@@ -62,7 +62,7 @@ export function createSavedFiltersStore(connection: () => Promise<CatalogueResul
           catalogueFailure('invalid-input', 'Give these filters a name and a valid year.'),
         );
       return change((current) => {
-        const { id, name, filters } = parsed.data;
+        const { id, name, filters, page } = parsed.data;
         if (id && !current.presets.some((preset) => preset.id === id))
           return catalogueFailure('invalid-input', 'These saved filters no longer exist.');
         if (
@@ -76,7 +76,7 @@ export function createSavedFiltersStore(connection: () => Promise<CatalogueResul
           );
         if (!id && current.presets.length >= 200)
           return catalogueFailure('invalid-input', 'Remove some saved filters before adding more.');
-        const preset = { id: id ?? randomUUID(), name, filters };
+        const preset = { id: id ?? randomUUID(), name, filters, page };
         const presets = id
           ? current.presets.map((item) => (item.id === id ? preset : item))
           : [...current.presets, preset];
