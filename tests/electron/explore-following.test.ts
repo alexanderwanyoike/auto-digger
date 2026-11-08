@@ -55,18 +55,25 @@ test('discovers unopened releases, browses followed catalogues and compares genr
   try {
     let page = await desktop.firstWindow();
     await stubCatalogue();
-    await page.evaluate(async () => {
-      await window.discogs?.connect('fixture-explore-token');
-      await window.following?.setFollowed({
+    await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
+    await page.getByLabel('Personal token').fill('fixture-explore-token');
+    await page.getByRole('button', { name: 'Connect account', exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }),
+    ).toBeVisible();
+    const seeded = await page.evaluate(async () => {
+      if (!window.following) return false;
+      const artist = await window.following.setFollowed({
         topic: { kind: 'artist', name: 'Low Tide' },
         followed: true,
       });
-      await window.following?.setFollowed({
+      const genre = await window.following.setFollowed({
         topic: { kind: 'genre', name: 'Electronic' },
         followed: true,
       });
+      return artist.ok && genre.ok;
     });
-    await page.reload();
+    expect(seeded).toBe(true);
     await page.getByLabel('Discogs release ID', { exact: true }).fill('12');
     await page.getByRole('button', { name: 'Load release', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
