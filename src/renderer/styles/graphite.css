@@ -26,8 +26,7 @@
   --control: color-mix(in srgb, var(--surface-raised) 94%, var(--text));
   --control-hover: color-mix(in srgb, var(--surface-raised) 88%, var(--text));
 }
-:root[data-material='graphite']
-  :is(.app-shell, .app-header, .section-nav, .playback-bar, .status-bar),
+:root[data-material='graphite'] :is(.app-shell, .app-header, .playback-bar, .status-bar),
 .material-thumbnail[data-material='graphite'] .material-mini-header {
   background: var(--body);
 }
@@ -48,21 +47,12 @@
   border-radius: 8px;
 }
 
-:root[data-material='graphite'] .section-nav button {
-  margin-block: 5px;
-  padding-block: 7px;
-  border-radius: 7px;
-}
 :root[data-material='graphite'] .section-nav button:hover {
   background: var(--control);
   color: var(--text);
 }
 :root[data-material='graphite'] .section-nav button[aria-current='page'] {
-  border-bottom-color: transparent;
   background: color-mix(in srgb, var(--blue) 15%, var(--surface-raised));
-}
-:root[data-material='graphite'] .section-nav button:focus-visible {
-  outline-offset: -2px;
 }
 
 :root[data-material='graphite'] :is(.secondary-button, .play-button) {
