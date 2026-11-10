@@ -32,7 +32,7 @@ Cosine Club searches primary artist/full track title first, then the selected Yo
 
 The **Explore feed** draws on the listener's explicit artist, label and genre follows and on styles learned from personal crate saves. It presents these sources in separate shelves, with **From your follows** directly below the shelf based on crate taste. **From your follows** can surface both recent releases and older catalogue finds from followed topics.
 
-A **seen release** is a Discogs release whose details the listener has opened. Both discovery shelves exclude seen releases.
+A **seen release** is a Discogs release whose details the listener has opened or whose sleeve preview has started playing. Both discovery shelves exclude seen releases.
 
 A **sleeve preview** plays a track with a clear audio source in the bottom player while the listener browses Explore. Opening the sleeve shows the release details.
 
