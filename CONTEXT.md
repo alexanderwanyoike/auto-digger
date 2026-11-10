@@ -34,4 +34,6 @@ The **Explore feed** draws on the listener's explicit artist, label and genre fo
 
 A **seen release** is a Discogs release whose details the listener has opened. Both discovery shelves exclude seen releases.
 
+A **sleeve preview** plays a track with a clear audio source in the bottom player while the listener browses Explore. Opening the sleeve shows the release details.
+
 A **taste signal** is evidence of the listener's musical preferences that shapes the Explore feed. A new crate save recorded as the listener's own contributes a taste signal using the saved release's Discogs styles. Each Discogs release ID contributes once across all crates. Removing the last personal save for a release removes its taste signal.
