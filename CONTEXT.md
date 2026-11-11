@@ -30,7 +30,7 @@ Cosine Club searches primary artist/full track title first, then the selected Yo
 
 **Explore** is Auto Digger's launch destination for discovering releases. With Discogs connected, the feed shows releases even when the listener has empty crates and follows nobody.
 
-The **Explore feed** opens with a starter shelf that becomes more personal as the listener saves records to crates. New crate saves affect the starter shelf at its next refresh. **From your follows** appears directly below once the listener follows an artist, label or genre. It can surface both recent releases and older catalogue finds from those follows.
+The **Explore feed** opens with a starter shelf that becomes more personal as the listener saves records to crates. The feed refreshes on launch and when the listener chooses Refresh. New crate saves affect the starter shelf at its next refresh. **From your follows** appears directly below once the listener follows an artist, label or genre. It can surface both recent releases and older catalogue finds from those follows.
 
 A **seen release** is a Discogs release whose details the listener has opened or whose sleeve preview has started playing. Both discovery shelves exclude seen releases.
 
