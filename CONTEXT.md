@@ -32,6 +32,8 @@ Cosine Club searches primary artist/full track title first, then the selected Yo
 
 The **Explore feed** opens with a starter shelf that becomes more personal as the listener saves records to crates. The feed refreshes on launch and when the listener chooses Refresh. New crate saves affect the starter shelf at its next refresh. **From your follows** appears directly below once the listener follows an artist, label or genre. It can surface both recent releases and older catalogue finds from those follows.
 
+Within Explore's catalogue, listeners browse releases by year for a selected Discogs style, such as Progressive House.
+
 A **seen release** is a Discogs release whose details the listener has opened or whose sleeve preview has started playing. Both discovery shelves exclude seen releases.
 
 A **sleeve preview** plays a track with a clear audio source in the bottom player while the listener browses Explore. Opening the sleeve shows the release details.
