@@ -92,9 +92,15 @@ export function useExplore(bridge: DiscogsBridge | undefined) {
         },
       );
     },
-    open: async (id: number) => {
+    open: async (id: number, markSeen: (id: number) => void) => {
       if (!bridge || busy) return;
-      await perform(() => bridge.loadRelease(id), setRelease);
+      await perform(
+        () => bridge.loadRelease(id),
+        (value) => {
+          setRelease(value);
+          markSeen(value.id);
+        },
+      );
     },
     back: () => {
       setRelease(null);

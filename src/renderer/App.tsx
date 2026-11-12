@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Compass, Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
 import { ExplorePage } from './explore/ExplorePage';
+import { useStarterShelf } from './explore/use-starter-shelf';
 import { FollowingContext } from './following/following-context';
 import { useFollowing } from './following/use-following';
 import { useRecommendations } from './recommendations/use-recommendations';
@@ -48,7 +49,7 @@ export function App({
   audioLibrary?: AudioBridge;
   catalogue?: CatalogueBridge;
 }) {
-  const [section, setSection] = useState<keyof typeof sectionIcons>('Digging desk');
+  const [section, setSection] = useState<keyof typeof sectionIcons>('Explore');
   const SectionIcon = sectionIcons[section];
   const preferences = usePreferences(window.preferences);
   const filters = useSavedFilters(window.savedFilters);
@@ -56,6 +57,7 @@ export function App({
   const audio = useAudioLibrary(audioBridge);
   const crate = useCrate(crateBridge, catalogue);
   const session = useDiscogs(discogs, filters.rememberPage);
+  const starterShelf = useStarterShelf(discogs?.starterShelf, session.account);
   const recommendations = useRecommendations(session.release, session.openSavedRelease, audio);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const { appearance, selectAppearance, storageAvailable } = useAppearance();
@@ -82,7 +84,7 @@ export function App({
         </div>
         <nav className="section-nav" aria-label="Main sections">
           <div className="section-switcher">
-            {(['Digging desk', 'Explore', 'Crates', 'Downloads'] as const).map((item) => {
+            {(['Explore', 'Digging desk', 'Crates', 'Downloads'] as const).map((item) => {
               const Icon = sectionIcons[item];
               return (
                 <button
@@ -139,7 +141,7 @@ export function App({
         </p>
       )}
       <main>
-        {section === 'Digging desk' ? (
+        {section === 'Digging desk' || section === 'Explore' ? (
           <h1 className="sr-only">{section}</h1>
         ) : (
           <div className="desk-toolbar">
@@ -172,6 +174,7 @@ export function App({
           <ExplorePage
             bridge={discogs}
             connected={Boolean(session.account)}
+            starterShelf={starterShelf}
             following={following}
             crate={crate}
             audio={audio}

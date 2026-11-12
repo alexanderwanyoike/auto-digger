@@ -11,16 +11,20 @@ import type { useCrate } from '../crate/use-crate';
 import { useExplore } from './use-explore';
 import { YearComparisonForm } from './YearComparisonForm';
 import { ExploreResults } from './ExploreResults';
+import { StarterShelf } from './StarterShelf';
+import type { useStarterShelf } from './use-starter-shelf';
 
 export function ExplorePage({
   bridge,
   connected,
+  starterShelf,
   following,
   crate,
   audio,
 }: {
   bridge: DiscogsBridge | undefined;
   connected: boolean;
+  starterShelf: ReturnType<typeof useStarterShelf>;
   following: ReturnType<typeof useFollowing>;
   crate: ReturnType<typeof useCrate>;
   audio: ReturnType<typeof useAudioLibrary>;
@@ -30,6 +34,9 @@ export function ExplorePage({
   const disabled = !connected || busy;
   const browse = (next: FollowTopic, page?: number) => {
     explore.browse(next, page).catch(() => undefined);
+  };
+  const open = (id: number) => {
+    explore.open(id, starterShelf.markSeen).catch(() => undefined);
   };
   return (
     <div className="explore-page">
@@ -53,76 +60,81 @@ export function ExplorePage({
         </section>
       ) : (
         <>
-          <FollowingPanel following={following} browseDisabled={disabled} onBrowse={browse} />
-          <section
-            className="explore-workspace section-page"
-            aria-labelledby="explore-catalogue-heading"
-          >
-            <header className="explore-tools">
-              <div className="explore-scope">
-                <h2 id="explore-catalogue-heading">{topic?.name ?? 'All followed'}</h2>
-                {topic && (
-                  <button
-                    type="button"
-                    className="secondary-button"
-                    onClick={explore.reset}
-                    disabled={busy}
-                  >
-                    All followed
-                  </button>
+          {connected && !topic && (
+            <StarterShelf shelf={starterShelf} disabled={disabled} open={open} />
+          )}
+          {!connected && (
+            <p className="explore-notice">Connect Discogs to browse and discover releases.</p>
+          )}
+          {(topic || following.topics.length > 0) && (
+            <>
+              <FollowingPanel following={following} browseDisabled={disabled} onBrowse={browse} />
+              <section
+                className="explore-workspace section-page"
+                aria-labelledby="explore-catalogue-heading"
+              >
+                <header className="explore-tools">
+                  <div className="explore-scope">
+                    <h2 id="explore-catalogue-heading">{topic?.name ?? 'All followed'}</h2>
+                    {topic && (
+                      <button
+                        type="button"
+                        className="secondary-button"
+                        onClick={explore.reset}
+                        disabled={busy}
+                      >
+                        All followed
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="primary-button explore-discover"
+                      disabled={
+                        disabled ||
+                        !explore.discoverAvailable ||
+                        !following.topics.length ||
+                        Boolean(topic && !following.isFollowed(topic))
+                      }
+                      onClick={() => {
+                        explore.discover().catch(() => undefined);
+                      }}
+                    >
+                      <Shuffle size={15} aria-hidden="true" /> Discover unseen releases
+                    </button>
+                  </div>
+                  {topic?.kind === 'genre' && (
+                    <YearComparisonForm
+                      key={followTopicKey(topic)}
+                      disabled={disabled}
+                      compare={(first, second) => {
+                        explore.compare(first, second).catch(() => undefined);
+                      }}
+                    />
+                  )}
+                </header>
+                {busy && (
+                  <p className="explore-notice" role="status">
+                    Loading releases…
+                  </p>
                 )}
-                <button
-                  type="button"
-                  className="primary-button explore-discover"
-                  disabled={
-                    disabled ||
-                    !explore.discoverAvailable ||
-                    !following.topics.length ||
-                    Boolean(topic && !following.isFollowed(topic))
-                  }
-                  onClick={() => {
-                    explore.discover().catch(() => undefined);
-                  }}
-                >
-                  <Shuffle size={15} aria-hidden="true" /> Discover unseen releases
-                </button>
-              </div>
-              {topic?.kind === 'genre' && (
-                <YearComparisonForm
-                  key={followTopicKey(topic)}
-                  disabled={disabled}
-                  compare={(first, second) => {
-                    explore.compare(first, second).catch(() => undefined);
-                  }}
-                />
-              )}
-            </header>
-            {!connected && (
-              <p className="explore-notice">Connect Discogs to browse and discover releases.</p>
-            )}
-            {busy && (
-              <p className="explore-notice" role="status">
-                Loading releases…
-              </p>
-            )}
-            {error && (
-              <p className="explore-notice" role="alert">
-                {error}
-              </p>
-            )}
-            {view && (
-              <ExploreResults
-                view={view}
-                disabled={disabled}
-                open={(id) => {
-                  explore.open(id).catch(() => undefined);
-                }}
-                paginate={(page) => {
-                  if (topic) browse(topic, page);
-                }}
-              />
-            )}
-          </section>
+                {error && (
+                  <p className="explore-notice" role="alert">
+                    {error}
+                  </p>
+                )}
+                {view && (
+                  <ExploreResults
+                    view={view}
+                    disabled={disabled}
+                    open={open}
+                    paginate={(page) => {
+                      if (topic) browse(topic, page);
+                    }}
+                  />
+                )}
+              </section>
+            </>
+          )}
         </>
       )}
     </div>
