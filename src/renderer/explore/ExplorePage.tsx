@@ -66,7 +66,7 @@ export function ExplorePage({
           {!connected && (
             <p className="explore-notice">Connect Discogs to browse and discover releases.</p>
           )}
-          {(topic || following.topics.length > 0) && (
+          {(topic !== null || following.topics.length > 0) && (
             <>
               <FollowingPanel following={following} browseDisabled={disabled} onBrowse={browse} />
               <section

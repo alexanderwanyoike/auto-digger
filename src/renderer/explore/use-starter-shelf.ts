@@ -39,7 +39,11 @@ export function useStarterShelf(
     releases: result?.ok ? result.value.filter(({ id }) => !seen.has(id)) : [],
     busy,
     error: result && !result.ok ? result.error.message : null,
-    refresh: () => setRevision((value) => value + 1),
-    markSeen: (id: number) => setSeen((current) => new Set([...current, id])),
+    refresh: () => {
+      setRevision((value) => value + 1);
+    },
+    markSeen: (id: number) => {
+      setSeen((current) => new Set([...current, id]));
+    },
   };
 }

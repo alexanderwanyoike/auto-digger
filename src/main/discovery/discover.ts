@@ -4,8 +4,7 @@ import type { CatalogueResult } from '../../shared/catalogue';
 import { filtersForTopic } from '../../shared/discovery';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsBridge, DiscogsResult } from '../../shared/discogs';
-import type { SearchPage } from '../../shared/search';
-import type { DigFilters } from '../../shared/search';
+import type { DigFilters, SearchPage } from '../../shared/search';
 import { emptyFilters } from '../../shared/default-filters';
 
 function shuffled<T>(items: readonly T[]): T[] {
@@ -18,39 +17,6 @@ function shuffled<T>(items: readonly T[]): T[] {
     if (index < pool.length) pool[index] = last;
     return [picked];
   });
-}
-
-export function createDiscover(
-  search: DiscogsBridge['search'],
-  readFollowing: () => Promise<FollowingResult>,
-  knownReleases: () => Promise<CatalogueResult<Set<number>>>,
-) {
-  const discover = createReleaseDiscovery(search, knownReleases, 8);
-  return async (input: unknown): Promise<DiscogsResult<SearchPage['releases']>> => {
-    const selected = followTopicSchema.nullable().safeParse(input);
-    if (!selected.success)
-      return discogsFailure('invalid-input', 'Choose a followed artist, label or genre.');
-    const following = await readFollowing();
-    if (!following.ok) return discogsFailure('unavailable', following.error.message);
-    const selectedKey = selected.data && followTopicKey(selected.data);
-    const topics = selectedKey
-      ? following.value.filter((topic) => followTopicKey(topic) === selectedKey)
-      : shuffled(following.value).slice(0, 3);
-    if (!topics.length)
-      return discogsFailure(
-        'invalid-input',
-        'Follow an artist, label or genre to discover releases.',
-      );
-    return discover(topics.map((topic) => filtersForTopic(topic)));
-  };
-}
-
-export function createStarterShelf(
-  search: DiscogsBridge['search'],
-  seenReleases: () => Promise<CatalogueResult<Set<number>>>,
-) {
-  const discover = createReleaseDiscovery(search, seenReleases, 6);
-  return () => discover([emptyFilters]);
 }
 
 function createReleaseDiscovery(
@@ -84,4 +50,37 @@ function createReleaseDiscovery(
     const unseen = [...candidates.values()].filter(({ id }) => !known.value.has(id));
     return { ok: true, value: shuffled(unseen).slice(0, shelfSize) };
   };
+}
+
+export function createDiscover(
+  search: DiscogsBridge['search'],
+  readFollowing: () => Promise<FollowingResult>,
+  knownReleases: () => Promise<CatalogueResult<Set<number>>>,
+) {
+  const discover = createReleaseDiscovery(search, knownReleases, 8);
+  return async (input: unknown): Promise<DiscogsResult<SearchPage['releases']>> => {
+    const selected = followTopicSchema.nullable().safeParse(input);
+    if (!selected.success)
+      return discogsFailure('invalid-input', 'Choose a followed artist, label or genre.');
+    const following = await readFollowing();
+    if (!following.ok) return discogsFailure('unavailable', following.error.message);
+    const selectedKey = selected.data && followTopicKey(selected.data);
+    const topics = selectedKey
+      ? following.value.filter((topic) => followTopicKey(topic) === selectedKey)
+      : shuffled(following.value).slice(0, 3);
+    if (!topics.length)
+      return discogsFailure(
+        'invalid-input',
+        'Follow an artist, label or genre to discover releases.',
+      );
+    return discover(topics.map((topic) => filtersForTopic(topic)));
+  };
+}
+
+export function createStarterShelf(
+  search: DiscogsBridge['search'],
+  seenReleases: () => Promise<CatalogueResult<Set<number>>>,
+) {
+  const discover = createReleaseDiscovery(search, seenReleases, 6);
+  return () => discover([emptyFilters]);
 }
