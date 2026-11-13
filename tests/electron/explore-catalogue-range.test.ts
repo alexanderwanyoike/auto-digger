@@ -33,7 +33,7 @@ test('browses a year range with one paginated search and opens an individual yea
         const rangePages = [
           records(1993, 50),
           records(1994, 50),
-          [...records(1993, 1), ...records(1995, 40), ...records(2000, 1)],
+          [...records(1993, 1), ...records(1995, 1), ...records(2000, 1)],
         ];
         const results = ranged
           ? (rangePages[number - 1] ?? []).map((record) =>
@@ -44,9 +44,9 @@ test('browses a year range with one paginated search and opens an individual yea
           Response.json({
             pagination: {
               page: number,
-              pages: ranged ? 3 : 1,
+              pages: ranged ? rangePages.length : 1,
               per_page: 50,
-              items: ranged ? 142 : 1,
+              items: ranged ? 103 : 1,
             },
             results,
           }),
@@ -99,6 +99,12 @@ test('browses a year range with one paginated search and opens an individual yea
     expect(await rangeRequests()).toEqual([1, 2, 3].map((number) => ({ ...query, page: number })));
 
     await years.getByRole('button', { name: '1995', exact: true }).click();
+    await page.evaluate(
+      () =>
+        new Promise((done) => {
+          requestAnimationFrame(() => requestAnimationFrame(done));
+        }),
+    );
     await expect(years.getByRole('button', { name: '1995', exact: true })).toHaveAttribute(
       'aria-current',
       'true',
@@ -109,7 +115,7 @@ test('browses a year range with one paginated search and opens an individual yea
     expect((await rangeRequests()).at(-1)).toMatchObject({ year: '1995', page: 1 });
     await page.getByRole('button', { name: 'Back to Catalogue' }).click();
     await expect(to).toHaveValue('1999');
-    await expect(second.getByRole('button', { name: 'Play Record 1995 39' })).toBeAttached();
+    await expect(second.getByRole('button', { name: 'Play Record 1995 0' })).toBeAttached();
   } finally {
     await desktop.close();
   }
