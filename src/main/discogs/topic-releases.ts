@@ -46,9 +46,11 @@ export async function loadTopicReleases(
   );
   if (!result.ok) return result;
   const { pagination, releases } = result.value;
+  const seen = new Set<number>();
   const records: SearchPage['releases'] = releases.flatMap((item) => {
     const releaseId = item.type === 'master' ? item.main_release : item.id;
-    if (!releaseId || releaseId < 1) return [];
+    if (!releaseId || releaseId < 1 || seen.has(releaseId)) return [];
+    seen.add(releaseId);
     const title = item.title.trim();
     const label = topic.kind === 'label' ? topic.name : item.label;
     return [
