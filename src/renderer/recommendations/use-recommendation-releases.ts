@@ -25,15 +25,21 @@ export function useRecommendationReleases(
       item: Recommendation,
       background = false,
     ): Promise<CosineResult<ResolvedRecommendation>> => {
+      const version = revision.current;
       const existing = cache.current.get(item.id);
       if (existing) {
         const result = await existing;
-        if (background || result.ok || result.error.code !== 'rate-limited') return result;
+        if (
+          version !== revision.current ||
+          background ||
+          result.ok ||
+          result.error.code !== 'rate-limited'
+        )
+          return result;
         if (cache.current.get(item.id) === existing) cache.current.delete(item.id);
         const replacement = cache.current.get(item.id);
         if (replacement) return replacement;
       }
-      const version = revision.current;
       const pending = bridge
         ? bridge
             .resolve(item, background)
