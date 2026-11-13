@@ -25,7 +25,7 @@ test('browses populated catalogue years and restores the timeline from a full ye
             { id: 14, title: 'Mira North - First Light', year: 1993 },
             ...Array.from({ length: 8 }, (_, index) => ({
               id: 20 + index,
-              title: `Silt Relay - Back Channel ${index + 1}`,
+              title: `Silt Relay - Back Channel ${(index + 1).toString()}`,
               year: 2000,
             })),
           ];
