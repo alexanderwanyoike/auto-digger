@@ -22,7 +22,7 @@ export async function catalogueYears(
   active: () => boolean,
   onYear: (year: number) => void,
 ): Promise<DiscogsResult<number | null>> {
-  const latest = new Date().getFullYear();
+  const latest = 9999;
   async function next(start: number, remaining: number): Promise<DiscogsResult<number | null>> {
     if (!active() || start > latest) return { ok: true, value: null };
     if (remaining === 0) return { ok: true, value: start };
