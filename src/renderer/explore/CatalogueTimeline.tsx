@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { YearRecords } from './use-catalogue-records';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { TickScrollbar } from './TickScrollbar';
+import { catalogueScrollYear } from './catalogue-scroll-year';
+import { useRevealCatalogueYear } from './use-reveal-catalogue-year';
 import { CatalogueYearShelf } from './CatalogueYearShelf';
 import { useCatalogueRecords } from './use-catalogue-records';
 import { useScrollContinuation } from './use-scroll-continuation';
@@ -62,15 +64,7 @@ export function CatalogueTimeline({
   const catalogue = useRef<HTMLDivElement>(null);
   const yearRail = useRef<HTMLElement>(null);
   const yearRailContent = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const rail = yearRail.current;
-    const button = rail?.querySelector('[aria-current="true"]');
-    if (!rail || !button) return;
-    const visible = rail.getBoundingClientRect();
-    const target = button.getBoundingClientRect();
-    if (target.top < visible.top) rail.scrollBy(0, target.top - visible.top);
-    if (target.bottom > visible.bottom) rail.scrollBy(0, target.bottom - visible.bottom);
-  }, [selected]);
+  useRevealCatalogueYear(yearRail, selected);
   useEffect(() => {
     const timeline = catalogue.current;
     const viewport = timeline?.closest<HTMLElement>('.explore-scroll');
@@ -78,16 +72,8 @@ export function CatalogueTimeline({
     const update = () => {
       if (!timeline.getClientRects().length) return;
       if (viewport.scrollTop > 0) setExploring(true);
-      const inset = parseFloat(getComputedStyle(timeline).scrollMarginTop);
-      const edge = viewport.getBoundingClientRect().top + inset;
-      const years = Array.from(timeline.querySelectorAll<HTMLElement>('[data-release-year]'));
-      const atEnd =
-        viewport.scrollTop > 0 &&
-        viewport.scrollTop + viewport.clientHeight >= viewport.scrollHeight - 2;
-      const year = atEnd
-        ? years.at(-1)
-        : years.find((group) => group.getBoundingClientRect().bottom > edge);
-      if (year?.dataset.releaseYear) setSelected(Number(year.dataset.releaseYear));
+      const year = catalogueScrollYear(timeline, viewport);
+      if (year !== undefined) setSelected(year);
     };
     update();
     viewport.addEventListener('scroll', update, { passive: true });
