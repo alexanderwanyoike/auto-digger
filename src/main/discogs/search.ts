@@ -55,9 +55,9 @@ export async function searchDiscogs(
     per_page: '50',
     page: page.toString(),
   });
-  if ((input.context === 'explore' || input.context === 'catalogue') && input.order === 'oldest') {
+  if ((input.context === 'explore' || input.context === 'catalogue') && input.order) {
     query.set('sort', 'year');
-    query.set('sort_order', 'asc');
+    query.set('sort_order', input.order === 'oldest' ? 'asc' : 'desc');
   }
   if (options.query) query.set('q', options.query);
   Object.entries(filters).forEach(([key, value]) => {
@@ -72,12 +72,7 @@ export async function searchDiscogs(
     request,
     options,
   );
-  if (
-    input.context === 'catalogue' &&
-    input.order === 'oldest' &&
-    result.ok &&
-    result.value.items
-  ) {
+  if (input.context === 'catalogue' && input.order && result.ok && result.value.items) {
     const [start, end = start] = filters.year.split('-').map(Number);
     const dated = result.value.releases.some(({ year }) => {
       const value = Number(year);

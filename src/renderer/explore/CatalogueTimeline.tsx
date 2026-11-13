@@ -30,7 +30,8 @@ export function CatalogueTimeline({
   onShowYear: (style: string, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
-  const index = useCatalogueYearIndex(search, style, onUnauthorized, active, jumpYear);
+  const [jumpLoaded, setJumpLoaded] = useState(false);
+  const index = useCatalogueYearIndex(search, style, onUnauthorized, active, jumpYear, jumpLoaded);
   const records = useCatalogueRecords(
     search,
     style,
@@ -39,6 +40,10 @@ export function CatalogueTimeline({
     undefined,
     active,
   );
+  useEffect(() => {
+    if (jumpYear !== undefined && records.groups.some(({ year }) => year === jumpYear))
+      setJumpLoaded(true);
+  }, [jumpYear, records.groups]);
   const [exploring, setExploring] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const catalogue = useRef<HTMLDivElement>(null);
@@ -188,7 +193,9 @@ export function CatalogueTimeline({
                   <li key={year}>
                     <button
                       type="button"
-                      aria-current={year === (selected ?? index.years[0]) ? true : undefined}
+                      aria-current={
+                        year === (selected ?? jumpYear ?? index.years[0]) ? true : undefined
+                      }
                       disabled={disabled}
                       onKeyDown={(event) => {
                         const rail = yearRail.current;
