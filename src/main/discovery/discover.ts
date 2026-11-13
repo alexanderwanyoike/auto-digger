@@ -40,8 +40,9 @@ function createReleaseDiscovery(
       if (first.value.pages > 1) {
         const page = 2 + Math.floor(Math.random() * (Math.min(first.value.pages, 200) - 1));
         const sampled = await search({ filters, page, context: 'explore' });
-        if (!sampled.ok) return sampled;
-        collect(sampled.value);
+        if (sampled.ok) collect(sampled.value);
+        else if (sampled.error.code === 'unauthorized' || sampled.error.code === 'cancelled')
+          return sampled;
       }
       return searchTopic(index + 1);
     };
