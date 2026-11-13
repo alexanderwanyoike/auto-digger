@@ -31,6 +31,7 @@ test.each(['success', 'failure'] as const)(
         }}
       />,
     );
+    await user.click(screen.getByRole('button', { name: 'Digging desk' }));
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
     const control = screen.getByRole('button', { name: 'Download audio' });
     expect(control).toBeDisabled();

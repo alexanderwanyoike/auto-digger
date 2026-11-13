@@ -1,8 +1,11 @@
 import { z } from 'zod';
 import { supportedUrl } from './media-url';
-import type { searchInputSchema, SearchPage } from '../../shared/search';
+import { maxSearchResults } from '../../shared/search-limits';
+import type { SearchInput, SearchPage } from '../../shared/search';
+import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';
 import { requestDiscogs } from './request';
+import type { DiscogsRequestOptions } from './request';
 
 const responseSchema = z
   .object({
@@ -26,7 +29,7 @@ const responseSchema = z
   })
   .transform(({ pagination, results }) => ({
     page: pagination.page,
-    pages: Math.min(pagination.pages, Math.ceil(10000 / pagination.per_page)),
+    pages: Math.min(pagination.pages, Math.ceil(maxSearchResults / pagination.per_page)),
     perPage: pagination.per_page,
     items: pagination.items,
     releases: results.map((release) => ({
@@ -42,10 +45,10 @@ const responseSchema = z
   }));
 
 export async function searchDiscogs(
-  input: z.infer<typeof searchInputSchema>,
+  input: SearchInput,
   token: string,
   request: typeof fetch,
-  options: { query?: string; signal?: AbortSignal } = {},
+  options: DiscogsRequestOptions & { query?: string } = {},
 ): Promise<DiscogsResult<SearchPage>> {
   const { filters, page } = input;
   const query = new URLSearchParams({
@@ -53,17 +56,30 @@ export async function searchDiscogs(
     per_page: '50',
     page: page.toString(),
   });
+  if (input.order && input.context && input.context !== 'artist') {
+    query.set('sort', 'year');
+    query.set('sort_order', input.order === 'oldest' ? 'asc' : 'desc');
+  }
   if (options.query) query.set('q', options.query);
   Object.entries(filters).forEach(([key, value]) => {
     if (Array.isArray(value)) {
       if (value.length) query.set(key, value.join('|'));
     } else if (value) query.set(key === 'title' ? 'release_title' : key, value);
   });
-  return requestDiscogs(
+  const result = await requestDiscogs(
     `/database/search?${query.toString()}`,
     token,
     responseSchema,
     request,
-    options.signal,
+    options,
   );
+  if (input.context === 'catalogue' && input.order && result.ok && result.value.items) {
+    const [start, end = start] = filters.year.split('-').map(Number);
+    const dated = result.value.releases.some(({ year }) => {
+      const value = Number(year);
+      return Number.isInteger(value) && value >= (start ?? 1000) && value <= (end ?? 9999);
+    });
+    if (!dated) return discogsFailure('invalid-response', 'Discogs did not return a release year.');
+  }
+  return result;
 }

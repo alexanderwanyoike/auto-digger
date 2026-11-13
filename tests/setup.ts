@@ -8,6 +8,14 @@ beforeEach(() => {
   vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
   window.localStorage.clear();
   delete document.documentElement.dataset.theme;
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      observe = vi.fn();
+
+      disconnect = vi.fn();
+    },
+  );
   vi.stubGlobal('matchMedia', () => ({
     matches: false,
     addEventListener: vi.fn(),

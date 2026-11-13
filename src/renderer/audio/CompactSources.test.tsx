@@ -49,6 +49,7 @@ test('shows one source per track and reveals alternate and unmatched uploads on 
       }}
     />,
   );
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   const list = screen.getByRole('list', { name: 'YouTube audio sources' });
   expect(within(list).getAllByLabelText('Discogs track')).toHaveLength(2);
@@ -96,6 +97,7 @@ test('keeps stale saved assignments playable offline and allows correction to th
       }}
     />,
   );
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   const list = screen.getByRole('list', { name: 'YouTube audio sources' });
   await user.click(within(list).getByText('1 unmatched upload'));

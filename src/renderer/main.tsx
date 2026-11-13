@@ -31,6 +31,7 @@ import './styles/field-focus.css';
 import './styles/following.css';
 import './styles/explore.css';
 import './styles/playlists.css';
+import './styles/explore-scrollbar.css';
 
 const container = document.getElementById('root');
 

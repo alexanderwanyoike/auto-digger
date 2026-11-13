@@ -21,6 +21,7 @@ const darkGraphiteField = 'rgb(24, 24, 26)';
     });
     try {
       const page = await desktop.firstWindow();
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await expect(page.getByRole('heading', { name: 'Digging desk' })).toBeVisible();
       await expect(page.locator('.wordmark img')).toBeVisible();
       const settings = page.getByRole('button', { name: 'Settings', exact: true });
@@ -46,6 +47,7 @@ const darkGraphiteField = 'rgb(24, 24, 26)';
       );
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
       await page.reload();
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
       await selectAppearance(page, 'Light');
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
@@ -103,6 +105,7 @@ test('connects, searches and loads metadata through the isolated Discogs bridge'
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     await desktop.evaluate(
       (_electron, fixtures) => {

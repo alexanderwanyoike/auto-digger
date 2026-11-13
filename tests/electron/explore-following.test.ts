@@ -40,7 +40,14 @@ test('discovers unopened releases, browses followed catalogues and compares genr
           { id: 14, title: 'Mira North - First Light', year: 1993 },
           { id: 15, title: 'Still Waters - Late Signal', year: 2000 },
         ];
-        const catalogue = artist ? records.slice(0, 2) : records;
+        const style = url.searchParams.get('style');
+        const extraRecords = Array.from({ length: 10 }, (_, index) => ({
+          id: 20 + index,
+          title: `Additional Record ${index.toString()}`,
+          year: 2000,
+        }));
+        const followed = artist ? records.slice(0, 2) : records;
+        const catalogue = style === 'Progressive House' ? [...records, ...extraRecords] : followed;
         const results = year
           ? catalogue.filter((release) => release.year.toString() === year)
           : catalogue;
@@ -54,6 +61,7 @@ test('discovers unopened releases, browses followed catalogues and compares genr
     }, releaseResponse);
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await stubCatalogue();
     await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
     await page.getByLabel('Personal token').fill('fixture-explore-token');
@@ -83,23 +91,74 @@ test('discovers unopened releases, browses followed catalogues and compares genr
     page = await desktop.firstWindow();
     await stubCatalogue();
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
-    const discover = page.getByRole('button', { name: 'Discover unseen releases', exact: true });
-    await expect(discover).toBeEnabled();
-    await discover.click();
-    await expect(page.getByRole('button', { name: /Low Tide - Night Transit/ })).toHaveCount(1);
-    await expect(page.getByRole('button', { name: /Mira North - First Light/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Quiet Orbit EP/ })).toHaveCount(0);
-    await page.getByRole('button', { name: /Low Tide - Night Transit/ }).click();
+    const starter = page.getByRole('region', { name: 'Discover records' });
+    const followed = page.getByRole('region', { name: 'From your follows' });
+    await expect(followed.getByRole('button', { name: /^(?!Play ).*Night Transit/ })).toBeVisible();
+    await expect(followed.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toHaveCount(
+      0,
+    );
+    expect(
+      await starter.evaluate((element) =>
+        element.nextElementSibling?.getAttribute('aria-labelledby'),
+      ),
+    ).toBe(await followed.getAttribute('aria-labelledby'));
+    const showDiscover = starter.getByRole('button', { name: 'Show more' });
+    await showDiscover.focus();
+    await showDiscover.press('Enter');
+    await expect(page.getByRole('heading', { name: 'Discover records', level: 2 })).toBeFocused();
+    const expanded = page.getByRole('region', { name: 'Discover records' });
+    await expect(expanded.getByRole('listitem')).toHaveCount(13);
+    const additional = expanded.getByRole('button', { name: /^(?!Play ).*Additional Record 0/ });
+    await additional.click();
+    await page.getByRole('button', { name: 'Back to results' }).click();
+    await expect(additional).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'From your follows' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Back to Feed' }).click();
+    await expect(showDiscover).toBeFocused();
+    await followed.getByRole('button', { name: 'Show more' }).click();
+    await expect(page.getByRole('heading', { name: 'From your follows', level: 2 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Discover records' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Back to Feed' }).click();
+    await followed.getByRole('button', { name: /^(?!Play ).*Night Transit/ }).click();
     await expect(page.getByRole('heading', { name: 'Night Transit', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Back to Explore', exact: true }).click();
+    await expect(followed.getByRole('button', { name: /^(?!Play ).*Night Transit/ })).toHaveCount(
+      0,
+    );
+    const discover = page.getByRole('button', { name: 'Discover unseen releases', exact: true });
+    await expect(discover).toBeEnabled();
+    await expect(
+      page.locator('.explore-toolbar').getByRole('button', { name: 'Refresh' }),
+    ).toBeVisible();
+    await expect(
+      page.locator('.explore-toolbar').getByRole('button', { name: 'Discover unseen releases' }),
+    ).toBeVisible();
+    const unseen = page.getByRole('region', { name: 'Unseen releases' });
     await discover.click();
-    await expect(page.getByRole('button', { name: /Mira North - First Light/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Low Tide - Night Transit/ })).toHaveCount(0);
 
+    await expect(
+      unseen.getByRole('button', { name: /^(?!Play ).*Mira North - First Light/ }),
+    ).toBeVisible();
+    await expect(unseen.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toHaveCount(0);
+    await expect(
+      unseen.getByRole('button', { name: /^(?!Play ).*Low Tide - Night Transit/ }),
+    ).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Following', exact: true }).click();
+    await page.getByRole('button', { name: 'Artists', exact: true }).click();
     await page.getByRole('button', { name: 'Browse Low Tide', exact: true }).click();
-    await expect(page.getByRole('button', { name: /Low Tide - Quiet Orbit EP/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Mira North - First Light/ })).toHaveCount(0);
+    await expect(
+      page.getByRole('button', { name: /^(?!Play ).*Low Tide - Quiet Orbit EP/ }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /^(?!Play ).*Mira North - First Light/ }),
+    ).toHaveCount(0);
 
+    await page
+      .locator('.explore-toolbar')
+      .getByRole('button', { name: 'All followed', exact: true })
+      .click();
+    await page.getByRole('button', { name: 'Genres', exact: true }).click();
     await page.getByRole('button', { name: 'Browse Electronic', exact: true }).click();
     await page.getByLabel('First year', { exact: true }).fill('1993');
     await page.getByLabel('Second year', { exact: true }).fill('2000');

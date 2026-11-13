@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 
-export const catalogueVersion = 6;
+export const catalogueVersion = 9;
 
 export function upgradeCatalogue(database: DatabaseSync) {
   database.exec(`
@@ -31,6 +31,21 @@ export function upgradeCatalogue(database: DatabaseSync) {
       UNIQUE(playlist_id, track_id)
     ) STRICT;
     INSERT INTO playlists(id, name) VALUES('likes', 'Likes') ON CONFLICT(id) DO NOTHING;
+    CREATE TABLE IF NOT EXISTS release_activity (
+      id INTEGER PRIMARY KEY,
+      title TEXT NOT NULL,
+      artist TEXT NOT NULL,
+      artwork_url TEXT,
+      played INTEGER NOT NULL CHECK(played IN (0,1)),
+      last_activity INTEGER NOT NULL
+    ) STRICT;
+    CREATE TABLE IF NOT EXISTS personal_crate_saves (
+      crate_id TEXT NOT NULL,
+      release_id INTEGER NOT NULL,
+      styles TEXT NOT NULL,
+      PRIMARY KEY(crate_id, release_id),
+      FOREIGN KEY(crate_id, release_id) REFERENCES entries(crate_id, release_id) ON DELETE CASCADE
+    ) STRICT;
     PRAGMA user_version=${catalogueVersion.toString()};
     COMMIT;
   `);

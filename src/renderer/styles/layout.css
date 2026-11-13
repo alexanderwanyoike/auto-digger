@@ -45,27 +45,10 @@ main {
 }
 .desk-toolbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  gap: 15px;
   min-height: 62px;
   padding: 16px 30px;
-}
-.desk-title {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-.desk-title > svg {
-  color: var(--blue);
-}
-h1 {
-  font-size: 15px;
-  font-weight: 750;
-  letter-spacing: -0.4px;
-}
-.desk-toolbar > .source-folder {
-  margin-inline-start: auto;
 }
 .workspace {
   display: grid;

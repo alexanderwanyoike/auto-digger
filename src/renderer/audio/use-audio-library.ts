@@ -9,6 +9,7 @@ import { downloadSourceId } from '../../shared/download-source-id';
 export function downloadedPlayback(track: LocalTrack): PlaybackItem {
   return {
     id: track.id,
+    releaseId: track.releaseId,
     title: track.title,
     artist: track.artist,
     album: track.album,

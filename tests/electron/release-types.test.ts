@@ -63,6 +63,7 @@ test('searches and digs multiple release types, saves a non-EP and clears to all
       { identityResponse, releaseResponse },
     );
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.setViewportSize({ width: 1600, height: 1000 });
     await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
     await page.getByLabel('Personal token').fill('release-types-fixture');

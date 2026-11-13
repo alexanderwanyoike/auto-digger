@@ -1,4 +1,8 @@
 import { abortableDiscogs } from './abortable';
+import { createDiscogsRequestQueue } from './request-queue';
+import { createDiscogsReadCache } from './read-cache';
+import { searchInputSchema } from '../../shared/search';
+import type { SearchPage } from '../../shared/search';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsAccount, DiscogsResult } from '../../shared/discogs';
 import type { createTokenStore } from '../credentials/token-store';
@@ -8,18 +12,15 @@ export function createRememberedSession(
   session: ReturnType<typeof createDiscogsSession>,
   tokens: ReturnType<typeof createTokenStore>,
 ) {
-  let queue: Promise<void> = Promise.resolve();
-  function serialize<T>(operation: () => Promise<DiscogsResult<T>>): Promise<DiscogsResult<T>> {
-    const pending = queue.then(operation);
-    queue = pending.then(
-      () => undefined,
-      () => undefined,
-    );
-    return pending;
-  }
+  const serialize = createDiscogsRequestQueue();
+  let credentialRevision = 0;
+  let activeRange = '';
+  let rangeRevision = 0;
+  const pendingSearches = createDiscogsReadCache<SearchPage>();
   function authorized<T>(
     operation: () => Promise<DiscogsResult<T>>,
     signal?: AbortSignal,
+    background = false,
   ): Promise<DiscogsResult<T>> {
     return abortableDiscogs(
       serialize(async () => {
@@ -35,7 +36,7 @@ export function createRememberedSession(
             );
         }
         return result;
-      }),
+      }, background),
       signal,
     );
   }
@@ -44,10 +45,48 @@ export function createRememberedSession(
       authorized(() => session.loadRelease(input, signal), signal),
     researchSearch: (input: unknown, signal?: AbortSignal) =>
       authorized(() => session.researchSearch(input, signal), signal),
-    search: (input: unknown) => authorized(() => session.search(input)),
+    topicArtwork: async (input: unknown) => {
+      const revision = credentialRevision;
+      await serialize(() => Promise.resolve());
+      if (revision !== credentialRevision)
+        return discogsFailure('cancelled', 'The Discogs session has changed.');
+      return session.topicArtwork(input);
+    },
+    search: (input: unknown) => {
+      const parsed = searchInputSchema.safeParse(input);
+      if (!parsed.success) return authorized(() => session.search(input));
+      const revision = credentialRevision;
+      const { context, filters, order, background } = parsed.data;
+      const isRange = context === 'catalogue-range';
+      if (isRange) {
+        const key = JSON.stringify({ filters, order });
+        if (key !== activeRange) {
+          activeRange = key;
+          rangeRevision += 1;
+        }
+      }
+      const requestedRange = isRange ? rangeRevision : undefined;
+      const search = () =>
+        authorized(
+          () => {
+            if (revision !== credentialRevision)
+              return Promise.resolve(
+                discogsFailure('cancelled', 'The Discogs session has changed.'),
+              );
+            if (requestedRange !== undefined && requestedRange !== rangeRevision)
+              return Promise.resolve(
+                discogsFailure('cancelled', 'The Catalogue range has changed.'),
+              );
+            return session.search(parsed.data);
+          },
+          undefined,
+          background,
+        );
+      return pendingSearches.read(JSON.stringify([parsed.data, requestedRange]), search, false);
+    },
     dig: (input: unknown) => authorized(() => session.dig(input)),
     account: () =>
-      serialize<DiscogsAccount | null>(async () => {
+      serialize<DiscogsResult<DiscogsAccount | null>>(async () => {
         const current = session.account();
         if (!current.ok || current.value) return current;
         const stored = await tokens.load();
@@ -62,6 +101,8 @@ export function createRememberedSession(
       }),
     connect: (input: unknown) =>
       serialize(async () => {
+        credentialRevision += 1;
+        pendingSearches.clear();
         const token = typeof input === 'string' ? input.trim() : '';
         const connected = await session.connect(token);
         if (!connected.ok) return connected;
@@ -74,6 +115,8 @@ export function createRememberedSession(
       }),
     disconnect: () =>
       serialize(async () => {
+        credentialRevision += 1;
+        pendingSearches.clear();
         session.disconnect();
         return tokens.clear();
       }),

@@ -5,7 +5,7 @@ import { expect, test, vi } from 'vitest';
 import { createTokenStore } from '../credentials/token-store';
 import { createDiscogsSession } from './session';
 import { createRememberedSession } from './remembered-session';
-import { identityResponse } from '../../../tests/discogs-fixtures';
+import { identityResponse, releaseResponse } from '../../../tests/discogs-fixtures';
 
 const encryption = {
   available: () => Promise.resolve(true),
@@ -85,3 +85,102 @@ test.each(['loadRelease', 'search', 'dig'] as const)(
     }
   },
 );
+
+test('runs a waiting release before queued background searches', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-priority-'));
+  try {
+    let finish: ((response: Response) => void) | undefined;
+    const emptyPage = () =>
+      Response.json({
+        pagination: { page: 1, pages: 0, per_page: 50, items: 0 },
+        results: [],
+      });
+    const request = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json(identityResponse))
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            finish = resolve;
+          }),
+      )
+      .mockImplementation((input) => {
+        const path = new URL(input instanceof Request ? input.url : input.toString()).pathname;
+        return Promise.resolve(
+          path === '/releases/12' ? Response.json(releaseResponse) : emptyPage(),
+        );
+      });
+    const session = createRememberedSession(
+      createDiscogsSession(request),
+      createTokenStore(join(directory, 'token.bin'), encryption),
+    );
+    await session.connect('remember-me');
+    const background = { context: 'catalogue', background: true, filters: {}, page: 1 };
+    const first = session.search(background);
+    await vi.waitFor(() => {
+      expect(request).toHaveBeenCalledTimes(2);
+    });
+    const next = session.search({ ...background, page: 2 });
+    const selected = session.loadRelease(12);
+    finish?.(emptyPage());
+    await Promise.all([first, next, selected]);
+    expect(request.mock.calls[2]?.[0]).toBe('https://api.discogs.com/releases/12');
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('skips superseded Catalogue range searches that have not reached Discogs', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-range-jump-'));
+  try {
+    let finish: ((response: Response) => void) | undefined;
+    const emptyPage = () =>
+      Response.json({
+        pagination: { page: 1, pages: 0, per_page: 50, items: 0 },
+        results: [],
+      });
+    const request = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json(identityResponse))
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            finish = resolve;
+          }),
+      )
+      .mockImplementation(() => Promise.resolve(emptyPage()));
+    const session = createRememberedSession(
+      createDiscogsSession(request),
+      createTokenStore(join(directory, 'token.bin'), encryption),
+    );
+    await session.connect('remember-me');
+    const search = (year: string, page = 1) =>
+      session.search({
+        filters: { year, style: ['Progressive House'] },
+        context: 'catalogue-range',
+        order: 'oldest',
+        page,
+        background: page > 1,
+      });
+    const first = search('1999-2005');
+    await vi.waitFor(() => {
+      expect(request).toHaveBeenCalledTimes(2);
+    });
+    const continuation = search('1999-2005', 2);
+    const abandoned = search('2000-2005');
+    const latest = search('2002-2005');
+    finish?.(emptyPage());
+
+    expect(await first).toMatchObject({ ok: true });
+    expect(await latest).toMatchObject({ ok: true });
+    expect(await abandoned).toMatchObject({ ok: false, error: { code: 'cancelled' } });
+    expect(await continuation).toMatchObject({ ok: false, error: { code: 'cancelled' } });
+    const years = request.mock.calls.slice(1).map(([input]) => {
+      const url = new URL(input instanceof Request ? input.url : input.toString());
+      return url.searchParams.get('year');
+    });
+    expect(years).toEqual(['1999-2005', '2002-2005']);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

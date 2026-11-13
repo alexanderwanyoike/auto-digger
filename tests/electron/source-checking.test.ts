@@ -21,10 +21,12 @@ import { loadedRelease } from '../discogs-fixtures';
     });
     try {
       const page = await desktop.firstWindow();
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
       await page.setViewportSize({ width, height: 860 });
       await page.evaluate((release) => window.crate?.save(release), loadedRelease);
       await page.reload();
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
       const download = page.getByRole('button', { name: 'Download audio', exact: true });
       const spinner = download.getByRole('progressbar', { name: 'Checking audio availability' });

@@ -118,6 +118,7 @@ async function capture(): Promise<Result<undefined, string>> {
     );
     if (!seeded.ok) return { ok: false, error: 'The demo crate could not be prepared.' };
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await page.getByRole('radio', { name: 'Dark', exact: true }).check();

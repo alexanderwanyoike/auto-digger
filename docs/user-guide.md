@@ -24,9 +24,15 @@ Use **Save filters** to name a filter selection and bookmark its current results
 
 Discogs search exposes up to the first 10,000 matching results. Narrow broad criteria to explore further. Seen release IDs and cached search pages stay in memory for the session.
 
-Use the bookmark beside an artist or label on a release to follow it. Choose a genre in the filter and use its bookmark to follow the genre. Open **Explore** to see and manage what you follow. Your following list stays on this device.
+Use the bookmark beside an artist or label on a release to follow it. Choose a genre in the filter and use its bookmark to follow the genre. Open **Following** in Explore to see and manage what you follow. Switch between **Artists**, **Labels** and **Genres**, or search by name. Your following list stays on this device.
 
-Choose a followed artist, label or genre in **Explore** to browse its catalogue. Choose **Discover unseen releases** to draw a batch from the current topic or from **All followed**. Explore skips records you have opened or saved to a crate. To compare two years within a genre, choose the genre, enter both years and choose **Compare years**.
+Select an artist, label or genre in **Following** to browse its releases. Choose **Discover unseen releases** in the Explore toolbar to draw a batch from the current topic or across your follows. The Explore feed excludes releases whose details you opened or whose sleeve preview started playing. To compare two years within a genre, choose the genre, enter both years and choose **Compare years**.
+
+Explore opens first. **Discover records** learns from the Discogs styles of new personal crate saves on the next launch or **Refresh**. The shelf starts with Progressive House until you have a saved style. **From your follows** appears below it when you follow artists, labels or genres. Choose the play button on a sleeve to try a matched YouTube preview in the bottom player. Select the sleeve itself to open the record. Choose **Show more** on either shelf to open its discovery page. Scroll to load more releases. The page rotates through relevant Discogs styles or followed catalogues and skips releases you have already opened or played.
+
+Open **Catalogue** in the Explore toolbar to browse a Discogs style by year. Saved styles appear first and the most-saved style opens by default. Enter **From year** and **To year**, then choose **Go** to browse that inclusive range. Leave **To year** blank to jump to one year. For a range, the timeline lists every year from earliest to latest. Pick a year on the left to jump directly to it. If its releases are still to be loaded, Catalogue starts the search there and skips the earlier years. Scroll to load later releases within the range. Choose **Show more** beside any year to browse that year on its own page, where scrolling loads more releases from that year. Select a sleeve’s play button to check for a preview on demand. **Back to Catalogue** returns to your place after viewing a record.
+
+**History** in Explore lists opened and played releases. Select an entry to reopen it. The player also has an **Open playing release** button for the track on the deck.
 
 ## Make track playlists
 

@@ -6,7 +6,11 @@ import { audioFailure } from '../../shared/audio-failure';
 const unavailableAudio =
   'This saved audio could not be played. It may have been moved or removed. Check its folder and try again.';
 
-export function usePlayer(track: PlaybackItem | null, request: number) {
+export function usePlayer(
+  track: PlaybackItem | null,
+  request: number,
+  onTrackPlaying?: (track: PlaybackItem & { releaseId: number }) => void,
+) {
   const [media] = useState(() => new Audio());
   const [playing, setPlaying] = useState(false);
   const [position, setPosition] = useState(0);
@@ -99,6 +103,24 @@ export function usePlayer(track: PlaybackItem | null, request: number) {
         .catch(() => undefined);
     }
   }, [track, request, media, start]);
+  useEffect(() => {
+    let recorded = false;
+    const started = () => {
+      if (!recorded && track?.releaseId !== undefined && media.currentSrc === track.url) {
+        recorded = true;
+        onTrackPlaying?.({ ...track, releaseId: track.releaseId });
+      }
+    };
+    const ended = () => {
+      recorded = false;
+    };
+    media.addEventListener('playing', started);
+    media.addEventListener('ended', ended);
+    return () => {
+      media.removeEventListener('playing', started);
+      media.removeEventListener('ended', ended);
+    };
+  }, [media, onTrackPlaying, track, request]);
   useEffect(() => {
     media.volume = volume;
   }, [media, volume]);

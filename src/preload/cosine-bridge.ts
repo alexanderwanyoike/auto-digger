@@ -41,6 +41,7 @@ export function createCosineBridge(
     saveKey: (key) => call('save-key', cosineStatusSchema, key),
     forget: () => call('forget', cosineStatusSchema),
     similar: (input) => call('similar', recommendationsSchema, input),
-    resolve: (item) => call('resolve', resolvedRecommendationSchema, item),
+    resolve: (item, background) =>
+      call('resolve', resolvedRecommendationSchema, background ? { item, background } : item),
   };
 }

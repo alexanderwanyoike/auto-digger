@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { digResultSchema } from '../shared/dig';
+import { historyEntrySchema } from '../shared/discovery-history';
+import { discoveryPageSchema } from '../shared/discovery';
 import { searchPageSchema } from '../shared/search';
 import {
   accountSchema,
@@ -47,8 +49,21 @@ export function createDiscogsBridge(invoke: Invoke): DiscogsBridge {
   }
   return {
     dig: (input) => call(discogsChannels.dig, digResultSchema, input),
+    topicArtwork: (topic) => call(discogsChannels.topicArtwork, z.string().nullable(), topic),
     search: (input) => call(discogsChannels.search, searchPageSchema, input),
-    discover: (topic) => call(discogsChannels.discover, searchPageSchema.shape.releases, topic),
+    discover: (topic, background) =>
+      call(
+        discogsChannels.discover,
+        searchPageSchema.shape.releases,
+        background ? { topic, background } : topic,
+      ),
+    expandDiscovery: (input) => call(discogsChannels.expandDiscovery, discoveryPageSchema, input),
+    starterShelf: () => call(discogsChannels.starterShelf, searchPageSchema.shape.releases),
+    previewRelease: (id) => call(discogsChannels.previewRelease, releaseSchema, id),
+    crateStyles: () => call(discogsChannels.crateStyles, z.array(z.string())),
+    discoveryHistory: () => call(discogsChannels.discoveryHistory, z.array(historyEntrySchema)),
+    recordDiscovery: (entry) => call(discogsChannels.recordDiscovery, z.undefined(), entry),
+    markSeen: (id) => call(discogsChannels.markSeen, z.undefined(), id),
     account: () => call(discogsChannels.account, accountSchema.nullable()),
     connect: (token) => call(discogsChannels.connect, accountSchema, token),
     loadRelease: (id) => call(discogsChannels.loadRelease, releaseSchema, id),
