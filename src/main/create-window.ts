@@ -177,6 +177,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
         catalogueStore.discoveryHistory.seen,
         catalogueStore.crateTaste,
       ),
+      crateTaste: catalogueStore.crateTaste,
       markOpened: catalogueStore.discoveryHistory.opened,
     });
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));

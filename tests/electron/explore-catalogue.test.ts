@@ -49,7 +49,7 @@ test('browses populated catalogue years and restores the timeline from a full ye
     await page.getByLabel('Personal token').fill('fixture-explore-taste');
     await page.getByRole('button', { name: 'Connect account', exact: true }).click();
     const shelf = page.getByRole('region', { name: 'Discover records' });
-    await expect(shelf.getByRole('button', { name: /Quiet Orbit EP/ })).toBeVisible();
+    await expect(shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toBeVisible();
     await page.getByRole('button', { name: 'Catalogue', exact: true }).click();
     const style = page.getByRole('combobox', { name: 'Style' });
     await style.fill('Progressive House');
@@ -61,16 +61,16 @@ test('browses populated catalogue years and restores the timeline from a full ye
     );
     await expect(years.getByRole('button', { name: '1994' })).toHaveCount(0);
     await years.getByRole('button', { name: '2000' }).click();
-    await expect(page.getByRole('button', { name: /Back Channel 1/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Back Channel 8/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 1/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ })).toHaveCount(0);
     await page.getByRole('button', { name: 'Show more' }).click();
-    await expect(page.getByRole('button', { name: /Back Channel 8/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ })).toBeVisible();
     await page.getByRole('button', { name: 'Back to timeline' }).click();
     await expect(years.getByRole('button', { name: '2000' })).toHaveAttribute(
       'aria-current',
       'true',
     );
-    await expect(page.getByRole('button', { name: /Back Channel 8/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ })).toHaveCount(0);
   } finally {
     await desktop.close();
   }

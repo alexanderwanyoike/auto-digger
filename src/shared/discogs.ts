@@ -62,10 +62,12 @@ export interface DiscogsBridge {
     filters: DigFilters;
     page: number;
     context?: 'artist' | 'explore';
+    order?: 'oldest';
   }) => Promise<DiscogsResult<SearchPage>>;
   discover?: (topic: FollowTopic | null) => Promise<DiscogsResult<SearchPage['releases']>>;
   starterShelf?: () => Promise<DiscogsResult<SearchPage['releases']>>;
   previewRelease?: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
+  crateStyles?: () => Promise<DiscogsResult<string[]>>;
   markSeen?: (id: number) => Promise<DiscogsResult<undefined>>;
   loadRelease: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
   disconnect: () => Promise<DiscogsResult<undefined>>;
@@ -79,6 +81,7 @@ export const discogsChannels = {
   starterShelf: 'discogs:starter-shelf',
   markSeen: 'discogs:mark-seen',
   previewRelease: 'discogs:preview-release',
+  crateStyles: 'discogs:crate-styles',
   account: 'discogs:account',
   connect: 'discogs:connect',
   loadRelease: 'discogs:load-release',

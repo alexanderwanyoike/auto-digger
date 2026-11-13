@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { CataloguePage } from './CataloguePage';
 import { Shuffle } from 'lucide-react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { followTopicKey } from '../../shared/following';
@@ -38,6 +39,7 @@ export function ExplorePage({
   audio: ReturnType<typeof useAudioLibrary>;
 }) {
   const scrollContainer = useRef<HTMLDivElement>(null);
+  const [catalogue, setCatalogue] = useState(false);
   const explore = useExplore(bridge, onUnauthorized);
   const { topic, release, view, busy, error } = explore;
   const [previewBusy, setPreviewBusy] = useState(false);
@@ -79,10 +81,20 @@ export function ExplorePage({
   };
   return (
     <div className="explore-page" ref={scrollContainer}>
+      {catalogue && connected && bridge && (
+        <div hidden={Boolean(release)}>
+          <CataloguePage
+            bridge={bridge}
+            onOpen={open}
+            onUnauthorized={onUnauthorized}
+            onBack={() => setCatalogue(false)}
+          />
+        </div>
+      )}
       {release ? (
         <section className="explore-workspace" aria-label="Selected release">
           <button type="button" className="secondary-button explore-back" onClick={explore.back}>
-            Back to Explore
+            {catalogue ? 'Back to Catalogue' : 'Back to Explore'}
           </button>
           <FollowingContext.Provider value={following}>
             <ReleaseAudioDetails
@@ -97,7 +109,7 @@ export function ExplorePage({
             />
           </FollowingContext.Provider>
         </section>
-      ) : (
+      ) : !catalogue || !connected ? (
         <>
           {connected && !topic && (
             <ReleaseShelf
@@ -203,8 +215,22 @@ export function ExplorePage({
               </section>
             </>
           )}
+          {connected && !topic && (
+            <footer className="explore-footer">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => {
+                  scrollContainer.current?.scrollTo(0, 0);
+                  setCatalogue(true);
+                }}
+              >
+                Catalogue
+              </button>
+            </footer>
+          )}
         </>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -53,6 +53,10 @@ export async function searchDiscogs(
     per_page: '50',
     page: page.toString(),
   });
+  if (input.context === 'explore' && input.order === 'oldest') {
+    query.set('sort', 'year');
+    query.set('sort_order', 'asc');
+  }
   if (options.query) query.set('q', options.query);
   Object.entries(filters).forEach(([key, value]) => {
     if (Array.isArray(value)) {
