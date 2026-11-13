@@ -11,6 +11,18 @@ import type { CatalogueResult } from '../../shared/catalogue';
 import type { createCrateTaste } from './crate-taste';
 import { rankedStyles } from './ranked-styles';
 
+function splitByYear(filters: DigFilters): DigFilters[] {
+  const [first, last = first] = filters.year ? filters.year.split('-').map(Number) : [1000, 9999];
+  if (first === undefined || last === undefined || first >= last) return [];
+  const middle = Math.floor((first + last) / 2);
+  const range = (start: number, end: number) =>
+    start === end ? start.toString() : `${start.toString()}-${end.toString()}`;
+  return [
+    { ...filters, year: range(first, middle) },
+    { ...filters, year: range(middle + 1, last) },
+  ];
+}
+
 export function createDiscoveryPages(
   search: DiscogsBridge['search'],
   crateTaste: ReturnType<typeof createCrateTaste>,
@@ -64,7 +76,11 @@ export function createDiscoveryPages(
     if (!known.ok) return discogsFailure('unavailable', known.error.message);
     const releases = result.value.releases.filter(({ id }) => !known.value.has(id));
     const { id, filters: sources, pageCounts } = collection;
-    pageCounts.set(source, Math.min(result.value.pages, maxSearchPage));
+    const available = Math.min(result.value.pages, maxSearchPage);
+    const capped = result.value.items > available * result.value.perPage;
+    const partitions = page === 1 && capped ? splitByYear(filters) : [];
+    if (partitions.length && !pageCounts.has(source)) sources.push(...partitions);
+    pageCounts.set(source, partitions.length ? 1 : available);
     const hasPage = (index: number, target: number) =>
       (pageCounts.get(index) ?? maxSearchPage) >= target;
     const laterSource = sources.findIndex((_, index) => index > source && hasPage(index, page));

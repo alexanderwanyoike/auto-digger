@@ -55,7 +55,7 @@ test('stops at the supported Discogs page limit', async () => {
     ({ page }) =>
       Promise.resolve({
         ok: true,
-        value: { page, pages: 400, perPage: 25, items: 10000, releases: [] },
+        value: { page, pages: 400, perPage: 25, items: 5000, releases: [] },
       }),
     () => Promise.resolve({ ok: true, value: [{ style: 'Techno', releases: 1 }] }),
     () => Promise.resolve({ ok: true, value: [] }),
