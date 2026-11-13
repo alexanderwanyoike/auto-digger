@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AudioBridge, AudioResult, DownloadInput, LocalTrack } from '../../shared/audio';
 import type { DownloadJobsBridge } from '../../shared/download-jobs';
 import { useDownloadJobs } from './use-download-jobs';
@@ -80,7 +80,7 @@ export function useAudioLibrary(
       active = false;
     };
   }, [bridge, completionKey]);
-  function playTrack(track: LocalTrack) {
+  const playTrack = useCallback((track: LocalTrack) => {
     if (track.missing) {
       setError(
         'This audio file is missing or unavailable. Restore it or download the source again.',
@@ -92,7 +92,7 @@ export function useAudioLibrary(
       track: downloadedPlayback(track),
       request: previous.request + 1,
     }));
-  }
+  }, []);
   function play(track: LocalTrack) {
     sequence.current = [];
     playTrack(track);
@@ -103,10 +103,10 @@ export function useAudioLibrary(
     sequence.current = rest;
     playTrack(first);
   }
-  function advanceSequence() {
+  const advanceSequence = useCallback(() => {
     const next = sequence.current.shift();
     if (next) playTrack(next);
-  }
+  }, [playTrack]);
   async function download(input: DownloadInput): Promise<AudioResult<LocalTrack>> {
     setBusy(true);
     setError(null);
