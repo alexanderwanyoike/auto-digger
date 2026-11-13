@@ -277,3 +277,22 @@
   gap: 12px;
   margin-top: 18px;
 }
+
+.explore-year-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.explore-year-form input {
+  width: 68px;
+}
+
+.explore-years {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.explore-years .search-results + .search-results {
+  border-inline-start: 1px solid var(--line);
+}

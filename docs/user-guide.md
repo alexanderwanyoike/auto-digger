@@ -26,7 +26,11 @@ Discogs search exposes up to the first 10,000 matching results. Narrow broad cri
 
 Use the bookmark beside an artist or label on a release to follow it. Choose a genre in the filter and use its bookmark to follow the genre. Open **Explore** to see and manage what you follow. Your following list stays on this device.
 
-Choose a followed artist, label or genre in **Explore** to browse its catalogue. Choose **Discover unseen releases** to draw a batch from the current topic or from **All followed**. Explore skips records you have opened or saved to a crate. To compare two years within a genre, choose the genre, enter both years and choose **Compare years**.
+Choose a followed artist, label or genre in **Explore** to browse its catalogue. Choose **Discover unseen releases** to draw a batch from the current topic or from **All followed**. The Explore feed excludes releases whose details you opened or whose sleeve preview started playing. To compare two years within a genre, choose the genre, enter both years and choose **Compare years**.
+
+Explore opens first. The starter shelf learns from the Discogs styles of new personal crate saves on the next launch or **Refresh**. **From your follows** appears below it when you follow artists, labels or genres. Choose the play button on a sleeve to try a matched YouTube preview in the bottom player. Select the sleeve itself to open the record.
+
+Open **Catalogue** at the bottom of Explore to browse a Discogs style by year. Saved styles appear first and the most-saved style opens by default. Pick a year on the timeline, then choose **Show more** to browse that year's grid. **Back to timeline** restores your selected year and position.
 
 ## Download audio
 

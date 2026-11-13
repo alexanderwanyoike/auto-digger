@@ -6,11 +6,13 @@ import { catalogueStyles, starterStyle } from './catalogue-years';
 
 export function CataloguePage({
   bridge,
+  busy,
   onBack,
   onOpen,
   onUnauthorized,
 }: {
   bridge: DiscogsBridge;
+  busy: boolean;
   onBack: () => void;
   onOpen: (id: number) => void;
   onUnauthorized: () => void;
@@ -46,7 +48,7 @@ export function CataloguePage({
     <section className="catalogue-page" aria-labelledby="catalogue-heading">
       <header className="catalogue-header">
         <div>
-          <button className="secondary-button" type="button" onClick={onBack}>
+          <button className="secondary-button" type="button" disabled={busy} onClick={onBack}>
             Back to Explore
           </button>
           <h2 id="catalogue-heading">Catalogue</h2>
@@ -58,6 +60,7 @@ export function CataloguePage({
         <CatalogueTimeline
           key={style}
           style={style}
+          disabled={busy}
           search={bridge.search}
           onOpen={onOpen}
           onUnauthorized={onUnauthorized}

@@ -8,11 +8,13 @@ const shelfSize = 4;
 
 export function CatalogueTimeline({
   style,
+  disabled,
   search,
   onOpen,
   onUnauthorized,
 }: {
   style: string;
+  disabled: boolean;
   search: DiscogsBridge['search'];
   onOpen: (id: number) => void;
   onUnauthorized: () => void;
@@ -158,7 +160,7 @@ export function CatalogueTimeline({
           {matches && (
             <ReleaseMatchList
               releases={matches.releases.slice(0, shelfSize)}
-              disabled={false}
+              disabled={disabled}
               onOpen={onOpen}
             />
           )}
@@ -185,7 +187,7 @@ export function CatalogueTimeline({
             </button>
           </header>
           {matches && (
-            <ReleaseMatchList releases={matches.releases} disabled={false} onOpen={onOpen} />
+            <ReleaseMatchList releases={matches.releases} disabled={disabled} onOpen={onOpen} />
           )}
           {!matches && !recordsError && <p role="status">Loading releases…</p>}
           {matches && matches.pages > 1 && (
