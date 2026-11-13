@@ -28,6 +28,7 @@ export function createSavedFiltersBridge(
     read: () => call('filters:read'),
     saveDraft: (input) => call('filters:draft', input),
     savePreset: (input) => call('filters:save', input),
+    rememberPage: (input) => call('filters:remember-page', input),
     removePreset: (id) => call('filters:remove', id),
   };
 }

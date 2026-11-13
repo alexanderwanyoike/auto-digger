@@ -2,9 +2,16 @@ import { useId, useState } from 'react';
 import { BookmarkPlus, Trash2, X } from 'lucide-react';
 import type { useSavedFilters } from './use-saved-filters';
 
-export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useSavedFilters> }) {
+export function SavedFilterPicker({
+  filters,
+  page,
+}: {
+  filters: ReturnType<typeof useSavedFilters>;
+  page: number;
+}) {
   const controlId = useId();
-  const [selected, setSelected] = useState('');
+  const { selectedPreset, setSelectedId } = filters;
+  const selected = selectedPreset?.id ?? '';
   const [naming, setNaming] = useState(false);
   const [name, setName] = useState('');
   const disabled = !filters.available || filters.busy;
@@ -19,7 +26,7 @@ export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useS
             disabled={disabled}
             onChange={(event) => {
               const id = event.target.value;
-              setSelected(id);
+              setSelectedId(id);
               setNaming(false);
               const preset = filters.presets.find((item) => item.id === id);
               if (preset) filters.setDraft(preset.filters);
@@ -40,7 +47,7 @@ export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useS
           title="Save filters"
           disabled={disabled}
           onClick={() => {
-            setName(filters.presets.find((preset) => preset.id === selected)?.name ?? '');
+            setName(selectedPreset?.name ?? '');
             setNaming(true);
           }}
         >
@@ -58,7 +65,7 @@ export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useS
                 .remove(selected)
                 .then((result) => {
                   if (result.ok) {
-                    setSelected('');
+                    setSelectedId('');
                     setNaming(false);
                   }
                 })
@@ -74,12 +81,11 @@ export function SavedFilterPicker({ filters }: { filters: ReturnType<typeof useS
           className="saved-filter-name"
           onSubmit={(event) => {
             event.preventDefault();
-            const current = filters.presets.find((preset) => preset.id === selected);
             filters
-              .save(name, current?.name === name.trim() ? selected : undefined)
+              .save(name, page, selectedPreset?.name === name.trim() ? selected : undefined)
               .then((result) => {
                 if (!result.ok) return;
-                setSelected(
+                setSelectedId(
                   result.value.presets.find((preset) => preset.name === name.trim())?.id ?? '',
                 );
                 setNaming(false);

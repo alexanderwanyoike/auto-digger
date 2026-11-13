@@ -31,6 +31,14 @@ export const filtersSchema = z.object({
   title: text,
 });
 export type DigFilters = z.infer<typeof filtersSchema>;
+export function sameSearchFilters(left: DigFilters, right: DigFilters | null) {
+  const first = filtersSchema.safeParse(left);
+  const second = filtersSchema.safeParse(right);
+  return (
+    first.success && second.success && JSON.stringify(first.data) === JSON.stringify(second.data)
+  );
+}
+
 export const searchInputSchema = z.object({
   context: z.literal('artist').optional(),
   filters: filtersSchema,

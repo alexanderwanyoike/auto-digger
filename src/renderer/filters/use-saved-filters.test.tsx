@@ -25,6 +25,7 @@ test('preserves a draft when saving fails and retries it without restoring older
         return Promise.resolve({ ok: true, value: { ...snapshot, draft } });
       }),
     savePreset: vi.fn(),
+    rememberPage: vi.fn(),
     removePreset: vi.fn(),
   };
   const { result } = renderHook(() => useSavedFilters(bridge));
@@ -71,6 +72,7 @@ test('persists a quick revert after an earlier draft save finishes', async () =>
       return { ok: true, value: { ...snapshot, draft } };
     }),
     savePreset: vi.fn(),
+    rememberPage: vi.fn(),
     removePreset: vi.fn(),
   };
   const { result } = renderHook(() => useSavedFilters(bridge));
