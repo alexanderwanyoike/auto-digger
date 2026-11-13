@@ -130,3 +130,32 @@ test('sends an inclusive year range to Discogs and rejects reversed ranges local
   });
   expect(request).toHaveBeenCalledTimes(2);
 });
+
+test('a Catalogue year probe can recover immediately from an undated response', async () => {
+  const request = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(Response.json(identityResponse))
+    .mockResolvedValueOnce(
+      Response.json({
+        pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
+        results: [{ id: 12, title: 'Unknown year' }],
+      }),
+    )
+    .mockResolvedValueOnce(
+      Response.json({
+        pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
+        results: [{ id: 12, title: 'Quiet Orbit EP', year: '1998' }],
+      }),
+    );
+  const session = createDiscogsSession(request);
+  await session.connect('token');
+  const probe = { context: 'catalogue', order: 'oldest', filters: { year: '1000-9999' }, page: 1 };
+  await expect(session.search(probe)).resolves.toMatchObject({
+    ok: false,
+    error: { code: 'invalid-response' },
+  });
+  await expect(session.search(probe)).resolves.toMatchObject({
+    ok: true,
+    value: { releases: [{ year: '1998' }] },
+  });
+});
