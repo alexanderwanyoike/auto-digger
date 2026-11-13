@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { DiscogsBridge, DiscogsError } from '../../shared/discogs';
 import { emptyFilters } from '../../shared/default-filters';
+import { maxSearchResults } from '../../shared/search';
 import type { SearchPage } from '../../shared/search';
 import { useDiscogsRetry } from './use-discogs-retry';
 
@@ -25,6 +26,7 @@ export function useCatalogueRange({
   const [page, setPage] = useState(1);
   const [loaded, setLoaded] = useState(0);
   const [pages, setPages] = useState(1);
+  const [limited, setLimited] = useState(false);
   const [error, setError] = useState<DiscogsError | null>(null);
   const retry = useCallback(() => {
     setError(null);
@@ -65,6 +67,7 @@ export function useCatalogueRange({
           ];
         });
         setPages(result.value.pages);
+        setLimited(result.value.items > maxSearchResults);
         setLoaded(page);
       })
       .catch(() => {
@@ -88,6 +91,7 @@ export function useCatalogueRange({
 
   return {
     groups,
+    limited,
     busy,
     error,
     retry,

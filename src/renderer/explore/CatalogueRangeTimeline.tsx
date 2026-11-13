@@ -32,7 +32,7 @@ export function CatalogueRangeTimeline({
   onShowYear: (style: string, year: number) => void;
   onUnauthorized: () => void;
 }) {
-  const { groups, busy, error, retry, loadMore } = useCatalogueRange({
+  const { groups, limited, busy, error, retry, loadMore } = useCatalogueRange({
     search,
     style,
     from,
@@ -96,6 +96,11 @@ export function CatalogueRangeTimeline({
         />
       </div>
       <div className="catalogue-records">
+        {limited && (
+          <p className="catalogue-range-limit" role="status">
+            Discogs shows the first 10,000 matches. Narrow the year range to see later releases.
+          </p>
+        )}
         {groups.map(([year, releases]) => (
           <CatalogueYearShelf
             key={year}

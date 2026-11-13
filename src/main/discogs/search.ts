@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { supportedUrl } from './media-url';
+import { maxSearchResults } from '../../shared/search';
 import type { SearchInput, SearchPage } from '../../shared/search';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';
@@ -28,7 +29,7 @@ const responseSchema = z
   })
   .transform(({ pagination, results }) => ({
     page: pagination.page,
-    pages: Math.min(pagination.pages, Math.ceil(10000 / pagination.per_page)),
+    pages: Math.min(pagination.pages, Math.ceil(maxSearchResults / pagination.per_page)),
     perPage: pagination.per_page,
     items: pagination.items,
     releases: results.map((release) => ({

@@ -300,6 +300,11 @@
 .catalogue-year .explore-shelf-header {
   margin-bottom: 12px;
 }
+.catalogue-range-limit {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
 .catalogue-continuation {
   display: flex;
   gap: 12px;
