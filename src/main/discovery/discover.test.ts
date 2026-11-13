@@ -73,3 +73,15 @@ test('keeps personal matches when an additional style is rate limited', async ()
   ]);
   await expect(shelf()).resolves.toEqual({ ok: true, value: [match] });
 });
+
+test('keeps the first page of a saved style when optional sampling fails', async () => {
+  const first = catalogue([match]);
+  const search = vi.fn<DiscogsBridge['search']>().mockImplementation(({ page }) => {
+    if (page === 1) return Promise.resolve({ ...first, value: { ...first.value, pages: 2 } });
+    return Promise.resolve(discogsFailure('rate-limited', 'Try again later.'));
+  });
+  await expect(shelfFor(search, [{ style: 'Deep House', releases: 5 }])()).resolves.toEqual({
+    ok: true,
+    value: [match],
+  });
+});
