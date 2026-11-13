@@ -30,7 +30,7 @@ export function ExplorePage({
   markSeen,
   historyRevision,
   playerRelease,
-  onPlayerReleaseOpened,
+  onPlayerRequestHandled,
   following,
   crate,
   audio,
@@ -43,7 +43,7 @@ export function ExplorePage({
   markSeen: (id: number) => void;
   historyRevision: number;
   playerRelease: { id: number } | null;
-  onPlayerReleaseOpened: () => void;
+  onPlayerRequestHandled: () => void;
   following: ReturnType<typeof useFollowing>;
   crate: ReturnType<typeof useCrate>;
   audio: ReturnType<typeof useAudioLibrary>;
@@ -135,9 +135,13 @@ export function ExplorePage({
   );
   useEffect(() => {
     if (!playerRelease || busy) return;
+    if (!connected) {
+      onPlayerRequestHandled();
+      return;
+    }
     if (release?.id !== playerRelease.id) open(playerRelease.id);
-    onPlayerReleaseOpened();
-  }, [playerRelease, busy, release, open, onPlayerReleaseOpened]);
+    onPlayerRequestHandled();
+  }, [playerRelease, busy, connected, release, open, onPlayerRequestHandled]);
 
   const selectSection = (next: ExploreSection) => {
     if (section === next && !collection && !release && !view && !topic && !error) return;
@@ -201,7 +205,7 @@ export function ExplorePage({
           />
         </div>
       )}
-      {catalogue && !release && error && (
+      {error && (catalogue || release) && (
         <p className="explore-notice" role="alert">
           {error}
         </p>
@@ -211,6 +215,7 @@ export function ExplorePage({
           <button
             type="button"
             className="secondary-button explore-back"
+            disabled={busy}
             onClick={() => {
               restorePosition.current = releasePosition.current;
               explore.back();

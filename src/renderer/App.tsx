@@ -145,6 +145,7 @@ export function App({
                   key={item}
                   aria-current={section === item ? 'page' : undefined}
                   onClick={() => {
+                    setPlayerRelease(null);
                     setSection(item);
                     if (item === 'Crates' && crate.catalogue.available)
                       crate.reload().catch(() => undefined);
@@ -162,6 +163,7 @@ export function App({
             title="Settings"
             aria-current={section === 'Settings' ? 'page' : undefined}
             onClick={() => {
+              setPlayerRelease(null);
               setSection('Settings');
             }}
           >
@@ -224,7 +226,7 @@ export function App({
             markSeen={markSeen}
             historyRevision={historyRevision}
             playerRelease={playerRelease}
-            onPlayerReleaseOpened={() => {
+            onPlayerRequestHandled={() => {
               setPlayerRelease(null);
             }}
             following={following}
