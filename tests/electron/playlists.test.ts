@@ -12,7 +12,7 @@ test('downloads a liked track once, shares it with a playlist and restores both 
   let desktop = await electron.launch(options);
   try {
     let page = await desktop.firstWindow();
-    await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
+    await page.getByRole('heading', { name: 'Explore' }).waitFor();
     await page.evaluate(async (record) => window.crate?.save(record), {
       ...loadedRelease,
       tracks: [
