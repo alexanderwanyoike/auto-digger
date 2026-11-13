@@ -66,6 +66,7 @@ export function CatalogueRangeTimeline({
   }, [active, groups]);
 
   const currentYear = selected ?? start;
+  const firstYear = groups[0]?.[0];
   useRevealCatalogueYear(rail, currentYear);
 
   return (
@@ -115,7 +116,12 @@ export function CatalogueRangeTimeline({
       <div className="catalogue-records">
         {limited && (
           <p className="catalogue-range-limit" role="status">
-            Discogs shows the first 10,000 matches. Narrow the year range to see later releases.
+            Discogs shows the first 10,000 matches. Jump to a later year or narrow the range.
+          </p>
+        )}
+        {start !== from && firstYear !== undefined && firstYear > start && (
+          <p className="catalogue-range-limit" role="status">
+            No releases found for {start}.
           </p>
         )}
         {groups.map(([year, releases]) => (
