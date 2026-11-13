@@ -30,7 +30,8 @@ test('browses a year range with one paginated search and opens an individual yea
             year: date,
           }));
         const capped = year === '1993-2001';
-        const later = year === '1997-1999' || year === '1998-1999';
+        const emptyStart = year === '1997-1999';
+        const later = emptyStart || year === '1998-1999';
         const ranged = year === '1993-1999' || capped || later;
         const rangePages = later
           ? [records(1998, 50), records(1999, 1)]
@@ -171,6 +172,13 @@ test('browses a year range with one paginated search and opens an individual yea
     await expect(page.getByText('No releases found for 1997.')).toBeVisible();
     await expect(page.getByRole('region', { name: '1997', exact: true })).toHaveCount(0);
 
+    await from.fill('1997');
+    await to.press('Enter');
+    await expect(laterYear.getByRole('button', { name: 'Play Record 1998 0' })).toBeVisible();
+    await years.getByRole('button', { name: '1997', exact: true }).click();
+    await expect(page.getByText('No releases found for 1997.')).toBeVisible();
+
+    await from.fill('1993');
     await to.fill('2001');
     await to.press('Enter');
     await expect(
