@@ -32,11 +32,11 @@ test('downloads a liked track once, shares it with a playlist and restores both 
         const header = document.querySelector('.app-header');
         return section.getBoundingClientRect().top - (header?.getBoundingClientRect().bottom ?? 0);
       });
-    expect(await topGap()).toBeGreaterThanOrEqual(12);
+    expect(await topGap()).toBe(12);
     await page.getByLabel('New playlist name', { exact: true }).fill('After hours');
     await page.getByRole('button', { name: 'Create playlist', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'After hours', exact: true })).toBeVisible();
-    expect(await topGap()).toBeGreaterThanOrEqual(12);
+    expect(await topGap()).toBe(12);
     await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     const like = page.getByRole('button', { name: 'Like Quiet Orbit', exact: true });
@@ -98,10 +98,15 @@ test('downloads a liked track once, shares it with a playlist and restores both 
     await expect(transport.getByText('Night Signal', { exact: true })).toBeVisible({
       timeout: 18000,
     });
-    await page
-      .getByRole('button', { name: 'Shuffle playlist', exact: true })
-      .click({ timeout: 3000 });
-    await expect(transport.getByText(/^(Quiet Orbit|Night Signal)$/)).toBeVisible();
+    await page.evaluate(() => {
+      Math.random = () => 0;
+    });
+    await page.getByRole('button', { name: 'Shuffle playlist', exact: true }).click();
+    await expect(transport.getByText('Night Signal', { exact: true })).toBeVisible();
+    const seek = transport.getByRole('slider', { name: 'Track position' });
+    await expect(seek).toBeEnabled();
+    await seek.press('End');
+    await expect(transport.getByText('Quiet Orbit', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Likes', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Play playlist', exact: true })).toBeDisabled();
   } finally {
