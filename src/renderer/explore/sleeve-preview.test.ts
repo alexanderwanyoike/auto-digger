@@ -31,7 +31,7 @@ test('tries a second candidate and uses a verified saved file during an outage',
     .fn<AudioBridge['probe']>()
     .mockResolvedValue(audioFailure('network', 'Upload unavailable.'));
   const preview = vi
-    .fn<(input: DownloadInput, id: number) => ReturnType<AudioBridge['download']>>()
+    .fn<(input: DownloadInput) => ReturnType<AudioBridge['download']>>()
     .mockResolvedValue({ ok: true, value: saved });
 
   await expect(
@@ -40,5 +40,5 @@ test('tries a second candidate and uses a verified saved file during an outage',
     ]),
   ).resolves.toEqual({ ok: true, value: saved });
   expect(probe).toHaveBeenCalledTimes(1);
-  expect(preview).toHaveBeenCalledWith({ release, videoIndex: 1, trackIndex: 1 }, release.id);
+  expect(preview).toHaveBeenCalledWith({ release, videoIndex: 1, trackIndex: 1 });
 });

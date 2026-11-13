@@ -8,7 +8,7 @@ import { uniqueVideoIndexes } from '../audio/unique-video-indexes';
 export async function sleevePreview(
   load: NonNullable<DiscogsBridge['previewRelease']>,
   probe: AudioBridge['probe'],
-  preview: (input: DownloadInput, sleeveReleaseId: number) => Promise<AudioResult<LocalTrack>>,
+  preview: (input: DownloadInput) => Promise<AudioResult<LocalTrack>>,
   id: number,
   savedTracks: LocalTrack[],
 ) {
@@ -41,12 +41,12 @@ export async function sleevePreview(
       (track) => !track.missing && track.id === `${id.toString()}-${sourceId ?? ''}`,
     );
     if (saved && matchTrack(release, saved.sourceTitle) === source.trackIndex)
-      return preview({ release, ...source }, id);
+      return preview({ release, ...source });
     const checked = await probe(video.url);
     if (!checked.ok) return trySource(position + 1, checked);
     if (matchTrack(release, checked.value.title) !== source.trackIndex)
       return trySource(position + 1, previousFailure);
-    return preview({ release, ...source }, id);
+    return preview({ release, ...source });
   }
   return trySource(0, unavailable);
 }

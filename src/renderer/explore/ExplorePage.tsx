@@ -97,13 +97,7 @@ export function ExplorePage({
       ? (id: number) => {
           setPreviewError(null);
           setPreviewBusy(true);
-          sleevePreview(
-            loadPreview,
-            audioBridge.probe,
-            (input, releaseId) => audio.preview(input, releaseId),
-            id,
-            audio.tracks,
-          )
+          sleevePreview(loadPreview, audioBridge.probe, audio.preview, id, audio.tracks)
             .then((result) => {
               if (!result.ok) {
                 if (result.error.code === 'unauthorized') onUnauthorized();
