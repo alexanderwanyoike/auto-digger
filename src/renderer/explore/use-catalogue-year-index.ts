@@ -19,18 +19,25 @@ export function useCatalogueYearIndex(
   const [busy, setBusy] = useState(jumpYear === undefined);
   const [error, setError] = useState<string | null>(null);
   const [previousYear, setPreviousYear] = useState<number | null>(null);
+  const [previousError, setPreviousError] = useState(false);
+  const [previousAttempt, setPreviousAttempt] = useState(0);
   useEffect(() => {
     if (jumpYear === undefined || !jumpLoaded) return undefined;
     let active = true;
     catalogueYear(search, style, firstSearchYear, jumpYear - 1, 'newest', true)
       .then((result) => {
-        if (active && result.ok) setPreviousYear(result.value);
+        if (!active) return;
+        if (result.ok) setPreviousYear(result.value);
+        else if (result.error.code === 'unauthorized') onUnauthorized();
+        else setPreviousError(true);
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (active) setPreviousError(true);
+      });
     return () => {
       active = false;
     };
-  }, [jumpLoaded, jumpYear, search, style]);
+  }, [jumpLoaded, jumpYear, onUnauthorized, previousAttempt, search, style]);
   const [attempt, setAttempt] = useState(0);
   const [retryAt, setRetryAt] = useState<number>();
   const lastCompletedYear = useRef<number | undefined>(undefined);
@@ -93,6 +100,11 @@ export function useCatalogueYearIndex(
     error,
     retryAt,
     hasMore: next !== null,
+    previousError,
+    retryPrevious: () => {
+      setPreviousError(false);
+      setPreviousAttempt((attemptNumber) => attemptNumber + 1);
+    },
     loadMore,
     retry,
   };
