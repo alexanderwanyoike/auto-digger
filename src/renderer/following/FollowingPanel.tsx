@@ -4,6 +4,7 @@ import { followTopicKey } from '../../shared/following';
 import type { FollowTopic } from '../../shared/following';
 import type { DiscogsBridge } from '../../shared/discogs';
 import type { useFollowing } from './use-following';
+import { createPortraitQueue } from './portrait-queue';
 import { FollowPortrait } from './FollowPortrait';
 
 const groups = [
@@ -17,13 +18,17 @@ export function FollowingPanel({
   following,
   browseDisabled,
   onBrowse,
+  onPageChange,
   lookup,
+  active,
   onUnauthorized,
 }: {
   following: ReturnType<typeof useFollowing>;
   browseDisabled: boolean;
   onBrowse: (topic: FollowTopic) => void;
+  onPageChange: () => void;
   lookup: DiscogsBridge['topicArtwork'];
+  active: boolean;
   onUnauthorized: () => void;
 }) {
   const [kind, setKind] = useState<FollowTopic['kind']>(
@@ -31,6 +36,7 @@ export function FollowingPanel({
   );
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
+  const [enqueue] = useState(createPortraitQueue);
   const cache = useRef(new Map<string, string | null>());
   const topics = following.topics.filter(
     (topic) => topic.kind === kind && topic.name.toLowerCase().includes(query.trim().toLowerCase()),
@@ -86,7 +92,8 @@ export function FollowingPanel({
             >
               <FollowPortrait
                 topic={topic}
-                lookup={lookup}
+                lookup={active ? lookup : undefined}
+                enqueue={enqueue}
                 cache={cache.current}
                 onUnauthorized={onUnauthorized}
               />
@@ -115,6 +122,7 @@ export function FollowingPanel({
             disabled={current === 0}
             onClick={() => {
               setPage(current - 1);
+              onPageChange();
             }}
           >
             Previous page
@@ -128,6 +136,7 @@ export function FollowingPanel({
             disabled={current === lastPage}
             onClick={() => {
               setPage(current + 1);
+              onPageChange();
             }}
           >
             Next page

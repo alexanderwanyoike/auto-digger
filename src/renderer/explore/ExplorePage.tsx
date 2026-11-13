@@ -47,6 +47,7 @@ export function ExplorePage({
   const explore = useExplore(bridge, onUnauthorized);
   const { topic, release, view, busy, error } = explore;
   useLayoutEffect(() => {
+    if (release) scrollContainer.current?.scrollTo(0, 0);
     if (catalogue && !release && restoreCataloguePosition.current) {
       scrollContainer.current?.scrollTo(0, cataloguePosition.current);
       restoreCataloguePosition.current = false;
@@ -172,6 +173,21 @@ export function ExplorePage({
           </FollowingContext.Provider>
         </section>
       )}
+      {section === 'Following' && (
+        <div hidden={Boolean(release ?? topic ?? view)}>
+          <FollowingPanel
+            following={following}
+            browseDisabled={disabled}
+            onBrowse={browse}
+            onPageChange={() => {
+              scrollContainer.current?.scrollTo(0, 0);
+            }}
+            lookup={connected ? bridge?.topicArtwork : undefined}
+            active={!release && !topic && !view}
+            onUnauthorized={onUnauthorized}
+          />
+        </div>
+      )}
       {!release && (
         <>
           {!connected && (
@@ -215,17 +231,6 @@ export function ExplorePage({
                 />
               )}
             </>
-          )}
-          {section === 'Following' && (
-            <div hidden={Boolean(topic ?? view)}>
-              <FollowingPanel
-                following={following}
-                browseDisabled={disabled}
-                onBrowse={browse}
-                lookup={connected ? bridge?.topicArtwork : undefined}
-                onUnauthorized={onUnauthorized}
-              />
-            </div>
           )}
           {section === 'Following' && topic && (
             <header className="explore-tools">

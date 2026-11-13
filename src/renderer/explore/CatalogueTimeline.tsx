@@ -22,6 +22,30 @@ export function CatalogueTimeline({
   const [selected, setSelected] = useState<number | null>(null);
   const sentinel = useRef<HTMLDivElement>(null);
   const catalogue = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const timeline = catalogue.current;
+    const viewport = timeline?.closest<HTMLElement>('.explore-page');
+    const toolbar = viewport?.querySelector('.explore-toolbar');
+    if (!timeline || !viewport || !toolbar || disabled || !records.groups.length) return undefined;
+    const update = () => {
+      if (!timeline.getClientRects().length) return;
+      const edge = toolbar.getBoundingClientRect().bottom + 12;
+      const years = Array.from(timeline.querySelectorAll<HTMLElement>('[data-release-year]'));
+      const atEnd =
+        viewport.scrollTop > 0 &&
+        viewport.scrollTop + viewport.clientHeight >= viewport.scrollHeight - 2;
+      const year = atEnd
+        ? years.at(-1)
+        : years.find((group) => group.getBoundingClientRect().bottom > edge);
+      if (year?.dataset.releaseYear) setSelected(Number(year.dataset.releaseYear));
+    };
+    update();
+    viewport.addEventListener('scroll', update, { passive: true });
+    return () => {
+      viewport.removeEventListener('scroll', update);
+    };
+  }, [disabled, records.groups]);
+
   const nextYear = index.years.find((year) => year > (records.lastYear ?? 0));
   const canLoadRecords = records.morePages || nextYear !== undefined;
   const hasMore = canLoadRecords || index.hasMore;
