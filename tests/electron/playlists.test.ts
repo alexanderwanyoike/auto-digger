@@ -40,18 +40,27 @@ test('downloads a liked track once, shares it with a playlist and restores both 
     expect(await topGap()).toBe(12);
     await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
-    const like = page.getByRole('button', { name: 'Like Quiet Orbit', exact: true });
+    const playback = page.getByRole('contentinfo', { name: 'Playback' });
+    await expect(playback.getByRole('button', { name: /Like / })).toHaveCount(0);
+    await page
+      .getByRole('region', { name: 'Audio sources' })
+      .getByRole('button', { name: 'Preview audio' })
+      .first()
+      .click();
+    await expect(playback.getByRole('button', { name: 'Pause', exact: true })).toBeVisible();
+    const like = playback.getByRole('button', { name: 'Like Quiet Orbit', exact: true });
+    await expect(
+      page.getByRole('article').getByRole('button', { name: 'Like Quiet Orbit' }),
+    ).toHaveCount(0);
     await like.click();
     await expect(like).toHaveAttribute('aria-pressed', 'true');
-    await page.getByRole('button', { name: 'Like No attached audio', exact: true }).click();
-    await page.getByRole('button', { name: 'Add Quiet Orbit to playlist', exact: true }).click();
+    await playback
+      .getByRole('button', { name: 'Add Quiet Orbit to playlist', exact: true })
+      .click();
     await page.getByRole('button', { name: 'Add to After hours', exact: true }).click();
     await page.getByRole('button', { name: 'Playlists', exact: true }).click();
     await page.getByRole('button', { name: 'Likes', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeEnabled();
-    await expect(
-      page.getByRole('button', { name: 'Choose audio for No attached audio', exact: true }),
-    ).toBeVisible();
     await page.getByRole('button', { name: 'After hours', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeEnabled();
     await expect
@@ -86,7 +95,14 @@ test('downloads a liked track once, shares it with a playlist and restores both 
 
     await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
-    await page.getByRole('button', { name: 'Add Night Signal to playlist', exact: true }).click();
+    await page
+      .getByRole('region', { name: 'Audio sources' })
+      .getByRole('button', { name: 'Preview audio' })
+      .last()
+      .click();
+    await playback
+      .getByRole('button', { name: 'Add Night Signal to playlist', exact: true })
+      .click();
     await page.getByRole('button', { name: 'Add to After hours', exact: true }).click();
     await page.getByRole('button', { name: 'Playlists', exact: true }).click();
     await page.getByRole('button', { name: 'After hours', exact: true }).click();
