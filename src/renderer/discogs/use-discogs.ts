@@ -127,7 +127,14 @@ export function useDiscogs(
     openSavedRelease: (saved: DiscogsRelease) => {
       setRelease(saved);
       setError(null);
-      bridge?.markSeen?.(saved.id).catch(() => undefined);
+      bridge
+        ?.markSeen?.(saved.id)
+        .then((result) => {
+          if (!result.ok) setError(result.error);
+        })
+        .catch(() => {
+          setError({ code: 'unavailable', message: 'Discovery history could not be saved.' });
+        });
     },
     matches,
     digging,
