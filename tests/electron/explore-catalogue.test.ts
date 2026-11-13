@@ -88,6 +88,10 @@ test('scrolls through populated catalogue years and appends release pages', asyn
       element.scrollTo(0, element.scrollHeight);
     });
     await expect(page.getByRole('button', { name: /Back Channel 8/ })).toBeVisible();
+    await expect(years.getByRole('button', { name: '2000' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
     await expect(page.getByRole('button', { name: /Back Channel 6/ })).toBeAttached();
     await expect(page.getByRole('button', { name: 'Show more' })).toHaveCount(0);
     const viewport = page.locator('.explore-page');
