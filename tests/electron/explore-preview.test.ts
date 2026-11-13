@@ -2,7 +2,7 @@ import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import { identityResponse, releaseResponse } from '../discogs-fixtures';
 
-test('plays a sleeve preview in place and excludes the release after playback starts', async () => {
+test('keeps a playing sleeve visible and can reopen its release', async () => {
   const desktop = await electron.launch({
     args: [
       resolve('tests/encrypted-desktop.cjs'),
@@ -30,7 +30,12 @@ test('plays a sleeve preview in place and excludes the release after playback st
             );
           if (url.pathname === '/releases/13')
             return Promise.resolve(
-              Response.json({ ...fixtures.releaseResponse, id: 13, title: 'First Light' }),
+              Response.json({
+                ...fixtures.releaseResponse,
+                id: 13,
+                title: 'First Light',
+                videos: [],
+              }),
             );
           if (url.pathname === '/releases/20')
             return Promise.resolve(new Response(null, { status: 404 }));
@@ -76,8 +81,11 @@ test('plays a sleeve preview in place and excludes the release after playback st
     await expect(playback.getByRole('button', { name: 'Pause' })).toBeVisible();
     await expect(playback).toContainText('Quiet Orbit');
     await expect(shelf).toBeVisible();
-    await expect(shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toHaveCount(0);
-    await page.reload();
+    await expect(shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toBeVisible();
+    await playback.getByRole('button', { name: 'Open playing release' }).click();
+    await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
+    await expect(playback.getByRole('button', { name: 'Pause' })).toBeVisible();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*Late Signal/ })).toBeVisible();
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toHaveCount(0);
   } finally {
