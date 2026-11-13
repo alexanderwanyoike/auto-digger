@@ -4,16 +4,13 @@ import type { CatalogueResult } from '../../shared/catalogue';
 import { catalogueFailure } from '../../shared/catalogue-failure';
 import { addPlaylistEntry, playlistNameSchema, removePlaylistEntry } from '../../shared/playlists';
 import type { PlaylistsResult, PlaylistTrack } from '../../shared/playlists';
+import { trackPosition } from '../../shared/track-position';
 import { trackKey } from '../catalogue/track-key';
 import { readPlaylists } from './read-playlists';
 
 function entryKey({ release, trackIndex }: PlaylistTrack): string | null {
-  const track = release.tracks[trackIndex];
-  if (!track) return null;
-  const occurrence = release.tracks
-    .slice(0, trackIndex)
-    .filter((item) => item.position === track.position && item.title === track.title).length;
-  return `${release.id.toString()}-${trackKey(track, occurrence)}`;
+  const track = trackPosition(release, trackIndex);
+  return track ? `${release.id.toString()}-${trackKey(track, track.occurrence)}` : null;
 }
 
 export function createPlaylistsStore(connection: () => Promise<CatalogueResult<DatabaseSync>>) {

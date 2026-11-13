@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react';
 import { Heart, ListPlus } from 'lucide-react';
 import type { PlaylistTrack } from '../../shared/playlists';
+import { trackPosition } from '../../shared/track-position';
 import { likesId } from '../../shared/playlists';
 import { PlaylistsContext } from './playlists-context';
 
@@ -8,16 +9,21 @@ export function PlaylistTrackActions({ track }: { track: PlaylistTrack }) {
   const playlists = useContext(PlaylistsContext);
   const [open, setOpen] = useState(false);
   if (!playlists?.available) return null;
-  const title = track.release.tracks[track.trackIndex]?.title ?? '';
+  const position = trackPosition(track.release, track.trackIndex);
+  if (!position) return null;
+  const { title } = position;
   const entryIn = (playlistId: string) =>
     playlists.lists
       .find(({ id }) => id === playlistId)
-      ?.entries.find(
-        ({ track: entry }) =>
-          entry.release.id === track.release.id &&
-          entry.trackIndex === track.trackIndex &&
-          entry.release.tracks[entry.trackIndex]?.title === title,
-      );
+      ?.entries.find(({ track: entry }) => {
+        if (entry.release.id !== track.release.id) return false;
+        const saved = trackPosition(entry.release, entry.trackIndex);
+        return (
+          saved?.position === position.position &&
+          saved.title === title &&
+          saved.occurrence === position.occurrence
+        );
+      });
   const liked = entryIn(likesId);
   const available = playlists.lists.filter(({ id }) => id !== likesId);
   return (
