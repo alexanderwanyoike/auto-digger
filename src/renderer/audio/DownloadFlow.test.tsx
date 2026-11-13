@@ -56,7 +56,7 @@ test('shows all sources, suggests track matches, accepts corrections and loads d
   };
   const user = userEvent.setup();
   render(<App crate={crate} audioLibrary={bridge} />);
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   const sources = screen.getByRole('region', { name: 'Audio sources' });
   await user.click(within(sources).getByText('1 unmatched upload'));
@@ -104,7 +104,7 @@ test('keeps saved sources playable offline and lets their track assignment be co
   };
   const user = userEvent.setup();
   render(<App crate={crate} audioLibrary={bridge} />);
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   await user.click(screen.getByText('1 unmatched upload'));
   const rows = Array.from(
@@ -153,7 +153,7 @@ test('explains an unavailable source and lets the user retry without losing the 
   };
   const user = userEvent.setup();
   render(<App crate={crate} audioLibrary={bridge} />);
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   expect(await screen.findByRole('alert')).toHaveTextContent('private or no longer available');
   expect(screen.getByRole('button', { name: 'Download audio' })).toBeDisabled();
@@ -187,7 +187,7 @@ test('retains a freshly downloaded track when an older library snapshot finishes
   };
   const user = userEvent.setup();
   render(<App crate={crate} audioLibrary={bridge} />);
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   await user.click(await screen.findByRole('button', { name: 'Download audio' }));
   const player = screen.getByRole('contentinfo', { name: 'Playback' });

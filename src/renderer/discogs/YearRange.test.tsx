@@ -27,7 +27,7 @@ test('submits a full year range from the digging form', async () => {
   };
   const user = userEvent.setup();
   render(<App discogs={bridge} />);
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await screen.findByRole('button', { name: 'Connected as quiet-digger' });
   await user.type(screen.getByLabelText('Year', { exact: true }), '1990-1999');
   await user.click(screen.getByRole('button', { name: 'Search releases' }));

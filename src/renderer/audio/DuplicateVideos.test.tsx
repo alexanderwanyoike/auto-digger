@@ -43,7 +43,7 @@ test('shows and probes each video ID once while keeping distinct uploads and ori
       }}
     />,
   );
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   const list = screen.getByRole('list', { name: 'YouTube audio sources' });
   const summary = list.querySelector('summary');

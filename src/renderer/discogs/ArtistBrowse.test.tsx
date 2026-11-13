@@ -45,7 +45,7 @@ test('browses an artist without old filters and restores the EP and original sea
   };
   const user = userEvent.setup();
   render(<App discogs={bridge} />);
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await screen.findByRole('button', { name: 'Connected as quiet-digger' });
   await user.type(screen.getByLabelText('Label'), 'Still Records');
   await user.type(screen.getByLabelText('Year'), '1998');
@@ -101,7 +101,7 @@ test('keeps the originating release visible when artist search fails', async () 
       }}
     />,
   );
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await screen.findByRole('button', { name: 'Connected as quiet-digger' });
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   await user.click(screen.getByRole('button', { name: 'Browse releases by Low Tide' }));

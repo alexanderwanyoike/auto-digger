@@ -35,7 +35,7 @@ test('connects, clears the submitted token, shows release metadata and disconnec
   const bridge = mockBridge();
   const user = userEvent.setup();
   render(<App discogs={bridge} />);
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   const connect = screen.getByRole('button', { name: 'Discogs not connected' });
   await waitFor(() => {
     expect(connect).toBeEnabled();
@@ -91,7 +91,7 @@ test('shows a rate limit error without losing the account and allows retry', asy
   });
   const user = userEvent.setup();
   render(<App discogs={bridge} />);
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await user.type(await screen.findByLabelText('Discogs release ID'), '12');
   await user.click(screen.getByRole('button', { name: 'Load release' }));
   expect(await screen.findByRole('alert')).toHaveTextContent('Please wait a minute');

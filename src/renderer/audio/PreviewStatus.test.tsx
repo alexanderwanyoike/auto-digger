@@ -34,7 +34,7 @@ test('shows preparation and cancellation in the app footer without expanding the
         }}
       />,
     );
-    await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Digging desk' }));
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
     await user.click(await screen.findByRole('button', { name: 'Preview audio' }));
     const footer = screen.getByRole('region', { name: 'App status' });
@@ -82,7 +82,7 @@ test.each(['success', 'failure'])(
           }}
         />,
       );
-      await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+      await user.click(screen.getByRole('button', { name: 'Digging desk' }));
       await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
       await user.click(await screen.findByRole('button', { name: 'Preview audio' }));
       const footer = screen.getByRole('region', { name: 'App status' });

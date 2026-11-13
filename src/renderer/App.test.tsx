@@ -7,7 +7,7 @@ import { version } from '../../package.json';
 test('shows the digging desk empty states when opened from Explore', async () => {
   const user = userEvent.setup();
   render(<App />);
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
 
   expect(screen.getByRole('heading', { name: 'Digging desk' })).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'Your next find starts here.' })).toBeInTheDocument();

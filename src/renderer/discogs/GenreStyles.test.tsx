@@ -20,7 +20,7 @@ async function renderDesk(user: ReturnType<typeof userEvent.setup>) {
     search,
   };
   render(<App discogs={bridge} />);
-  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   return search;
 }
 
