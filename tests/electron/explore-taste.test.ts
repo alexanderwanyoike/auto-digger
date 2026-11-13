@@ -39,10 +39,25 @@ test('learns the saved record style when the listener refreshes Explore', async 
     await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
     await page.getByLabel('Personal token').fill('fixture-explore-taste');
     await page.getByRole('button', { name: 'Connect account', exact: true }).click();
+    await page.getByRole('button', { name: 'Crates', exact: true }).click();
+    for (const name of ['Deep picks', 'After hours']) {
+      await page.getByLabel('New crate name').fill(name);
+      await page.getByRole('button', { name: 'Create crate', exact: true }).click();
+      await expect(
+        page.getByRole('combobox', { name: 'Active crate' }).locator('option:checked'),
+      ).toHaveText(`${name} (0)`);
+    }
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
     const shelf = page.getByRole('region', { name: 'Discover records' });
     await shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ }).click();
+    const destination = page.getByRole('combobox', { name: 'Save to crate', exact: true });
+    await expect(destination.locator('option:checked')).toHaveText('After hours (0)');
+    await destination.selectOption({ label: 'Deep picks (0)' });
     await page.getByRole('button', { name: 'Save EP to crate' }).click();
     await expect(page.getByRole('button', { name: 'Saved to crate' })).toBeDisabled();
+    await expect(destination.locator('option:checked')).toHaveText('Deep picks (1)');
+    await destination.selectOption({ label: 'After hours (0)' });
+    await expect(page.getByRole('button', { name: 'Save EP to crate' })).toBeEnabled();
     await page.getByRole('button', { name: 'Back to Explore' }).click();
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*Back Channel/ })).toBeVisible();
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*First Light/ })).toHaveCount(0);
