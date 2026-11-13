@@ -1,10 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
-import type { SearchPage } from '../../shared/search';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
-import { catalogueYears, firstSearchYear, recordsForYear } from './catalogue-years';
-
-const shelfSize = 4;
+import { useCatalogueRecords } from './use-catalogue-records';
+import { useCatalogueYearIndex } from './use-catalogue-year-index';
 
 export function CatalogueTimeline({
   style,
@@ -19,228 +17,109 @@ export function CatalogueTimeline({
   onOpen: (id: number) => void;
   onUnauthorized: () => void;
 }) {
-  const timeline = useRef<HTMLDivElement>(null);
-  const yearPosition = useRef(0);
-  const [years, setYears] = useState<number[]>([]);
-  const [start, setStart] = useState(firstSearchYear);
-  const [next, setNext] = useState<number | null>(null);
-  const [year, setYear] = useState<number | null>(null);
-  const [page, setPage] = useState(1);
-  const [grid, setGrid] = useState(false);
-  const [matches, setMatches] = useState<SearchPage | null>(null);
-  const [yearsBusy, setYearsBusy] = useState(true);
-  const [yearsError, setYearsError] = useState<string | null>(null);
-  const [recordsError, setRecordsError] = useState<string | null>(null);
-  const [retryYears, setRetryYears] = useState(0);
-  const [retryRecords, setRetryRecords] = useState(0);
-
-  useLayoutEffect(() => {
-    if (!grid && timeline.current) timeline.current.scrollTop = yearPosition.current;
-  }, [grid]);
+  const index = useCatalogueYearIndex(search, style, onUnauthorized);
+  const records = useCatalogueRecords(search, style, index.years[0], onUnauthorized);
+  const [selected, setSelected] = useState<number | null>(null);
+  const sentinel = useRef<HTMLDivElement>(null);
+  const catalogue = useRef<HTMLDivElement>(null);
+  const nextYear = index.years.find((year) => year > (records.lastYear ?? 0));
+  const canLoadRecords = records.morePages || nextYear !== undefined;
+  const hasMore = canLoadRecords || index.hasMore;
+  const busy = records.busy || (!canLoadRecords && index.busy);
+  const error = records.error ?? index.error;
+  const loadMore = () => {
+    if (canLoadRecords) records.loadMore(nextYear);
+    else index.loadMore();
+  };
   useEffect(() => {
-    let active = true;
-    catalogueYears(
-      search,
-      style,
-      start,
-      () => active,
-      (found) => {
-        setYears((previous) => (previous.includes(found) ? previous : [...previous, found]));
-        setYear((previous) => previous ?? found);
+    const element = sentinel.current;
+    if (!element || busy || error || disabled || !hasMore) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        observer.disconnect();
+        loadMore();
       },
-    )
-      .then((result) => {
-        if (!active) return;
-        if (result.ok) setNext(result.value);
-        else {
-          if (result.error.code === 'unauthorized') onUnauthorized();
-          setYearsError(result.error.message);
-        }
-      })
-      .catch(() => {
-        if (active) setYearsError('Release years could not be loaded.');
-      })
-      .finally(() => {
-        if (active) setYearsBusy(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [onUnauthorized, retryYears, search, start, style]);
+      { rootMargin: '200px 0px' },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  });
 
-  useEffect(() => {
-    if (year === null) return undefined;
-    let active = true;
-    recordsForYear(search, style, year, page)
-      .then((result) => {
-        if (!active) return;
-        if (result.ok) setMatches(result.value);
-        else {
-          if (result.error.code === 'unauthorized') onUnauthorized();
-          setRecordsError(result.error.message);
-        }
-      })
-      .catch(() => {
-        if (active) setRecordsError('Records could not be loaded.');
-      });
-    return () => {
-      active = false;
-    };
-  }, [onUnauthorized, page, retryRecords, search, style, year]);
-
-  const changePage = (nextPage: number) => {
-    if (page !== nextPage) {
-      setMatches(null);
-      setRecordsError(null);
-      setPage(nextPage);
+  const select = (year: number) => {
+    setSelected(year);
+    const section = catalogue.current?.querySelector(`[data-release-year="${year.toString()}"]`);
+    if (section) section.scrollIntoView({ block: 'start' });
+    else {
+      records.jump(year);
+      catalogue.current?.scrollIntoView({ block: 'start' });
     }
   };
 
   return (
-    <>
-      <div className="catalogue-timeline" hidden={grid}>
-        <nav aria-label="Release years" className="catalogue-years" ref={timeline}>
-          <ol>
-            {years.map((value) => (
-              <li key={value}>
-                <button
-                  type="button"
-                  aria-current={value === year ? true : undefined}
-                  disabled={disabled}
-                  onClick={() => {
-                    if (year !== value) {
-                      setMatches(null);
-                      setRecordsError(null);
-                      setPage(1);
-                      setYear(value);
-                    }
-                  }}
-                >
-                  {value}
-                </button>
-              </li>
-            ))}
-          </ol>
-          {yearsBusy && <p role="status">Loading years…</p>}
-          {next !== null && !yearsBusy && !yearsError && (
-            <button
-              className="secondary-button"
-              type="button"
-              disabled={disabled}
-              onClick={() => {
-                setYearsBusy(true);
-                setStart(next);
-              }}
-            >
-              More years
-            </button>
-          )}
-          {!yearsBusy && !years.length && !yearsError && <p>No dated releases found.</p>}
-        </nav>
-        <section
-          className="explore-shelf catalogue-year-shelf"
-          aria-label={year?.toString() ?? 'Releases'}
-        >
-          {year !== null && (
-            <header className="explore-shelf-header">
-              <h3>{year}</h3>
-              {matches && matches.items > shelfSize && (
-                <button
-                  className="secondary-button"
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => {
-                    yearPosition.current = timeline.current?.scrollTop ?? 0;
-                    setGrid(true);
-                  }}
-                >
-                  Show more
-                </button>
-              )}
-            </header>
-          )}
-          {year !== null && !matches && !recordsError && <p role="status">Loading releases…</p>}
-          {matches && (
-            <ReleaseMatchList
-              releases={matches.releases.slice(0, shelfSize)}
-              disabled={disabled}
-              onOpen={onOpen}
-            />
-          )}
-        </section>
-      </div>
-      {grid && (
-        <section
-          className="explore-shelf catalogue-full-grid"
-          aria-label={`${style} · ${year?.toString() ?? ''}`}
-        >
-          <header className="explore-shelf-header">
-            <h3>
-              {style} · {year}
-            </h3>
-            <button
-              className="secondary-button"
-              type="button"
-              disabled={disabled}
-              onClick={() => {
-                changePage(1);
-                setGrid(false);
-              }}
-            >
-              Back to timeline
-            </button>
-          </header>
-          {matches && (
-            <ReleaseMatchList releases={matches.releases} disabled={disabled} onOpen={onOpen} />
-          )}
-          {!matches && !recordsError && <p role="status">Loading releases…</p>}
-          {matches && matches.pages > 1 && (
-            <nav className="catalogue-pagination" aria-label="Year pages">
+    <div className="catalogue-timeline" ref={catalogue}>
+      <nav aria-label="Release years" className="catalogue-years">
+        <ol>
+          {index.years.map((year) => (
+            <li key={year}>
               <button
-                className="secondary-button"
                 type="button"
-                disabled={disabled || page <= 1}
+                aria-current={year === (selected ?? index.years[0]) ? true : undefined}
+                disabled={disabled}
                 onClick={() => {
-                  changePage(page - 1);
+                  select(year);
                 }}
               >
-                Previous page
+                {year}
               </button>
-              <span>
-                Page {page} of {matches.pages}
-              </span>
-              <button
-                className="secondary-button"
-                type="button"
-                disabled={disabled || page >= matches.pages}
-                onClick={() => {
-                  changePage(page + 1);
-                }}
-              >
-                Next page
-              </button>
-            </nav>
-          )}
-        </section>
-      )}
-      {(yearsError ?? recordsError) && (
-        <div className="catalogue-error">
-          <p role="alert">{recordsError ?? yearsError}</p>
+            </li>
+          ))}
+        </ol>
+        {index.hasMore && !index.error && (
           <button
             className="secondary-button"
             type="button"
-            onClick={() => {
-              if (yearsError) setYearsBusy(true);
-              setYearsError(null);
-              setRecordsError(null);
-              if (yearsError) setRetryYears((current) => current + 1);
-              if (recordsError) setRetryRecords((current) => current + 1);
-            }}
+            disabled={disabled || index.busy}
+            onClick={index.loadMore}
           >
-            Retry
+            More years
           </button>
+        )}
+      </nav>
+      <div className="catalogue-records">
+        {records.groups.map(({ year, releases }) => (
+          <section
+            key={year}
+            className="explore-shelf catalogue-year"
+            aria-label={year.toString()}
+            data-release-year={year}
+          >
+            <header className="explore-shelf-header">
+              <h3>{year}</h3>
+            </header>
+            <ReleaseMatchList releases={releases} disabled={disabled} onOpen={onOpen} />
+          </section>
+        ))}
+        <div ref={sentinel} className="catalogue-continuation">
+          {busy && <p role="status">Loading releases…</p>}
+          {!busy && !records.groups.length && !error && <p>No dated releases found.</p>}
+          {error && <p role="alert">{error}</p>}
+          {error && (
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={records.error ? records.retry : index.retry}
+            >
+              Retry
+            </button>
+          )}
+          {!busy && !error && hasMore && (
+            <button className="secondary-button" type="button" onClick={loadMore}>
+              Load more releases
+            </button>
+          )}
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 }
