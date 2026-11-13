@@ -30,12 +30,15 @@ test('browses a year range with one paginated search and opens an individual yea
             year: date,
           }));
         const capped = year === '1993-2001';
-        const ranged = year === '1993-1999' || capped;
-        const rangePages = [
-          records(1993, 50),
-          records(1992, 50),
-          [...records(1993, 1), ...records(1994, 1), ...records(1995, 1), ...records(2000, 1)],
-        ];
+        const later = year === '1998-1999';
+        const ranged = year === '1993-1999' || capped || later;
+        const rangePages = later
+          ? [records(1998, 50), records(1999, 1)]
+          : [
+              records(1993, 50),
+              records(1992, 50),
+              [...records(1993, 1), ...records(1994, 1), ...records(1995, 1), ...records(2000, 1)],
+            ];
         const results = ranged
           ? (rangePages[number - 1] ?? []).map((record) =>
               record.year === 1992 ? { ...record, year: '' } : record,
@@ -86,14 +89,17 @@ test('browses a year range with one paginated search and opens an individual yea
     const second = page.getByRole('region', { name: '1995', exact: true });
     const query = { year: '1993-1999', style: 'Progressive House', sort: 'year', order: 'asc' };
     await expect(first.getByRole('button', { name: 'Play Record 1993 49' })).toBeAttached();
-    await expect(years.getByRole('button')).toHaveText(['1993']);
+    await expect(years.getByRole('button', { name: '1998', exact: true })).toBeVisible({
+      timeout: 3000,
+    });
     expect(await rangeRequests()).toEqual([{ ...query, page: 1 }]);
 
     await page.locator('.explore-scroll').evaluate((viewport) => {
       viewport.scrollTo(0, viewport.scrollHeight);
     });
     await expect(second.getByRole('button', { name: 'Play Record 1995 0' })).toBeVisible();
-    await expect(years.getByRole('button')).toHaveText(['1993', '1994', '1995']);
+    await expect(page.getByRole('region', { name: '1996', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('region', { name: '2000', exact: true })).toHaveCount(0);
     await expect(
       first.getByRole('button', { name: 'Play Record 1993 0', exact: true }),
     ).toHaveCount(1);
@@ -134,6 +140,26 @@ test('browses a year range with one paginated search and opens an individual yea
     await page.getByRole('option', { name: 'Progressive House', exact: true }).click();
     await expect(to).toHaveValue('1999');
     await expect(second.getByRole('button', { name: 'Play Record 1995 0' })).toBeAttached();
+
+    const beforeJump = (await requests.jsonValue()).length;
+    await years.getByRole('button', { name: '1998', exact: true }).click();
+    const laterYear = page.getByRole('region', { name: '1998', exact: true });
+    await expect(laterYear.getByRole('button', { name: 'Play Record 1998 49' })).toBeAttached();
+    await expect(years.getByRole('button', { name: '1998', exact: true })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+    await expect(first).toHaveCount(0);
+    await expect(from).toHaveValue('1993');
+    await expect(to).toHaveValue('1999');
+    const jumpRequests = async () => (await requests.jsonValue()).slice(beforeJump);
+    const suffix = { ...query, year: '1998-1999' };
+    expect(await jumpRequests()).toEqual([{ ...suffix, page: 1 }]);
+    await page.locator('.explore-scroll').evaluate((viewport) => {
+      viewport.scrollTo(0, viewport.scrollHeight);
+    });
+    await expect(page.getByRole('region', { name: '1999', exact: true })).toBeVisible();
+    expect(await jumpRequests()).toEqual([1, 2].map((number) => ({ ...suffix, page: number })));
 
     await to.fill('2001');
     await to.press('Enter');
