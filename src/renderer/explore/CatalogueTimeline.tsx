@@ -29,7 +29,8 @@ export function CatalogueTimeline({
   const [yearsBusy, setYearsBusy] = useState(true);
   const [yearsError, setYearsError] = useState<string | null>(null);
   const [recordsError, setRecordsError] = useState<string | null>(null);
-  const [retry, setRetry] = useState(0);
+  const [retryYears, setRetryYears] = useState(0);
+  const [retryRecords, setRetryRecords] = useState(0);
 
   useLayoutEffect(() => {
     if (!grid && timeline.current) timeline.current.scrollTop = yearPosition.current;
@@ -63,7 +64,7 @@ export function CatalogueTimeline({
     return () => {
       active = false;
     };
-  }, [onUnauthorized, retry, search, start, style]);
+  }, [onUnauthorized, retryYears, search, start, style]);
 
   useEffect(() => {
     if (year === null) return undefined;
@@ -83,7 +84,7 @@ export function CatalogueTimeline({
     return () => {
       active = false;
     };
-  }, [onUnauthorized, page, retry, search, style, year]);
+  }, [onUnauthorized, page, retryRecords, search, style, year]);
 
   const changePage = (nextPage: number) => {
     if (page !== nextPage) {
@@ -226,7 +227,8 @@ export function CatalogueTimeline({
               if (yearsError) setYearsBusy(true);
               setYearsError(null);
               setRecordsError(null);
-              setRetry((current) => current + 1);
+              if (yearsError) setRetryYears((current) => current + 1);
+              if (recordsError) setRetryRecords((current) => current + 1);
             }}
           >
             Retry
