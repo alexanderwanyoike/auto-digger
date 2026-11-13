@@ -17,6 +17,7 @@ const envelopeSchema = z.object({
   ok: z.boolean(),
   value: z.unknown().optional(),
   error: z.unknown().optional(),
+  historyWarning: z.string().optional(),
 });
 
 export function createDiscogsBridge(invoke: Invoke): DiscogsBridge {
@@ -30,7 +31,14 @@ export function createDiscogsBridge(invoke: Invoke): DiscogsBridge {
       if (envelope.success) {
         if (envelope.data.ok) {
           const value = schema.safeParse(envelope.data.value);
-          if (value.success) return { ok: true, value: value.data };
+          if (value.success) {
+            const { historyWarning } = envelope.data;
+            return {
+              ok: true,
+              value: value.data,
+              ...(historyWarning ? { historyWarning } : {}),
+            };
+          }
         } else {
           const error = discogsErrorSchema.safeParse(envelope.data.error);
           if (error.success) return { ok: false, error: error.data };

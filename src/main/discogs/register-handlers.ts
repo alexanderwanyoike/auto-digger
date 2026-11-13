@@ -58,7 +58,7 @@ export function registerDiscogsHandlers(
         artworkUrl: release.artworkUrl,
         activity: 'opened',
       });
-      if (!saved.ok) process.stderr.write(`${saved.error.message}\n`);
+      if (!saved.ok) return { ...result, historyWarning: saved.error.message };
     }
     return result;
   };

@@ -184,3 +184,24 @@ test('skips superseded Catalogue range searches that have not reached Discogs', 
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('forgets a rejected Discogs credential after a portrait lookup', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'auto-portrait-'));
+  try {
+    const store = createTokenStore(join(directory, 'token.bin'), encryption);
+    const request = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json(identityResponse))
+      .mockResolvedValueOnce(new Response(null, { status: 401 }));
+    const session = createRememberedSession(createDiscogsSession(request), store);
+    await session.connect('remember-me');
+    expect(await session.topicArtwork({ kind: 'label', name: 'Still Records' })).toMatchObject({
+      ok: false,
+      error: { code: 'unauthorized' },
+    });
+    expect(await store.load()).toEqual({ ok: true, value: null });
+    expect(await session.account()).toEqual({ ok: true, value: null });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

@@ -82,8 +82,10 @@ export function useDiscogs(
         'Could not contact the desktop. Please restart Auto Digger.',
       );
     }
-    if (result.ok) await apply?.(result.value);
-    else {
+    if (result.ok) {
+      await apply?.(result.value);
+      if (result.historyWarning) setError({ code: 'unavailable', message: result.historyWarning });
+    } else {
       setError(result.error);
       if (result.error.code === 'unauthorized') {
         clearSession();
