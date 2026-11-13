@@ -89,7 +89,6 @@
   background: var(--surface);
 }
 .explore-tools,
-.explore-scope,
 .explore-year-form {
   display: flex;
   gap: 10px;
@@ -100,17 +99,10 @@
   align-items: end;
   padding: 16px 20px;
 }
-.explore-scope {
-  align-items: center;
-}
-.explore-scope h2 {
+.explore-tools h2 {
   margin: 0 8px 0 0;
   font-size: 15px;
   overflow-wrap: anywhere;
-}
-.explore-discover {
-  width: auto;
-  gap: 7px;
 }
 .explore-notice {
   margin: 0;

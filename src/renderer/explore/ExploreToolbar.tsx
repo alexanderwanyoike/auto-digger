@@ -11,6 +11,7 @@ export function ExploreToolbar({
   onSelect,
   onRefresh,
   onDiscover,
+  onAllFollowed,
 }: {
   section: ExploreSection;
   busy: boolean;
@@ -19,6 +20,7 @@ export function ExploreToolbar({
   onSelect: (section: ExploreSection) => void;
   onRefresh: () => void;
   onDiscover: (() => void) | undefined;
+  onAllFollowed: (() => void) | undefined;
 }) {
   return (
     <header className="explore-toolbar">
@@ -38,6 +40,16 @@ export function ExploreToolbar({
         ))}
       </nav>
       <div className="explore-actions">
+        {onAllFollowed && (
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={onAllFollowed}
+            disabled={busy}
+          >
+            All followed
+          </button>
+        )}
         {onDiscover && (
           <button type="button" className="secondary-button" onClick={onDiscover} disabled={busy}>
             <Shuffle size={14} aria-hidden="true" /> Discover unseen releases

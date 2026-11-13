@@ -84,7 +84,7 @@ export function ExplorePage({
     explore.open(id, markSeen).catch(() => undefined);
   };
   const selectSection = (next: ExploreSection) => {
-    if (section === next && !release) return;
+    if (section === next && !release && !view && !topic && !error) return;
     explore.reset();
     setSection(next);
     scrollContainer.current?.scrollTo(0, 0);
@@ -113,6 +113,14 @@ export function ExplorePage({
           followsShelf.refresh();
         }}
         onDiscover={canDiscover && !release ? discover : undefined}
+        onAllFollowed={
+          section === 'Following' && (topic || view) && !release
+            ? () => {
+                explore.reset();
+                scrollContainer.current?.scrollTo(0, 0);
+              }
+            : undefined
+        }
       />
       {catalogue && connected && bridge && (
         <div hidden={Boolean(release)}>
@@ -193,7 +201,7 @@ export function ExplorePage({
             </>
           )}
           {section === 'Following' && (
-            <div hidden={Boolean(topic)}>
+            <div hidden={Boolean(topic || view)}>
               <FollowingPanel
                 following={following}
                 browseDisabled={disabled}
@@ -205,17 +213,7 @@ export function ExplorePage({
           )}
           {section === 'Following' && topic && (
             <header className="explore-tools">
-              <div className="explore-scope">
-                <h2>{topic.name}</h2>
-                <button
-                  type="button"
-                  className="secondary-button"
-                  onClick={explore.reset}
-                  disabled={busy}
-                >
-                  All followed
-                </button>
-              </div>
+              <h2>{topic.name}</h2>
               {topic.kind === 'genre' && (
                 <YearComparisonForm
                   key={followTopicKey(topic)}
