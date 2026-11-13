@@ -170,7 +170,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
       discover: createDiscover(
         discogsSession.search,
         catalogueStore.following.read,
-        catalogueStore.discoveryHistory.known,
+        catalogueStore.discoveryHistory.seen,
       ),
       starterShelf: createStarterShelf(
         discogsSession.search,

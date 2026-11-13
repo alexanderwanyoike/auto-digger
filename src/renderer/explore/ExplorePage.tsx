@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Shuffle } from 'lucide-react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { followTopicKey } from '../../shared/following';
@@ -11,7 +12,7 @@ import type { useCrate } from '../crate/use-crate';
 import { useExplore } from './use-explore';
 import { YearComparisonForm } from './YearComparisonForm';
 import { ExploreResults } from './ExploreResults';
-import { StarterShelf } from './StarterShelf';
+import { ReleaseShelf } from './ReleaseShelf';
 import type { useStarterShelf } from './use-starter-shelf';
 
 export function ExplorePage({
@@ -19,6 +20,8 @@ export function ExplorePage({
   connected,
   onUnauthorized,
   starterShelf,
+  followsShelf,
+  markSeen,
   following,
   crate,
   audio,
@@ -27,21 +30,25 @@ export function ExplorePage({
   connected: boolean;
   onUnauthorized: () => void;
   starterShelf: ReturnType<typeof useStarterShelf>;
+  followsShelf: ReturnType<typeof useStarterShelf>;
+  markSeen: (id: number) => void;
   following: ReturnType<typeof useFollowing>;
   crate: ReturnType<typeof useCrate>;
   audio: ReturnType<typeof useAudioLibrary>;
 }) {
+  const scrollContainer = useRef<HTMLDivElement>(null);
   const explore = useExplore(bridge, onUnauthorized);
   const { topic, release, view, busy, error } = explore;
   const disabled = !connected || busy;
   const browse = (next: FollowTopic, page?: number) => {
+    scrollContainer.current?.scrollTo(0, 0);
     explore.browse(next, page).catch(() => undefined);
   };
   const open = (id: number) => {
-    explore.open(id, starterShelf.markSeen).catch(() => undefined);
+    explore.open(id, markSeen).catch(() => undefined);
   };
   return (
-    <div className="explore-page">
+    <div className="explore-page" ref={scrollContainer}>
       {release ? (
         <section className="explore-workspace" aria-label="Selected release">
           <button type="button" className="secondary-button explore-back" onClick={explore.back}>
@@ -63,7 +70,26 @@ export function ExplorePage({
       ) : (
         <>
           {connected && !topic && (
-            <StarterShelf shelf={starterShelf} disabled={disabled} open={open} />
+            <ReleaseShelf
+              title="Discover records"
+              headingId="explore-starter-heading"
+              shelf={starterShelf}
+              disabled={disabled || followsShelf.busy}
+              open={open}
+              refresh={() => {
+                starterShelf.refresh();
+                followsShelf.refresh();
+              }}
+            />
+          )}
+          {connected && !topic && following.topics.length > 0 && (
+            <ReleaseShelf
+              title="From your follows"
+              headingId="explore-follows-heading"
+              shelf={followsShelf}
+              disabled={disabled}
+              open={open}
+            />
           )}
           {!connected && (
             <p className="explore-notice">Connect Discogs to browse and discover releases.</p>

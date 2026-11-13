@@ -29,15 +29,5 @@ export function createDiscoveryHistory(connection: () => Promise<CatalogueResult
               .flatMap(({ id }) => (typeof id === 'number' ? [id] : [])),
           ),
       ),
-    known: () =>
-      query(
-        (database) =>
-          new Set(
-            database
-              .prepare('SELECT id FROM opened_releases UNION SELECT id FROM releases')
-              .all()
-              .flatMap(({ id }) => (typeof id === 'number' ? [id] : [])),
-          ),
-      ),
   };
 }
