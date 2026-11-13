@@ -90,8 +90,12 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     await expect(
       page.getByRole('button', { name: 'Play Mira North - Evening Light' }),
     ).toBeVisible();
+    await page.locator('.catalogue-records').hover();
+    await page.mouse.wheel(0, 120);
     const scrollbar = page.getByRole('slider', { name: 'Explore content scroll position' });
     await expect(scrollbar).toBeVisible();
+    await scrollbar.press('Home');
+    await page.mouse.move(300, 110);
     const tabsBottom = await navigation.evaluate(
       (element) => element.closest('.explore-toolbar')?.getBoundingClientRect().bottom ?? 0,
     );
