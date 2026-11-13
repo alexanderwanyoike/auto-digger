@@ -6,6 +6,7 @@ export function ReleaseShelf({
   title,
   headingId,
   refresh,
+  refreshBusy = false,
   shelf,
   disabled,
   open,
@@ -13,6 +14,7 @@ export function ReleaseShelf({
   title: string;
   headingId: string;
   refresh?: () => void;
+  refreshBusy?: boolean;
   shelf: ReturnType<typeof useStarterShelf>;
   disabled: boolean;
   open: (id: number) => void;
@@ -26,7 +28,7 @@ export function ReleaseShelf({
             className="secondary-button"
             type="button"
             onClick={refresh}
-            disabled={disabled || shelf.busy}
+            disabled={disabled || shelf.busy || refreshBusy}
           >
             <RefreshCw size={14} aria-hidden="true" /> Refresh
           </button>

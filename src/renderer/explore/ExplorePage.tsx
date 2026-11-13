@@ -74,8 +74,9 @@ export function ExplorePage({
               title="Discover records"
               headingId="explore-starter-heading"
               shelf={starterShelf}
-              disabled={disabled || followsShelf.busy}
+              disabled={disabled}
               open={open}
+              refreshBusy={followsShelf.busy}
               refresh={() => {
                 starterShelf.refresh();
                 followsShelf.refresh();
