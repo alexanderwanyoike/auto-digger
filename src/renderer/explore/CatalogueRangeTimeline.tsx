@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { CatalogueYearShelf } from './CatalogueYearShelf';
 import { TickScrollbar } from './TickScrollbar';
+import { catalogueScrollYear } from './catalogue-scroll-year';
+import { useRevealCatalogueYear } from './use-reveal-catalogue-year';
 import { useCatalogueRange } from './use-catalogue-range';
 import { useScrollContinuation } from './use-scroll-continuation';
 
@@ -49,12 +51,8 @@ export function CatalogueRangeTimeline({
     const viewport = content?.closest<HTMLElement>('.explore-scroll');
     if (!active || !content || !viewport || !groups.length) return undefined;
     const update = () => {
-      const edge =
-        viewport.getBoundingClientRect().top +
-        parseFloat(getComputedStyle(content).scrollMarginTop);
-      const sections = [...content.querySelectorAll<HTMLElement>('[data-release-year]')];
-      const section = sections.find((group) => group.getBoundingClientRect().bottom > edge);
-      if (section?.dataset.releaseYear) setSelected(Number(section.dataset.releaseYear));
+      const year = catalogueScrollYear(content, viewport);
+      if (year !== undefined) setSelected(year);
     };
     update();
     viewport.addEventListener('scroll', update, { passive: true });
@@ -63,15 +61,7 @@ export function CatalogueRangeTimeline({
     };
   }, [active, groups]);
 
-  useEffect(() => {
-    const viewport = rail.current;
-    const button = viewport?.querySelector('[aria-current="true"]');
-    if (!viewport || !button) return;
-    const visible = viewport.getBoundingClientRect();
-    const target = button.getBoundingClientRect();
-    if (target.top < visible.top) viewport.scrollBy(0, target.top - visible.top);
-    if (target.bottom > visible.bottom) viewport.scrollBy(0, target.bottom - visible.bottom);
-  }, [selected]);
+  useRevealCatalogueYear(rail, selected);
 
   return (
     <div className="catalogue-timeline" ref={timeline}>
