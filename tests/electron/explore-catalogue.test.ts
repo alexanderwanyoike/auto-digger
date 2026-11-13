@@ -103,20 +103,25 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     expect(track.height).toBeLessThan(viewportBounds.height / 2);
     expect(track.y + track.height / 2).toBeCloseTo(viewportBounds.y + viewportBounds.height / 2, 0);
     expect(track.x + track.width).toBeLessThan(viewportBounds.x + viewportBounds.width);
-    await navigation.getByRole('button', { name: 'Catalogue' }).hover();
+    const catalogueTab = navigation.getByRole('button', { name: 'Catalogue' });
+    const scrollTop = () => viewport.evaluate((element) => element.scrollTop);
+    await catalogueTab.hover();
     await page.mouse.wheel(0, 120);
-    await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
-    await viewport.evaluate((element) => {
-      element.scrollTo(0, 0);
-    });
-    await navigation.getByRole('button', { name: 'Catalogue' }).press('PageDown');
-    await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+    await expect.poll(scrollTop).toBeGreaterThan(0);
+    await catalogueTab.press('Home');
+    await expect.poll(scrollTop).toBe(0);
+    await catalogueTab.press('ArrowDown');
+    await expect.poll(scrollTop).toBeGreaterThan(0);
+    await catalogueTab.press('ArrowUp');
+    await expect.poll(scrollTop).toBe(0);
+    await catalogueTab.press('PageDown');
+    await expect.poll(scrollTop).toBeGreaterThan(0);
     await scrollbar.press('Home');
-    await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(0);
+    await expect.poll(scrollTop).toBe(0);
     await scrollbar.press('PageDown');
-    await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+    await expect.poll(scrollTop).toBeGreaterThan(0);
     await scrollbar.press('Home');
-    await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(0);
+    await expect.poll(scrollTop).toBe(0);
     await page.mouse.move(track.x + track.width / 2, track.y + 10);
     await page.mouse.down();
     await page.mouse.move(track.x + track.width / 2, track.y + track.height / 3, { steps: 5 });
@@ -125,9 +130,7 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     await expect(navigation).toBeInViewport();
     const beforeWheel = await viewport.evaluate((element) => element.scrollTop);
     await page.mouse.wheel(0, -100);
-    await expect
-      .poll(() => viewport.evaluate((element) => element.scrollTop))
-      .toBeLessThan(beforeWheel);
+    await expect.poll(scrollTop).toBeLessThan(beforeWheel);
     await scrollbar.press('Home');
     await expect.poll(() => viewport.evaluate((el) => el.scrollTop)).toBe(0);
     await expect(page.getByRole('button', { name: 'Load more releases' })).toHaveCount(0);
@@ -170,11 +173,11 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     await expect(year.getByRole('button', { name: 'Show more' })).toBeVisible();
     const record = page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ });
     await record.scrollIntoViewIfNeeded();
-    const scrollTop = await viewport.evaluate((element) => element.scrollTop);
-    expect(scrollTop).toBeGreaterThan(0);
+    const savedPosition = await scrollTop();
+    expect(savedPosition).toBeGreaterThan(0);
     await record.click();
     await page.getByRole('button', { name: 'Back to Catalogue' }).click();
-    await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(scrollTop);
+    await expect.poll(scrollTop).toBe(savedPosition);
     await expect(record).toBeInViewport();
   } finally {
     await desktop.close();
