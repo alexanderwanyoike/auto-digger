@@ -3,6 +3,7 @@ import { FolderOpen, Play } from 'lucide-react';
 import { FindSimilarButton } from '../recommendations/FindSimilarButton';
 import type { AudioResult, AudioSource, LocalTrack } from '../../shared/audio';
 import type { DiscogsRelease } from '../../shared/discogs';
+import { matchesTrackPosition } from '../../shared/track-position';
 import { sourceAssignment } from './source-assignment';
 import { SourceDownloadButton } from './SourceDownloadButton';
 import { SourcePreviewButton } from './SourcePreviewButton';
@@ -35,7 +36,7 @@ export function SourceRow({
   if (!video) return null;
   const { sourceTitle, selected } = sourceAssignment(release, index, checked, saved, manual);
   const available = saved && !saved.missing;
-  const changed = saved && selected !== saved.trackIndex;
+  const changed = saved && !matchesTrackPosition(saved, release, selected);
   const job = audio.queue.jobs
     .filter((item) => item.releaseId === release.id && item.videoIndex === index)
     .at(-1);

@@ -1,6 +1,6 @@
 import { link, mkdtemp, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
-import { trackPositionKey } from '../../shared/track-position';
+import { matchesTrackPosition, trackPositionKey } from '../../shared/track-position';
 import { youtubeDownloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audio-failure';
@@ -60,7 +60,11 @@ export function createAudioLibrary(
         const id = `${release.id.toString()}-${sourceId}`;
         const saved = existing.value.find((track) => track.id === id);
         if (saved && !saved.missing) {
-          if (preserveAssignment || trackIndex === undefined || trackIndex === saved.trackIndex)
+          if (
+            preserveAssignment ||
+            trackIndex === undefined ||
+            matchesTrackPosition(saved, release, trackIndex)
+          )
             return { ok: true, value: saved };
           options.onProgress?.(downloadStage('tagging'));
           return await reassignTrack(

@@ -1,3 +1,4 @@
+import type { LocalTrack } from './audio';
 import type { DiscogsRelease } from './discogs';
 
 export function trackPosition(release: DiscogsRelease, index: number) {
@@ -13,4 +14,14 @@ export function trackPositionKey(release: DiscogsRelease, index: number | null |
   if (index == null) return undefined;
   const track = trackPosition(release, index);
   return track ? JSON.stringify([track.position, track.title, track.occurrence]) : undefined;
+}
+
+export function matchesTrackPosition(
+  saved: Pick<LocalTrack, 'trackIndex' | 'trackPosition'>,
+  release: DiscogsRelease,
+  index: number | null,
+) {
+  return saved.trackPosition === undefined
+    ? saved.trackIndex === index
+    : saved.trackPosition === trackPositionKey(release, index);
 }
