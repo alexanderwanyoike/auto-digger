@@ -112,6 +112,7 @@ export function useDownloadJobs(bridge: DownloadJobsBridge | undefined) {
       .join(','),
     cancel: (id: string) => call((api) => api.cancel(id)),
     retry: (id: string) => call((api) => api.retry(id)),
+    enqueue: (input: DownloadInput) => start([input]),
     async download(input: DownloadInput): Promise<AudioResult<LocalTrack>> {
       const result = await start([input]);
       if (!result.ok) return result;

@@ -1,5 +1,6 @@
 import type { DiscogsRelease } from '../../shared/discogs';
 import type { AudioResult, AudioSource, LocalTrack } from '../../shared/audio';
+import { matchesTrackPosition } from '../../shared/track-position';
 import { matchTrack } from '../../shared/match-track';
 
 export function sourceAssignment(
@@ -15,7 +16,11 @@ export function sourceAssignment(
   const cosineTrackIndex = release.videos[index]?.cosineTrackIndex;
   const proposed =
     cosineTrackIndex === undefined ? matchTrack(release, sourceTitle) : cosineTrackIndex;
-  const suggestion = saved ? saved.trackIndex : proposed;
+  const suggestion = saved
+    ? release.tracks.findIndex((_track, trackIndex) =>
+        matchesTrackPosition(saved, release, trackIndex),
+      )
+    : proposed;
   const assignment = manual === undefined ? suggestion : manual;
   const selected = assignment !== null && release.tracks[assignment] ? assignment : null;
   return { sourceTitle, selected };

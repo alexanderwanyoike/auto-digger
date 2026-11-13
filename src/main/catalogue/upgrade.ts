@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 
-export const catalogueVersion = 8;
+export const catalogueVersion = 9;
 
 export function upgradeCatalogue(database: DatabaseSync) {
   database.exec(`
@@ -22,6 +22,15 @@ export function upgradeCatalogue(database: DatabaseSync) {
       name TEXT NOT NULL
     ) STRICT;
     CREATE TABLE IF NOT EXISTS opened_releases (id INTEGER PRIMARY KEY) STRICT;
+    CREATE TABLE IF NOT EXISTS playlists (id TEXT PRIMARY KEY, name TEXT NOT NULL COLLATE NOCASE UNIQUE) STRICT;
+    CREATE TABLE IF NOT EXISTS playlist_tracks (id TEXT PRIMARY KEY, metadata TEXT NOT NULL) STRICT;
+    CREATE TABLE IF NOT EXISTS playlist_entries (
+      ordinal INTEGER PRIMARY KEY,
+      playlist_id TEXT NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
+      track_id TEXT NOT NULL REFERENCES playlist_tracks(id),
+      UNIQUE(playlist_id, track_id)
+    ) STRICT;
+    INSERT INTO playlists(id, name) VALUES('likes', 'Likes') ON CONFLICT(id) DO NOTHING;
     CREATE TABLE IF NOT EXISTS release_activity (
       id INTEGER PRIMARY KEY,
       title TEXT NOT NULL,

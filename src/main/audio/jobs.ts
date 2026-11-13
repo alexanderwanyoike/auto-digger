@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, DownloadInput, LocalTrack } from '../../shared/audio';
 import type { DownloadJob } from '../../shared/download-jobs';
+import { trackPositionKey } from '../../shared/track-position';
 import { downloadStage } from '../../shared/download-jobs';
 import { audioFailure } from '../../shared/audio-failure';
 import { downloadSourceId as sourceKey } from '../../shared/download-source-id';
@@ -113,6 +114,7 @@ export function createDownloadJobs(
               : undefined) ??
             request.release.title,
           releaseId: request.release.id,
+          trackPosition: trackPositionKey(request.release, request.trackIndex),
           ...('videoIndex' in request ? { videoIndex: request.videoIndex } : {}),
           sourceId: sourceKey(request) ?? undefined,
           artist: request.release.artists.join(', '),

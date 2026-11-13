@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AudioBridge, AudioResult, DownloadInput, LocalTrack } from '../../shared/audio';
 import type { DownloadJobsBridge } from '../../shared/download-jobs';
 import { useDownloadJobs } from './use-download-jobs';
@@ -25,6 +25,7 @@ export function useAudioLibrary(
   const queue = useDownloadJobs(jobsBridge);
   const { completionKey } = queue;
   const actions = useRef(0);
+  const sequence = useRef<LocalTrack[]>([]);
   const preparing = useRef<DownloadInput | null>(null);
   const [preparingPreview, setPreparingPreview] = useState<DownloadInput | null>(null);
   const [tracks, setTracks] = useState<LocalTrack[]>([]);
@@ -79,7 +80,7 @@ export function useAudioLibrary(
       active = false;
     };
   }, [bridge, completionKey]);
-  function play(track: LocalTrack) {
+  const playTrack = useCallback((track: LocalTrack) => {
     if (track.missing) {
       setError(
         'This audio file is missing or unavailable. Restore it or download the source again.',
@@ -91,7 +92,21 @@ export function useAudioLibrary(
       track: downloadedPlayback(track),
       request: previous.request + 1,
     }));
+  }, []);
+  function play(track: LocalTrack) {
+    sequence.current = [];
+    playTrack(track);
   }
+  function playSequence(ordered: LocalTrack[]) {
+    const [first, ...rest] = ordered;
+    if (!first) return;
+    sequence.current = rest;
+    playTrack(first);
+  }
+  const advanceSequence = useCallback(() => {
+    const next = sequence.current.shift();
+    if (next) playTrack(next);
+  }, [playTrack]);
   async function download(input: DownloadInput): Promise<AudioResult<LocalTrack>> {
     setBusy(true);
     setError(null);
@@ -155,6 +170,8 @@ export function useAudioLibrary(
     bridge,
     available: Boolean(bridge),
     play,
+    playSequence,
+    advanceSequence,
     async preview(input: DownloadInput): Promise<AudioResult<LocalTrack>> {
       const id = downloadSourceId(input);
       const saved = tracks.find((track) => track.id === id && !track.missing);
@@ -174,6 +191,7 @@ export function useAudioLibrary(
           ? await window.audioPreviews.prepare(input)
           : audioFailure<LocalTrack>('unavailable', 'Open the desktop app to preview audio.');
         if (result.ok) {
+          sequence.current = [];
           actions.current += 1;
           setPlayback((previous) => ({
             track: {

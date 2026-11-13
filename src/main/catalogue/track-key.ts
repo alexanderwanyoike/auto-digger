@@ -1,7 +1,10 @@
 import { createHash } from 'node:crypto';
 import type { DiscogsRelease } from '../../shared/discogs';
 
-export function trackKey(track: DiscogsRelease['tracks'][number], occurrence = 0): string {
+export function trackKey(
+  track: Pick<DiscogsRelease['tracks'][number], 'position' | 'title'>,
+  occurrence = 0,
+): string {
   return createHash('sha256')
     .update(
       JSON.stringify(

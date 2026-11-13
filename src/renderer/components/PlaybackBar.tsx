@@ -19,7 +19,7 @@ export function PlaybackBar({
   onOpenRelease?: ((id: number) => void) | undefined;
 }) {
   const { track, request } = audio.playback;
-  const player = usePlayer(track, request, onTrackPlaying);
+  const player = usePlayer(track, request, onTrackPlaying, audio.advanceSequence);
   const description = track
     ? `${track.artist} · ${track.album}`
     : 'Download a track to listen here.';
