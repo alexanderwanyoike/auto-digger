@@ -27,12 +27,17 @@ test('opens Explore first and refreshes the starter shelf without saves or follo
           if (url.pathname === '/releases/20')
             return Promise.resolve(new Response(null, { status: 404 }));
           searches += 1;
+          if (searches === 4) return Promise.resolve(new Response(null, { status: 401 }));
           const results = [
             { id: 12, title: 'Low Tide - Quiet Orbit EP', year: 1998 },
             { id: 20, title: 'Silt Relay - Missing Record', year: 2007 },
             {
               id: searches + 12,
-              title: searches === 1 ? 'Mira North - First Light' : 'Still Waters - Late Signal',
+              title: [
+                'Mira North - First Light',
+                'Still Waters - Late Signal',
+                'Silt Relay - Back Channel',
+              ][searches - 1],
               year: 2000,
             },
           ];
@@ -77,8 +82,11 @@ test('opens Explore first and refreshes the starter shelf without saves or follo
     await expect(shelf.getByRole('button', { name: /Late Signal/ })).toBeVisible();
     await expect(shelf.getByRole('button', { name: /Quiet Orbit EP/ })).toHaveCount(0);
     await page.reload();
-    await expect(shelf.getByRole('button', { name: /Late Signal/ })).toBeVisible();
+    await expect(shelf.getByRole('button', { name: /Back Channel/ })).toBeVisible();
     await expect(shelf.getByRole('button', { name: /Quiet Orbit EP/ })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Refresh', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Discogs not connected' })).toBeEnabled();
+    await expect(shelf).toHaveCount(0);
   } finally {
     await desktop.close();
   }
