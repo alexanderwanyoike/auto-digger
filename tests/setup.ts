@@ -12,6 +12,7 @@ beforeEach(() => {
     'ResizeObserver',
     class {
       observe = vi.fn();
+
       disconnect = vi.fn();
     },
   );
