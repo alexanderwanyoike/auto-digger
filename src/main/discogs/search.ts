@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { supportedUrl } from './media-url';
-import type { searchInputSchema, SearchPage } from '../../shared/search';
+import type { DigFilters, SearchInput, SearchPage } from '../../shared/search';
+import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';
 import { requestDiscogs } from './request';
 
@@ -42,7 +43,7 @@ const responseSchema = z
   }));
 
 export async function searchDiscogs(
-  input: z.infer<typeof searchInputSchema>,
+  input: SearchInput & { filters: DigFilters },
   token: string,
   request: typeof fetch,
   options: { query?: string; signal?: AbortSignal } = {},
@@ -63,11 +64,25 @@ export async function searchDiscogs(
       if (value.length) query.set(key, value.join('|'));
     } else if (value) query.set(key === 'title' ? 'release_title' : key, value);
   });
-  return requestDiscogs(
+  const result = await requestDiscogs(
     `/database/search?${query.toString()}`,
     token,
     responseSchema,
     request,
     options.signal,
   );
+  if (
+    input.context === 'catalogue' &&
+    input.order === 'oldest' &&
+    result.ok &&
+    result.value.items
+  ) {
+    const [start, end = start] = filters.year.split('-').map(Number);
+    const dated = result.value.releases.some(({ year }) => {
+      const value = Number(year);
+      return Number.isInteger(value) && value >= (start ?? 1000) && value <= (end ?? 9999);
+    });
+    if (!dated) return discogsFailure('invalid-response', 'Discogs did not return a release year.');
+  }
+  return result;
 }
