@@ -29,7 +29,9 @@ export const discogsErrorSchema = z.object({
   retryAt: z.number().int().positive().optional(),
 });
 export type DiscogsError = z.infer<typeof discogsErrorSchema>;
-export type DiscogsResult<T> = Result<T, DiscogsError>;
+export type DiscogsResult<T> =
+  | (Extract<Result<T, DiscogsError>, { ok: true }> & { historyWarning?: string })
+  | Extract<Result<T, DiscogsError>, { ok: false }>;
 
 export const releaseSchema = z.object({
   id: z.number().int().positive(),

@@ -98,3 +98,55 @@ test('keeps a persistent Explore history of opened and played releases', async (
     await desktop.close();
   }
 });
+
+test('opens a record and shows when its history could not be saved', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encrypted-desktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('profile')}`,
+    ],
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await desktop.evaluate(
+      (_electron, fixtures) => {
+        globalThis.fetch = (input) => {
+          const url = new URL(input instanceof Request ? input.url : input.toString());
+          if (url.pathname === '/oauth/identity')
+            return Promise.resolve(Response.json(fixtures.identity));
+          if (url.pathname === '/releases/12')
+            return Promise.resolve(Response.json(fixtures.release));
+          return Promise.resolve(
+            Response.json({
+              pagination: { page: 1, pages: 1, per_page: 50, items: 1 },
+              results: [{ id: 12, title: 'Quiet Orbit EP', year: 1998 }],
+            }),
+          );
+        };
+      },
+      { identity: identityResponse, release: releaseResponse },
+    );
+    await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
+    await page.getByLabel('Personal token').fill('fixture-history-warning');
+    await page.getByRole('button', { name: 'Connect account', exact: true }).click();
+    const open = page.getByRole('button', { name: /^Quiet Orbit EP/ });
+    await expect(open).toBeVisible();
+    const { DatabaseSync } = await import('node:sqlite');
+    const database = new DatabaseSync(resolve(test.info().outputPath('profile'), 'catalog.sqlite'));
+    try {
+      database.exec(`
+        CREATE TRIGGER reject_history_insert BEFORE INSERT ON release_activity
+        BEGIN SELECT RAISE(ABORT, 'fixture storage error'); END;
+      `);
+    } finally {
+      database.close();
+    }
+    await open.click();
+    await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
+    await expect(page.getByRole('alert')).toContainText(
+      'Your discovery history could not be reached.',
+    );
+  } finally {
+    await desktop.close();
+  }
+});

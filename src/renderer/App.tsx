@@ -245,6 +245,7 @@ export function App({
         {section === 'Explore' && (
           <PlaylistsContext.Provider value={playlists}>
             <ExplorePage
+              key={session.account?.id ?? 'disconnected'}
               bridge={discogs}
               connected={Boolean(session.account)}
               onUnauthorized={session.clearSession}

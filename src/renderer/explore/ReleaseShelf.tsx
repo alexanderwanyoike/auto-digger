@@ -37,7 +37,9 @@ export function ReleaseShelf({
         )}
       </header>
       {shelf.busy && !shelf.releases.length && <p role="status">Loading releases…</p>}
-      {shelf.error && !shelf.busy && <p role="alert">{shelf.error}</p>}
+      {shelf.error && !shelf.busy && (
+        <p role={shelf.retryAt === undefined ? 'alert' : 'status'}>{shelf.error}</p>
+      )}
       {!shelf.busy && !shelf.error && !shelf.releases.length && <p>No unseen releases found.</p>}
       <ReleaseMatchList
         releases={shelf.releases}
