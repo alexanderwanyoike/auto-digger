@@ -6,9 +6,11 @@ export function useScrollContinuation(load: (() => void) | undefined) {
   useEffect(() => {
     const element = sentinel.current;
     if (!element || !load) return undefined;
+    let active = true;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry?.isIntersecting) return;
+        if (!active || !entry?.isIntersecting) return;
+        active = false;
         observer.disconnect();
         load();
       },
@@ -16,6 +18,7 @@ export function useScrollContinuation(load: (() => void) | undefined) {
     );
     observer.observe(element);
     return () => {
+      active = false;
       observer.disconnect();
     };
   }, [load]);
