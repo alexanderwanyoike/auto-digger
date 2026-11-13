@@ -56,6 +56,7 @@
 }
 .explore-shelf .search-result > :is(strong, span) {
   display: block;
+  height: auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
