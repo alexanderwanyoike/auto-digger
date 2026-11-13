@@ -72,8 +72,8 @@ export function CataloguePage({
           style={style}
           styles={styles}
           onChange={(next) => {
-            if (next === style) return;
             setSelected(next);
+            if (next === style) return;
             setJump(undefined);
             resetScroll();
           }}
