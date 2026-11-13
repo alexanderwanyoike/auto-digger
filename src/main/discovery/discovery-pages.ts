@@ -97,10 +97,12 @@ export function createDiscoveryPages(
         const known = await seenReleases();
         if (!known.ok) return discogsFailure('unavailable', known.error.message);
         releases = result.value.releases.filter(({ id: releaseId }) => !known.value.has(releaseId));
-        const available = Math.min(result.value.pages, maxSearchPage);
+        const exactCatalogue = topic && topic.kind !== 'genre';
+        const available = exactCatalogue
+          ? result.value.pages
+          : Math.min(result.value.pages, maxSearchPage);
         const capped = result.value.items > available * result.value.perPage;
-        const partitions =
-          page === 1 && capped && (!topic || topic.kind === 'genre') ? splitByYear(filters) : [];
+        const partitions = page === 1 && capped && !exactCatalogue ? splitByYear(filters) : [];
         if (partitions.length && !pageCounts.has(source))
           sources.push(...partitions.map((partition) => ({ ...criteria, filters: partition })));
         pageCounts.set(source, available);
