@@ -48,7 +48,7 @@ export function ExplorePage({
       ? (id: number) => {
           setPreviewError(null);
           setPreviewBusy(true);
-          sleevePreview(loadPreview, audio.preview, id)
+          sleevePreview(loadPreview, (input, releaseId) => audio.preview(input, releaseId), id)
             .then((result) => {
               if (!result.ok) {
                 if (result.error.code === 'unauthorized') onUnauthorized();
