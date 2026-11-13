@@ -11,9 +11,8 @@ beforeEach(() => {
   vi.stubGlobal(
     'ResizeObserver',
     class {
-      observe() {}
-
-      disconnect() {}
+      observe = vi.fn();
+      disconnect = vi.fn();
     },
   );
   vi.stubGlobal('matchMedia', () => ({
