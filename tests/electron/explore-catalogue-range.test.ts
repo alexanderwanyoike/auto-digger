@@ -31,20 +31,23 @@ test('browses a year range with one paginated search and opens an individual yea
           }));
         const capped = year === '1993-2001';
         const emptyStart = year === '1997-1999';
+        const cappedJump = year === '1994-2001';
         const later = emptyStart || year === '1998-1999';
-        const ranged = year === '1993-1999' || capped || later;
+        const ranged = year === '1993-1999' || capped || later || cappedJump;
         const rangePages = later
           ? [records(1998, 50), records(1999, 1)]
           : [
-              records(1993, 50),
+              capped ? [...records(1993, 49), ...records(1994, 1)] : records(1993, 50),
               records(1992, 50),
               [...records(1993, 1), ...records(1994, 1), ...records(1995, 1), ...records(2000, 1)],
             ];
-        const results = ranged
-          ? (rangePages[number - 1] ?? []).map((record) =>
-              record.year === 1992 ? { ...record, year: '' } : record,
-            )
-          : records(Number(year.split('-')[0]) || 1990, 1);
+        const fallback = records(Number(year.split('-')[0]) || 1990, 1);
+        const results =
+          ranged && !cappedJump
+            ? (rangePages[number - 1] ?? []).map((record) =>
+                record.year === 1992 ? { ...record, year: '' } : record,
+              )
+            : fallback;
         return Promise.resolve(
           Response.json({
             pagination: {
@@ -186,6 +189,15 @@ test('browses a year range with one paginated search and opens an individual yea
         'Discogs shows the first 10,000 matches. Jump to a later year or narrow the range.',
       ),
     ).toBeVisible();
+    await expect(page.getByRole('region', { name: '1994', exact: true })).toBeAttached();
+    await years.getByRole('button', { name: '1994', exact: true }).click();
+    await expect(first).toHaveCount(0);
+    await expect
+      .poll(async () => (await rangeRequests()).at(-1))
+      .toMatchObject({
+        year: '1994-2001',
+        page: 1,
+      });
   } finally {
     await desktop.close();
   }
