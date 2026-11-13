@@ -3,6 +3,8 @@ import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsAccount, DiscogsBridge, DiscogsResult } from '../../shared/discogs';
 import type { SearchPage } from '../../shared/search';
 
+import { useDiscogsRetry } from './use-discogs-retry';
+
 type Releases = SearchPage['releases'];
 
 export function useStarterShelf(
@@ -22,6 +24,7 @@ export function useStarterShelf(
     revision: number;
     releases: Releases;
     error: string | null;
+    retryAt: number | undefined;
   } | null>(null);
 
   const playing = useRef(playingReleaseId);
@@ -51,6 +54,7 @@ export function useStarterShelf(
             revision,
             releases,
             error: result.ok ? null : result.error.message,
+            retryAt: result.ok ? undefined : result.error.retryAt,
           };
         });
       }
@@ -68,13 +72,16 @@ export function useStarterShelf(
   const latest =
     account && response?.account === account && response.load === load ? response : null;
   const busy = Boolean(account && load && latest?.revision !== revision);
+  const refresh = useCallback(() => {
+    setRevision((value) => value + 1);
+  }, []);
+  useDiscogsRetry(latest?.retryAt, refresh, !busy);
   return {
     releases: (latest?.releases ?? []).filter(({ id }) => id === playingReleaseId || !seen.has(id)),
     busy,
     error: latest?.error ?? null,
-    refresh: () => {
-      setRevision((value) => value + 1);
-    },
+    retryAt: latest?.retryAt,
+    refresh,
     markSeen,
     seen,
   };
