@@ -9,8 +9,36 @@
   --explore-padding: clamp(24px, 4vw, 48px);
   min-height: 0;
   overflow: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line) transparent;
+}
+@media (forced-colors: none) {
+  .explore-page {
+    --explore-scrollbar-opacity: 78%;
+  }
+  :root[data-theme='dark'] .explore-page {
+    --explore-scrollbar-opacity: 65%;
+  }
+  :is(.explore-page, .catalogue-years)::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-track,
+  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-button {
+    display: none;
+  }
+  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--muted) var(--explore-scrollbar-opacity), transparent)
+      padding-box;
+  }
+  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb:hover,
+  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb:active {
+    border-width: 2px;
+    background-color: color-mix(in srgb, var(--muted) 82%, transparent);
+  }
 }
 .explore-shelf {
   min-width: 0;
