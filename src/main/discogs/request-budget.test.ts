@@ -14,12 +14,10 @@ test('uses the remaining budget for an explicit release rather than a portrait',
   const session = createDiscogsSession(request);
   await session.connect('fixture-token');
 
-  await expect(
-    session.topicArtwork({ kind: 'label', name: 'Still Records' }),
-  ).resolves.toMatchObject({
-    ok: false,
-    error: { code: 'rate-limited', retryAt: expect.any(Number) },
-  });
+  const portrait = await session.topicArtwork({ kind: 'label', name: 'Still Records' });
+  expect(portrait).toMatchObject({ ok: false, error: { code: 'rate-limited' } });
+  if (portrait.ok) throw new Error('The portrait should wait for quota');
+  expect(typeof portrait.error.retryAt).toBe('number');
   await expect(session.loadRelease(12)).resolves.toMatchObject({ ok: true });
   expect(request.mock.calls.map(([url]) => url)).toEqual([
     'https://api.discogs.com/oauth/identity',
