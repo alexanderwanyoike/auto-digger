@@ -216,3 +216,48 @@ test('downloads a liked track using the verified YouTube title', async () => {
     await desktop.close();
   }
 });
+
+test('downloads distinct liked tracks that share the same title', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encrypted-desktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('profile')}`,
+    ],
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await page.getByRole('heading', { name: 'Explore' }).waitFor();
+    const saved = await page.evaluate((release) => window.crate?.save(release), {
+      ...loadedRelease,
+      tracks: [...loadedRelease.tracks, { position: 'B1', title: 'Quiet Orbit', duration: '' }],
+      videos: [
+        {
+          title: 'Low Tide - Quiet Orbit',
+          url: 'https://www.youtube.com/watch?v=abcdefghijk',
+          cosineTrackIndex: 0,
+        },
+        {
+          title: 'Low Tide - Night Signal',
+          url: 'https://www.youtube.com/watch?v=zyxwvutsrqp',
+          cosineTrackIndex: 1,
+        },
+      ],
+    });
+    expect(saved?.ok).toBe(true);
+    await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    const likes = page.getByRole('button', { name: 'Like Quiet Orbit', exact: true });
+    await likes.nth(0).click();
+    await expect
+      .poll(() => page.evaluate(() => window.audioLibrary?.list()))
+      .toMatchObject({ ok: true, value: [{ trackIndex: 0 }] });
+    await likes.nth(1).click();
+    await page.getByRole('button', { name: 'Playlists', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toHaveCount(
+      2,
+    );
+  } finally {
+    await desktop.close();
+  }
+});
