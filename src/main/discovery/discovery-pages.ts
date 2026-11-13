@@ -88,6 +88,7 @@ export function createDiscoveryPages(
     if (current) {
       const result = await search({
         filters,
+        ...(topic ? { topic } : {}),
         page,
         context: 'explore',
         ...(cursor ? { background: true } : {}),
@@ -98,7 +99,8 @@ export function createDiscoveryPages(
         releases = result.value.releases.filter(({ id: releaseId }) => !known.value.has(releaseId));
         const available = Math.min(result.value.pages, maxSearchPage);
         const capped = result.value.items > available * result.value.perPage;
-        const partitions = page === 1 && capped ? splitByYear(filters) : [];
+        const partitions =
+          page === 1 && capped && (!topic || topic.kind === 'genre') ? splitByYear(filters) : [];
         if (partitions.length && !pageCounts.has(source))
           sources.push(...partitions.map((partition) => ({ ...criteria, filters: partition })));
         pageCounts.set(source, available);

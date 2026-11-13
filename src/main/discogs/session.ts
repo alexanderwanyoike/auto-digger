@@ -1,5 +1,8 @@
-import { followTopicSchema } from '../../shared/following';
-import { searchTopicArtwork } from './topic-artwork';
+import { followTopicKey, followTopicSchema } from '../../shared/following';
+import type { FollowTopic } from '../../shared/following';
+import { lookupDiscogsTopic } from './topic-lookup';
+import type { DiscogsTopic } from './topic-lookup';
+import { loadTopicReleases } from './topic-releases';
 import { researchSearchInputSchema } from '../../shared/research-search';
 import { createDigger } from './digger';
 import { digInputSchema } from '../../shared/dig';
@@ -24,7 +27,11 @@ export function createDiscogsSession(
   let revision = 0;
   const searches = createDiscogsReadCache<SearchPage>();
   const releases = createDiscogsReadCache<DiscogsRelease>();
-  const portraits = createDiscogsReadCache<string | null>();
+  const topics = createDiscogsReadCache<DiscogsTopic | null>();
+  const lookup = (topic: FollowTopic, token: string, background: boolean) =>
+    topics.read(followTopicKey(topic), () =>
+      lookupDiscogsTopic(topic, token, request, { budget, background }),
+    );
   const release = (id: number, token: string, signal?: AbortSignal) => {
     const read = () =>
       requestDiscogs(`/releases/${id.toString()}`, token, releaseMetadataSchema, request, {
@@ -43,7 +50,7 @@ export function createDiscogsSession(
   const clear = () => {
     searches.clear();
     releases.clear();
-    portraits.clear();
+    topics.clear();
     digger.reset();
     artistDigger.reset();
     revision += 1;
@@ -81,12 +88,10 @@ export function createDiscogsSession(
       const started = revision;
       const topic = parsed.data;
       const token = acceptedToken;
-      const result = await portraits.read(JSON.stringify(topic), () =>
-        searchTopicArtwork(topic, token, request, { budget, background: true }),
-      );
+      const result = await lookup(topic, token, true);
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
-      return result;
+      return result.ok ? { ok: true, value: result.value?.artworkUrl ?? null } : result;
     },
     async search(input: unknown): Promise<DiscogsResult<SearchPage>> {
       if (!acceptedToken)
@@ -100,10 +105,24 @@ export function createDiscogsSession(
         );
       const token = acceptedToken;
       const { background, ...query } = parsed.data;
-      const read = () =>
-        searchDiscogs(query, token, request, { budget, background: background ?? false });
+      const topic =
+        query.context === 'explore' && query.topic?.kind !== 'genre' ? query.topic : undefined;
+      const options = { budget, background: background ?? false };
+      const read = async (): Promise<DiscogsResult<SearchPage>> => {
+        if (!topic) return searchDiscogs(query, token, request, options);
+        const resolved = await lookup(topic, token, options.background);
+        if (!resolved.ok) return resolved;
+        if (started !== revision)
+          return discogsFailure('cancelled', 'The Discogs session has changed.');
+        if (!resolved.value?.id)
+          return {
+            ok: true,
+            value: { page: query.page, pages: 0, perPage: 50, items: 0, releases: [] },
+          };
+        return loadTopicReleases(topic, resolved.value.id, query.page, token, request, options);
+      };
       const catalogue = query.context === 'catalogue' || query.context === 'catalogue-range';
-      const reuse = catalogue || (Boolean(background) && query.page > 1);
+      const reuse = Boolean(topic) || catalogue || (Boolean(background) && query.page > 1);
       const result = await searches.read(JSON.stringify(query), read, reuse);
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');

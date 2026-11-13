@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { followTopicSchema } from './following';
 
 const text = z.string().trim().max(160).default('');
 const selection = z
@@ -45,6 +46,7 @@ export const searchInputSchema = z.object({
   context: z.enum(['artist', 'explore', 'catalogue', 'catalogue-range']).optional(),
   order: z.enum(['oldest', 'newest']).optional(),
   background: z.boolean().optional(),
+  topic: followTopicSchema.optional(),
   filters: filtersSchema,
   page: z.number().int().min(1).max(maxSearchPage),
 });

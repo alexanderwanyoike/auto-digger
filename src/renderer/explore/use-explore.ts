@@ -54,7 +54,8 @@ export function useExplore(bridge: DiscogsBridge | undefined, onUnauthorized: ()
       setView(null);
       setRelease(null);
       await perform(
-        () => bridge.search({ filters: filtersForTopic(next), page, context: 'explore' }),
+        () =>
+          bridge.search({ filters: filtersForTopic(next), topic: next, page, context: 'explore' }),
         (matches) => {
           setView({ kind: 'catalogue', matches });
         },

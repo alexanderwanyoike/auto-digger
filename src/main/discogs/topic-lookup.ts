@@ -5,9 +5,10 @@ import { requestDiscogs } from './request';
 import type { DiscogsRequestOptions } from './request';
 import { supportedUrl } from './media-url';
 
-const artworkMatches = z.object({
+const matches = z.object({
   results: z.array(
     z.object({
+      id: z.number().int().positive().optional(),
       title: z.string(),
       cover_image: z.string().default(''),
       thumb: z.string().default(''),
@@ -15,17 +16,22 @@ const artworkMatches = z.object({
   ),
 });
 
-export async function searchTopicArtwork(
+export interface DiscogsTopic {
+  id: number | undefined;
+  artworkUrl: string | null;
+}
+
+export async function lookupDiscogsTopic(
   topic: FollowTopic,
   token: string,
   request: typeof fetch,
   options: DiscogsRequestOptions,
 ) {
-  const query = new URLSearchParams({ type: topic.kind, q: topic.name, per_page: '10' });
+  const query = new URLSearchParams({ type: topic.kind, q: topic.name, per_page: '50' });
   const result = await requestDiscogs(
     `/database/search?${query.toString()}`,
     token,
-    artworkMatches,
+    matches,
     request,
     options,
   );
@@ -34,10 +40,11 @@ export async function searchTopicArtwork(
     ({ title }) => followTopicKey({ kind: topic.kind, name: title }) === followTopicKey(topic),
   );
   const hosts = ['i.discogs.com', 'img.discogs.com'];
-  return {
-    ok: true as const,
-    value: exact
-      ? (supportedUrl(exact.thumb, hosts) ?? supportedUrl(exact.cover_image, hosts))
-      : null,
-  };
+  const value: DiscogsTopic | null = exact
+    ? {
+        id: exact.id,
+        artworkUrl: supportedUrl(exact.thumb, hosts) ?? supportedUrl(exact.cover_image, hosts),
+      }
+    : null;
+  return { ok: true as const, value };
 }
