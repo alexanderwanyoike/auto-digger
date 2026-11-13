@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { followTopicKey } from '../../shared/following';
 import type { FollowTopic } from '../../shared/following';
@@ -56,7 +56,7 @@ export function ExplorePage({
   const catalogue = section === 'Catalogue';
   const releaseBackLabel = catalogue ? 'Back to Catalogue' : 'Back to Explore';
   const explore = useExplore(bridge, onUnauthorized);
-  const { topic, release, view, busy, error } = explore;
+  const { topic, release, view, busy, error, open: openRelease } = explore;
   useLayoutEffect(() => {
     if (release) scrollContainer.current?.scrollTo(0, 0);
     else if (restorePosition.current !== null) {
@@ -117,10 +117,13 @@ export function ExplorePage({
     scrollContainer.current?.scrollTo(0, 0);
     explore.browse(next, page).catch(() => undefined);
   };
-  const open = (id: number) => {
-    releasePosition.current = scrollContainer.current?.scrollTop ?? 0;
-    explore.open(id, markSeen).catch(() => undefined);
-  };
+  const open = useCallback(
+    (id: number) => {
+      releasePosition.current = scrollContainer.current?.scrollTop ?? 0;
+      openRelease(id, markSeen).catch(() => undefined);
+    },
+    [markSeen, openRelease],
+  );
   useEffect(() => {
     if (!playerRelease || busy) return;
     if (release?.id !== playerRelease.id) open(playerRelease.id);
