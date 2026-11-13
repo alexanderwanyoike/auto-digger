@@ -90,6 +90,11 @@ test('runs a waiting release before queued background searches', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'auto-priority-'));
   try {
     let finish: ((response: Response) => void) | undefined;
+    const emptyPage = () =>
+      Response.json({
+        pagination: { page: 1, pages: 0, per_page: 50, items: 0 },
+        results: [],
+      });
     const request = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(Response.json(identityResponse))
@@ -105,11 +110,6 @@ test('runs a waiting release before queued background searches', async () => {
           path === '/releases/12' ? Response.json(releaseResponse) : emptyPage(),
         );
       });
-    const emptyPage = () =>
-      Response.json({
-        pagination: { page: 1, pages: 0, per_page: 50, items: 0 },
-        results: [],
-      });
     const session = createRememberedSession(
       createDiscogsSession(request),
       createTokenStore(join(directory, 'token.bin'), encryption),
@@ -117,7 +117,9 @@ test('runs a waiting release before queued background searches', async () => {
     await session.connect('remember-me');
     const background = { context: 'catalogue', background: true, filters: {}, page: 1 };
     const first = session.search(background);
-    await vi.waitFor(() => expect(request).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => {
+      expect(request).toHaveBeenCalledTimes(2);
+    });
     const next = session.search({ ...background, page: 2 });
     const selected = session.loadRelease(12);
     finish?.(emptyPage());
