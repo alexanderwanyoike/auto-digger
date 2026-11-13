@@ -83,9 +83,9 @@ test('continues a broad style through narrower Discogs searches', async () => {
           items: filters.year ? 1 : 10001,
           releases: [
             {
-              id: filters.year ? 20 : 10,
+              id: filters.year ? 20 : 10 + page,
               title: filters.style.join(', '),
-              year: '1999',
+              year: filters.year ? '1999' : '',
               labels: [],
               formats: [],
               artworkUrl: null,
@@ -102,6 +102,13 @@ test('continues a broad style through narrower Discogs searches', async () => {
   if (!first.ok || !first.value.next) throw new Error('Expected another page');
   const next = await load({ shelf: 'starter', cursor: first.value.next });
   expect(next).toMatchObject({ ok: true, value: { releases: [{ id: 20 }] } });
+  if (!next.ok || !next.value.next) throw new Error('Expected the second year range');
+  const later = await load({ shelf: 'starter', cursor: next.value.next });
+  if (!later.ok || !later.value.next) throw new Error('Expected later broad results');
+  await expect(load({ shelf: 'starter', cursor: later.value.next })).resolves.toMatchObject({
+    ok: true,
+    value: { releases: [{ id: 12, year: '' }] },
+  });
 });
 
 test('continues past an unavailable followed catalogue and skips newly unfollowed sources', async () => {

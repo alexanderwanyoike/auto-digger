@@ -96,7 +96,7 @@ export function createDiscoveryPages(
         const partitions = page === 1 && capped ? splitByYear(filters) : [];
         if (partitions.length && !pageCounts.has(source))
           sources.push(...partitions.map((partition) => ({ ...criteria, filters: partition })));
-        pageCounts.set(source, partitions.length ? 1 : available);
+        pageCounts.set(source, available);
       } else if (result.error.code === 'not-found') pageCounts.set(source, 0);
       else return result;
     } else pageCounts.set(source, 0);

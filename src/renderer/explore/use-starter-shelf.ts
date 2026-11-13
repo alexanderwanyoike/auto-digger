@@ -20,7 +20,8 @@ export function useStarterShelf(
     account: DiscogsAccount;
     load: NonNullable<DiscogsBridge['starterShelf']>;
     revision: number;
-    result: DiscogsResult<Releases>;
+    releases: Releases;
+    error: string | null;
   } | null>(null);
 
   const playing = useRef(playingReleaseId);
@@ -37,15 +38,20 @@ export function useStarterShelf(
       else {
         const playingId = playing.current;
         setResponse((previous) => {
-          const activeRecord =
-            previous?.account === account && previous.result.ok
-              ? previous.result.value.find(({ id }) => id === playingId)
-              : undefined;
+          const previousReleases = previous?.account === account ? previous.releases : [];
+          const activeRecord = previousReleases.find(({ id }) => id === playingId);
+          const latest = result.ok ? result.value : previousReleases;
           const releases =
-            result.ok && activeRecord && !result.value.some(({ id }) => id === activeRecord.id)
-              ? { ok: true as const, value: [activeRecord, ...result.value] }
-              : result;
-          return { account, load, revision, result: releases };
+            activeRecord && !latest.some(({ id }) => id === activeRecord.id)
+              ? [activeRecord, ...latest]
+              : latest;
+          return {
+            account,
+            load,
+            revision,
+            releases,
+            error: result.ok ? null : result.error.message,
+          };
         });
       }
     };
@@ -59,15 +65,13 @@ export function useStarterShelf(
     };
   }, [account, load, onUnauthorized, revision]);
 
-  const result =
-    account && response?.account === account && response.load === load ? response.result : null;
-  const busy = Boolean(account && load && (!result || response?.revision !== revision));
+  const latest =
+    account && response?.account === account && response.load === load ? response : null;
+  const busy = Boolean(account && load && latest?.revision !== revision);
   return {
-    releases: result?.ok
-      ? result.value.filter(({ id }) => id === playingReleaseId || !seen.has(id))
-      : [],
+    releases: (latest?.releases ?? []).filter(({ id }) => id === playingReleaseId || !seen.has(id)),
     busy,
-    error: result && !result.ok ? result.error.message : null,
+    error: latest?.error ?? null,
     refresh: () => {
       setRevision((value) => value + 1);
     },
