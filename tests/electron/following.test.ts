@@ -216,3 +216,66 @@ test('drops queued portrait lookups when the listener leaves Following', async (
     await desktop.close();
   }
 });
+
+test('clears a rejected Discogs account after leaving Following during artwork loading', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encrypted-desktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('profile')}`,
+    ],
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await desktop.evaluate(
+      (_electron, fixtures) => {
+        globalThis.fetch = (input) => {
+          const url = new URL(input instanceof Request ? input.url : input.toString());
+          if (url.pathname === '/oauth/identity')
+            return Promise.resolve(Response.json(fixtures.identity));
+          if (url.pathname === '/releases/12')
+            return Promise.resolve(Response.json(fixtures.release));
+          if (url.searchParams.get('type') === 'label') {
+            return new Promise((done) => {
+              Object.assign(globalThis, {
+                rejectArtwork: () => done(new Response(null, { status: 401 })),
+              });
+            });
+          }
+          return Promise.resolve(
+            Response.json({
+              pagination: { page: 1, pages: 0, per_page: 50, items: 0 },
+              results: [],
+            }),
+          );
+        };
+      },
+      { identity: identityResponse, release: releaseResponse },
+    );
+    await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
+    await page.getByLabel('Personal token').fill('fixture-following-rejected');
+    await page.getByRole('button', { name: 'Connect account', exact: true }).click();
+    await expect(page.getByRole('button', { name: /Connected as/ })).toBeVisible();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await page.getByLabel('Discogs release ID', { exact: true }).fill('12');
+    await page.getByRole('button', { name: 'Load release', exact: true }).click();
+    const follow = page.getByRole('button', { name: 'Follow label Still Records', exact: true });
+    await follow.click();
+    await expect(follow).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
+    await page.getByRole('button', { name: 'Following', exact: true }).click();
+    await page.getByRole('button', { name: 'Labels', exact: true }).click();
+    await expect
+      .poll(() => desktop.evaluate(() => typeof Reflect.get(globalThis, 'rejectArtwork')))
+      .toBe('function');
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await desktop.evaluate(() => {
+      const reject: unknown = Reflect.get(globalThis, 'rejectArtwork');
+      if (typeof reject === 'function') Reflect.apply(reject, undefined, []);
+    });
+    await expect(
+      page.getByRole('button', { name: 'Discogs not connected', exact: true }),
+    ).toBeVisible();
+  } finally {
+    await desktop.close();
+  }
+});
