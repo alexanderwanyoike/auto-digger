@@ -20,25 +20,68 @@ function catalogue(releases: SearchPage['releases']) {
   };
 }
 
-test('skips styles the search cannot accept and preserves a rejected session during starter fill', async () => {
-  const rejected = discogsFailure('unauthorized', 'Discogs rejected the saved token.');
-  const search = vi.fn<DiscogsBridge['search']>().mockImplementation(({ filters }) => {
-    if (!filters.style.length) return Promise.resolve(rejected);
-    if (filters.style.join(',') === 'Deep House') return Promise.resolve(catalogue([match]));
-    return Promise.resolve(discogsFailure('invalid-input', 'Unsupported style filter.'));
-  });
-  const shelf = createStarterShelf(
+function shelfFor(search: DiscogsBridge['search'], taste: { style: string; releases: number }[]) {
+  return createStarterShelf(
     search,
-    () => Promise.resolve({ ok: true, value: new Set<number>() }),
-    () =>
-      Promise.resolve({
-        ok: true,
-        value: [
-          { style: 'House|Techno', releases: 2 },
-          { style: 'Deep House', releases: 1 },
-        ],
-      }),
+    () => Promise.resolve({ ok: true, value: new Set([99]) }),
+    () => Promise.resolve({ ok: true, value: taste }),
   );
+}
 
-  await expect(shelf()).resolves.toEqual(rejected);
+test('fills from ranked personal styles without mixing unrelated catalogue picks', async () => {
+  const search = vi.fn<DiscogsBridge['search']>().mockImplementation(({ filters }) => {
+    if (filters.style.join(',') === 'Deep House')
+      return Promise.resolve(catalogue([match, { ...match, id: 99 }]));
+    if (filters.style.join(',') === 'Progressive House')
+      return Promise.resolve(catalogue([{ ...match, id: 13 }, match]));
+    return Promise.resolve(catalogue([{ ...match, id: 14 }]));
+  });
+  const shelf = shelfFor(search, [
+    { style: 'House|Techno', releases: 9 },
+    { style: 'Deep House', releases: 5 },
+    { style: 'Progressive House', releases: 2 },
+  ]);
+  await expect(shelf()).resolves.toEqual({ ok: true, value: [match, { ...match, id: 13 }] });
+  expect(search.mock.calls.map(([{ filters }]) => filters.style)).toEqual([
+    ['Deep House'],
+    ['Progressive House'],
+  ]);
+});
+
+test('uses a specific starter style before the listener saves or follows', async () => {
+  const search = vi.fn<DiscogsBridge['search']>().mockResolvedValue(catalogue([match]));
+  await expect(shelfFor(search, [])()).resolves.toEqual({ ok: true, value: [match] });
+  expect(search.mock.calls[0]?.[0].filters.style).toEqual(['Progressive House']);
+});
+
+test('preserves a rejected session when searching the listener’s styles', async () => {
+  const rejected = discogsFailure('unauthorized', 'Discogs rejected the saved token.');
+  const search = vi.fn<DiscogsBridge['search']>().mockResolvedValue(rejected);
+  await expect(shelfFor(search, [{ style: 'Deep House', releases: 1 }])()).resolves.toEqual(
+    rejected,
+  );
+});
+
+test('keeps personal matches when an additional style is rate limited', async () => {
+  const search = vi.fn<DiscogsBridge['search']>().mockImplementation(({ filters }) => {
+    if (filters.style.includes('Deep House')) return Promise.resolve(catalogue([match]));
+    return Promise.resolve(discogsFailure('rate-limited', 'Try again later.'));
+  });
+  const shelf = shelfFor(search, [
+    { style: 'Deep House', releases: 5 },
+    { style: 'Progressive House', releases: 2 },
+  ]);
+  await expect(shelf()).resolves.toEqual({ ok: true, value: [match] });
+});
+
+test('keeps the first page of a saved style when optional sampling fails', async () => {
+  const first = catalogue([match]);
+  const search = vi.fn<DiscogsBridge['search']>().mockImplementation(({ page }) => {
+    if (page === 1) return Promise.resolve({ ...first, value: { ...first.value, pages: 2 } });
+    return Promise.resolve(discogsFailure('rate-limited', 'Try again later.'));
+  });
+  await expect(shelfFor(search, [{ style: 'Deep House', releases: 5 }])()).resolves.toEqual({
+    ok: true,
+    value: [match],
+  });
 });

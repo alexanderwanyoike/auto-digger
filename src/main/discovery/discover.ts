@@ -1,7 +1,7 @@
 import type { FollowingResult } from '../../shared/following';
 import { followTopicKey, followTopicSchema } from '../../shared/following';
 import type { CatalogueResult } from '../../shared/catalogue';
-import { filtersForTopic } from '../../shared/discovery';
+import { filtersForTopic, starterStyle } from '../../shared/discovery';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsBridge, DiscogsResult } from '../../shared/discogs';
 import type { DigFilters, SearchPage } from '../../shared/search';
@@ -40,8 +40,9 @@ function createReleaseDiscovery(
       if (first.value.pages > 1) {
         const page = 2 + Math.floor(Math.random() * (Math.min(first.value.pages, 200) - 1));
         const sampled = await search({ filters, page, context: 'explore' });
-        if (!sampled.ok) return sampled;
-        collect(sampled.value);
+        if (sampled.ok) collect(sampled.value);
+        else if (sampled.error.code === 'unauthorized' || sampled.error.code === 'cancelled')
+          return sampled;
       }
       return searchTopic(index + 1);
     };
@@ -84,29 +85,37 @@ export function createStarterShelf(
   seenReleases: () => Promise<CatalogueResult<Set<number>>>,
   crateTaste: ReturnType<typeof createCrateTaste>,
 ) {
-  const discover = createReleaseDiscovery(search, seenReleases, 6);
+  const size = 6;
+  const discover = createReleaseDiscovery(search, seenReleases, size);
   return async () => {
     const taste = await crateTaste();
     if (!taste.ok) return discogsFailure('unavailable', taste.error.message);
-    const style = taste.value
-      .flatMap((signal) => {
-        const parsed = filtersSchema.shape.style.safeParse([signal.style]);
+    const styles = taste.value
+      .flatMap(({ style }) => {
+        const parsed = filtersSchema.shape.style.safeParse([style]);
         return parsed.success ? parsed.data : [];
       })
       .slice(0, 3);
-    if (!style.length) return discover([emptyFilters]);
-    const personalized = await discover([{ ...emptyFilters, style }]);
-    if (!personalized.ok || personalized.value.length >= 6) return personalized;
-    const starter = await discover([emptyFilters]);
-    if (!starter.ok) {
-      if (starter.error.code === 'unauthorized' || starter.error.code === 'cancelled')
-        return starter;
-      return personalized.value.length ? personalized : starter;
+    if (!styles.length) return discover([{ ...emptyFilters, style: [starterStyle] }]);
+
+    const chosen = new Map<number, SearchPage['releases'][number]>();
+    async function collectStyle(index: number): Promise<DiscogsResult<SearchPage['releases']>> {
+      const style = styles[index];
+      if (!style || chosen.size >= size)
+        return { ok: true, value: [...chosen.values()].slice(0, size) };
+      const matches = await discover([{ ...emptyFilters, style: [style] }]);
+      if (!matches.ok) {
+        if (
+          !chosen.size ||
+          matches.error.code === 'unauthorized' ||
+          matches.error.code === 'cancelled'
+        )
+          return matches;
+        return { ok: true, value: [...chosen.values()] };
+      }
+      matches.value.forEach((release) => chosen.set(release.id, release));
+      return collectStyle(index + 1);
     }
-    const chosen = new Map(personalized.value.map((release) => [release.id, release]));
-    starter.value.forEach((release) => {
-      if (!chosen.has(release.id)) chosen.set(release.id, release);
-    });
-    return { ok: true as const, value: [...chosen.values()].slice(0, 6) };
+    return collectStyle(0);
   };
 }
