@@ -219,6 +219,7 @@ export function App({
         {section === 'Downloads' && <DownloadsPage audio={audio} />}
         {section === 'Explore' && (
           <ExplorePage
+            key={session.account?.username ?? 'disconnected'}
             bridge={discogs}
             connected={Boolean(session.account)}
             onUnauthorized={session.clearSession}
