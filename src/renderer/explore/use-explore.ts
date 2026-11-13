@@ -6,8 +6,7 @@ import { filtersForTopic } from '../../shared/discovery';
 
 export type ExploreView =
   | { kind: 'catalogue'; matches: SearchPage }
-  | { kind: 'discover'; releases: SearchPage['releases'] }
-  | { kind: 'years'; years: { year: string; releases: SearchPage['releases'] }[] };
+  | { kind: 'discover'; releases: SearchPage['releases'] };
 
 export function useExplore(bridge: DiscogsBridge | undefined, onUnauthorized: () => void) {
   const [topic, setTopic] = useState<FollowTopic | null>(null);
@@ -66,32 +65,6 @@ export function useExplore(bridge: DiscogsBridge | undefined, onUnauthorized: ()
         () => discover(topic),
         (releases) => {
           setView({ kind: 'discover', releases });
-        },
-      );
-    },
-    compare: async (first: string, second: string) => {
-      if (!bridge || busy || topic?.kind !== 'genre') return;
-      setView(null);
-      await perform(
-        async () => {
-          const load = (year: string) =>
-            bridge.search({ filters: filtersForTopic(topic, year), page: 1, context: 'explore' });
-          const [earlierYear, laterYear]: [string, string] =
-            first <= second ? [first, second] : [second, first];
-          const earlier = await load(earlierYear);
-          if (!earlier.ok) return earlier;
-          const later = await load(laterYear);
-          if (!later.ok) return later;
-          return {
-            ok: true,
-            value: [
-              { year: earlierYear, releases: earlier.value.releases.slice(0, 4) },
-              { year: laterYear, releases: later.value.releases.slice(0, 4) },
-            ],
-          };
-        },
-        (years) => {
-          setView({ kind: 'years', years });
         },
       );
     },

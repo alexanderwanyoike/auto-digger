@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import { CataloguePage } from './CataloguePage';
 import { Shuffle } from 'lucide-react';
 import type { DiscogsBridge } from '../../shared/discogs';
-import { followTopicKey } from '../../shared/following';
 import type { FollowTopic } from '../../shared/following';
 import type { useFollowing } from '../following/use-following';
 import { FollowingContext } from '../following/following-context';
@@ -11,7 +10,6 @@ import { ReleaseAudioDetails } from '../audio/ReleaseAudioDetails';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import type { useCrate } from '../crate/use-crate';
 import { useExplore } from './use-explore';
-import { YearComparisonForm } from './YearComparisonForm';
 import { ExploreResults } from './ExploreResults';
 import { sleevePreview } from './sleeve-preview';
 import { ReleaseShelf } from './ReleaseShelf';
@@ -73,6 +71,7 @@ export function ExplorePage({
       : undefined;
   const disabled = !connected || busy;
   const browse = (next: FollowTopic, page?: number) => {
+    setCatalogue(false);
     scrollContainer.current?.scrollTo(0, 0);
     explore.browse(next, page).catch(() => undefined);
   };
@@ -90,6 +89,11 @@ export function ExplorePage({
             onBack={() => setCatalogue(false)}
           />
         </div>
+      )}
+      {catalogue && !release && error && (
+        <p className="explore-notice" role="alert">
+          {error}
+        </p>
       )}
       {release ? (
         <section className="explore-workspace" aria-label="Selected release">
@@ -192,15 +196,6 @@ export function ExplorePage({
                       <Shuffle size={15} aria-hidden="true" /> Discover unseen releases
                     </button>
                   </div>
-                  {topic?.kind === 'genre' && (
-                    <YearComparisonForm
-                      key={followTopicKey(topic)}
-                      disabled={disabled}
-                      compare={(first, second) => {
-                        explore.compare(first, second).catch(() => undefined);
-                      }}
-                    />
-                  )}
                 </header>
                 {view && (
                   <ExploreResults

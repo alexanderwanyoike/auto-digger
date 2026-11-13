@@ -13,7 +13,7 @@
 }
 .explore-shelf {
   min-width: 0;
-  padding: 24px clamp(12px, 2vw, 28px) 20px;
+  padding: 20px clamp(12px, 2vw, 28px) 16px;
 }
 .explore-shelf-header {
   display: flex;
@@ -106,11 +106,6 @@
 }
 .explore-tools,
 .explore-scope,
-.explore-year-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
 .explore-tools {
   justify-content: space-between;
   align-items: end;
@@ -128,27 +123,14 @@
   width: auto;
   gap: 7px;
 }
-.explore-year-form {
-  align-items: end;
-}
-.explore-year-form input {
-  width: 68px;
-}
 .explore-notice {
   margin: 0;
   padding: 0 20px 16px;
   color: var(--muted);
   font-size: 12px;
 }
-.explore-years {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
 .explore-workspace .search-results {
   border-bottom: 0;
-}
-.explore-years .search-results + .search-results {
-  border-inline-start: 1px solid var(--line);
 }
 .explore-workspace .search-results h3 {
   margin: 0 0 12px;

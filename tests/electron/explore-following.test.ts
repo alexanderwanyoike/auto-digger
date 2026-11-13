@@ -2,7 +2,7 @@ import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import { releaseResponse } from '../discogs-fixtures';
 
-test('discovers unopened releases, browses followed catalogues and compares genre years', async () => {
+test('discovers unopened releases, browses followed artist and genre catalogues', async () => {
   const options = {
     args: [
       resolve('tests/encrypted-desktop.cjs'),
@@ -123,16 +123,12 @@ test('discovers unopened releases, browses followed catalogues and compares genr
     ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Browse Electronic', exact: true }).click();
-    await page.getByLabel('First year', { exact: true }).fill('1993');
-    await page.getByLabel('Second year', { exact: true }).fill('2000');
-    await page.getByRole('button', { name: 'Compare years', exact: true }).click();
+    const genreCatalogue = page.getByRole('region', { name: 'Catalogue results' });
     await expect(
-      page.getByRole('region', { name: '1993', exact: true }).getByText('Mira North - First Light'),
+      genreCatalogue.getByRole('button', { name: /Mira North - First Light/ }),
     ).toBeVisible();
     await expect(
-      page
-        .getByRole('region', { name: '2000', exact: true })
-        .getByText('Still Waters - Late Signal'),
+      genreCatalogue.getByRole('button', { name: /Still Waters - Late Signal/ }),
     ).toBeVisible();
   } finally {
     await desktop.close();

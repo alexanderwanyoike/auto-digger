@@ -12,18 +12,6 @@ export function ExploreResults({
   open: (id: number) => void;
   paginate: (page: number) => void;
 }) {
-  if (view.kind === 'years')
-    return (
-      <div className="explore-years">
-        {view.years.map(({ year, releases }) => (
-          <section className="search-results" key={year} aria-labelledby={`explore-year-${year}`}>
-            <h3 id={`explore-year-${year}`}>{year}</h3>
-            {!releases.length && <p>No releases found for this year.</p>}
-            <ReleaseMatchList releases={releases} disabled={disabled} onOpen={open} />
-          </section>
-        ))}
-      </div>
-    );
   if (view.kind === 'discover')
     return (
       <section className="search-results" aria-label="Unseen releases">
