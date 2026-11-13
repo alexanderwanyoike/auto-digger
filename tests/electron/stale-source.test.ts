@@ -17,6 +17,7 @@ test('plays and retags a saved source whose assignment belongs to a newer trackl
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
     await page.evaluate(async (release) => {
       const saved = await window.audioLibrary?.download({
@@ -38,6 +39,7 @@ test('plays and retags a saved source whose assignment belongs to a newer trackl
       }));
     });
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     const sources = page.getByRole('list', { name: 'YouTube audio sources' });
     await sources.getByText('1 unmatched upload', { exact: true }).click();

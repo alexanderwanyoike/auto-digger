@@ -17,6 +17,7 @@ test('returns from repeated artist browsing and digging without repeating the or
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
     await desktop.evaluate(
       (_electron, fixtures) => {

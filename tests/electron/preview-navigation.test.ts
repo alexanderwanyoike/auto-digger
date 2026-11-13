@@ -22,6 +22,7 @@ test('keeps preview cancellation available across provider and page changes', as
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await page.getByLabel('slskd URL', { exact: true }).fill(service.url);
@@ -31,6 +32,7 @@ test('keeps preview cancellation available across provider and page changes', as
     await expect(page.getByText('slskd connection saved.', { exact: true })).toBeVisible();
     await page.evaluate((release) => window.crate?.save(release), loadedRelease);
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     await page.getByRole('button', { name: 'Soulseek', exact: true }).click();
     await page

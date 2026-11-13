@@ -17,7 +17,7 @@ import { createTokenStore } from './credentials/token-store';
 import { electronEncryption } from './credentials/electron-encryption';
 import { createDiscogsSession } from './discogs/session';
 import { registerDiscogsHandlers } from './discogs/register-handlers';
-import { createDiscover } from './discovery/discover';
+import { createDiscover, createStarterShelf } from './discovery/discover';
 import { createIndexedLibrary } from './audio/indexed-library';
 import { registerSavedFiltersHandlers } from './filters/register-handlers';
 import { registerFollowingHandlers } from './following/register-handlers';
@@ -172,6 +172,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
         catalogueStore.following.read,
         catalogueStore.discoveryHistory.known,
       ),
+      starterShelf: createStarterShelf(discogsSession.search, catalogueStore.discoveryHistory.seen),
       markOpened: catalogueStore.discoveryHistory.opened,
     });
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));

@@ -27,6 +27,7 @@ test('keeps a whole EP after restart, reopens it disconnected and persists remov
   let desktop: ElectronApplication = await launch(profile);
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await playerFixture(page);
     await desktop.evaluate(
       (_electron, fixtures) => {
@@ -57,6 +58,7 @@ test('keeps a whole EP after restart, reopens it disconnected and persists remov
     await desktop.close();
     desktop = await launch(profile);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await playerFixture(page);
     await expect(
       page.getByRole('button', { name: 'Discogs not connected', exact: true }),
@@ -79,6 +81,7 @@ test('keeps a whole EP after restart, reopens it disconnected and persists remov
     await desktop.close();
     desktop = await launch(profile);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await expect(page.getByText('No records saved yet.', { exact: true })).toBeVisible();
     expect(await page.evaluate(() => window.crate?.list())).toEqual({ ok: true, value: [] });
   } finally {

@@ -20,6 +20,7 @@ test('restores named filters, their results page and the current draft after res
   let desktop = await electron.launch(options);
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.setViewportSize({ width: 1280, height: 920 });
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     const stubSearch = () =>
@@ -40,6 +41,7 @@ test('restores named filters, their results page and the current draft after res
     await stubSearch();
     await page.evaluate(async () => window.discogs?.connect('synthetic-token'));
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await expect(page.getByLabel('Year', { exact: true })).toBeEnabled();
     await page.getByLabel('Year', { exact: true }).fill('1998');
     await page.getByLabel('Label', { exact: true }).fill('Still Records');
@@ -71,6 +73,7 @@ test('restores named filters, their results page and the current draft after res
     await desktop.close();
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await stubSearch();
     await expect(page.getByLabel('Year', { exact: true })).toHaveValue('2001');
     await page

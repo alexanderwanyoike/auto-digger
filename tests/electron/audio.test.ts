@@ -21,6 +21,7 @@ test('downloads, persists and streams seekable audio through the isolated deskto
   let desktop = await electron.launch(options);
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     expect(
       await page.evaluate(
@@ -54,6 +55,7 @@ test('downloads, persists and streams seekable audio through the isolated deskto
     await desktop.close();
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     expect(await page.evaluate(async () => window.audioLibrary?.list())).toMatchObject({
       ok: true,
@@ -90,9 +92,11 @@ test('plays downloaded sources in the bottom bar with seek, volume and offline t
   };
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     await page.evaluate(async (record) => window.crate?.save(record), release);
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP' }).click();
     const sources = page.getByRole('region', { name: 'Audio sources' });
     const sourceList = sources.getByRole('list', { name: 'YouTube audio sources' });
@@ -133,6 +137,7 @@ test('plays downloaded sources in the bottom bar with seek, volume and offline t
     await desktop.close();
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await expect(
       page.getByRole('combobox', { name: 'Downloaded track' }).getByRole('option'),
     ).toHaveCount(3);

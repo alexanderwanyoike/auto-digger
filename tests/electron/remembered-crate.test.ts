@@ -18,6 +18,7 @@ test('reopens the active named crate and its releases instead of showing the emp
   let desktop = await electron.launch(options);
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Crates', exact: true }).click();
     await page.getByLabel('New crate name').fill('After hours');
     await page.getByRole('button', { name: 'Create crate', exact: true }).click();
@@ -38,6 +39,7 @@ test('reopens the active named crate and its releases instead of showing the emp
     await desktop.close();
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     const restored = page.getByRole('combobox', { name: 'Active crate', exact: true });
     await expect(restored).toContainText('After hours (1)');
     expect(
@@ -56,6 +58,7 @@ test('reopens the active named crate and its releases instead of showing the emp
     await desktop.close();
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await expect(page.getByRole('combobox', { name: 'Active crate', exact: true })).toHaveValue(
       'default',
     );
@@ -83,6 +86,7 @@ test('opens a populated crate for older profiles and recovers from a removed rem
   let desktop = await electron.launch(options);
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await expect(page.getByRole('combobox', { name: 'Active crate', exact: true })).toHaveValue(
       'default',
     );
@@ -100,6 +104,7 @@ test('opens a populated crate for older profiles and recovers from a removed rem
     await desktop.close();
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await expect(page.getByRole('combobox', { name: 'Active crate', exact: true })).toHaveValue(id);
     await expect(
       page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }),
@@ -110,6 +115,7 @@ test('opens a populated crate for older profiles and recovers from a removed rem
     await desktop.close();
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await expect(page.getByRole('combobox', { name: 'Active crate', exact: true })).toHaveValue(
       'default',
     );

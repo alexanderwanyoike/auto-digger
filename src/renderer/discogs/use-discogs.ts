@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { DigResult } from '../../shared/dig';
 import { emptyFilters } from '../../shared/default-filters';
 import type { DigFilters, SearchPage } from '../../shared/search';
@@ -32,14 +32,14 @@ export function useDiscogs(
       digging: DigResult | null;
     };
   } | null>(null);
-  const clearSession = () => {
+  const clearSession = useCallback(() => {
     setArtistBrowse(null);
     setDigging(null);
     setMatches(null);
     setFilters(null);
     setAccount(null);
     setRelease(null);
-  };
+  }, []);
   useEffect(() => {
     if (!bridge) return undefined;
     let active = true;
@@ -127,6 +127,14 @@ export function useDiscogs(
     openSavedRelease: (saved: DiscogsRelease) => {
       setRelease(saved);
       setError(null);
+      bridge
+        ?.markSeen?.(saved.id)
+        .then((result) => {
+          if (!result.ok) setError(result.error);
+        })
+        .catch(() => {
+          setError({ code: 'unavailable', message: 'Discovery history could not be saved.' });
+        });
     },
     matches,
     digging,
@@ -173,6 +181,7 @@ export function useDiscogs(
     busy,
     error,
     available: Boolean(bridge),
+    clearSession,
     clearError: () => {
       setError(null);
     },

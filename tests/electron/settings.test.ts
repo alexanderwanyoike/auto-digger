@@ -19,6 +19,7 @@ test('persists settings and finds old and per-release downloads after a native r
   let desktop = await electron.launch(options);
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     await page.evaluate(async () =>
       window.preferences?.save({ material: 'aluminium', accent: 'blue', layout: 'flat' }),
@@ -50,6 +51,7 @@ test('persists settings and finds old and per-release downloads after a native r
     await desktop.close();
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     await expect(page.locator('html')).toHaveAttribute('data-material', 'carbon');
     const music = await desktop.evaluate(({ app }) => app.getPath('music'));
@@ -58,6 +60,7 @@ test('persists settings and finds old and per-release downloads after a native r
       throw new Error('Expected both downloads');
     await rm(join(music, 'Auto Digger', tracks.value[0].filename));
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Downloads', exact: true }).click();
     await expect(page.getByText('File missing or unavailable', { exact: true })).toBeVisible();
     await expect(
@@ -96,6 +99,7 @@ test('keeps small text and accent actions readable across supported materials, a
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     const accentNames: Record<string, string> = { electric: 'Electric blue', pink: 'Hot pink' };
     const choices = ['light', 'dark'].flatMap((mode) =>

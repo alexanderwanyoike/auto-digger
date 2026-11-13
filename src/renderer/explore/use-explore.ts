@@ -9,7 +9,7 @@ export type ExploreView =
   | { kind: 'discover'; releases: SearchPage['releases'] }
   | { kind: 'years'; years: { year: string; releases: SearchPage['releases'] }[] };
 
-export function useExplore(bridge: DiscogsBridge | undefined) {
+export function useExplore(bridge: DiscogsBridge | undefined, onUnauthorized: () => void) {
   const [topic, setTopic] = useState<FollowTopic | null>(null);
   const [view, setView] = useState<ExploreView | null>(null);
   const [release, setRelease] = useState<DiscogsRelease | null>(null);
@@ -22,7 +22,10 @@ export function useExplore(bridge: DiscogsBridge | undefined) {
     try {
       const result = await operation();
       if (result.ok) apply(result.value);
-      else setError(result.error.message);
+      else {
+        if (result.error.code === 'unauthorized') onUnauthorized();
+        setError(result.error.message);
+      }
     } catch {
       setError('Explore could not reach Discogs. Please retry.');
     } finally {
@@ -92,9 +95,15 @@ export function useExplore(bridge: DiscogsBridge | undefined) {
         },
       );
     },
-    open: async (id: number) => {
+    open: async (id: number, markSeen: (id: number) => void) => {
       if (!bridge || busy) return;
-      await perform(() => bridge.loadRelease(id), setRelease);
+      await perform(
+        () => bridge.loadRelease(id),
+        (value) => {
+          setRelease(value);
+          markSeen(value.id);
+        },
+      );
     },
     back: () => {
       setRelease(null);

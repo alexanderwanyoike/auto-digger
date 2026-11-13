@@ -23,6 +23,7 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
   let desktop = await electron.launch(options);
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await page.getByLabel('slskd URL', { exact: true }).fill(service.url);
     await page.getByLabel('slskd API key', { exact: true }).fill('fixture-key');
@@ -47,6 +48,7 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
       videos: [],
     });
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     const sources = page.getByRole('region', { name: 'Audio sources', exact: true });
     await expect(sources.getByRole('button', { name: 'YouTube', exact: true })).toHaveAttribute(
@@ -120,6 +122,7 @@ test('downloads Soulseek audio through the desktop queue into ordered library fo
     await desktop.close();
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Downloads', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeEnabled();
     const sourceFilter = page.getByRole('combobox', { name: 'Filter downloads by source' });

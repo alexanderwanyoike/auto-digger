@@ -19,6 +19,16 @@ export function createDiscoveryHistory(connection: () => Promise<CatalogueResult
           .prepare('INSERT INTO opened_releases(id) VALUES(?) ON CONFLICT(id) DO NOTHING')
           .run(id);
       }),
+    seen: () =>
+      query(
+        (database) =>
+          new Set(
+            database
+              .prepare('SELECT id FROM opened_releases')
+              .all()
+              .flatMap(({ id }) => (typeof id === 'number' ? [id] : [])),
+          ),
+      ),
     known: () =>
       query(
         (database) =>

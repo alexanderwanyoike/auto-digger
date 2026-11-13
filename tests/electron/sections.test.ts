@@ -17,6 +17,7 @@ test('manages named crates and track annotations in the UI and browses downloads
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     await page.evaluate(
       async (release) => {
@@ -59,6 +60,7 @@ test('manages named crates and track annotations in the UI and browses downloads
       loadedRelease,
     );
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Downloads', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeVisible();
     const downloadedSleeve = await page.locator('.downloaded-list .record-cover').boundingBox();

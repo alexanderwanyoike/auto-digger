@@ -4,7 +4,7 @@ import { discogsChannels } from '../../shared/discogs';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';
 import type { createRememberedSession } from './remembered-session';
-import type { createDiscover } from '../discovery/discover';
+import type { createDiscover, createStarterShelf } from '../discovery/discover';
 import type { createDiscoveryHistory } from '../discovery/history';
 
 type Operation = (input: unknown) => DiscogsResult<unknown> | Promise<DiscogsResult<unknown>>;
@@ -14,9 +14,11 @@ export function registerDiscogsHandlers(
   session: ReturnType<typeof createRememberedSession>,
   {
     discover,
+    starterShelf,
     markOpened,
   }: {
     discover: ReturnType<typeof createDiscover>;
+    starterShelf: ReturnType<typeof createStarterShelf>;
     markOpened: ReturnType<typeof createDiscoveryHistory>['opened'];
   },
 ) {
@@ -49,6 +51,13 @@ export function registerDiscogsHandlers(
   );
   handle(discogsChannels.search, (input) => session.search(input));
   handle(discogsChannels.discover, discover);
+  handle(discogsChannels.starterShelf, starterShelf);
+  handle(discogsChannels.markSeen, async (id) => {
+    if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1)
+      return discogsFailure('invalid-input', 'Choose a valid Discogs release.');
+    const saved = await markOpened(id);
+    return saved.ok ? saved : discogsFailure('unavailable', saved.error.message);
+  });
   handle(discogsChannels.account, () => session.account());
   handle(discogsChannels.connect, (input) => session.connect(input));
   handle(discogsChannels.loadRelease, async (input) =>

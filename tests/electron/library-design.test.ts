@@ -20,6 +20,7 @@ import { loadedRelease } from '../discogs-fixtures';
     });
     try {
       const page = await desktop.firstWindow();
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
       const music = await desktop.evaluate(({ app }) => app.getPath('music'));
       await seedLibrary(join(music, 'Auto Digger'));
@@ -36,6 +37,7 @@ import { loadedRelease } from '../discogs-fixtures';
         { ...loadedRelease, id: 200, artworkUrl: 'https://i.discogs.com/library-fixture-0.jpg' },
       );
       await page.reload();
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await page.setViewportSize({ width, height: 780 });
       await page.getByRole('button', { name: 'Downloads', exact: true }).click();
       const library = page.getByRole('region', { name: 'Downloaded library' });

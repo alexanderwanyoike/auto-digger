@@ -1,4 +1,5 @@
 .explore-page {
+  flex: 1;
   display: grid;
   align-content: start;
   gap: 10px;
@@ -7,6 +8,72 @@
   overflow: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
+}
+.explore-shelf {
+  min-width: 0;
+  padding: 24px clamp(12px, 2vw, 28px) 20px;
+}
+.explore-shelf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.explore-shelf h2 {
+  font-size: clamp(19px, 2vw, 27px);
+  letter-spacing: -0.04em;
+}
+.explore-shelf > p {
+  color: var(--muted);
+  font-size: 13px;
+}
+.explore-shelf > ul {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(10px, 1.55vw, 24px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.explore-shelf .search-result {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  gap: 4px;
+  background: transparent;
+  border: 0;
+  text-align: start;
+}
+.explore-shelf .record-cover {
+  margin-bottom: 6px;
+  border-radius: 6px;
+  transition: box-shadow 150ms ease;
+}
+.explore-shelf .search-result:hover:not(:disabled) .record-cover {
+  box-shadow: 0 0 0 2px var(--blue);
+}
+.explore-shelf .search-result > :is(strong, span) {
+  display: block;
+  height: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.explore-shelf .search-result > strong {
+  color: var(--text);
+  font-size: 13px;
+}
+.explore-shelf .search-result > span {
+  color: var(--muted);
+  font:
+    11px/1.5 'IBM Plex Mono',
+    monospace;
+}
+.explore-page > .explore-notice {
+  padding-top: 24px;
 }
 .explore-page .following-panel,
 .explore-page .section-page {

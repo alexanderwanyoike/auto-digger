@@ -21,6 +21,7 @@ test('follows artists, labels and genres and manages them after restarting', asy
   let desktop = await electron.launch(options);
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.setViewportSize({ width: 1280, height: 920 });
     await desktop.evaluate(
       (_electron, fixtures) => {

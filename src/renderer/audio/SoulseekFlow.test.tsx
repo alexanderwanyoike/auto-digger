@@ -80,6 +80,7 @@ test('refines a real search, keeps private matches separate and downloads a publ
         }}
       />,
     );
+    await user.click(screen.getByRole('button', { name: 'Digging desk' }));
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
     const sources = within(screen.getByRole('region', { name: 'Audio sources' }));
     expect(sources.getByRole('button', { name: 'YouTube' })).toHaveAttribute(
