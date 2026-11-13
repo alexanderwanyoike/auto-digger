@@ -37,7 +37,7 @@
   border-color: var(--line);
 }
 .following-gallery {
-  padding: 18px clamp(12px, 2vw, 28px) 24px;
+  padding: 18px var(--explore-padding) 24px;
 }
 .following-gallery-header,
 .following-gallery > nav {
