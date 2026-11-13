@@ -23,12 +23,9 @@ import { identityResponse } from '../discogs-fixtures';
             if (date) searches.push({ style, date });
             const start = Math.max(1990, Number(date?.split('-')[0]) || 1990);
             const end = Number(date?.split('-')[1]) || start;
-            const year =
-              url.searchParams.get('sort_order') === 'desc'
-                ? Math.min(2003, end)
-                : start === 2006 && date?.includes('-')
-                  ? 2007
-                  : start;
+            let year = start;
+            if (url.searchParams.get('sort_order') === 'desc') year = Math.min(2003, end);
+            else if (start === 2006 && date?.includes('-')) year = 2007;
             const results = Array.from({ length: date === '2006' ? 0 : count }, (_, index) => ({
               id: year * 100 + index,
               title: `${style} record ${index.toString()}`,
