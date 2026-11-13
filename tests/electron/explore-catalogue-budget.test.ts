@@ -101,6 +101,9 @@ import { identityResponse } from '../discogs-fixtures';
       await yearInput.fill('2006');
       await yearInput.press('Enter');
       await expect(page.getByText('No releases found for 2006.')).toBeVisible();
+      await years.getByRole('button', { name: '2007', exact: true }).click();
+      await expect(page.getByRole('region', { name: '2007', exact: true })).toBeVisible();
+      await expect(years.getByRole('button', { name: '2006', exact: true })).toHaveCount(0);
     } finally {
       await desktop.close();
     }
