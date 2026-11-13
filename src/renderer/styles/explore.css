@@ -262,6 +262,7 @@
   min-height: 36px;
 }
 .explore-toolbar {
+  flex-wrap: wrap;
   position: sticky;
   z-index: 2;
   top: 0;
@@ -398,4 +399,11 @@
 
 .year-continuation {
   min-height: 1px;
+}
+
+.explore-preview-error {
+  flex: 1 0 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
 }

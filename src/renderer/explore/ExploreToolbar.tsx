@@ -7,6 +7,7 @@ export function ExploreToolbar({
   section,
   busy,
   refreshBusy,
+  previewError,
   onSelect,
   onRefresh,
   onDiscover,
@@ -15,6 +16,7 @@ export function ExploreToolbar({
   section: ExploreSection;
   busy: boolean;
   refreshBusy: boolean;
+  previewError: string | null;
   onSelect: (section: ExploreSection) => void;
   onRefresh: (() => void) | undefined;
   onDiscover: (() => void) | undefined;
@@ -66,6 +68,11 @@ export function ExploreToolbar({
           </button>
         )}
       </div>
+      {previewError && (
+        <p role="alert" className="explore-preview-error">
+          {previewError}
+        </p>
+      )}
     </div>
   );
 }

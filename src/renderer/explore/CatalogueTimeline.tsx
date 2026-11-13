@@ -67,7 +67,7 @@ export function CatalogueTimeline({
   const canLoadRecords = records.morePages || nextYear !== undefined;
   const hasMore = canLoadRecords || index.hasMore;
   const busy = records.busy || (!canLoadRecords && index.busy);
-  const error = records.error ?? index.error;
+  const error = records.error ?? (canLoadRecords ? null : index.error);
   const loadMore = () => {
     if (canLoadRecords) records.loadMore(nextYear);
     else index.loadMore();
@@ -108,6 +108,11 @@ export function CatalogueTimeline({
             </li>
           ))}
         </ol>
+        {index.error && canLoadRecords && (
+          <button className="secondary-button" type="button" onClick={index.retry}>
+            Retry years
+          </button>
+        )}
         <div ref={moreYears} className="year-continuation" />
       </nav>
       <div className="catalogue-records">

@@ -169,6 +169,7 @@ export function ExplorePage({
         section={section}
         busy={busy}
         refreshBusy={starterShelf.busy || followsShelf.busy}
+        previewError={previewError}
         onSelect={selectSection}
         onRefresh={
           connected && section === 'Feed' && !collection
@@ -279,11 +280,6 @@ export function ExplorePage({
         <>
           {!connected && section !== 'History' && (
             <p className="explore-notice">Connect Discogs to browse and discover releases.</p>
-          )}
-          {previewError && (
-            <p role="alert" className="explore-notice">
-              {previewError}
-            </p>
           )}
           {busy && (
             <p className="explore-notice" role="status">
