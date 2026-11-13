@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { CataloguePage } from './CataloguePage';
 import { Shuffle } from 'lucide-react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import type { FollowTopic } from '../../shared/following';
@@ -13,6 +12,7 @@ import { useExplore } from './use-explore';
 import { ExploreResults } from './ExploreResults';
 import { sleevePreview } from './sleeve-preview';
 import { ReleaseShelf } from './ReleaseShelf';
+import { CataloguePage } from './CataloguePage';
 import type { useStarterShelf } from './use-starter-shelf';
 
 export function ExplorePage({
@@ -86,7 +86,9 @@ export function ExplorePage({
             bridge={bridge}
             onOpen={open}
             onUnauthorized={onUnauthorized}
-            onBack={() => setCatalogue(false)}
+            onBack={() => {
+              setCatalogue(false);
+            }}
           />
         </div>
       )}
@@ -95,7 +97,7 @@ export function ExplorePage({
           {error}
         </p>
       )}
-      {release ? (
+      {release && (
         <section className="explore-workspace" aria-label="Selected release">
           <button type="button" className="secondary-button explore-back" onClick={explore.back}>
             {catalogue ? 'Back to Catalogue' : 'Back to Explore'}
@@ -113,7 +115,8 @@ export function ExplorePage({
             />
           </FollowingContext.Provider>
         </section>
-      ) : !catalogue || !connected ? (
+      )}
+      {!release && (!catalogue || !connected) && (
         <>
           {connected && !topic && (
             <ReleaseShelf
@@ -225,7 +228,7 @@ export function ExplorePage({
             </footer>
           )}
         </>
-      ) : null}
+      )}
     </div>
   );
 }

@@ -18,9 +18,9 @@ export function CatalogueStylePicker({
   const id = useId();
   return (
     <div className="taxonomy-field catalogue-style">
-      <label htmlFor={id}>Style</label>
+      <span id={id}>Style</span>
       <Select<StyleOption>
-        inputId={id}
+        aria-labelledby={id}
         instanceId={id}
         value={{ value: style, label: style }}
         options={styles.map((value) => ({ value, label: value }))}

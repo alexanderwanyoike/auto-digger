@@ -135,7 +135,13 @@ export function CatalogueTimeline({
             <header className="explore-shelf-header">
               <h3>{year}</h3>
               {matches && matches.items > shelfSize && (
-                <button className="secondary-button" type="button" onClick={() => setGrid(true)}>
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={() => {
+                    setGrid(true);
+                  }}
+                >
                   Show more
                 </button>
               )}
@@ -181,7 +187,9 @@ export function CatalogueTimeline({
                 className="secondary-button"
                 type="button"
                 disabled={page <= 1}
-                onClick={() => changePage(page - 1)}
+                onClick={() => {
+                  changePage(page - 1);
+                }}
               >
                 Previous page
               </button>
@@ -192,7 +200,9 @@ export function CatalogueTimeline({
                 className="secondary-button"
                 type="button"
                 disabled={page >= matches.pages}
-                onClick={() => changePage(page + 1)}
+                onClick={() => {
+                  changePage(page + 1);
+                }}
               >
                 Next page
               </button>
@@ -200,7 +210,7 @@ export function CatalogueTimeline({
           )}
         </section>
       )}
-      {(yearsError || recordsError) && (
+      {(yearsError ?? recordsError) && (
         <div className="catalogue-error">
           <p role="alert">{recordsError ?? yearsError}</p>
           <button
