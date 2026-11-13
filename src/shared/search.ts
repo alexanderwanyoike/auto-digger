@@ -43,7 +43,7 @@ export const maxSearchPage = 200;
 
 export const searchInputSchema = z.object({
   context: z.enum(['artist', 'explore', 'catalogue']).optional(),
-  order: z.literal('oldest').optional(),
+  order: z.enum(['oldest', 'newest']).optional(),
   filters: filtersSchema,
   page: z.number().int().min(1).max(maxSearchPage),
 });
