@@ -51,10 +51,7 @@ test('keeps digging through both dedicated discovery shelves as the listener scr
     );
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
 
-    for (const [shelf, scope] of [
-      ['Discover records', 'Personal'],
-      ['From your follows', 'Followed'],
-    ]) {
+    const verifyShelf = async (shelf: string, scope: string) => {
       const section = page.getByRole('region', { name: shelf, exact: true });
       await section.getByRole('button', { name: 'Show more' }).click();
       const releases = section.getByRole('listitem');
@@ -74,7 +71,9 @@ test('keeps digging through both dedicated discovery shelves as the listener scr
         section.getByRole('button', { name: new RegExp(`^${scope} Record 090`) }),
       ).toBeVisible();
       await page.getByRole('button', { name: 'Back to Feed' }).click();
-    }
+    };
+    await verifyShelf('Discover records', 'Personal');
+    await verifyShelf('From your follows', 'Followed');
   } finally {
     await desktop.close();
   }

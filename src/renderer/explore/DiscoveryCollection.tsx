@@ -75,7 +75,9 @@ export function DiscoveryCollection({
       { rootMargin: '200px 0px' },
     );
     observer.observe(target);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, [disabled, next, request]);
 
   const releases = [
