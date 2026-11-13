@@ -5,7 +5,6 @@ import { stylesForGenres } from '../../shared/genre-styles';
 import type { SearchPage } from '../../shared/search';
 
 export const firstSearchYear = 1000;
-const yearsPerBatch = 8;
 
 export function catalogueStyles(preferred: readonly string[]) {
   const usable = preferred.filter(
@@ -18,6 +17,7 @@ export async function catalogueYears(
   search: DiscogsBridge['search'],
   style: string,
   from: number,
+  count: number,
   active: () => boolean,
   onYear: (year: number) => void,
 ): Promise<DiscogsResult<number | null>> {
@@ -32,7 +32,7 @@ export async function catalogueYears(
         year: `${start.toString()}-${latest.toString()}`,
       },
       page: 1,
-      context: 'explore',
+      context: 'catalogue',
       order: 'oldest',
     });
     if (!result.ok) return result;
@@ -46,7 +46,7 @@ export async function catalogueYears(
     onYear(first);
     return next(first + 1, remaining - 1);
   }
-  return next(from, yearsPerBatch);
+  return next(from, count);
 }
 
 export function recordsForYear(
@@ -58,6 +58,6 @@ export function recordsForYear(
   return search({
     filters: { ...emptyFilters, style: [style], year: year.toString() },
     page,
-    context: 'explore',
+    context: 'catalogue',
   });
 }

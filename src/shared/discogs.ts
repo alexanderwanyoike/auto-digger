@@ -63,7 +63,7 @@ export interface DiscogsBridge {
   search: (input: {
     filters: DigFilters;
     page: number;
-    context?: 'artist' | 'explore';
+    context?: 'artist' | 'explore' | 'catalogue';
     order?: 'oldest';
   }) => Promise<DiscogsResult<SearchPage>>;
   topicArtwork?: (topic: FollowTopic) => Promise<DiscogsResult<string | null>>;

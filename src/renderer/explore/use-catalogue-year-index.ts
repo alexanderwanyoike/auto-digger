@@ -19,6 +19,7 @@ export function useCatalogueYearIndex(
       search,
       style,
       start,
+      start === firstSearchYear ? 2 : 1,
       () => active,
       (year) => {
         setYears((previous) => (previous.includes(year) ? previous : [...previous, year]));

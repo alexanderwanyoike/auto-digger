@@ -77,9 +77,23 @@ export function CatalogueTimeline({
   const sentinel = useScrollContinuation(
     !busy && !error && !disabled && hasMore ? loadMore : undefined,
   );
-  const moreYears = useScrollContinuation(
-    index.hasMore && !index.busy && !index.error && !disabled ? index.loadMore : undefined,
-  );
+  const { loadMore: loadMoreYears } = index;
+  const extendYearRail = (rail: HTMLElement) => {
+    if (!disabled && rail.scrollHeight - rail.clientHeight - rail.scrollTop <= 40) loadMoreYears();
+  };
+  useEffect(() => {
+    const rail = yearRail.current;
+    if (!rail || disabled || !index.hasMore) return undefined;
+    const wheel = (event: WheelEvent) => {
+      if (event.ctrlKey || event.deltaY <= 0 || rail.scrollHeight > rail.clientHeight) return;
+      event.preventDefault();
+      loadMoreYears();
+    };
+    rail.addEventListener('wheel', wheel, { passive: false });
+    return () => {
+      rail.removeEventListener('wheel', wheel);
+    };
+  }, [disabled, index.hasMore, loadMoreYears]);
 
   const select = (year: number) => {
     setSelected(year);
@@ -94,7 +108,14 @@ export function CatalogueTimeline({
   return (
     <div className="catalogue-timeline" ref={catalogue}>
       <div className="catalogue-years-frame">
-        <nav aria-label="Release years" className="catalogue-years" ref={yearRail}>
+        <nav
+          aria-label="Release years"
+          className="catalogue-years"
+          ref={yearRail}
+          onScroll={(event) => {
+            extendYearRail(event.currentTarget);
+          }}
+        >
           <div ref={yearRailContent}>
             <ol>
               {index.years.map((year) => (
@@ -103,6 +124,11 @@ export function CatalogueTimeline({
                     type="button"
                     aria-current={year === (selected ?? index.years[0]) ? true : undefined}
                     disabled={disabled}
+                    onKeyDown={(event) => {
+                      const rail = yearRail.current;
+                      if (rail && year === index.years.at(-1) && event.key === 'ArrowDown')
+                        extendYearRail(rail);
+                    }}
                     onClick={() => {
                       select(year);
                     }}
@@ -117,7 +143,6 @@ export function CatalogueTimeline({
                 Retry years
               </button>
             )}
-            <div ref={moreYears} className="year-continuation" />
           </div>
         </nav>
         <TickScrollbar

@@ -409,10 +409,6 @@
   font-size: 12px;
 }
 
-.year-continuation {
-  min-height: 1px;
-}
-
 .explore-preview-error {
   flex: 1 0 100%;
   margin: 0;

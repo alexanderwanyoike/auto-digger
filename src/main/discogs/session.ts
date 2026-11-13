@@ -10,6 +10,7 @@ import type { DiscogsAccount, DiscogsRelease, DiscogsResult } from '../../shared
 import { releaseMetadataSchema } from './release-metadata';
 import { requestDiscogs } from './request';
 import { searchDiscogs } from './search';
+import { createDiscogsReadCache } from './read-cache';
 import { searchInputSchema } from '../../shared/search';
 import type { SearchPage } from '../../shared/search';
 
@@ -17,6 +18,7 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
   let account: DiscogsAccount | null = null;
   let acceptedToken: string | null = null;
   let revision = 0;
+  const catalogue = createDiscogsReadCache<SearchPage>();
   const createSessionDigger = () =>
     createDigger(
       (filters, page) => searchDiscogs({ filters, page }, acceptedToken ?? '', request),
@@ -31,6 +33,7 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
   const digger = createSessionDigger();
   const artistDigger = createSessionDigger();
   const clear = () => {
+    catalogue.clear();
     digger.reset();
     artistDigger.reset();
     revision += 1;
@@ -81,11 +84,15 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
           'invalid-input',
           'Use a year such as 1998 or a range such as 1990-1999, with the earlier year first.',
         );
-      const result = await searchDiscogs(parsed.data, acceptedToken, request);
+      const token = acceptedToken;
+      const read = () => searchDiscogs(parsed.data, token, request);
+      const result = await (parsed.data.context === 'catalogue'
+        ? catalogue.read(JSON.stringify(parsed.data), read)
+        : read());
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();
-      if (result.ok && parsed.data.context !== 'explore') {
+      if (result.ok && parsed.data.context !== 'explore' && parsed.data.context !== 'catalogue') {
         const activeDigger = parsed.data.context === 'artist' ? artistDigger : digger;
         activeDigger.apply(parsed.data.filters);
       }

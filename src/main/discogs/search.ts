@@ -53,7 +53,7 @@ export async function searchDiscogs(
     per_page: '50',
     page: page.toString(),
   });
-  if (input.context === 'explore' && input.order === 'oldest') {
+  if ((input.context === 'explore' || input.context === 'catalogue') && input.order === 'oldest') {
     query.set('sort', 'year');
     query.set('sort_order', 'asc');
   }
