@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { YearRecords } from './use-catalogue-records';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { TickScrollbar } from './TickScrollbar';
-import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
+import { CatalogueYearShelf } from './CatalogueYearShelf';
 import { useCatalogueRecords } from './use-catalogue-records';
 import { useScrollContinuation } from './use-scroll-continuation';
 import { useCatalogueYearIndex } from './use-catalogue-year-index';
@@ -243,34 +243,18 @@ export function CatalogueTimeline({
         {records.groups
           .filter(({ releases }) => releases.length)
           .map((group) => (
-            <section
+            <CatalogueYearShelf
               key={group.year}
-              className="explore-shelf catalogue-year"
-              aria-label={group.year.toString()}
-              data-release-year={group.year}
-            >
-              <header className="explore-shelf-header">
-                <h3>{group.year}</h3>
-                <button
-                  type="button"
-                  id={`explore-year-more-${group.year.toString()}`}
-                  className="explore-show-more"
-                  disabled={disabled}
-                  onClick={() => {
-                    onShowYear(style, group);
-                  }}
-                >
-                  Show more
-                </button>
-              </header>
-              <ReleaseMatchList
-                releases={group.releases}
-                disabled={disabled}
-                onOpen={onOpen}
-                onPreview={onPreview}
-                previewBusy={previewBusy}
-              />
-            </section>
+              year={group.year}
+              releases={group.releases}
+              disabled={disabled}
+              onOpen={onOpen}
+              onPreview={onPreview}
+              previewBusy={previewBusy}
+              onShowMore={() => {
+                onShowYear(style, group);
+              }}
+            />
           ))}
         <div ref={sentinel} className="catalogue-continuation">
           {busy && <p role="status">Loading releases…</p>}
