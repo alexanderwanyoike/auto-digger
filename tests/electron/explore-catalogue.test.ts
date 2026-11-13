@@ -103,6 +103,12 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     expect(track.height).toBeLessThan(viewportBounds.height / 2);
     expect(track.y + track.height / 2).toBeCloseTo(viewportBounds.y + viewportBounds.height / 2, 0);
     expect(track.x + track.width).toBeLessThan(viewportBounds.x + viewportBounds.width);
+    await navigation.getByRole('button', { name: 'Catalogue' }).hover();
+    await page.mouse.wheel(0, 120);
+    await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+    await viewport.evaluate((element) => {
+      element.scrollTo(0, 0);
+    });
     await navigation.getByRole('button', { name: 'Catalogue' }).press('PageDown');
     await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
     await scrollbar.press('Home');
