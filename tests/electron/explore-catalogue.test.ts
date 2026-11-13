@@ -54,7 +54,12 @@ test('browses populated catalogue years and restores the timeline from a full ye
     await page.getByRole('button', { name: 'Save EP to crate' }).click();
     await expect(page.getByRole('button', { name: 'Saved to crate' })).toBeDisabled();
     await page.getByRole('button', { name: 'Back to Explore', exact: true }).click();
-    await page.getByRole('button', { name: 'Catalogue', exact: true }).click();
+    const navigation = page.getByRole('navigation', { name: 'Explore sections' });
+    await expect(navigation.getByRole('button', { name: 'Feed' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    await navigation.getByRole('button', { name: 'Catalogue', exact: true }).click();
     await expect(page.getByText('Deep House', { exact: true })).toBeVisible();
     await page.getByRole('combobox', { name: 'Style' }).click();
     await expect(page.getByRole('listbox').getByRole('option').first()).toHaveText('Deep House');
