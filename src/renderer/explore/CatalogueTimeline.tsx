@@ -94,12 +94,17 @@ export function CatalogueTimeline({
   );
   useEffect(() => {
     const viewport = catalogue.current?.closest<HTMLElement>('.explore-scroll');
-    if (!viewport || exploring || disabled) return undefined;
+    if (!viewport || disabled) return undefined;
     const forward = () => {
       setExploring(true);
     };
     const wheel = (event: WheelEvent) => {
-      if (event.deltaY > 0 && !event.ctrlKey && !yearRail.current?.contains(event.target as Node))
+      if (
+        event.deltaY > 0 &&
+        !event.ctrlKey &&
+        event.target instanceof Node &&
+        !yearRail.current?.contains(event.target)
+      )
         setExploring(true);
     };
     let touchY: number | undefined;
@@ -125,7 +130,7 @@ export function CatalogueTimeline({
       viewport.removeEventListener('touchstart', startTouch);
       viewport.removeEventListener('touchmove', moveTouch);
     };
-  }, [disabled, exploring]);
+  }, [disabled]);
 
   const { loadMore: loadMoreYears } = index;
   const extendYearRail = (rail: HTMLElement) => {
@@ -139,10 +144,13 @@ export function CatalogueTimeline({
       event.preventDefault();
       loadMoreYears();
     };
-    rail.addEventListener('scroll-forward', loadMoreYears);
+    const forward = () => {
+      if (rail.scrollHeight - rail.clientHeight - rail.scrollTop <= 40) loadMoreYears();
+    };
+    rail.addEventListener('scroll-forward', forward);
     rail.addEventListener('wheel', wheel, { passive: false });
     return () => {
-      rail.removeEventListener('scroll-forward', loadMoreYears);
+      rail.removeEventListener('scroll-forward', forward);
       rail.removeEventListener('wheel', wheel);
     };
   }, [disabled, index.busy, index.error, index.hasMore, loadMoreYears]);
@@ -171,25 +179,30 @@ export function CatalogueTimeline({
         >
           <div ref={yearRailContent}>
             <ol>
-              {index.years.map((year) => (
-                <li key={year}>
-                  <button
-                    type="button"
-                    aria-current={year === (selected ?? index.years[0]) ? true : undefined}
-                    disabled={disabled}
-                    onKeyDown={(event) => {
-                      const rail = yearRail.current;
-                      if (rail && year === index.years.at(-1) && event.key === 'ArrowDown')
-                        extendYearRail(rail);
-                    }}
-                    onClick={() => {
-                      select(year);
-                    }}
-                  >
-                    {year}
-                  </button>
-                </li>
-              ))}
+              {index.years
+                .filter(
+                  (year) =>
+                    !records.groups.some((group) => group.year === year && !group.releases.length),
+                )
+                .map((year) => (
+                  <li key={year}>
+                    <button
+                      type="button"
+                      aria-current={year === (selected ?? index.years[0]) ? true : undefined}
+                      disabled={disabled}
+                      onKeyDown={(event) => {
+                        const rail = yearRail.current;
+                        if (rail && year === index.years.at(-1) && event.key === 'ArrowDown')
+                          extendYearRail(rail);
+                      }}
+                      onClick={() => {
+                        select(year);
+                      }}
+                    >
+                      {year}
+                    </button>
+                  </li>
+                ))}
             </ol>
             {index.error && canLoadRecords && index.retryAt === undefined && (
               <button className="secondary-button" type="button" onClick={index.retry}>
