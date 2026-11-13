@@ -176,7 +176,6 @@ export async function createWindow(): Promise<Result<undefined, string>> {
         discogsSession.search,
         catalogueStore.discoveryHistory.seen,
         catalogueStore.crateTaste,
-        catalogueStore.following.read,
       ),
       crateTaste: catalogueStore.crateTaste,
       markOpened: catalogueStore.discoveryHistory.opened,

@@ -3,7 +3,6 @@ import { createStarterShelf } from './discover';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsBridge } from '../../shared/discogs';
 import type { SearchPage } from '../../shared/search';
-import type { FollowTopic } from '../../shared/following';
 
 const match = {
   id: 12,
@@ -21,16 +20,11 @@ function catalogue(releases: SearchPage['releases']) {
   };
 }
 
-function shelfFor(
-  search: DiscogsBridge['search'],
-  taste: { style: string; releases: number }[],
-  follows: FollowTopic[] = [],
-) {
+function shelfFor(search: DiscogsBridge['search'], taste: { style: string; releases: number }[]) {
   return createStarterShelf(
     search,
     () => Promise.resolve({ ok: true, value: new Set([99]) }),
     () => Promise.resolve({ ok: true, value: taste }),
-    () => Promise.resolve({ ok: true, value: follows }),
   );
 }
 
@@ -42,28 +36,16 @@ test('fills from ranked personal styles without mixing unrelated catalogue picks
       return Promise.resolve(catalogue([{ ...match, id: 13 }, match]));
     return Promise.resolve(catalogue([{ ...match, id: 14 }]));
   });
-  const shelf = shelfFor(
-    search,
-    [
-      { style: 'House|Techno', releases: 9 },
-      { style: 'Deep House', releases: 5 },
-      { style: 'Progressive House', releases: 2 },
-    ],
-    [{ kind: 'genre', name: 'Jazz' }],
-  );
+  const shelf = shelfFor(search, [
+    { style: 'House|Techno', releases: 9 },
+    { style: 'Deep House', releases: 5 },
+    { style: 'Progressive House', releases: 2 },
+  ]);
   await expect(shelf()).resolves.toEqual({ ok: true, value: [match, { ...match, id: 13 }] });
   expect(search.mock.calls.map(([{ filters }]) => filters.style)).toEqual([
     ['Deep House'],
     ['Progressive House'],
   ]);
-});
-
-test('uses followed catalogues until there are personal styles to learn from', async () => {
-  const search = vi.fn<DiscogsBridge['search']>().mockResolvedValue(catalogue([match]));
-  const shelf = shelfFor(search, [], [{ kind: 'label', name: 'Hooj Choons' }]);
-  await expect(shelf()).resolves.toEqual({ ok: true, value: [match] });
-  expect(search).toHaveBeenCalledOnce();
-  expect(search.mock.calls[0]?.[0].filters.label).toBe('Hooj Choons');
 });
 
 test('uses a specific starter style before the listener saves or follows', async () => {

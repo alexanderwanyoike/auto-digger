@@ -83,7 +83,6 @@ export function createStarterShelf(
   search: DiscogsBridge['search'],
   seenReleases: () => Promise<CatalogueResult<Set<number>>>,
   crateTaste: ReturnType<typeof createCrateTaste>,
-  readFollowing: () => Promise<FollowingResult>,
 ) {
   const size = 6;
   const discover = createReleaseDiscovery(search, seenReleases, size);
@@ -96,16 +95,7 @@ export function createStarterShelf(
         return parsed.success ? parsed.data : [];
       })
       .slice(0, 3);
-    if (!styles.length) {
-      const follows = await readFollowing();
-      if (!follows.ok) return discogsFailure('unavailable', follows.error.message);
-      const topics = shuffled(follows.value).slice(0, 3);
-      return discover(
-        topics.length
-          ? topics.map((topic) => filtersForTopic(topic))
-          : [{ ...emptyFilters, style: [starterStyle] }],
-      );
-    }
+    if (!styles.length) return discover([{ ...emptyFilters, style: [starterStyle] }]);
 
     const chosen = new Map<number, SearchPage['releases'][number]>();
     async function collectStyle(index: number): Promise<DiscogsResult<SearchPage['releases']>> {
@@ -113,7 +103,15 @@ export function createStarterShelf(
       if (!style || chosen.size >= size)
         return { ok: true, value: [...chosen.values()].slice(0, size) };
       const matches = await discover([{ ...emptyFilters, style: [style] }]);
-      if (!matches.ok) return matches;
+      if (!matches.ok) {
+        if (
+          !chosen.size ||
+          matches.error.code === 'unauthorized' ||
+          matches.error.code === 'cancelled'
+        )
+          return matches;
+        return { ok: true, value: [...chosen.values()] };
+      }
       matches.value.forEach((release) => chosen.set(release.id, release));
       return collectStyle(index + 1);
     }
