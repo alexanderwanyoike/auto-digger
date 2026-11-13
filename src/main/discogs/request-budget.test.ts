@@ -92,3 +92,35 @@ test('shares concurrent identical searches while letting a later explicit search
   await expect(session.search(input)).resolves.toMatchObject({ ok: true });
   expect(request).toHaveBeenCalledTimes(3);
 });
+
+test('does not extend a cooldown with an older response', async () => {
+  vi.useFakeTimers();
+  try {
+    vi.setSystemTime(120_000);
+    let finish: ((response: Response) => void) | undefined;
+    const request = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json(identityResponse))
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            finish = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 429, headers: { 'Retry-After': '2' } }))
+      .mockResolvedValueOnce(Response.json(releaseResponse));
+    const session = createDiscogsSession(request);
+    await session.connect('fixture-token');
+    const older = session.loadRelease(12);
+    await expect(session.loadRelease(13)).resolves.toMatchObject({
+      ok: false,
+      error: { code: 'rate-limited', retryAt: 122_000 },
+    });
+    finish?.(Response.json(releaseResponse, { headers: { 'X-Discogs-Ratelimit-Remaining': '0' } }));
+    await older;
+    vi.setSystemTime(122_000);
+    await expect(session.loadRelease(13)).resolves.toMatchObject({ ok: true });
+  } finally {
+    vi.useRealTimers();
+  }
+});
