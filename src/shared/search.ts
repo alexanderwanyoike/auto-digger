@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { followTopicSchema } from './following';
 
 const text = z.string().trim().max(160).default('');
 const selection = z
@@ -41,13 +42,19 @@ export function sameSearchFilters(left: DigFilters, right: DigFilters | null) {
 
 export const maxSearchPage = 200;
 
-export const searchInputSchema = z.object({
-  context: z.enum(['artist', 'explore', 'catalogue', 'catalogue-range']).optional(),
-  order: z.enum(['oldest', 'newest']).optional(),
-  background: z.boolean().optional(),
-  filters: filtersSchema,
-  page: z.number().int().min(1).max(maxSearchPage),
-});
+export const searchInputSchema = z
+  .object({
+    context: z.enum(['artist', 'explore', 'catalogue', 'catalogue-range']).optional(),
+    order: z.enum(['oldest', 'newest']).optional(),
+    background: z.boolean().optional(),
+    topic: followTopicSchema.optional(),
+    filters: filtersSchema,
+    page: z.number().int().min(1).max(Number.MAX_SAFE_INTEGER),
+  })
+  .refine(
+    ({ context, topic, page }) =>
+      page <= maxSearchPage || (context === 'explore' && topic && topic.kind !== 'genre'),
+  );
 export type SearchInput = z.output<typeof searchInputSchema>;
 export const searchPageSchema = z.object({
   page: z.number().int().positive(),
