@@ -35,7 +35,9 @@ test('keeps digging through both dedicated discovery shelves as the listener scr
             Reflect.get(globalThis, 'rejectDiscoveryPage') === true
           ) {
             retryFollowedPage = true;
-            return Promise.resolve(new Response(null, { status: 429 }));
+            return Promise.resolve(
+              new Response(null, { status: 429, headers: { 'Retry-After': '2' } }),
+            );
           }
           const start = (current - 1) * 30 + 1;
           const ids = Array.from({ length: 30 }, (_, index) => start + index);
@@ -83,9 +85,8 @@ test('keeps digging through both dedicated discovery shelves as the listener scr
           Reflect.set(globalThis, 'rejectDiscoveryPage', true);
         });
         await scroll();
-        await expect(section.getByRole('alert')).toContainText('Discogs rate limit reached');
+        await expect(section.getByRole('status')).toContainText('Discogs is pausing new requests');
         await expect(releases.nth(20)).toBeVisible();
-        await section.getByRole('button', { name: 'Retry' }).click();
       } else await scroll();
       await expect(releases.nth(55)).toBeVisible();
       await scroll();
