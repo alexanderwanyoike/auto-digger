@@ -54,6 +54,7 @@ export function ExplorePage({
             audioBridge.probe,
             (input, releaseId) => audio.preview(input, releaseId),
             id,
+            audio.tracks,
           )
             .then((result) => {
               if (!result.ok) {
