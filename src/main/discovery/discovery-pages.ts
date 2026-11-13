@@ -4,6 +4,7 @@ import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsBridge, DiscogsResult } from '../../shared/discogs';
 import { discoveryPageRequestSchema, filtersForTopic, starterStyle } from '../../shared/discovery';
 import type { DiscoveryPage, DiscoveryShelf } from '../../shared/discovery';
+import { maxSearchPage } from '../../shared/search';
 import type { DigFilters } from '../../shared/search';
 import type { FollowingResult } from '../../shared/following';
 import type { CatalogueResult } from '../../shared/catalogue';
@@ -63,8 +64,9 @@ export function createDiscoveryPages(
     if (!known.ok) return discogsFailure('unavailable', known.error.message);
     const releases = result.value.releases.filter(({ id }) => !known.value.has(id));
     const { id, filters: sources, pageCounts } = collection;
-    pageCounts.set(source, result.value.pages);
-    const hasPage = (index: number, target: number) => (pageCounts.get(index) ?? 200) >= target;
+    pageCounts.set(source, Math.min(result.value.pages, maxSearchPage));
+    const hasPage = (index: number, target: number) =>
+      (pageCounts.get(index) ?? maxSearchPage) >= target;
     const laterSource = sources.findIndex((_, index) => index > source && hasPage(index, page));
     if (laterSource !== -1)
       return { ok: true, value: { releases, next: { id, source: laterSource, page } } };
