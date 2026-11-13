@@ -11,6 +11,12 @@
   overflow: auto;
 }
 @media (forced-colors: none) {
+  .explore-page {
+    --explore-scrollbar-opacity: 78%;
+  }
+  :root[data-theme='dark'] .explore-page {
+    --explore-scrollbar-opacity: 65%;
+  }
   :is(.explore-page, .catalogue-years)::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -25,7 +31,8 @@
   :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb {
     border: 3px solid transparent;
     border-radius: 8px;
-    background: color-mix(in srgb, var(--muted) 65%, transparent) padding-box;
+    background: color-mix(in srgb, var(--muted) var(--explore-scrollbar-opacity), transparent)
+      padding-box;
   }
   :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb:hover,
   :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb:active {
