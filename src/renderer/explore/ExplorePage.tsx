@@ -244,6 +244,7 @@ export function ExplorePage({
                     key={release.id}
                     release={release}
                     crate={crate}
+                    showCrateDestination
                     audio={audio}
                     artistBrowsingDisabled={disabled}
                     onBrowseArtist={(artist) => {

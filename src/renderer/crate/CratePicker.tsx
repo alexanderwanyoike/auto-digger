@@ -1,13 +1,21 @@
+import { useId } from 'react';
 import type { useCrate } from './use-crate';
 
-export function CratePicker({ crate }: { crate: ReturnType<typeof useCrate> }) {
+export function CratePicker({
+  crate,
+  label = 'Active crate',
+}: {
+  crate: ReturnType<typeof useCrate>;
+  label?: string;
+}) {
+  const pickerId = useId();
   const { catalogue } = crate;
   if (!catalogue.available) return null;
   return (
-    <label className="crate-picker" htmlFor="active-crate">
-      Active crate
+    <label className="crate-picker" htmlFor={pickerId}>
+      {label}
       <select
-        id="active-crate"
+        id={pickerId}
         value={catalogue.view.crateId ?? ''}
         disabled={catalogue.busy}
         onChange={(event) => {

@@ -1,18 +1,22 @@
 import type { DiscogsRelease } from '../../shared/discogs';
 import { isEp } from '../../shared/is-ep';
+import { CratePicker } from './CratePicker';
 import type { useCrate } from './use-crate';
 
 export function SaveToCrate({
   release,
   crate,
+  showDestination = false,
 }: {
   release: DiscogsRelease;
   crate: ReturnType<typeof useCrate>;
+  showDestination?: boolean;
 }) {
   const saved = crate.releases.some((item) => item.id === release.id);
   const ep = isEp(release.formats);
   return (
     <div className="save-to-crate">
+      {showDestination && <CratePicker crate={crate} label="Save to crate" />}
       <button
         type="button"
         className="secondary-button"
