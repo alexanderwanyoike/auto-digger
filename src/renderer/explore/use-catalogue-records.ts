@@ -11,6 +11,8 @@ export interface YearRecords {
   releases: SearchPage['releases'];
 }
 
+type YearRequest = { year: number; page: number; background?: boolean };
+
 export function useCatalogueRecords(
   search: DiscogsBridge['search'],
   style: string,
@@ -20,11 +22,7 @@ export function useCatalogueRecords(
   activeView = true,
 ) {
   const [groups, setGroups] = useState<YearRecords[]>(() => (initialGroup ? [initialGroup] : []));
-  const [request, setRequest] = useState<{
-    year: number;
-    page: number;
-    background?: boolean;
-  } | null>(null);
+  const [request, setRequest] = useState<YearRequest | null>(null);
   const [failed, setFailed] = useState<{ year: number; page: number; background?: boolean } | null>(
     null,
   );

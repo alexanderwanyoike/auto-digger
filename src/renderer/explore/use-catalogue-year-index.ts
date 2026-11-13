@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { catalogueYears, firstSearchYear } from './catalogue-years';
 import { useDiscogsRetry } from './use-discogs-retry';
@@ -16,10 +16,13 @@ export function useCatalogueYearIndex(
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [retryAt, setRetryAt] = useState<number>();
+  const lastCompletedYear = useRef<number | undefined>(undefined);
   const retry = useCallback(() => {
     setBusy(true);
     setError(null);
     setRetryAt(undefined);
+    const completed = lastCompletedYear.current;
+    if (completed !== undefined) setStart(completed + 1);
     setAttempt((value) => value + 1);
   }, []);
   useDiscogsRetry(retryAt, retry, activeView);
@@ -32,6 +35,7 @@ export function useCatalogueYearIndex(
       start === firstSearchYear ? 2 : 1,
       () => active,
       (year) => {
+        lastCompletedYear.current = year;
         setYears((previous) => (previous.includes(year) ? previous : [...previous, year]));
       },
     )
