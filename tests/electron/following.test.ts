@@ -237,7 +237,9 @@ test('clears a rejected Discogs account after leaving Following during artwork l
           if (url.searchParams.get('type') === 'label') {
             return new Promise((done) => {
               Object.assign(globalThis, {
-                rejectArtwork: () => done(new Response(null, { status: 401 })),
+                rejectArtwork: () => {
+                  done(new Response(null, { status: 401 }));
+                },
               });
             });
           }
