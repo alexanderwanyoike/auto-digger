@@ -47,6 +47,7 @@ export function createDiscogsBridge(invoke: Invoke): DiscogsBridge {
   }
   return {
     dig: (input) => call(discogsChannels.dig, digResultSchema, input),
+    topicArtwork: (topic) => call(discogsChannels.topicArtwork, z.string().nullable(), topic),
     search: (input) => call(discogsChannels.search, searchPageSchema, input),
     discover: (topic) => call(discogsChannels.discover, searchPageSchema.shape.releases, topic),
     starterShelf: () => call(discogsChannels.starterShelf, searchPageSchema.shape.releases),

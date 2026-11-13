@@ -64,6 +64,7 @@ export interface DiscogsBridge {
     context?: 'artist' | 'explore';
     order?: 'oldest';
   }) => Promise<DiscogsResult<SearchPage>>;
+  topicArtwork?: (topic: FollowTopic) => Promise<DiscogsResult<string | null>>;
   discover?: (topic: FollowTopic | null) => Promise<DiscogsResult<SearchPage['releases']>>;
   starterShelf?: () => Promise<DiscogsResult<SearchPage['releases']>>;
   previewRelease?: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
@@ -77,6 +78,7 @@ export interface DiscogsBridge {
 export const discogsChannels = {
   dig: 'discogs:dig',
   search: 'discogs:search',
+  topicArtwork: 'discogs:topic-artwork',
   discover: 'discogs:discover',
   starterShelf: 'discogs:starter-shelf',
   markSeen: 'discogs:mark-seen',

@@ -103,6 +103,12 @@ test('discovers unopened releases, browses followed catalogues and compares genr
     );
     const discover = page.getByRole('button', { name: 'Discover unseen releases', exact: true });
     await expect(discover).toBeEnabled();
+    await expect(
+      page.locator('.explore-toolbar').getByRole('button', { name: 'Refresh' }),
+    ).toBeVisible();
+    await expect(
+      page.locator('.explore-toolbar').getByRole('button', { name: 'Discover unseen releases' }),
+    ).toBeVisible();
     const unseen = page.getByRole('region', { name: 'Unseen releases' });
     await discover.click();
 
@@ -114,6 +120,8 @@ test('discovers unopened releases, browses followed catalogues and compares genr
       unseen.getByRole('button', { name: /^(?!Play ).*Low Tide - Night Transit/ }),
     ).toHaveCount(0);
 
+    await page.getByRole('button', { name: 'Following', exact: true }).click();
+    await page.getByRole('button', { name: 'Artists', exact: true }).click();
     await page.getByRole('button', { name: 'Browse Low Tide', exact: true }).click();
     await expect(
       page.getByRole('button', { name: /^(?!Play ).*Low Tide - Quiet Orbit EP/ }),
@@ -122,6 +130,11 @@ test('discovers unopened releases, browses followed catalogues and compares genr
       page.getByRole('button', { name: /^(?!Play ).*Mira North - First Light/ }),
     ).toHaveCount(0);
 
+    await page
+      .locator('.explore-toolbar')
+      .getByRole('button', { name: 'All followed', exact: true })
+      .click();
+    await page.getByRole('button', { name: 'Genres', exact: true }).click();
     await page.getByRole('button', { name: 'Browse Electronic', exact: true }).click();
     await page.getByLabel('First year', { exact: true }).fill('1993');
     await page.getByLabel('Second year', { exact: true }).fill('2000');

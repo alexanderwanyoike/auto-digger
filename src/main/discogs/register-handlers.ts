@@ -52,6 +52,7 @@ export function registerDiscogsHandlers(
   handle(discogsChannels.dig, async (input) =>
     remember(await session.dig(input), (value) => value.release.id),
   );
+  handle(discogsChannels.topicArtwork, (input) => session.topicArtwork(input));
   handle(discogsChannels.search, (input) => session.search(input));
   handle(discogsChannels.discover, discover);
   handle(discogsChannels.starterShelf, starterShelf);

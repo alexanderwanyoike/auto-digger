@@ -1,3 +1,5 @@
+import { followTopicSchema } from '../../shared/following';
+import { searchTopicArtwork } from './topic-artwork';
 import { researchSearchInputSchema } from '../../shared/research-search';
 import { createDigger } from './digger';
 import { digInputSchema } from '../../shared/dig';
@@ -55,6 +57,18 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();
+      return result;
+    },
+    async topicArtwork(input: unknown): Promise<DiscogsResult<string | null>> {
+      const parsed = followTopicSchema.safeParse(input);
+      if (!parsed.success || parsed.data.kind === 'genre')
+        return discogsFailure('invalid-input', 'Choose a Discogs artist or label.');
+      if (!acceptedToken)
+        return discogsFailure('unauthorized', 'Connect your Discogs account first.');
+      const started = revision;
+      const result = await searchTopicArtwork(parsed.data, acceptedToken, request);
+      if (started !== revision)
+        return discogsFailure('cancelled', 'The Discogs session has changed.');
       return result;
     },
     async search(input: unknown): Promise<DiscogsResult<SearchPage>> {
