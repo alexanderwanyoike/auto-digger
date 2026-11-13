@@ -79,3 +79,15 @@ test('preserves a rejected session when searching the listener’s styles', asyn
     rejected,
   );
 });
+
+test('keeps personal matches when an additional style is rate limited', async () => {
+  const search = vi.fn<DiscogsBridge['search']>().mockImplementation(({ filters }) => {
+    if (filters.style.includes('Deep House')) return Promise.resolve(catalogue([match]));
+    return Promise.resolve(discogsFailure('rate-limited', 'Try again later.'));
+  });
+  const shelf = shelfFor(search, [
+    { style: 'Deep House', releases: 5 },
+    { style: 'Progressive House', releases: 2 },
+  ]);
+  await expect(shelf()).resolves.toEqual({ ok: true, value: [match] });
+});
