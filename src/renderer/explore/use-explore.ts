@@ -21,8 +21,10 @@ export function useExplore(bridge: DiscogsBridge | undefined, onUnauthorized: ()
     setError(null);
     try {
       const result = await operation();
-      if (result.ok) apply(result.value);
-      else {
+      if (result.ok) {
+        apply(result.value);
+        if (result.historyWarning) setError(result.historyWarning);
+      } else {
         if (result.error.code === 'unauthorized') onUnauthorized();
         setError(result.error.message);
       }
