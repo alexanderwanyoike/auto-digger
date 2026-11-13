@@ -163,16 +163,25 @@ test('recognises Likes when Discogs adds a preceding track to the same release',
         playlistId: 'likes',
         track: { release, trackIndex: 0 },
       });
-      const crate = await window.crate?.save({
+      const updated = {
         ...release,
         tracks: [{ position: 'Intro', title: 'Intro', duration: '' }, ...release.tracks],
+      };
+      const crate = await window.crate?.save(updated);
+      const audio = await window.audioLibrary?.download({
+        release: updated,
+        videoIndex: 0,
+        trackIndex: 1,
       });
-      return liked?.ok && crate?.ok;
+      return liked?.ok && crate?.ok && audio?.ok;
     }, loadedRelease);
     expect(stored).toBe(true);
     await page.reload();
     await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    await page.getByRole('button', { name: 'Playlists', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     const like = page.getByRole('button', { name: 'Like Quiet Orbit', exact: true });
     await expect(like).toHaveAttribute('aria-pressed', 'true');
     await like.click();
