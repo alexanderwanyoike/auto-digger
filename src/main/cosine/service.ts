@@ -5,11 +5,14 @@ import { cosineFailure } from '../../shared/cosine-failure';
 import type { createTokenStore } from '../credentials/token-store';
 import { fetchSimilar } from './client';
 import { resolveRecommendation } from './resolve';
+import type { DiscogsRequestBudget } from '../discogs/request-budget';
 
 export function createCosineService(
   store: ReturnType<typeof createTokenStore>,
-  request: typeof fetch = (input, init) => fetch(input, init),
+  request?: typeof fetch,
+  discogsBudget?: DiscogsRequestBudget,
 ) {
+  const fetchRequest = request ?? ((input, init) => fetch(input, init));
   const storageFailure = <T>(): CosineResult<T> =>
     cosineFailure(
       'storage',
@@ -53,8 +56,8 @@ export function createCosineService(
           'not-configured',
           'Add your Cosine Club API key in Settings to find similar tracks.',
         );
-      return fetchSimilar(parsed.data, key.value, request);
+      return fetchSimilar(parsed.data, key.value, fetchRequest);
     },
-    resolve: (input: unknown) => resolveRecommendation(input, request),
+    resolve: (input: unknown) => resolveRecommendation(input, fetchRequest, discogsBudget),
   };
 }

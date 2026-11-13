@@ -57,8 +57,10 @@ function YearCollection({
       />
       <div className="catalogue-continuation" ref={sentinel}>
         {records.busy && <p role="status">Loading releases…</p>}
-        {records.error && <p role="alert">{records.error}</p>}
         {records.error && (
+          <p role={records.retryAt === undefined ? 'alert' : 'status'}>{records.error}</p>
+        )}
+        {records.error && records.retryAt === undefined && (
           <button className="secondary-button" type="button" onClick={records.retry}>
             Retry
           </button>

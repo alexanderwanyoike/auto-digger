@@ -26,6 +26,7 @@ export const discogsErrorSchema = z.object({
     'credential-storage',
   ]),
   message: z.string(),
+  retryAt: z.number().int().positive().optional(),
 });
 export type DiscogsError = z.infer<typeof discogsErrorSchema>;
 export type DiscogsResult<T> = Result<T, DiscogsError>;

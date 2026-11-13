@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { catalogueYears, firstSearchYear } from './catalogue-years';
+import { useDiscogsRetry } from './use-discogs-retry';
 
 export function useCatalogueYearIndex(
   search: DiscogsBridge['search'],
   style: string,
   onUnauthorized: () => void,
+  activeView: boolean,
 ) {
   const [years, setYears] = useState<number[]>([]);
   const [start, setStart] = useState(firstSearchYear);
@@ -13,6 +15,14 @@ export function useCatalogueYearIndex(
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [retryAt, setRetryAt] = useState<number>();
+  const retry = useCallback(() => {
+    setBusy(true);
+    setError(null);
+    setRetryAt(undefined);
+    setAttempt((value) => value + 1);
+  }, []);
+  useDiscogsRetry(retryAt, retry, activeView);
   useEffect(() => {
     let active = true;
     catalogueYears(
@@ -30,6 +40,7 @@ export function useCatalogueYearIndex(
         if (result.ok) setNext(result.value);
         else {
           if (result.error.code === 'unauthorized') onUnauthorized();
+          setRetryAt(result.error.retryAt);
           setError(result.error.message);
         }
       })
@@ -52,12 +63,9 @@ export function useCatalogueYearIndex(
     years,
     busy,
     error,
+    retryAt,
     hasMore: next !== null,
     loadMore,
-    retry: () => {
-      setBusy(true);
-      setError(null);
-      setAttempt((value) => value + 1);
-    },
+    retry,
   };
 }

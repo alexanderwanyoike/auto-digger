@@ -34,6 +34,7 @@ export async function catalogueYears(
       page: 1,
       context: 'catalogue',
       order: 'oldest',
+      background: start !== firstSearchYear,
     });
     if (!result.ok) return result;
     if (!active() || result.value.items === 0) return { ok: true, value: null };
@@ -54,10 +55,12 @@ export function recordsForYear(
   style: string,
   year: number,
   page: number,
+  background = false,
 ): Promise<DiscogsResult<SearchPage>> {
   return search({
     filters: { ...emptyFilters, style: [style], year: year.toString() },
     page,
     context: 'catalogue',
+    background,
   });
 }

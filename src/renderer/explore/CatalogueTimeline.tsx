@@ -10,6 +10,7 @@ import { useCatalogueYearIndex } from './use-catalogue-year-index';
 export function CatalogueTimeline({
   style,
   disabled,
+  active,
   search,
   onOpen,
   onPreview,
@@ -19,6 +20,7 @@ export function CatalogueTimeline({
 }: {
   style: string;
   disabled: boolean;
+  active: boolean;
   search: DiscogsBridge['search'];
   onOpen: (id: number) => void;
   onPreview: ((id: number) => void) | undefined;
@@ -26,8 +28,15 @@ export function CatalogueTimeline({
   onShowYear: (style: string, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
-  const index = useCatalogueYearIndex(search, style, onUnauthorized);
-  const records = useCatalogueRecords(search, style, index.years[0], onUnauthorized);
+  const index = useCatalogueYearIndex(search, style, onUnauthorized, active);
+  const records = useCatalogueRecords(
+    search,
+    style,
+    index.years[0],
+    onUnauthorized,
+    undefined,
+    active,
+  );
   const [exploring, setExploring] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const catalogue = useRef<HTMLDivElement>(null);
@@ -72,6 +81,8 @@ export function CatalogueTimeline({
   const hasMore = canLoadRecords || index.hasMore;
   const busy = records.busy || (!canLoadRecords && index.busy);
   const error = records.error ?? (canLoadRecords ? null : index.error);
+  const yearRetryAt = canLoadRecords ? undefined : index.retryAt;
+  const retryAt = records.error ? records.retryAt : yearRetryAt;
   const loadMore = () => {
     if (canLoadRecords) records.loadMore(nextYear);
     else index.loadMore();
@@ -154,7 +165,7 @@ export function CatalogueTimeline({
                 </li>
               ))}
             </ol>
-            {index.error && canLoadRecords && (
+            {index.error && canLoadRecords && index.retryAt === undefined && (
               <button className="secondary-button" type="button" onClick={index.retry}>
                 Retry years
               </button>
@@ -201,8 +212,8 @@ export function CatalogueTimeline({
         <div ref={sentinel} className="catalogue-continuation">
           {busy && <p role="status">Loading releases…</p>}
           {!busy && !records.groups.length && !error && <p>No dated releases found.</p>}
-          {error && <p role="alert">{error}</p>}
-          {error && (
+          {error && <p role={retryAt === undefined ? 'alert' : 'status'}>{error}</p>}
+          {error && retryAt === undefined && (
             <button
               className="secondary-button"
               type="button"

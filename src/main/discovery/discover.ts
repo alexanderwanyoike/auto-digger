@@ -28,6 +28,7 @@ function createReleaseDiscovery(
   return async (
     criteria: DigFilters[],
     shelfSize: number,
+    background = false,
   ): Promise<DiscogsResult<SearchPage['releases']>> => {
     const candidates = new Map<number, SearchPage['releases'][number]>();
     const collect = (page: SearchPage) => {
@@ -36,12 +37,21 @@ function createReleaseDiscovery(
     const searchTopic = async (index: number): Promise<DiscogsResult<undefined>> => {
       const filters = criteria[index];
       if (!filters) return { ok: true, value: undefined };
-      const first = await search({ filters, page: 1, context: 'explore' });
-      if (!first.ok) return first;
+      const first = await search({
+        filters,
+        page: 1,
+        context: 'explore',
+        ...(background || index > 0 ? { background: true } : {}),
+      });
+      if (!first.ok) {
+        if (first.error.code === 'rate-limited' && candidates.size)
+          return { ok: true, value: undefined };
+        return first;
+      }
       collect(first.value);
       if (first.value.pages > 1) {
         const page = 2 + Math.floor(Math.random() * (Math.min(first.value.pages, 200) - 1));
-        const sampled = await search({ filters, page, context: 'explore' });
+        const sampled = await search({ filters, page, context: 'explore', background: true });
         if (sampled.ok) collect(sampled.value);
         else if (sampled.error.code === 'unauthorized' || sampled.error.code === 'cancelled')
           return sampled;
@@ -103,7 +113,7 @@ export function createStarterShelf(
       const style = styles[index];
       if (!style || chosen.size >= size)
         return { ok: true, value: [...chosen.values()].slice(0, size) };
-      const matches = await discover([{ ...emptyFilters, style: [style] }], size);
+      const matches = await discover([{ ...emptyFilters, style: [style] }], size, index > 0);
       if (!matches.ok) {
         if (
           !chosen.size ||

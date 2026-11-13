@@ -16,6 +16,7 @@ import { createRememberedSession } from './discogs/remembered-session';
 import { createTokenStore } from './credentials/token-store';
 import { electronEncryption } from './credentials/electron-encryption';
 import { createDiscogsSession } from './discogs/session';
+import { createDiscogsRequestBudget } from './discogs/request-budget';
 import { registerDiscogsHandlers } from './discogs/register-handlers';
 import { createDiscoveryPages } from './discovery/discovery-pages';
 import { createDiscover, createStarterShelf } from './discovery/discover';
@@ -36,6 +37,7 @@ import { createResearchService } from './research/service';
 import { createResearchRuntime } from './research/runtime';
 import { registerResearchHandlers } from './research/register-handlers';
 
+const discogsBudget = createDiscogsRequestBudget();
 let cosine: ReturnType<typeof createCosineService> | undefined;
 let discogsSession: ReturnType<typeof createRememberedSession> | undefined;
 let crateStore: ReturnType<typeof createLegacyCrateStore> | undefined;
@@ -118,12 +120,14 @@ export async function createWindow(): Promise<Result<undefined, string>> {
     registerStoreLinkHandlers(window);
     cosine ??= createCosineService(
       createTokenStore(join(app.getPath('userData'), 'cosine-key.bin'), electronEncryption),
+      undefined,
+      discogsBudget,
     );
     registerCosineHandlers(window, cosine);
     updates ??= createApplicationUpdates();
     registerUpdateHandlers(window, updates);
     discogsSession ??= createRememberedSession(
-      createDiscogsSession(),
+      createDiscogsSession(undefined, discogsBudget),
       createTokenStore(join(app.getPath('userData'), 'discogs-token.bin'), electronEncryption),
     );
     const research = createResearchService(catalogueStore, discogsSession, () => {

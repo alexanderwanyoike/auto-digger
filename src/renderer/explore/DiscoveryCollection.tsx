@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import type { DiscoveryPage, DiscoveryShelf } from '../../shared/discovery';
 import type { SearchPage } from '../../shared/search';
 import { useScrollContinuation } from './use-scroll-continuation';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
+import { useDiscogsRetry } from './use-discogs-retry';
 
 type Releases = SearchPage['releases'];
 
@@ -36,7 +37,14 @@ export function DiscoveryCollection({
   });
   const [next, setNext] = useState<DiscoveryPage['next']>(null);
   const [error, setError] = useState<string | null>(null);
-  const [retry, setRetry] = useState(0);
+  const [attempt, setAttempt] = useState(0);
+  const [retryAt, setRetryAt] = useState<number>();
+  const retry = useCallback(() => {
+    setRetryAt(undefined);
+    setError(null);
+    setAttempt((previous) => previous + 1);
+  }, []);
+  useDiscogsRetry(retryAt, retry, !disabled);
 
   useEffect(() => {
     if (!request) return undefined;
@@ -46,6 +54,7 @@ export function DiscoveryCollection({
         if (!active) return;
         if (!result.ok) {
           if (result.error.code === 'unauthorized') onUnauthorized();
+          setRetryAt(result.error.retryAt);
           setError(result.error.message);
           return;
         }
@@ -63,7 +72,7 @@ export function DiscoveryCollection({
     return () => {
       active = false;
     };
-  }, [kind, load, onUnauthorized, request, retry]);
+  }, [attempt, kind, load, onUnauthorized, request]);
 
   const sentinel = useScrollContinuation(
     next && !request && !disabled
@@ -90,18 +99,17 @@ export function DiscoveryCollection({
         {!request && !next && !releases.length && <p>No unseen releases found.</p>}
         {error && (
           <>
-            <p role="alert">{error}</p>
-            <button
-              className="secondary-button"
-              type="button"
-              disabled={disabled}
-              onClick={() => {
-                setError(null);
-                setRetry((previous) => previous + 1);
-              }}
-            >
-              Retry
-            </button>
+            <p role={retryAt === undefined ? 'alert' : 'status'}>{error}</p>
+            {retryAt === undefined && (
+              <button
+                className="secondary-button"
+                type="button"
+                disabled={disabled}
+                onClick={retry}
+              >
+                Retry
+              </button>
+            )}
           </>
         )}
       </div>

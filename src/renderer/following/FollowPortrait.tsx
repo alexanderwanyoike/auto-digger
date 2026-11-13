@@ -53,7 +53,12 @@ export function FollowPortrait({
             () => {
               load(false);
             },
-            result.error.code === 'rate-limited' ? rateLimitDelay : networkRetryDelay,
+            result.error.code === 'rate-limited'
+              ? Math.min(
+                  2_147_483_647,
+                  Math.max(0, (result.error.retryAt ?? Date.now() + rateLimitDelay) - Date.now()),
+                )
+              : networkRetryDelay,
           );
         }
       }).catch(() => undefined);

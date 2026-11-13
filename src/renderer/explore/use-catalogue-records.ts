@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import type { SearchPage } from '../../shared/search';
 import { recordsForYear } from './catalogue-years';
+import { useDiscogsRetry } from './use-discogs-retry';
 
 export interface YearRecords {
   year: number;
@@ -16,19 +17,34 @@ export function useCatalogueRecords(
   firstYear: number | undefined,
   onUnauthorized: () => void,
   initialGroup?: YearRecords,
+  activeView = true,
 ) {
   const [groups, setGroups] = useState<YearRecords[]>(() => (initialGroup ? [initialGroup] : []));
-  const [request, setRequest] = useState<{ year: number; page: number } | null>(null);
-  const [failed, setFailed] = useState<{ year: number; page: number } | null>(null);
+  const [request, setRequest] = useState<{
+    year: number;
+    page: number;
+    background?: boolean;
+  } | null>(null);
+  const [failed, setFailed] = useState<{ year: number; page: number; background?: boolean } | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
+  const [retryAt, setRetryAt] = useState<number>();
   const initial = groups.length === 0 && !error;
   const year = request?.year ?? (initial ? firstYear : undefined);
   const page = request?.page ?? 1;
+  const background = request?.background ?? false;
+  const retry = useCallback(() => {
+    setRetryAt(undefined);
+    setError(null);
+    setRequest(failed);
+  }, [failed]);
+  useDiscogsRetry(retryAt, retry, activeView);
 
   useEffect(() => {
     if (year === undefined) return undefined;
     let active = true;
-    recordsForYear(search, style, year, page)
+    recordsForYear(search, style, year, page, background)
       .then((result) => {
         if (!active) return;
         if (result.ok) {
@@ -56,21 +72,22 @@ export function useCatalogueRecords(
           });
         } else {
           if (result.error.code === 'unauthorized') onUnauthorized();
-          setFailed({ year, page });
+          setFailed({ year, page, background });
+          setRetryAt(result.error.retryAt);
           setError(result.error.message);
         }
         setRequest(null);
       })
       .catch(() => {
         if (!active) return;
-        setFailed({ year, page });
+        setFailed({ year, page, background });
         setError('Records could not be loaded.');
         setRequest(null);
       });
     return () => {
       active = false;
     };
-  }, [onUnauthorized, page, search, style, year]);
+  }, [background, onUnauthorized, page, search, style, year]);
 
   const last = groups.at(-1);
   const morePages = Boolean(last && last.page < last.pages);
@@ -78,24 +95,23 @@ export function useCatalogueRecords(
     groups,
     busy: year !== undefined,
     error,
+    retryAt,
     lastYear: last?.year,
     morePages,
     jump: (target: number) => {
       setGroups([]);
+      setRetryAt(undefined);
       setError(null);
       setRequest({ year: target, page: 1 });
     },
     loadMore: (nextYear: number | undefined) => {
       if (year !== undefined || error) return;
       if (morePages && last) {
-        setRequest({ year: last.year, page: last.page + 1 });
+        setRequest({ year: last.year, page: last.page + 1, background: true });
       } else if (nextYear !== undefined) {
-        setRequest({ year: nextYear, page: 1 });
+        setRequest({ year: nextYear, page: 1, background: true });
       }
     },
-    retry: () => {
-      setError(null);
-      setRequest(failed);
-    },
+    retry,
   };
 }
