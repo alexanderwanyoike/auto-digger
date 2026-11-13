@@ -1,6 +1,6 @@
-import { trackPositionKey } from '../../shared/track-position';
 import { copyFile, link, mkdir, mkdtemp, rm, stat } from 'node:fs/promises';
 import { extname, join } from 'node:path';
+import { trackPositionKey } from '../../shared/track-position';
 import type { AudioResult, LocalTrack, SoulseekDownloadInput } from '../../shared/audio';
 import type { SoulseekMatch } from '../../shared/soulseek';
 import { audioFailure } from '../../shared/audio-failure';
