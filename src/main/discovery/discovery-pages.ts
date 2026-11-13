@@ -6,10 +6,16 @@ import { discoveryPageRequestSchema, filtersForTopic, starterStyle } from '../..
 import type { DiscoveryPage, DiscoveryShelf } from '../../shared/discovery';
 import { maxSearchPage } from '../../shared/search';
 import type { DigFilters } from '../../shared/search';
-import type { FollowingResult } from '../../shared/following';
+import { followTopicKey } from '../../shared/following';
+import type { FollowTopic, FollowingResult } from '../../shared/following';
 import type { CatalogueResult } from '../../shared/catalogue';
 import type { createCrateTaste } from './crate-taste';
 import { rankedStyles } from './ranked-styles';
+
+interface DiscoverySource {
+  filters: DigFilters;
+  topic?: FollowTopic;
+}
 
 function splitByYear(filters: DigFilters): DigFilters[] {
   const [first, last = first] = filters.year ? filters.year.split('-').map(Number) : [1000, 9999];
@@ -31,23 +37,17 @@ export function createDiscoveryPages(
 ) {
   const collections = new Map<
     DiscoveryShelf,
-    { id: string; filters: DigFilters[]; pageCounts: Map<number, number> }
+    { id: string; sources: DiscoverySource[]; pageCounts: Map<number, number> }
   >();
 
-  async function start(shelf: DiscoveryShelf) {
-    if (shelf === 'follows') {
-      const follows = await readFollowing();
-      if (!follows.ok) return discogsFailure('unavailable', follows.error.message);
-      return { ok: true as const, value: follows.value.map((topic) => filtersForTopic(topic)) };
-    }
+  async function savedStyles(): Promise<DiscogsResult<DiscoverySource[]>> {
     const taste = await crateTaste();
     if (!taste.ok) return discogsFailure('unavailable', taste.error.message);
     const styles = rankedStyles(taste.value);
     return {
-      ok: true as const,
+      ok: true,
       value: (styles.length ? styles : [starterStyle]).map((style) => ({
-        ...emptyFilters,
-        style: [style],
+        filters: { ...emptyFilters, style: [style] },
       })),
     };
   }
@@ -56,31 +56,50 @@ export function createDiscoveryPages(
     const parsed = discoveryPageRequestSchema.safeParse(input);
     if (!parsed.success) return discogsFailure('invalid-input', 'Choose a valid discovery page.');
     const { shelf, cursor } = parsed.data;
+    const follows = shelf === 'follows' ? await readFollowing() : null;
+    if (follows && !follows.ok) return discogsFailure('unavailable', follows.error.message);
     let collection = collections.get(shelf);
     if (!cursor) {
-      const filters = await start(shelf);
-      if (!filters.ok) return filters;
-      collection = { id: randomUUID(), filters: filters.value, pageCounts: new Map() };
+      const started = follows
+        ? {
+            ok: true as const,
+            value: follows.value.map((topic) => ({
+              filters: filtersForTopic(topic),
+              topic,
+            })),
+          }
+        : await savedStyles();
+      if (!started.ok) return started;
+      collection = { id: randomUUID(), sources: started.value, pageCounts: new Map() };
       collections.set(shelf, collection);
     }
     if (!collection || (cursor && cursor.id !== collection.id))
       return discogsFailure('cancelled', 'Reopen this discovery page to continue.');
     const source = cursor?.source ?? 0;
     const page = cursor?.page ?? 1;
-    const filters = collection.filters[source];
-    if (!filters) return { ok: true, value: { releases: [], next: null } };
+    const criteria = collection.sources[source];
+    if (!criteria) return { ok: true, value: { releases: [], next: null } };
 
-    const result = await search({ filters, page, context: 'explore' });
-    if (!result.ok) return result;
-    const known = await seenReleases();
-    if (!known.ok) return discogsFailure('unavailable', known.error.message);
-    const releases = result.value.releases.filter(({ id }) => !known.value.has(id));
-    const { id, filters: sources, pageCounts } = collection;
-    const available = Math.min(result.value.pages, maxSearchPage);
-    const capped = result.value.items > available * result.value.perPage;
-    const partitions = page === 1 && capped ? splitByYear(filters) : [];
-    if (partitions.length && !pageCounts.has(source)) sources.push(...partitions);
-    pageCounts.set(source, partitions.length ? 1 : available);
+    const { id, sources, pageCounts } = collection;
+    const { filters, topic } = criteria;
+    const topicKey = topic ? followTopicKey(topic) : null;
+    const current = !topicKey || follows?.value.some((item) => followTopicKey(item) === topicKey);
+    let releases: DiscoveryPage['releases'] = [];
+    if (current) {
+      const result = await search({ filters, page, context: 'explore' });
+      if (result.ok) {
+        const known = await seenReleases();
+        if (!known.ok) return discogsFailure('unavailable', known.error.message);
+        releases = result.value.releases.filter(({ id: releaseId }) => !known.value.has(releaseId));
+        const available = Math.min(result.value.pages, maxSearchPage);
+        const capped = result.value.items > available * result.value.perPage;
+        const partitions = page === 1 && capped ? splitByYear(filters) : [];
+        if (partitions.length && !pageCounts.has(source))
+          sources.push(...partitions.map((partition) => ({ ...criteria, filters: partition })));
+        pageCounts.set(source, partitions.length ? 1 : available);
+      } else if (result.error.code === 'not-found') pageCounts.set(source, 0);
+      else return result;
+    } else pageCounts.set(source, 0);
     const hasPage = (index: number, target: number) =>
       (pageCounts.get(index) ?? maxSearchPage) >= target;
     const laterSource = sources.findIndex((_, index) => index > source && hasPage(index, page));
