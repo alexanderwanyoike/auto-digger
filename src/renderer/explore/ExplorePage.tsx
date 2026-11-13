@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { followTopicKey } from '../../shared/following';
 import type { FollowTopic } from '../../shared/following';
@@ -27,6 +27,8 @@ export function ExplorePage({
   starterShelf,
   followsShelf,
   markSeen,
+  playerRelease,
+  onPlayerRequestHandled,
   following,
   crate,
   audio,
@@ -37,6 +39,8 @@ export function ExplorePage({
   starterShelf: ReturnType<typeof useStarterShelf>;
   followsShelf: ReturnType<typeof useStarterShelf>;
   markSeen: (id: number) => void;
+  playerRelease: { id: number } | null;
+  onPlayerRequestHandled: () => void;
   following: ReturnType<typeof useFollowing>;
   crate: ReturnType<typeof useCrate>;
   audio: ReturnType<typeof useAudioLibrary>;
@@ -52,7 +56,7 @@ export function ExplorePage({
   const catalogue = section === 'Catalogue';
   const releaseBackLabel = catalogue ? 'Back to Catalogue' : 'Back to Explore';
   const explore = useExplore(bridge, onUnauthorized);
-  const { topic, release, view, busy, error } = explore;
+  const { topic, release, view, busy, error, open: openRelease } = explore;
   useLayoutEffect(() => {
     if (release) scrollContainer.current?.scrollTo(0, 0);
     else if (restorePosition.current !== null) {
@@ -113,10 +117,23 @@ export function ExplorePage({
     scrollContainer.current?.scrollTo(0, 0);
     explore.browse(next, page).catch(() => undefined);
   };
-  const open = (id: number) => {
-    releasePosition.current = scrollContainer.current?.scrollTop ?? 0;
-    explore.open(id, markSeen).catch(() => undefined);
-  };
+  const open = useCallback(
+    (id: number) => {
+      releasePosition.current = scrollContainer.current?.scrollTop ?? 0;
+      openRelease(id, markSeen).catch(() => undefined);
+    },
+    [markSeen, openRelease],
+  );
+  useEffect(() => {
+    if (!playerRelease || busy) return;
+    if (!connected) {
+      onPlayerRequestHandled();
+      return;
+    }
+    if (release?.id !== playerRelease.id) open(playerRelease.id);
+    onPlayerRequestHandled();
+  }, [playerRelease, busy, connected, release, open, onPlayerRequestHandled]);
+
   const selectSection = (next: ExploreSection) => {
     if (section === next && !collection && !release && !view && !topic && !error) return;
     explore.reset();
@@ -178,7 +195,7 @@ export function ExplorePage({
           />
         </div>
       )}
-      {catalogue && !release && error && (
+      {error && (catalogue || release) && (
         <p className="explore-notice" role="alert">
           {error}
         </p>
@@ -188,6 +205,7 @@ export function ExplorePage({
           <button
             type="button"
             className="secondary-button explore-back"
+            disabled={busy}
             onClick={() => {
               restorePosition.current = releasePosition.current;
               explore.back();
@@ -217,6 +235,7 @@ export function ExplorePage({
             bridge={bridge}
             seed={collection.kind === 'starter' ? starterShelf.releases : followsShelf.releases}
             seen={starterShelf.seen}
+            playingReleaseId={audio.playback.track?.releaseId}
             disabled={disabled}
             onBack={() => {
               restorePosition.current = collectionPosition.current;

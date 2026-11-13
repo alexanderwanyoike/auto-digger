@@ -11,6 +11,7 @@ export function DiscoveryCollection({
   kind,
   seed,
   seen,
+  playingReleaseId,
   disabled,
   onOpen,
   onPreview,
@@ -21,6 +22,7 @@ export function DiscoveryCollection({
   kind: DiscoveryShelf;
   seed: Releases;
   seen: ReadonlySet<number>;
+  playingReleaseId: number | undefined;
   disabled: boolean;
   onOpen: (id: number) => void;
   onPreview: ((id: number) => void) | undefined;
@@ -82,7 +84,7 @@ export function DiscoveryCollection({
 
   const releases = [
     ...new Map([...seed, ...records].map((record) => [record.id, record])).values(),
-  ].filter(({ id }) => !seen.has(id));
+  ].filter(({ id }) => id === playingReleaseId || !seen.has(id));
   return (
     <>
       <ReleaseMatchList

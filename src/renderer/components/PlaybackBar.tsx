@@ -1,4 +1,4 @@
-import { FolderOpen, Pause, Play, Volume2 } from 'lucide-react';
+import { ArrowUpRight, FolderOpen, Pause, Play, Volume2 } from 'lucide-react';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import { usePlayer } from '../audio/use-player';
 import { RecordArtwork } from './RecordArtwork';
@@ -11,9 +11,11 @@ function timecode(value: number) {
 export function PlaybackBar({
   audio,
   onSleevePlaying,
+  onOpenRelease,
 }: {
   audio: ReturnType<typeof useAudioLibrary>;
   onSleevePlaying?: (id: number) => void;
+  onOpenRelease?: ((id: number) => void) | undefined;
 }) {
   const { track, request } = audio.playback;
   const player = usePlayer(track, request, onSleevePlaying);
@@ -36,6 +38,19 @@ export function PlaybackBar({
             {description}
           </span>
         </div>
+        {onOpenRelease && track?.releaseId !== undefined && (
+          <button
+            type="button"
+            className="icon-button playing-release"
+            aria-label="Open playing release"
+            title="Open playing release"
+            onClick={() => {
+              if (track.releaseId !== undefined) onOpenRelease(track.releaseId);
+            }}
+          >
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </button>
+        )}
       </div>
       <button
         type="button"
