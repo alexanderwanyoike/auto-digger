@@ -17,7 +17,9 @@ export function sourceAssignment(
   const proposed =
     cosineTrackIndex === undefined ? matchTrack(release, sourceTitle) : cosineTrackIndex;
   const suggestion = saved
-    ? release.tracks.findIndex((_track, index) => matchesTrackPosition(saved, release, index))
+    ? release.tracks.findIndex((_track, trackIndex) =>
+        matchesTrackPosition(saved, release, trackIndex),
+      )
     : proposed;
   const assignment = manual === undefined ? suggestion : manual;
   const selected = assignment !== null && release.tracks[assignment] ? assignment : null;
