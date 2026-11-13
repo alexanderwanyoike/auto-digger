@@ -22,7 +22,13 @@ import { identityResponse } from '../discogs-fixtures';
             const date = url.searchParams.get('year');
             if (date) searches.push({ style, date });
             const start = Math.max(1990, Number(date?.split('-')[0]) || 1990);
-            const year = start === 2006 && date?.includes('-') ? 2007 : start;
+            const end = Number(date?.split('-')[1]) || start;
+            const year =
+              url.searchParams.get('sort_order') === 'desc'
+                ? Math.min(2003, end)
+                : start === 2006 && date?.includes('-')
+                  ? 2007
+                  : start;
             const results = Array.from({ length: date === '2006' ? 0 : count }, (_, index) => ({
               id: year * 100 + index,
               title: `${style} record ${index.toString()}`,
@@ -84,11 +90,10 @@ import { identityResponse } from '../discogs-fixtures';
       await yearInput.press('Enter');
       const jumped = page.getByRole('region', { name: '2005', exact: true });
       await expect(jumped).toBeVisible();
-      expect((await requests.jsonValue()).slice(before)).toEqual([
-        { style: 'Progressive House', date: '2005' },
-      ]);
-      await years.hover();
-      await page.mouse.wheel(0, 180);
+      await expect(years.getByRole('button', { name: '2003', exact: true })).toBeVisible();
+      await expect(years.getByRole('button', { name: '2007', exact: true })).toBeVisible();
+      const jumpSearches = (await requests.jsonValue()).slice(before).map(({ date }) => date);
+      expect(jumpSearches.sort()).toEqual(['1000-2004', '2005', '2006-9999']);
       await years.getByRole('button', { name: '2007' }).click();
       await expect(page.getByRole('region', { name: '2007', exact: true })).toBeVisible();
       await yearInput.press('Enter');
