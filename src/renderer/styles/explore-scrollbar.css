@@ -5,10 +5,11 @@
   }
   .explore-scrollbar {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
     width: 22px;
-    height: 100%;
+    height: min(220px, 42%);
     margin: 0;
     appearance: none;
     writing-mode: vertical-lr;
@@ -29,8 +30,7 @@
     appearance: none;
     width: 16px;
     height: 12px;
-    margin-inline: 0;
-    margin-block-start: 3px;
+    margin: 0;
     border: 0;
     background: linear-gradient(var(--text), var(--text)) center / 100% 1px no-repeat;
   }
@@ -38,7 +38,9 @@
     outline-offset: -2px;
   }
   .catalogue-years-frame .explore-scrollbar {
+    right: 0;
     width: 18px;
+    height: min(180px, 42%);
   }
   .catalogue-years-frame .explore-scrollbar::-webkit-slider-thumb {
     width: 12px;
