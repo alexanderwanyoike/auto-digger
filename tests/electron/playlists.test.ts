@@ -194,7 +194,7 @@ test('downloads a liked track using the verified YouTube title', async () => {
     await page.getByRole('heading', { name: 'Explore' }).waitFor();
     const saved = await page.evaluate((release) => window.crate?.save(release), {
       ...loadedRelease,
-      videos: [{ ...loadedRelease.videos[0], title: 'Record upload' }],
+      videos: loadedRelease.videos.map((video) => ({ ...video, title: 'Record upload' })),
     });
     expect(saved?.ok).toBe(true);
     await page.reload();
