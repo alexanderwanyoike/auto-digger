@@ -70,3 +70,25 @@ test('shares concurrent and recent release reads until the account changes', asy
   });
   expect(request).toHaveBeenCalledTimes(4);
 });
+
+test('shares concurrent identical searches while letting a later explicit search refresh', async () => {
+  const response = () =>
+    Response.json({
+      pagination: { page: 1, pages: 0, per_page: 50, items: 0 },
+      results: [],
+    });
+  const request = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(Response.json(identityResponse))
+    .mockImplementation(() => Promise.resolve(response()));
+  const session = createDiscogsSession(request);
+  await session.connect('fixture-token');
+  const input = { filters: { style: ['Techno'] }, page: 1 };
+  await expect(Promise.all([session.search(input), session.search(input)])).resolves.toMatchObject([
+    { ok: true },
+    { ok: true },
+  ]);
+  expect(request).toHaveBeenCalledTimes(2);
+  await expect(session.search(input)).resolves.toMatchObject({ ok: true });
+  expect(request).toHaveBeenCalledTimes(3);
+});
