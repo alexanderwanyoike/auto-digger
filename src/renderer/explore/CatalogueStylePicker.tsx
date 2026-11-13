@@ -8,10 +8,12 @@ interface StyleOption {
 
 export function CatalogueStylePicker({
   style,
+  disabled,
   styles,
   onChange,
 }: {
   style: string;
+  disabled: boolean;
   styles: string[];
   onChange: (style: string) => void;
 }) {
@@ -21,6 +23,7 @@ export function CatalogueStylePicker({
       <span id={id}>Style</span>
       <Select<StyleOption>
         aria-labelledby={id}
+        isDisabled={disabled}
         instanceId={id}
         value={{ value: style, label: style }}
         options={styles.map((value) => ({ value, label: value }))}

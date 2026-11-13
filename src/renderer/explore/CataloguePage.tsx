@@ -53,7 +53,12 @@ export function CataloguePage({
           </button>
           <h2 id="catalogue-heading">Catalogue</h2>
         </div>
-        <CatalogueStylePicker style={style} styles={styles} onChange={setSelected} />
+        <CatalogueStylePicker
+          disabled={busy}
+          style={style}
+          styles={styles}
+          onChange={setSelected}
+        />
       </header>
       {error && <p role="alert">{error}</p>}
       {(preferred !== null || !bridge.crateStyles || selected !== null) && (

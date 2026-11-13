@@ -106,6 +106,7 @@ export function CatalogueTimeline({
                 <button
                   type="button"
                   aria-current={value === year ? true : undefined}
+                  disabled={disabled}
                   onClick={() => {
                     if (year !== value) {
                       setMatches(null);
@@ -125,6 +126,7 @@ export function CatalogueTimeline({
             <button
               className="secondary-button"
               type="button"
+              disabled={disabled}
               onClick={() => {
                 setYearsBusy(true);
                 setStart(next);
@@ -146,6 +148,7 @@ export function CatalogueTimeline({
                 <button
                   className="secondary-button"
                   type="button"
+                  disabled={disabled}
                   onClick={() => {
                     yearPosition.current = timeline.current?.scrollTop ?? 0;
                     setGrid(true);
@@ -178,6 +181,7 @@ export function CatalogueTimeline({
             <button
               className="secondary-button"
               type="button"
+              disabled={disabled}
               onClick={() => {
                 changePage(1);
                 setGrid(false);
@@ -195,7 +199,7 @@ export function CatalogueTimeline({
               <button
                 className="secondary-button"
                 type="button"
-                disabled={page <= 1}
+                disabled={disabled || page <= 1}
                 onClick={() => {
                   changePage(page - 1);
                 }}
@@ -208,7 +212,7 @@ export function CatalogueTimeline({
               <button
                 className="secondary-button"
                 type="button"
-                disabled={page >= matches.pages}
+                disabled={disabled || page >= matches.pages}
                 onClick={() => {
                   changePage(page + 1);
                 }}
