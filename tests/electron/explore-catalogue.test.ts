@@ -90,6 +90,82 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     await expect(
       page.getByRole('button', { name: 'Play Mira North - Evening Light' }),
     ).toBeVisible();
+    const scrollbar = page.getByRole('slider', { name: 'Explore content scroll position' });
+    await expect(scrollbar).toBeVisible();
+    const tabsBottom = await navigation.evaluate(
+      (element) => element.closest('.explore-toolbar')?.getBoundingClientRect().bottom ?? 0,
+    );
+    const viewport = page.locator('.explore-scroll');
+    const viewportBounds = await viewport.boundingBox();
+    const track = await scrollbar.boundingBox();
+    if (!track || !viewportBounds) throw new Error('The Explore scrollbar must have a track');
+    expect(viewportBounds.y).toBeCloseTo(tabsBottom, 0);
+    expect(track.height).toBeLessThan(viewportBounds.height / 2);
+    expect(track.y + track.height / 2).toBeCloseTo(viewportBounds.y + viewportBounds.height / 2, 0);
+    expect(track.x + track.width).toBeLessThan(viewportBounds.x + viewportBounds.width);
+    const ticks = scrollbar.locator('..').locator('.explore-scrollbar-tick');
+    const tickWidths = () =>
+      ticks.evaluateAll((marks) => marks.map((mark) => mark.getBoundingClientRect().width));
+    const resting = await tickWidths();
+    expect(resting.length).toBeGreaterThan(10);
+    const middle = Math.floor(resting.length / 2);
+    const restingMiddle = resting[middle];
+    if (restingMiddle === undefined) throw new Error('The track must have a middle tick');
+    const hoveredX = track.x + track.width / 2;
+    const hoveredY = track.y + track.height / 2;
+    await page.mouse.move(hoveredX, hoveredY);
+    await expect.poll(async () => (await tickWidths())[middle]).toBeGreaterThan(restingMiddle + 7);
+    const expanded = await tickWidths();
+    const outerTick = middle + 2;
+    const expandedOuter = expanded[outerTick];
+    const restingOuter = resting[outerTick];
+    if (expandedOuter === undefined || restingOuter === undefined) {
+      throw new Error('The track must have ticks beside the pointer');
+    }
+    expect(expanded[middle]).toBeGreaterThan(expandedOuter);
+    expect(expandedOuter).toBeGreaterThan(restingOuter);
+    expect(expanded[0]).toBe(resting[0]);
+    const nextTick = ticks.nth(middle + 6);
+    const nextTickBounds = await nextTick.boundingBox();
+    if (!nextTickBounds) throw new Error('The next hover target must be visible');
+    await page.mouse.move(hoveredX, nextTickBounds.y);
+    await expect.poll(async () => (await tickWidths())[middle]).toBeCloseTo(restingMiddle);
+    await expect
+      .poll(async () => (await nextTick.boundingBox())?.width)
+      .toBeGreaterThan(restingMiddle + 7);
+    await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(0);
+    await page.mouse.move(hoveredX - 50, hoveredY);
+    await expect.poll(tickWidths).toEqual(resting);
+    const catalogueTab = navigation.getByRole('button', { name: 'Catalogue' });
+    const scrollTop = () => viewport.evaluate((element) => element.scrollTop);
+    await catalogueTab.hover();
+    await page.mouse.wheel(0, 120);
+    await expect.poll(scrollTop).toBeGreaterThan(0);
+    await catalogueTab.press('Home');
+    await expect.poll(scrollTop).toBe(0);
+    await catalogueTab.press('ArrowDown');
+    await expect.poll(scrollTop).toBeGreaterThan(0);
+    await catalogueTab.press('ArrowUp');
+    await expect.poll(scrollTop).toBe(0);
+    await catalogueTab.press('PageDown');
+    await expect.poll(scrollTop).toBeGreaterThan(0);
+    await scrollbar.press('Home');
+    await expect.poll(scrollTop).toBe(0);
+    await scrollbar.press('PageDown');
+    await expect.poll(scrollTop).toBeGreaterThan(0);
+    await scrollbar.press('Home');
+    await expect.poll(scrollTop).toBe(0);
+    await page.mouse.move(track.x + track.width / 2, track.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(track.x + track.width / 2, track.y + track.height / 3, { steps: 5 });
+    await page.mouse.up();
+    await expect.poll(() => viewport.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+    await expect(navigation).toBeInViewport();
+    const beforeWheel = await viewport.evaluate((element) => element.scrollTop);
+    await page.mouse.wheel(0, -100);
+    await expect.poll(scrollTop).toBeLessThan(beforeWheel);
+    await scrollbar.press('Home');
+    await expect.poll(() => viewport.evaluate((el) => el.scrollTop)).toBe(0);
     await expect(page.getByRole('button', { name: 'Load more releases' })).toHaveCount(0);
     await page.getByRole('button', { name: 'Play Mira North - Evening Light' }).click();
     await expect(page.locator('.explore-toolbar').getByRole('alert')).toHaveText(
@@ -103,18 +179,18 @@ test('scrolls through populated catalogue years and appends release pages', asyn
       page.getByRole('button', { name: 'Play Silt Relay - Back Channel 1' }),
     ).toBeVisible();
     await expect(page.getByRole('button', { name: 'Load more releases' })).toHaveCount(0);
-    await page.locator('.explore-page').evaluate((element) => {
+    await viewport.evaluate((element) => {
       element.scrollTo(0, element.scrollHeight);
     });
     await expect(
       page.getByRole('button', { name: 'Play Silt Relay - Back Channel 8' }),
     ).toBeVisible();
     await page.getByRole('button', { name: 'Back to Catalogue' }).click();
-    await page.locator('.explore-page').evaluate((element) => {
+    await viewport.evaluate((element) => {
       element.scrollTo(0, element.scrollHeight);
     });
     await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ })).toBeVisible();
-    await page.locator('.explore-page').evaluate((element) => {
+    await viewport.evaluate((element) => {
       element.scrollTo(0, element.scrollHeight);
     });
     await expect(years.getByRole('button', { name: '2000' })).toHaveAttribute(
@@ -128,14 +204,13 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     await expect(page.getByRole('button', { name: /^(?!Play ).*Evening Light/ })).toHaveCount(0);
     await page.getByRole('button', { name: 'Back to Catalogue' }).click();
     await expect(year.getByRole('button', { name: 'Show more' })).toBeVisible();
-    const viewport = page.locator('.explore-page');
     const record = page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ });
     await record.scrollIntoViewIfNeeded();
-    const scrollTop = await viewport.evaluate((element) => element.scrollTop);
-    expect(scrollTop).toBeGreaterThan(0);
+    const savedPosition = await scrollTop();
+    expect(savedPosition).toBeGreaterThan(0);
     await record.click();
     await page.getByRole('button', { name: 'Back to Catalogue' }).click();
-    await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(scrollTop);
+    await expect.poll(scrollTop).toBe(savedPosition);
     await expect(record).toBeInViewport();
   } finally {
     await desktop.close();

@@ -17,6 +17,8 @@ import { HistorySection } from './HistorySection';
 import { CataloguePage } from './CataloguePage';
 import { ExploreCollectionPage, discoveryTitles } from './ExploreCollectionPage';
 import type { ExploreCollection } from './ExploreCollectionPage';
+import { TickScrollbar } from './TickScrollbar';
+import { scrollWithKeys, scrollWithWheel } from './scroll-input';
 import { ExploreToolbar } from './ExploreToolbar';
 import type { ExploreSection } from './ExploreToolbar';
 import type { useStarterShelf } from './use-starter-shelf';
@@ -49,6 +51,7 @@ export function ExplorePage({
   audio: ReturnType<typeof useAudioLibrary>;
 }) {
   const scrollContainer = useRef<HTMLDivElement>(null);
+  const scrollContent = useRef<HTMLDivElement>(null);
   const releasePosition = useRef(0);
   const collectionPosition = useRef(0);
   const restorePosition = useRef<number | null>(null);
@@ -164,9 +167,15 @@ export function ExplorePage({
     following.topics.length > 0 &&
     (!topic || following.isFollowed(topic));
   return (
-    <div className="explore-page" ref={scrollContainer}>
+    <div className="explore-page">
       <ExploreToolbar
         section={section}
+        onKeyDown={(event) => {
+          scrollWithKeys(event, scrollContainer.current);
+        }}
+        onWheel={(event) => {
+          scrollWithWheel(event, scrollContainer.current);
+        }}
         busy={busy}
         refreshBusy={starterShelf.busy || followsShelf.busy}
         previewError={previewError}
@@ -190,179 +199,192 @@ export function ExplorePage({
             : undefined
         }
       />
-      {catalogue && connected && bridge && (
-        <div hidden={Boolean(release ?? collection)}>
-          <CataloguePage
-            bridge={bridge}
-            busy={busy}
-            onOpen={open}
-            onPreview={preview}
-            previewBusy={previewBusy || Boolean(audio.preparingPreview)}
-            onShowYear={(style, group) => {
-              showCollection(
-                { kind: 'year', style, group },
-                `explore-year-more-${group.year.toString()}`,
-              );
-            }}
-            onUnauthorized={onUnauthorized}
-          />
-        </div>
-      )}
-      {error && (catalogue || release) && (
-        <p className="explore-notice" role="alert">
-          {error}
-        </p>
-      )}
-      {release && (
-        <section className="explore-workspace" aria-label="Selected release">
-          <button
-            type="button"
-            className="secondary-button explore-back"
-            disabled={busy}
-            onClick={() => {
-              restorePosition.current = releasePosition.current;
-              explore.back();
-            }}
-          >
-            {collection ? 'Back to results' : releaseBackLabel}
-          </button>
-          <FollowingContext.Provider value={following}>
-            <ReleaseAudioDetails
-              key={release.id}
-              release={release}
-              crate={crate}
-              audio={audio}
-              artistBrowsingDisabled={disabled}
-              onBrowseArtist={(artist) => {
-                browse({ kind: 'artist', name: artist });
-              }}
-            />
-          </FollowingContext.Provider>
-        </section>
-      )}
-      {collection && bridge && connected && (
-        <div hidden={Boolean(release)}>
-          <ExploreCollectionPage
-            collection={collection}
-            headingRef={collectionHeading}
-            bridge={bridge}
-            seed={collection.kind === 'starter' ? starterShelf.releases : followsShelf.releases}
-            seen={starterShelf.seen}
-            playingReleaseId={audio.playback.track?.releaseId}
-            disabled={disabled}
-            onBack={() => {
-              restorePosition.current = collectionPosition.current;
-              setCollection(null);
-            }}
-            onOpen={open}
-            onPreview={preview}
-            previewBusy={previewBusy || Boolean(audio.preparingPreview)}
-            onUnauthorized={onUnauthorized}
-          />
-        </div>
-      )}
-      {section === 'Following' && (
-        <div hidden={Boolean(release ?? topic ?? view)}>
-          <FollowingPanel
-            following={following}
-            browseDisabled={disabled}
-            onBrowse={browse}
-            onPageChange={() => {
-              scrollContainer.current?.scrollTo(0, 0);
-            }}
-            lookup={connected ? bridge?.topicArtwork : undefined}
-            active={!release && !topic && !view}
-            onUnauthorized={onUnauthorized}
-          />
-        </div>
-      )}
-      {!release && (
-        <>
-          {!connected && section !== 'History' && (
-            <p className="explore-notice">Connect Discogs to browse and discover releases.</p>
-          )}
-          {busy && (
-            <p className="explore-notice" role="status">
-              Loading releases…
-            </p>
-          )}
-          {!catalogue && error && (
-            <p className="explore-notice" role="alert">
-              {error}
-            </p>
-          )}
-          {section === 'History' && bridge?.discoveryHistory && (
-            <HistorySection
-              load={bridge.discoveryHistory}
-              revision={historyRevision}
-              canOpen={!disabled}
-              onOpen={open}
-            />
-          )}
-          {connected && section === 'Feed' && !view && !collection && (
-            <>
-              <ReleaseShelf
-                title={discoveryTitles.starter}
-                headingId="explore-starter-heading"
-                shelf={starterShelf}
-                onShowMore={
-                  bridge?.expandDiscovery
-                    ? () => {
-                        showCollection({ kind: 'starter' }, 'explore-starter-heading-more');
-                      }
-                    : undefined
-                }
-                disabled={disabled}
-                open={open}
-                preview={preview}
-                previewBusy={previewBusy || Boolean(audio.preparingPreview)}
-              />
-              {following.topics.length > 0 && (
-                <ReleaseShelf
-                  title={discoveryTitles.follows}
-                  headingId="explore-follows-heading"
-                  shelf={followsShelf}
-                  onShowMore={
-                    bridge?.expandDiscovery
-                      ? () => {
-                          showCollection({ kind: 'follows' }, 'explore-follows-heading-more');
-                        }
-                      : undefined
-                  }
-                  disabled={disabled}
-                  open={open}
-                  preview={preview}
+      <div className="explore-content">
+        <div className="explore-scroll" ref={scrollContainer}>
+          <div className="explore-scroll-content" ref={scrollContent}>
+            {catalogue && connected && bridge && (
+              <div hidden={Boolean(release ?? collection)}>
+                <CataloguePage
+                  bridge={bridge}
+                  busy={busy}
+                  onOpen={open}
+                  onPreview={preview}
                   previewBusy={previewBusy || Boolean(audio.preparingPreview)}
-                />
-              )}
-            </>
-          )}
-          {section === 'Following' && topic && (
-            <header className="explore-tools">
-              <h2>{topic.name}</h2>
-              {topic.kind === 'genre' && (
-                <YearComparisonForm
-                  key={followTopicKey(topic)}
-                  disabled={disabled}
-                  compare={(first, second) => {
-                    explore.compare(first, second).catch(() => undefined);
+                  onShowYear={(style, group) => {
+                    showCollection(
+                      { kind: 'year', style, group },
+                      `explore-year-more-${group.year.toString()}`,
+                    );
                   }}
+                  onUnauthorized={onUnauthorized}
                 />
-              )}
-            </header>
-          )}
-          {!catalogue && view && (
-            <ExploreResults
-              view={view}
-              disabled={disabled}
-              open={open}
-              paginate={(page) => {
-                if (topic) browse(topic, page);
-              }}
-            />
-          )}
-        </>
-      )}
+              </div>
+            )}
+            {error && (catalogue || release) && (
+              <p className="explore-notice" role="alert">
+                {error}
+              </p>
+            )}
+            {release && (
+              <section className="explore-workspace" aria-label="Selected release">
+                <button
+                  type="button"
+                  className="secondary-button explore-back"
+                  disabled={busy}
+                  onClick={() => {
+                    restorePosition.current = releasePosition.current;
+                    explore.back();
+                  }}
+                >
+                  {collection ? 'Back to results' : releaseBackLabel}
+                </button>
+                <FollowingContext.Provider value={following}>
+                  <ReleaseAudioDetails
+                    key={release.id}
+                    release={release}
+                    crate={crate}
+                    audio={audio}
+                    artistBrowsingDisabled={disabled}
+                    onBrowseArtist={(artist) => {
+                      browse({ kind: 'artist', name: artist });
+                    }}
+                  />
+                </FollowingContext.Provider>
+              </section>
+            )}
+            {collection && bridge && connected && (
+              <div hidden={Boolean(release)}>
+                <ExploreCollectionPage
+                  collection={collection}
+                  headingRef={collectionHeading}
+                  bridge={bridge}
+                  seed={
+                    collection.kind === 'starter' ? starterShelf.releases : followsShelf.releases
+                  }
+                  seen={starterShelf.seen}
+                  playingReleaseId={audio.playback.track?.releaseId}
+                  disabled={disabled}
+                  onBack={() => {
+                    restorePosition.current = collectionPosition.current;
+                    setCollection(null);
+                  }}
+                  onOpen={open}
+                  onPreview={preview}
+                  previewBusy={previewBusy || Boolean(audio.preparingPreview)}
+                  onUnauthorized={onUnauthorized}
+                />
+              </div>
+            )}
+            {section === 'Following' && (
+              <div hidden={Boolean(release ?? topic ?? view)}>
+                <FollowingPanel
+                  following={following}
+                  browseDisabled={disabled}
+                  onBrowse={browse}
+                  onPageChange={() => {
+                    scrollContainer.current?.scrollTo(0, 0);
+                  }}
+                  lookup={connected ? bridge?.topicArtwork : undefined}
+                  active={!release && !topic && !view}
+                  onUnauthorized={onUnauthorized}
+                />
+              </div>
+            )}
+            {!release && (
+              <>
+                {!connected && section !== 'History' && (
+                  <p className="explore-notice">Connect Discogs to browse and discover releases.</p>
+                )}
+                {busy && (
+                  <p className="explore-notice" role="status">
+                    Loading releases…
+                  </p>
+                )}
+                {!catalogue && error && (
+                  <p className="explore-notice" role="alert">
+                    {error}
+                  </p>
+                )}
+                {section === 'History' && bridge?.discoveryHistory && (
+                  <HistorySection
+                    load={bridge.discoveryHistory}
+                    revision={historyRevision}
+                    canOpen={!disabled}
+                    onOpen={open}
+                  />
+                )}
+                {connected && section === 'Feed' && !view && !collection && (
+                  <>
+                    <ReleaseShelf
+                      title={discoveryTitles.starter}
+                      headingId="explore-starter-heading"
+                      shelf={starterShelf}
+                      onShowMore={
+                        bridge?.expandDiscovery
+                          ? () => {
+                              showCollection({ kind: 'starter' }, 'explore-starter-heading-more');
+                            }
+                          : undefined
+                      }
+                      disabled={disabled}
+                      open={open}
+                      preview={preview}
+                      previewBusy={previewBusy || Boolean(audio.preparingPreview)}
+                    />
+                    {following.topics.length > 0 && (
+                      <ReleaseShelf
+                        title={discoveryTitles.follows}
+                        headingId="explore-follows-heading"
+                        shelf={followsShelf}
+                        onShowMore={
+                          bridge?.expandDiscovery
+                            ? () => {
+                                showCollection({ kind: 'follows' }, 'explore-follows-heading-more');
+                              }
+                            : undefined
+                        }
+                        disabled={disabled}
+                        open={open}
+                        preview={preview}
+                        previewBusy={previewBusy || Boolean(audio.preparingPreview)}
+                      />
+                    )}
+                  </>
+                )}
+                {section === 'Following' && topic && (
+                  <header className="explore-tools">
+                    <h2>{topic.name}</h2>
+                    {topic.kind === 'genre' && (
+                      <YearComparisonForm
+                        key={followTopicKey(topic)}
+                        disabled={disabled}
+                        compare={(first, second) => {
+                          explore.compare(first, second).catch(() => undefined);
+                        }}
+                      />
+                    )}
+                  </header>
+                )}
+                {!catalogue && view && (
+                  <ExploreResults
+                    view={view}
+                    disabled={disabled}
+                    open={open}
+                    paginate={(page) => {
+                      if (topic) browse(topic, page);
+                    }}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        </div>
+        <TickScrollbar
+          viewport={scrollContainer}
+          content={scrollContent}
+          label="Explore content scroll position"
+        />
+      </div>
     </div>
   );
 }

@@ -74,7 +74,7 @@ test('keeps digging through both dedicated discovery shelves as the listener scr
       await section.getByRole('button', { name: 'Show more' }).click();
       const releases = section.getByRole('listitem');
       const scroll = () =>
-        page.locator('.explore-page').evaluate((element) => {
+        page.locator('.explore-scroll').evaluate((element) => {
           element.scrollTo(0, element.scrollHeight);
         });
       await expect(releases.nth(20)).toBeVisible();
