@@ -14,22 +14,22 @@ import { identityResponse } from '../discogs-fixtures';
       const page = await desktop.firstWindow();
       const requests = await desktop.evaluateHandle(
         (_electron, { identity, size: count }) => {
-          const searches: string[] = [];
+          const searches: { style: string; date: string }[] = [];
           globalThis.fetch = (input) => {
             const url = new URL(input instanceof Request ? input.url : input.toString());
             if (url.pathname === '/oauth/identity') return Promise.resolve(Response.json(identity));
             const style = url.searchParams.get('style') ?? '';
             const date = url.searchParams.get('year');
-            if (date) searches.push(style);
+            if (date) searches.push({ style, date });
             const year = Math.max(1990, Number(date?.split('-')[0]) || 1990);
-            const results = Array.from({ length: count }, (_, index) => ({
+            const results = Array.from({ length: date === '2006' ? 0 : count }, (_, index) => ({
               id: year * 100 + index,
               title: `${style} record ${index.toString()}`,
               year,
             }));
             return Promise.resolve(
               Response.json({
-                pagination: { page: 1, pages: 1, per_page: 50, items: count },
+                pagination: { page: 1, pages: 1, per_page: 50, items: results.length },
                 results,
               }),
             );
@@ -40,7 +40,7 @@ import { identityResponse } from '../discogs-fixtures';
       );
       const requestsFor = (style: string) =>
         requests.evaluate(
-          (searches, name) => searches.filter((item) => item === name).length,
+          (searches, name) => searches.filter((item) => item.style === name).length,
           style,
         );
       await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
@@ -77,6 +77,18 @@ import { identityResponse } from '../discogs-fixtures';
       await expect(years.getByRole('button', { name: '1992' })).toBeVisible();
       await years.getByRole('button', { name: '1992' }).click();
       await expect(page.getByRole('region', { name: '1992', exact: true })).toBeVisible();
+      const yearInput = page.getByRole('textbox', { name: 'Jump to year' });
+      const before = (await requests.jsonValue()).length;
+      await yearInput.fill('2005');
+      await yearInput.press('Enter');
+      const jumped = page.getByRole('region', { name: '2005', exact: true });
+      await expect(jumped).toBeVisible();
+      expect((await requests.jsonValue()).slice(before)).toEqual([
+        { style: 'Progressive House', date: '2005' },
+      ]);
+      await yearInput.fill('2006');
+      await yearInput.press('Enter');
+      await expect(page.getByText('No releases found for 2006.')).toBeVisible();
     } finally {
       await desktop.close();
     }

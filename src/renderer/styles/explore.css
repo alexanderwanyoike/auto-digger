@@ -176,7 +176,22 @@
 .catalogue-header {
   display: flex;
   justify-content: end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 20px;
   margin-bottom: 14px;
+}
+.catalogue-jump {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.catalogue-jump label {
+  color: var(--muted);
+  font-size: 12px;
+}
+.catalogue-jump input {
+  width: 72px;
 }
 .catalogue-style {
   display: grid;
