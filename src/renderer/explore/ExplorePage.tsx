@@ -48,6 +48,7 @@ export function ExplorePage({
   const [collection, setCollection] = useState<ExploreCollection | null>(null);
   const [section, setSection] = useState<ExploreSection>('Feed');
   const catalogue = section === 'Catalogue';
+  const releaseBackLabel = catalogue ? 'Back to Catalogue' : 'Back to Explore';
   const explore = useExplore(bridge, onUnauthorized);
   const { topic, release, view, busy, error } = explore;
   useLayoutEffect(() => {
@@ -173,7 +174,7 @@ export function ExplorePage({
               explore.back();
             }}
           >
-            {collection ? 'Back to results' : catalogue ? 'Back to Catalogue' : 'Back to Explore'}
+            {collection ? 'Back to results' : releaseBackLabel}
           </button>
           <FollowingContext.Provider value={following}>
             <ReleaseAudioDetails

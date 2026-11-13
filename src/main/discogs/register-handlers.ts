@@ -1,6 +1,6 @@
-import { discoveryShelfSchema } from '../../shared/discovery';
 import { ipcMain, shell } from 'electron';
 import type { BrowserWindow } from 'electron';
+import { discoveryShelfSchema } from '../../shared/discovery';
 import { discogsChannels } from '../../shared/discogs';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';

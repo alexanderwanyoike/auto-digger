@@ -1,5 +1,5 @@
-import type { DiscoveryShelf } from './discovery';
 import { z } from 'zod';
+import type { DiscoveryShelf } from './discovery';
 import type { DigResult } from './dig';
 import type { DigFilters, SearchPage } from './search';
 import type { FollowTopic } from './following';
