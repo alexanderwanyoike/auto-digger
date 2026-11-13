@@ -71,7 +71,7 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();
-      if (result.ok) {
+      if (result.ok && parsed.data.context !== 'explore') {
         const activeDigger = parsed.data.context === 'artist' ? artistDigger : digger;
         activeDigger.apply(parsed.data.filters);
       }

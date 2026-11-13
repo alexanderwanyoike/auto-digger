@@ -40,7 +40,7 @@ export function sameSearchFilters(left: DigFilters, right: DigFilters | null) {
 }
 
 export const searchInputSchema = z.object({
-  context: z.literal('artist').optional(),
+  context: z.enum(['artist', 'explore']).optional(),
   filters: filtersSchema,
   page: z.number().int().min(1).max(200),
 });

@@ -1,5 +1,6 @@
 import { Disc3, Tags, UserRound, X } from 'lucide-react';
 import { followTopicKey } from '../../shared/following';
+import type { FollowTopic } from '../../shared/following';
 import type { useFollowing } from './use-following';
 
 const groups = [
@@ -8,7 +9,15 @@ const groups = [
   { kind: 'genre', name: 'Genres', Icon: Tags },
 ] as const;
 
-export function FollowingPanel({ following }: { following: ReturnType<typeof useFollowing> }) {
+export function FollowingPanel({
+  following,
+  browseDisabled,
+  onBrowse,
+}: {
+  following: ReturnType<typeof useFollowing>;
+  browseDisabled: boolean;
+  onBrowse: (topic: FollowTopic) => void;
+}) {
   return (
     <section className="following-panel" aria-labelledby="following-heading">
       <h2 id="following-heading">Following</h2>
@@ -28,7 +37,17 @@ export function FollowingPanel({ following }: { following: ReturnType<typeof use
               <ul>
                 {topics.map((topic) => (
                   <li key={followTopicKey(topic)}>
-                    <span>{topic.name}</span>
+                    <button
+                      type="button"
+                      className="follow-topic"
+                      aria-label={`Browse ${topic.name}`}
+                      disabled={browseDisabled}
+                      onClick={() => {
+                        onBrowse(topic);
+                      }}
+                    >
+                      {topic.name}
+                    </button>
                     <button
                       type="button"
                       className="icon-button"

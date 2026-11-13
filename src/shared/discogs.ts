@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { DigResult } from './dig';
 import type { DigFilters, SearchPage } from './search';
+import type { FollowTopic } from './following';
 import type { Result } from './result';
 
 export const accountSchema = z.object({
@@ -60,8 +61,9 @@ export interface DiscogsBridge {
   search: (input: {
     filters: DigFilters;
     page: number;
-    context?: 'artist';
+    context?: 'artist' | 'explore';
   }) => Promise<DiscogsResult<SearchPage>>;
+  discover?: (topic: FollowTopic | null) => Promise<DiscogsResult<SearchPage['releases']>>;
   loadRelease: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
   disconnect: () => Promise<DiscogsResult<undefined>>;
   openSettings: () => Promise<DiscogsResult<undefined>>;
@@ -70,6 +72,7 @@ export interface DiscogsBridge {
 export const discogsChannels = {
   dig: 'discogs:dig',
   search: 'discogs:search',
+  discover: 'discogs:discover',
   account: 'discogs:account',
   connect: 'discogs:connect',
   loadRelease: 'discogs:load-release',
