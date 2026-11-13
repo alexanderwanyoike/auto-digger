@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsAccount, DiscogsBridge, DiscogsResult } from '../../shared/discogs';
 import type { SearchPage } from '../../shared/search';
@@ -8,9 +8,13 @@ type Releases = SearchPage['releases'];
 export function useStarterShelf(
   load: DiscogsBridge['starterShelf'],
   account: DiscogsAccount | null,
+  onUnauthorized: () => void,
 ) {
   const [revision, setRevision] = useState(0);
   const [seen, setSeen] = useState<ReadonlySet<number>>(new Set());
+  const markSeen = useCallback((id: number) => {
+    setSeen((current) => (current.has(id) ? current : new Set([...current, id])));
+  }, []);
   const [response, setResponse] = useState<{
     account: DiscogsAccount;
     revision: number;
@@ -21,7 +25,9 @@ export function useStarterShelf(
     if (!load || !account) return undefined;
     let active = true;
     const receive = (result: DiscogsResult<Releases>) => {
-      if (active) setResponse({ account, revision, result });
+      if (!active) return;
+      if (!result.ok && result.error.code === 'unauthorized') onUnauthorized();
+      else setResponse({ account, revision, result });
     };
     load()
       .then(receive)
@@ -31,7 +37,7 @@ export function useStarterShelf(
     return () => {
       active = false;
     };
-  }, [account, load, revision]);
+  }, [account, load, onUnauthorized, revision]);
 
   const result = account && response?.account === account ? response.result : null;
   const busy = Boolean(account && load && (!result || response?.revision !== revision));
@@ -42,8 +48,6 @@ export function useStarterShelf(
     refresh: () => {
       setRevision((value) => value + 1);
     },
-    markSeen: (id: number) => {
-      setSeen((current) => new Set([...current, id]));
-    },
+    markSeen,
   };
 }

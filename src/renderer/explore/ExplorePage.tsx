@@ -17,6 +17,7 @@ import type { useStarterShelf } from './use-starter-shelf';
 export function ExplorePage({
   bridge,
   connected,
+  onUnauthorized,
   starterShelf,
   following,
   crate,
@@ -24,12 +25,13 @@ export function ExplorePage({
 }: {
   bridge: DiscogsBridge | undefined;
   connected: boolean;
+  onUnauthorized: () => void;
   starterShelf: ReturnType<typeof useStarterShelf>;
   following: ReturnType<typeof useFollowing>;
   crate: ReturnType<typeof useCrate>;
   audio: ReturnType<typeof useAudioLibrary>;
 }) {
-  const explore = useExplore(bridge);
+  const explore = useExplore(bridge, onUnauthorized);
   const { topic, release, view, busy, error } = explore;
   const disabled = !connected || busy;
   const browse = (next: FollowTopic, page?: number) => {
@@ -65,6 +67,16 @@ export function ExplorePage({
           )}
           {!connected && (
             <p className="explore-notice">Connect Discogs to browse and discover releases.</p>
+          )}
+          {busy && (
+            <p className="explore-notice" role="status">
+              Loading releases…
+            </p>
+          )}
+          {error && (
+            <p className="explore-notice" role="alert">
+              {error}
+            </p>
           )}
           {(topic !== null || following.topics.length > 0) && (
             <>
@@ -112,16 +124,6 @@ export function ExplorePage({
                     />
                   )}
                 </header>
-                {busy && (
-                  <p className="explore-notice" role="status">
-                    Loading releases…
-                  </p>
-                )}
-                {error && (
-                  <p className="explore-notice" role="alert">
-                    {error}
-                  </p>
-                )}
                 {view && (
                   <ExploreResults
                     view={view}

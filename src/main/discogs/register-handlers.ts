@@ -52,6 +52,12 @@ export function registerDiscogsHandlers(
   handle(discogsChannels.search, (input) => session.search(input));
   handle(discogsChannels.discover, discover);
   handle(discogsChannels.starterShelf, starterShelf);
+  handle(discogsChannels.markSeen, async (id) => {
+    if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1)
+      return discogsFailure('invalid-input', 'Choose a valid Discogs release.');
+    const saved = await markOpened(id);
+    return saved.ok ? saved : discogsFailure('unavailable', saved.error.message);
+  });
   handle(discogsChannels.account, () => session.account());
   handle(discogsChannels.connect, (input) => session.connect(input));
   handle(discogsChannels.loadRelease, async (input) =>

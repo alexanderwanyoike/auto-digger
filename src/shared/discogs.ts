@@ -65,6 +65,7 @@ export interface DiscogsBridge {
   }) => Promise<DiscogsResult<SearchPage>>;
   discover?: (topic: FollowTopic | null) => Promise<DiscogsResult<SearchPage['releases']>>;
   starterShelf?: () => Promise<DiscogsResult<SearchPage['releases']>>;
+  markSeen?: (id: number) => Promise<DiscogsResult<undefined>>;
   loadRelease: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
   disconnect: () => Promise<DiscogsResult<undefined>>;
   openSettings: () => Promise<DiscogsResult<undefined>>;
@@ -75,6 +76,7 @@ export const discogsChannels = {
   search: 'discogs:search',
   discover: 'discogs:discover',
   starterShelf: 'discogs:starter-shelf',
+  markSeen: 'discogs:mark-seen',
   account: 'discogs:account',
   connect: 'discogs:connect',
   loadRelease: 'discogs:load-release',

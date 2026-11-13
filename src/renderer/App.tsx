@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Compass, Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
 import { ExplorePage } from './explore/ExplorePage';
 import { useStarterShelf } from './explore/use-starter-shelf';
@@ -55,7 +55,15 @@ export function App({
   const audio = useAudioLibrary(audioBridge);
   const crate = useCrate(crateBridge, catalogue);
   const session = useDiscogs(discogs, filters.rememberPage);
-  const starterShelf = useStarterShelf(discogs?.starterShelf, session.account);
+  const starterShelf = useStarterShelf(
+    discogs?.starterShelf,
+    session.account,
+    session.clearSession,
+  );
+  const { markSeen } = starterShelf;
+  useEffect(() => {
+    if (session.release) markSeen(session.release.id);
+  }, [markSeen, session.release]);
   const recommendations = useRecommendations(session.release, session.openSavedRelease, audio);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const { appearance, selectAppearance, storageAvailable } = useAppearance();
@@ -163,6 +171,7 @@ export function App({
           <ExplorePage
             bridge={discogs}
             connected={Boolean(session.account)}
+            onUnauthorized={session.clearSession}
             starterShelf={starterShelf}
             following={following}
             crate={crate}
