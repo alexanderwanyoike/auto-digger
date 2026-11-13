@@ -4,7 +4,6 @@ import { emptyFilters } from '../../shared/default-filters';
 import { stylesForGenres } from '../../shared/genre-styles';
 import type { SearchPage } from '../../shared/search';
 
-export const starterStyle = 'Progressive House';
 export const firstSearchYear = 1000;
 const yearsPerBatch = 8;
 
