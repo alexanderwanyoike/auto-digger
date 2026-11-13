@@ -77,8 +77,8 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
     rename: (input: unknown) => change((mutations) => mutations.rename(input)),
     deleteCrate: (id: unknown) => change((mutations) => mutations.deleteCrate(id)),
     add: (input: unknown, signal?: AbortSignal) =>
-      change((mutations) => mutations.add(input), signal),
-    addPersonal: (input: unknown) => change((mutations) => mutations.add(input, true)),
+      change((mutations) => mutations.add(input, 'research'), signal),
+    addPersonal: (input: unknown) => change((mutations) => mutations.add(input, 'personal')),
     remove: (input: unknown) => change((mutations) => mutations.remove(input)),
     async view(crateId?: string): Promise<CatalogueResult<CatalogueView>> {
       const database = await getConnection();

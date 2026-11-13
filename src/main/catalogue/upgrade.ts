@@ -25,6 +25,7 @@ export function upgradeCatalogue(database: DatabaseSync) {
     CREATE TABLE IF NOT EXISTS personal_crate_saves (
       crate_id TEXT NOT NULL,
       release_id INTEGER NOT NULL,
+      styles TEXT NOT NULL,
       PRIMARY KEY(crate_id, release_id),
       FOREIGN KEY(crate_id, release_id) REFERENCES entries(crate_id, release_id) ON DELETE CASCADE
     ) STRICT;

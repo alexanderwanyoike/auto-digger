@@ -11,8 +11,7 @@ export function createCrateTaste(connection: () => Promise<CatalogueResult<Datab
         .prepare(
           `SELECT TRIM(style.value) AS style, COUNT(DISTINCT personal.release_id) AS releases
             FROM personal_crate_saves personal
-            JOIN releases record ON record.id = personal.release_id
-            JOIN json_each(record.metadata, '$.styles') style
+            JOIN json_each(personal.styles) style
             WHERE style.type = 'text' AND TRIM(style.value) <> ''
             GROUP BY TRIM(style.value)
             ORDER BY releases DESC, TRIM(style.value) COLLATE NOCASE, TRIM(style.value)`,
