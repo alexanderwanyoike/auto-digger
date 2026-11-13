@@ -17,8 +17,10 @@ test('scrolls through populated catalogue years and appends release pages', asyn
           const url = new URL(input instanceof Request ? input.url : input.toString());
           if (url.pathname === '/oauth/identity')
             return Promise.resolve(Response.json(fixtures.identityResponse));
-          if (url.pathname === '/releases/12')
-            return Promise.resolve(Response.json(fixtures.releaseResponse));
+          if (url.pathname.startsWith('/releases/')) {
+            const id = Number(url.pathname.split('/').at(-1));
+            return Promise.resolve(Response.json({ ...fixtures.releaseResponse, id }));
+          }
           const year = url.searchParams.get('year') ?? '';
           const pageNumber = Number(url.searchParams.get('page') ?? 1);
           const range = year.split('-').map(Number);
@@ -88,6 +90,15 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     await expect(page.getByRole('button', { name: /Back Channel 8/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /Back Channel 6/ })).toBeAttached();
     await expect(page.getByRole('button', { name: 'Show more' })).toHaveCount(0);
+    const viewport = page.locator('.explore-page');
+    const record = page.getByRole('button', { name: /Back Channel 8/ });
+    await record.scrollIntoViewIfNeeded();
+    const scrollTop = await viewport.evaluate((element) => element.scrollTop);
+    expect(scrollTop).toBeGreaterThan(0);
+    await record.click();
+    await page.getByRole('button', { name: 'Back to Catalogue' }).click();
+    await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(scrollTop);
+    await expect(record).toBeInViewport();
   } finally {
     await desktop.close();
   }
