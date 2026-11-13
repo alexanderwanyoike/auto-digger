@@ -44,6 +44,7 @@ export function createRememberedSession(
       authorized(() => session.loadRelease(input, signal), signal),
     researchSearch: (input: unknown, signal?: AbortSignal) =>
       authorized(() => session.researchSearch(input, signal), signal),
+    topicArtwork: (input: unknown) => authorized(() => session.topicArtwork(input)),
     search: (input: unknown) => authorized(() => session.search(input)),
     dig: (input: unknown) => authorized(() => session.dig(input)),
     account: () =>

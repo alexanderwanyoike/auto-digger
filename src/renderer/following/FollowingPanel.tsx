@@ -1,72 +1,139 @@
-import { Disc3, Tags, UserRound, X } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { X } from 'lucide-react';
 import { followTopicKey } from '../../shared/following';
 import type { FollowTopic } from '../../shared/following';
+import type { DiscogsBridge } from '../../shared/discogs';
 import type { useFollowing } from './use-following';
+import { FollowPortrait } from './FollowPortrait';
 
 const groups = [
-  { kind: 'artist', name: 'Artists', Icon: UserRound },
-  { kind: 'label', name: 'Labels', Icon: Disc3 },
-  { kind: 'genre', name: 'Genres', Icon: Tags },
+  { kind: 'artist', name: 'Artists' },
+  { kind: 'label', name: 'Labels' },
+  { kind: 'genre', name: 'Genres' },
 ] as const;
+const pageSize = 24;
 
 export function FollowingPanel({
   following,
   browseDisabled,
   onBrowse,
+  lookup,
+  onUnauthorized,
 }: {
   following: ReturnType<typeof useFollowing>;
   browseDisabled: boolean;
   onBrowse: (topic: FollowTopic) => void;
+  lookup: DiscogsBridge['topicArtwork'];
+  onUnauthorized: () => void;
 }) {
+  const [kind, setKind] = useState<FollowTopic['kind']>(
+    () => following.topics[0]?.kind ?? 'artist',
+  );
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(0);
+  const cache = useRef(new Map<string, string | null>());
+  const topics = following.topics.filter(
+    (topic) => topic.kind === kind && topic.name.toLowerCase().includes(query.trim().toLowerCase()),
+  );
+  const lastPage = Math.max(0, Math.ceil(topics.length / pageSize) - 1);
+  const current = Math.min(page, lastPage);
+  const visible = topics.slice(current * pageSize, (current + 1) * pageSize);
+
   return (
-    <section className="following-panel" aria-labelledby="following-heading">
-      <h2 id="following-heading">Following</h2>
-      {!following.topics.length && !following.busy && !following.error && (
-        <p>No artists, labels or genres followed yet.</p>
+    <section className="following-gallery" aria-label="Following">
+      <header className="following-gallery-header">
+        <div className="section-switcher" role="group" aria-label="Follow type">
+          {groups.map((group) => (
+            <button
+              type="button"
+              key={group.kind}
+              aria-pressed={group.kind === kind}
+              onClick={() => {
+                setKind(group.kind);
+                setQuery('');
+                setPage(0);
+              }}
+            >
+              {group.name}
+            </button>
+          ))}
+        </div>
+        <input
+          type="search"
+          aria-label="Search follows"
+          placeholder="Search follows"
+          value={query}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setPage(0);
+          }}
+        />
+      </header>
+      {!visible.length && !following.busy && !following.error && (
+        <p>No {groups.find((group) => group.kind === kind)?.name.toLowerCase()} found.</p>
       )}
-      <div className="following-groups">
-        {groups.map(({ kind, name, Icon }) => {
-          const topics = following.topics.filter((topic) => topic.kind === kind);
-          if (!topics.length) return null;
-          return (
-            <section key={kind}>
-              <h3>
-                <Icon size={15} aria-hidden="true" />
-                {name}
-              </h3>
-              <ul>
-                {topics.map((topic) => (
-                  <li key={followTopicKey(topic)}>
-                    <button
-                      type="button"
-                      className="follow-topic"
-                      aria-label={`Browse ${topic.name}`}
-                      disabled={browseDisabled}
-                      onClick={() => {
-                        onBrowse(topic);
-                      }}
-                    >
-                      {topic.name}
-                    </button>
-                    <button
-                      type="button"
-                      className="icon-button"
-                      aria-label={`Unfollow ${kind} ${topic.name}`}
-                      title={`Unfollow ${topic.name}`}
-                      disabled={!following.enabled}
-                      onClick={() => {
-                        following.setFollowed(topic, false).catch(() => undefined);
-                      }}
-                    >
-                      <X size={15} aria-hidden="true" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          );
-        })}
-      </div>
+      <ul>
+        {visible.map((topic) => (
+          <li key={followTopicKey(topic)}>
+            <button
+              type="button"
+              className="follow-topic"
+              aria-label={`Browse ${topic.name}`}
+              disabled={browseDisabled}
+              onClick={() => {
+                onBrowse(topic);
+              }}
+            >
+              <FollowPortrait
+                topic={topic}
+                lookup={lookup}
+                cache={cache.current}
+                onUnauthorized={onUnauthorized}
+              />
+              <strong>{topic.name}</strong>
+            </button>
+            <button
+              type="button"
+              className="icon-button unfollow-topic"
+              aria-label={`Unfollow ${kind} ${topic.name}`}
+              title={`Unfollow ${topic.name}`}
+              disabled={!following.enabled}
+              onClick={() => {
+                following.setFollowed(topic, false).catch(() => undefined);
+              }}
+            >
+              <X size={15} aria-hidden="true" />
+            </button>
+          </li>
+        ))}
+      </ul>
+      {lastPage > 0 && (
+        <nav aria-label="Following pages">
+          <button
+            className="secondary-button"
+            type="button"
+            disabled={current === 0}
+            onClick={() => {
+              setPage(current - 1);
+            }}
+          >
+            Previous page
+          </button>
+          <span>
+            {current + 1} / {lastPage + 1}
+          </span>
+          <button
+            className="secondary-button"
+            type="button"
+            disabled={current === lastPage}
+            onClick={() => {
+              setPage(current + 1);
+            }}
+          >
+            Next page
+          </button>
+        </nav>
+      )}
     </section>
   );
 }

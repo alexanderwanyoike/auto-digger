@@ -77,26 +77,10 @@
 .explore-page > .explore-notice {
   padding-top: 24px;
 }
-.explore-page .following-panel,
 .explore-page .section-page {
   margin: 0;
   max-height: none;
   overflow: visible;
-}
-.follow-topic {
-  min-height: 26px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  text-align: left;
-  overflow-wrap: anywhere;
-}
-.follow-topic:hover:not(:disabled),
-.follow-topic:focus-visible {
-  color: var(--blue);
-  text-decoration: underline;
 }
 .explore-page .explore-workspace {
   min-width: 0;

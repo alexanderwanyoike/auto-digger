@@ -63,12 +63,43 @@ test('follows artists, labels and genres and manages them after restarting', asy
     page = await desktop.firstWindow();
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await page.getByRole('button', { name: 'Following', exact: true }).click();
+    await desktop.evaluate(() => {
+      const request = globalThis.fetch;
+      globalThis.fetch = (input, init) => {
+        const url = new URL(input instanceof Request ? input.url : input.toString());
+        if (url.pathname !== '/database/search') return request(input, init);
+        const kind = url.searchParams.get('type');
+        if (kind === 'artist' || kind === 'label') {
+          return Promise.resolve(
+            Response.json({
+              results: [
+                { title: 'Unrelated', thumb: 'https://i.discogs.com/unrelated.jpg' },
+                { title: url.searchParams.get('q'), thumb: `https://i.discogs.com/${kind}.jpg` },
+              ],
+            }),
+          );
+        }
+        return Promise.resolve(
+          Response.json({ pagination: { page: 1, pages: 1, per_page: 50, items: 0 }, results: [] }),
+        );
+      };
+    });
+    await page.route('https://i.discogs.com/**', (route) =>
+      route.fulfill({
+        path: resolve('tests/fixtures/record-sleeve.svg'),
+        contentType: 'image/svg+xml',
+      }),
+    );
     const following = page.getByRole('region', { name: 'Following', exact: true });
     await following.getByRole('button', { name: 'Artists', exact: true }).click();
-    await expect(following.getByRole('button', { name: 'Browse Low Tide' })).toBeVisible();
+    await expect(
+      following.getByRole('button', { name: 'Browse Low Tide' }).locator('img'),
+    ).toHaveAttribute('src', 'https://i.discogs.com/artist.jpg');
     await expect(following.getByRole('button', { name: 'Browse Still Records' })).toHaveCount(0);
     await following.getByRole('button', { name: 'Labels', exact: true }).click();
-    await expect(following.getByRole('button', { name: 'Browse Still Records' })).toBeVisible();
+    await expect(
+      following.getByRole('button', { name: 'Browse Still Records' }).locator('img'),
+    ).toHaveAttribute('src', 'https://i.discogs.com/label.jpg');
     await expect(following.getByRole('button', { name: 'Browse Low Tide' })).toHaveCount(0);
     await following
       .getByRole('button', { name: 'Unfollow label Still Records', exact: true })

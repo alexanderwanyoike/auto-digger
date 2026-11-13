@@ -115,6 +115,7 @@ test('discovers unopened releases, browses followed catalogues and compares genr
     ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Following', exact: true }).click();
+    await page.getByRole('button', { name: 'Artists', exact: true }).click();
     await page.getByRole('button', { name: 'Browse Low Tide', exact: true }).click();
     await expect(
       page.getByRole('button', { name: /^(?!Play ).*Low Tide - Quiet Orbit EP/ }),
@@ -124,6 +125,7 @@ test('discovers unopened releases, browses followed catalogues and compares genr
     ).toHaveCount(0);
 
     await page.getByRole('button', { name: 'All followed', exact: true }).click();
+    await page.getByRole('button', { name: 'Genres', exact: true }).click();
     await page.getByRole('button', { name: 'Browse Electronic', exact: true }).click();
     await page.getByLabel('First year', { exact: true }).fill('1993');
     await page.getByLabel('Second year', { exact: true }).fill('2000');

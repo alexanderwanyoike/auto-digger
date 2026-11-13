@@ -192,8 +192,16 @@ export function ExplorePage({
               )}
             </>
           )}
-          {section === 'Following' && !topic && (
-            <FollowingPanel following={following} browseDisabled={disabled} onBrowse={browse} />
+          {section === 'Following' && (
+            <div hidden={Boolean(topic)}>
+              <FollowingPanel
+                following={following}
+                browseDisabled={disabled}
+                onBrowse={browse}
+                lookup={connected ? bridge?.topicArtwork : undefined}
+                onUnauthorized={onUnauthorized}
+              />
+            </div>
           )}
           {section === 'Following' && topic && (
             <header className="explore-tools">
