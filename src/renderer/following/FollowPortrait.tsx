@@ -30,10 +30,11 @@ export function FollowPortrait({
     const element = portrait.current;
     if (!element || !lookup || kind === 'genre') return undefined;
     const lifetime = new AbortController();
+    const cancelled = () => lifetime.signal.aborted;
     let retryTimer: number | undefined;
     const load = (retry: boolean) => {
       enqueue(async () => {
-        if (lifetime.signal.aborted) return;
+        if (cancelled()) return;
         const cached = cache.get(key);
         if (cached !== undefined) {
           setUrl(cached);
@@ -41,7 +42,7 @@ export function FollowPortrait({
         }
         const result = await lookup({ kind, name });
         if (result.ok) cache.set(key, result.value);
-        if (lifetime.signal.aborted) return;
+        if (cancelled()) return;
         if (result.ok) setUrl(result.value);
         else if (result.error.code === 'unauthorized') onUnauthorized();
         else if (
