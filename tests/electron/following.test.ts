@@ -165,43 +165,45 @@ test('drops queued portrait lookups when the listener leaves Following', async (
   });
   try {
     const page = await desktop.firstWindow();
-    await desktop.evaluate((_electron, identity) => {
-      const artworkStarted = { count: 0 };
-      Object.assign(globalThis, { artworkStarted });
-      globalThis.fetch = async (input) => {
-        const url = new URL(input instanceof Request ? input.url : input.toString());
-        if (url.pathname === '/oauth/identity') return Response.json(identity);
-        if (url.searchParams.get('type') === 'label') {
-          await new Promise((done) => {
-            artworkStarted.count += 1;
-            setTimeout(done, 8000);
+    await desktop.evaluate(
+      (_electron, fixtures) => {
+        const artworkStarted = { count: 0 };
+        Object.assign(globalThis, { artworkStarted });
+        globalThis.fetch = async (input) => {
+          const url = new URL(input instanceof Request ? input.url : input.toString());
+          if (url.pathname === '/oauth/identity') return Response.json(fixtures.identity);
+          if (url.pathname === '/releases/12') return Response.json(fixtures.release);
+          if (url.searchParams.get('type') === 'label') {
+            await new Promise((done) => {
+              artworkStarted.count += 1;
+              setTimeout(done, 8000);
+            });
+            return Response.json({ results: [] });
+          }
+          return Response.json({
+            pagination: { page: 1, pages: 0, per_page: 50, items: 0 },
+            results: [],
           });
-          return Response.json({ results: [] });
-        }
-        return Response.json({
-          pagination: { page: 1, pages: 0, per_page: 50, items: 0 },
-          results: [],
-        });
-      };
-    }, identityResponse);
-    await page.evaluate(async () => {
-      const bridge = window.following;
-      if (!bridge) return;
-      await Promise.all(
-        Array.from({ length: 12 }, (_, index) =>
-          bridge.setFollowed({
-            topic: { kind: 'label', name: `Label ${index.toString()}` },
-            followed: true,
-          }),
-        ),
-      );
-    });
-    await page.reload();
+        };
+      },
+      { identity: identityResponse, release: releaseResponse },
+    );
     await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
     await page.getByLabel('Personal token').fill('fixture-following-queue');
     await page.getByRole('button', { name: 'Connect account', exact: true }).click();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await page.getByLabel('Discogs release ID', { exact: true }).fill('12');
+    await page.getByRole('button', { name: 'Load release', exact: true }).click();
+    await page.getByRole('button', { name: 'Follow label Still Records', exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Follow label Still Records', exact: true }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await page.getByRole('button', { name: 'Following', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Browse Label 0', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Labels', exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Browse Still Records', exact: true }),
+    ).toBeVisible();
     await expect
       .poll(() => desktop.evaluate(() => Reflect.get(globalThis, 'artworkStarted') as unknown))
       .toMatchObject({ count: 1 });
