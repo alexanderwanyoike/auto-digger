@@ -14,6 +14,8 @@ import { ExploreResults } from './ExploreResults';
 import { sleevePreview } from './sleeve-preview';
 import { ReleaseShelf } from './ReleaseShelf';
 import { CataloguePage } from './CataloguePage';
+import { ExploreCollectionPage, discoveryTitles } from './ExploreCollectionPage';
+import type { ExploreCollection } from './ExploreCollectionPage';
 import { ExploreToolbar } from './ExploreToolbar';
 import type { ExploreSection } from './ExploreToolbar';
 import type { useStarterShelf } from './use-starter-shelf';
@@ -40,19 +42,27 @@ export function ExplorePage({
   audio: ReturnType<typeof useAudioLibrary>;
 }) {
   const scrollContainer = useRef<HTMLDivElement>(null);
-  const cataloguePosition = useRef(0);
-  const restoreCataloguePosition = useRef(false);
+  const releasePosition = useRef(0);
+  const collectionPosition = useRef(0);
+  const restorePosition = useRef<number | null>(null);
+  const [collection, setCollection] = useState<ExploreCollection | null>(null);
   const [section, setSection] = useState<ExploreSection>('Feed');
   const catalogue = section === 'Catalogue';
   const explore = useExplore(bridge, onUnauthorized);
   const { topic, release, view, busy, error } = explore;
   useLayoutEffect(() => {
     if (release) scrollContainer.current?.scrollTo(0, 0);
-    if (catalogue && !release && restoreCataloguePosition.current) {
-      scrollContainer.current?.scrollTo(0, cataloguePosition.current);
-      restoreCataloguePosition.current = false;
+    else if (restorePosition.current !== null) {
+      scrollContainer.current?.scrollTo(0, restorePosition.current);
+      restorePosition.current = null;
     }
-  }, [catalogue, release]);
+  }, [collection, release]);
+
+  const showCollection = (next: ExploreCollection) => {
+    collectionPosition.current = scrollContainer.current?.scrollTop ?? 0;
+    setCollection(next);
+    scrollContainer.current?.scrollTo(0, 0);
+  };
   const [previewBusy, setPreviewBusy] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const loadPreview = bridge?.previewRelease;
@@ -85,17 +95,19 @@ export function ExplorePage({
       : undefined;
   const disabled = !connected || busy;
   const browse = (next: FollowTopic, page?: number) => {
+    setCollection(null);
     setSection('Following');
     scrollContainer.current?.scrollTo(0, 0);
     explore.browse(next, page).catch(() => undefined);
   };
   const open = (id: number) => {
-    if (catalogue) cataloguePosition.current = scrollContainer.current?.scrollTop ?? 0;
+    releasePosition.current = scrollContainer.current?.scrollTop ?? 0;
     explore.open(id, markSeen).catch(() => undefined);
   };
   const selectSection = (next: ExploreSection) => {
-    if (section === next && !release && !view && !topic && !error) return;
+    if (section === next && !collection && !release && !view && !topic && !error) return;
     explore.reset();
+    setCollection(null);
     setSection(next);
     scrollContainer.current?.scrollTo(0, 0);
   };
@@ -105,6 +117,7 @@ export function ExplorePage({
   };
   const canDiscover =
     connected &&
+    !collection &&
     !catalogue &&
     explore.discoverAvailable &&
     following.topics.length > 0 &&
@@ -114,7 +127,7 @@ export function ExplorePage({
       <ExploreToolbar
         section={section}
         busy={busy}
-        connected={connected}
+        connected={connected && !collection}
         refreshBusy={starterShelf.busy || followsShelf.busy}
         onSelect={selectSection}
         onRefresh={() => {
@@ -133,11 +146,14 @@ export function ExplorePage({
         }
       />
       {catalogue && connected && bridge && (
-        <div hidden={Boolean(release)}>
+        <div hidden={Boolean(release ?? collection)}>
           <CataloguePage
             bridge={bridge}
             busy={busy}
             onOpen={open}
+            onShowYear={(style, year) => {
+              showCollection({ kind: 'year', style, year });
+            }}
             onUnauthorized={onUnauthorized}
           />
         </div>
@@ -153,11 +169,11 @@ export function ExplorePage({
             type="button"
             className="secondary-button explore-back"
             onClick={() => {
-              restoreCataloguePosition.current = catalogue;
+              restorePosition.current = releasePosition.current;
               explore.back();
             }}
           >
-            {catalogue ? 'Back to Catalogue' : 'Back to Explore'}
+            {collection ? 'Back to results' : catalogue ? 'Back to Catalogue' : 'Back to Explore'}
           </button>
           <FollowingContext.Provider value={following}>
             <ReleaseAudioDetails
@@ -172,6 +188,24 @@ export function ExplorePage({
             />
           </FollowingContext.Provider>
         </section>
+      )}
+      {collection && bridge && connected && (
+        <div hidden={Boolean(release)}>
+          <ExploreCollectionPage
+            collection={collection}
+            bridge={bridge}
+            seed={collection.kind === 'starter' ? starterShelf.releases : followsShelf.releases}
+            disabled={disabled}
+            onBack={() => {
+              restorePosition.current = collectionPosition.current;
+              setCollection(null);
+            }}
+            onOpen={open}
+            onPreview={preview}
+            previewBusy={previewBusy || Boolean(audio.preparingPreview)}
+            onUnauthorized={onUnauthorized}
+          />
+        </div>
       )}
       {section === 'Following' && (
         <div hidden={Boolean(release ?? topic ?? view)}>
@@ -208,12 +242,19 @@ export function ExplorePage({
               {error}
             </p>
           )}
-          {connected && section === 'Feed' && !view && (
+          {connected && section === 'Feed' && !view && !collection && (
             <>
               <ReleaseShelf
-                title="Discover records"
+                title={discoveryTitles.starter}
                 headingId="explore-starter-heading"
                 shelf={starterShelf}
+                onShowMore={
+                  bridge?.expandDiscovery
+                    ? () => {
+                        showCollection({ kind: 'starter' });
+                      }
+                    : undefined
+                }
                 disabled={disabled}
                 open={open}
                 preview={preview}
@@ -221,9 +262,16 @@ export function ExplorePage({
               />
               {following.topics.length > 0 && (
                 <ReleaseShelf
-                  title="From your follows"
+                  title={discoveryTitles.follows}
                   headingId="explore-follows-heading"
                   shelf={followsShelf}
+                  onShowMore={
+                    bridge?.expandDiscovery
+                      ? () => {
+                          showCollection({ kind: 'follows' });
+                        }
+                      : undefined
+                  }
                   disabled={disabled}
                   open={open}
                   preview={preview}

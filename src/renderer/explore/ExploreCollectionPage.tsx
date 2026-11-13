@@ -1,0 +1,199 @@
+import { useEffect, useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import type { DiscogsBridge, DiscogsResult } from '../../shared/discogs';
+import type { DiscoveryShelf } from '../../shared/discovery';
+import type { SearchPage } from '../../shared/search';
+import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
+import { useCatalogueRecords } from './use-catalogue-records';
+
+export type ExploreCollection =
+  { kind: DiscoveryShelf } | { kind: 'year'; style: string; year: number };
+
+export const discoveryTitles = {
+  starter: 'Discover records',
+  follows: 'From your follows',
+};
+
+type Releases = SearchPage['releases'];
+
+function DiscoveryCollection({
+  load,
+  kind,
+  seed,
+  disabled,
+  onOpen,
+  onPreview,
+  previewBusy,
+  onUnauthorized,
+}: {
+  load: NonNullable<DiscogsBridge['expandDiscovery']>;
+  kind: DiscoveryShelf;
+  seed: Releases;
+  disabled: boolean;
+  onOpen: (id: number) => void;
+  onPreview: ((id: number) => void) | undefined;
+  previewBusy: boolean;
+  onUnauthorized: () => void;
+}) {
+  const [response, setResponse] = useState<DiscogsResult<Releases> | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let active = true;
+    load(kind)
+      .then((result) => {
+        if (!active) return;
+        if (!result.ok && result.error.code === 'unauthorized') onUnauthorized();
+        setResponse(result);
+      })
+      .catch(() => {
+        if (active)
+          setResponse({
+            ok: false,
+            error: { code: 'unavailable', message: 'Could not load more releases.' },
+          });
+      });
+    return () => {
+      active = false;
+    };
+  }, [attempt, kind, load, onUnauthorized]);
+  const matches = response?.ok ? response.value : [];
+  const releases = [
+    ...new Map([...seed, ...matches].map((record) => [record.id, record])).values(),
+  ];
+  return (
+    <>
+      <ReleaseMatchList
+        releases={releases}
+        disabled={disabled}
+        onOpen={onOpen}
+        onPreview={onPreview}
+        previewBusy={previewBusy}
+      />
+      {!response && <p role="status">Loading releases…</p>}
+      {response?.ok && !releases.length && <p>No unseen releases found.</p>}
+      {response && !response.ok && (
+        <>
+          <p role="alert">{response.error.message}</p>
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={() => {
+              setResponse(null);
+              setAttempt((previous) => previous + 1);
+            }}
+          >
+            Retry
+          </button>
+        </>
+      )}
+    </>
+  );
+}
+
+function YearCollection({
+  search,
+  style,
+  year,
+  disabled,
+  onOpen,
+  onUnauthorized,
+}: {
+  search: DiscogsBridge['search'];
+  style: string;
+  year: number;
+  disabled: boolean;
+  onOpen: (id: number) => void;
+  onUnauthorized: () => void;
+}) {
+  const records = useCatalogueRecords(search, style, year, onUnauthorized);
+  return (
+    <>
+      <ReleaseMatchList
+        releases={records.groups[0]?.releases ?? []}
+        disabled={disabled}
+        onOpen={onOpen}
+      />
+      {records.busy && <p role="status">Loading releases…</p>}
+      {records.error && <p role="alert">{records.error}</p>}
+      {records.error && (
+        <button className="secondary-button" type="button" onClick={records.retry}>
+          Retry
+        </button>
+      )}
+      {!records.busy && !records.error && records.morePages && (
+        <button
+          className="secondary-button"
+          type="button"
+          disabled={disabled}
+          onClick={() => {
+            records.loadMore(undefined);
+          }}
+        >
+          Load more releases
+        </button>
+      )}
+    </>
+  );
+}
+
+export function ExploreCollectionPage({
+  collection,
+  bridge,
+  seed,
+  disabled,
+  onBack,
+  onOpen,
+  onPreview,
+  previewBusy,
+  onUnauthorized,
+}: {
+  collection: ExploreCollection;
+  bridge: DiscogsBridge;
+  seed: Releases;
+  disabled: boolean;
+  onBack: () => void;
+  onOpen: (id: number) => void;
+  onPreview: ((id: number) => void) | undefined;
+  previewBusy: boolean;
+  onUnauthorized: () => void;
+}) {
+  const year = collection.kind === 'year';
+  const title = year ? collection.year : discoveryTitles[collection.kind];
+  return (
+    <section
+      className="explore-shelf explore-collection"
+      aria-labelledby="explore-collection-heading"
+    >
+      <button type="button" className="explore-action" onClick={onBack} disabled={disabled}>
+        <ArrowLeft size={15} aria-hidden="true" /> {year ? 'Back to Catalogue' : 'Back to Feed'}
+      </button>
+      <header className="explore-shelf-header">
+        <h2 id="explore-collection-heading">{title}</h2>
+        {year && <span>{collection.style}</span>}
+      </header>
+      {year ? (
+        <YearCollection
+          search={bridge.search}
+          style={collection.style}
+          year={collection.year}
+          disabled={disabled}
+          onOpen={onOpen}
+          onUnauthorized={onUnauthorized}
+        />
+      ) : (
+        bridge.expandDiscovery && (
+          <DiscoveryCollection
+            load={bridge.expandDiscovery}
+            kind={collection.kind}
+            seed={seed}
+            disabled={disabled}
+            onOpen={onOpen}
+            onPreview={onPreview}
+            previewBusy={previewBusy}
+            onUnauthorized={onUnauthorized}
+          />
+        )
+      )}
+    </section>
+  );
+}

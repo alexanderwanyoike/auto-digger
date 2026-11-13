@@ -9,11 +9,13 @@ export function CataloguePage({
   bridge,
   busy,
   onOpen,
+  onShowYear,
   onUnauthorized,
 }: {
   bridge: DiscogsBridge;
   busy: boolean;
   onOpen: (id: number) => void;
+  onShowYear: (style: string, year: number) => void;
   onUnauthorized: () => void;
 }) {
   const [preferred, setPreferred] = useState<string[] | null>(null);
@@ -64,6 +66,7 @@ export function CataloguePage({
           disabled={busy}
           search={bridge.search}
           onOpen={onOpen}
+          onShowYear={onShowYear}
           onUnauthorized={onUnauthorized}
         />
       )}

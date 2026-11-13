@@ -311,3 +311,30 @@
 .explore-action:disabled {
   opacity: 0.55;
 }
+
+.explore-show-more {
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.explore-show-more:hover:not(:disabled) {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+.explore-collection > .explore-action {
+  margin-bottom: 16px;
+}
+.explore-collection .explore-shelf-header > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.explore-collection > ul {
+  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+}
+.explore-collection > ul + :is(p, button) {
+  margin-top: 18px;
+}

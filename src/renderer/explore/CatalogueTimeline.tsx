@@ -9,12 +9,14 @@ export function CatalogueTimeline({
   disabled,
   search,
   onOpen,
+  onShowYear,
   onUnauthorized,
 }: {
   style: string;
   disabled: boolean;
   search: DiscogsBridge['search'];
   onOpen: (id: number) => void;
+  onShowYear: (style: string, year: number) => void;
   onUnauthorized: () => void;
 }) {
   const index = useCatalogueYearIndex(search, style, onUnauthorized);
@@ -122,6 +124,16 @@ export function CatalogueTimeline({
           >
             <header className="explore-shelf-header">
               <h3>{year}</h3>
+              <button
+                type="button"
+                className="explore-show-more"
+                disabled={disabled}
+                onClick={() => {
+                  onShowYear(style, year);
+                }}
+              >
+                Show more
+              </button>
             </header>
             <ReleaseMatchList releases={releases} disabled={disabled} onOpen={onOpen} />
           </section>

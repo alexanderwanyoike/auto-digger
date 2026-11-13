@@ -50,6 +50,8 @@ export function createDiscogsBridge(invoke: Invoke): DiscogsBridge {
     topicArtwork: (topic) => call(discogsChannels.topicArtwork, z.string().nullable(), topic),
     search: (input) => call(discogsChannels.search, searchPageSchema, input),
     discover: (topic) => call(discogsChannels.discover, searchPageSchema.shape.releases, topic),
+    expandDiscovery: (shelf) =>
+      call(discogsChannels.expandDiscovery, searchPageSchema.shape.releases, shelf),
     starterShelf: () => call(discogsChannels.starterShelf, searchPageSchema.shape.releases),
     previewRelease: (id) => call(discogsChannels.previewRelease, releaseSchema, id),
     crateStyles: () => call(discogsChannels.crateStyles, z.array(z.string())),

@@ -1,3 +1,4 @@
+import { discoveryShelfSchema } from '../../shared/discovery';
 import { ipcMain, shell } from 'electron';
 import type { BrowserWindow } from 'electron';
 import { discogsChannels } from '../../shared/discogs';
@@ -55,7 +56,12 @@ export function registerDiscogsHandlers(
   handle(discogsChannels.topicArtwork, (input) => session.topicArtwork(input));
   handle(discogsChannels.search, (input) => session.search(input));
   handle(discogsChannels.discover, discover);
-  handle(discogsChannels.starterShelf, starterShelf);
+  handle(discogsChannels.starterShelf, () => starterShelf());
+  handle(discogsChannels.expandDiscovery, (input) => {
+    const shelf = discoveryShelfSchema.safeParse(input);
+    if (!shelf.success) return discogsFailure('invalid-input', 'Choose a discovery shelf.');
+    return shelf.data === 'starter' ? starterShelf(36) : discover(null, 36);
+  });
   handle(discogsChannels.previewRelease, (id) => session.loadRelease(id));
   handle(discogsChannels.crateStyles, async () => {
     const taste = await crateTaste();
