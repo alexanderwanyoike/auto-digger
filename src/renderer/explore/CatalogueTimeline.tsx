@@ -28,6 +28,7 @@ export function CatalogueTimeline({
 }) {
   const index = useCatalogueYearIndex(search, style, onUnauthorized);
   const records = useCatalogueRecords(search, style, index.years[0], onUnauthorized);
+  const [exploring, setExploring] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const catalogue = useRef<HTMLDivElement>(null);
   const yearRail = useRef<HTMLElement>(null);
@@ -47,6 +48,7 @@ export function CatalogueTimeline({
     if (!timeline || !viewport || disabled || !records.groups.length) return undefined;
     const update = () => {
       if (!timeline.getClientRects().length) return;
+      if (viewport.scrollTop > 0) setExploring(true);
       const inset = parseFloat(getComputedStyle(timeline).scrollMarginTop);
       const edge = viewport.getBoundingClientRect().top + inset;
       const years = Array.from(timeline.querySelectorAll<HTMLElement>('[data-release-year]'));
@@ -75,15 +77,28 @@ export function CatalogueTimeline({
     else index.loadMore();
   };
   const sentinel = useScrollContinuation(
-    !busy && !error && !disabled && hasMore ? loadMore : undefined,
+    exploring && !busy && !error && !disabled && hasMore ? loadMore : undefined,
   );
+  useEffect(() => {
+    const viewport = catalogue.current?.closest<HTMLElement>('.explore-scroll');
+    if (!viewport || exploring || disabled) return undefined;
+    const wheel = (event: WheelEvent) => {
+      if (event.deltaY > 0 && !event.ctrlKey && !yearRail.current?.contains(event.target as Node))
+        setExploring(true);
+    };
+    viewport.addEventListener('wheel', wheel, { passive: true });
+    return () => {
+      viewport.removeEventListener('wheel', wheel);
+    };
+  }, [disabled, exploring]);
+
   const { loadMore: loadMoreYears } = index;
   const extendYearRail = (rail: HTMLElement) => {
     if (!disabled && rail.scrollHeight - rail.clientHeight - rail.scrollTop <= 40) loadMoreYears();
   };
   useEffect(() => {
     const rail = yearRail.current;
-    if (!rail || disabled || !index.hasMore) return undefined;
+    if (!rail || disabled || !index.hasMore || index.busy || index.error) return undefined;
     const wheel = (event: WheelEvent) => {
       if (event.ctrlKey || event.deltaY <= 0 || rail.scrollHeight > rail.clientHeight) return;
       event.preventDefault();
@@ -93,9 +108,10 @@ export function CatalogueTimeline({
     return () => {
       rail.removeEventListener('wheel', wheel);
     };
-  }, [disabled, index.hasMore, loadMoreYears]);
+  }, [disabled, index.busy, index.error, index.hasMore, loadMoreYears]);
 
   const select = (year: number) => {
+    setExploring(true);
     setSelected(year);
     const section = catalogue.current?.querySelector(`[data-release-year="${year.toString()}"]`);
     if (section) section.scrollIntoView({ block: 'start' });

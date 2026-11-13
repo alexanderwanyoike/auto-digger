@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { catalogueYears, firstSearchYear } from './catalogue-years';
 
@@ -43,16 +43,17 @@ export function useCatalogueYearIndex(
       active = false;
     };
   }, [attempt, onUnauthorized, search, start, style]);
+  const loadMore = useCallback(() => {
+    if (busy || next === null || error) return;
+    setBusy(true);
+    setStart(next);
+  }, [busy, error, next]);
   return {
     years,
     busy,
     error,
     hasMore: next !== null,
-    loadMore: () => {
-      if (busy || next === null || error) return;
-      setBusy(true);
-      setStart(next);
-    },
+    loadMore,
     retry: () => {
       setBusy(true);
       setError(null);

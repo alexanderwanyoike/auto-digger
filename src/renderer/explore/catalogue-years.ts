@@ -17,7 +17,7 @@ export async function catalogueYears(
   search: DiscogsBridge['search'],
   style: string,
   from: number,
-  count: number,
+  yearLimit: number,
   active: () => boolean,
   onYear: (year: number) => void,
 ): Promise<DiscogsResult<number | null>> {
@@ -46,7 +46,7 @@ export async function catalogueYears(
     onYear(first);
     return next(first + 1, remaining - 1);
   }
-  return next(from, count);
+  return next(from, yearLimit);
 }
 
 export function recordsForYear(
