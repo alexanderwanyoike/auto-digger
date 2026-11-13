@@ -42,7 +42,7 @@
   outline-offset: -2px;
 }
 .section-page {
-  margin: 0 24px 24px;
+  margin: 12px 24px 24px;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -52,16 +52,6 @@
   max-height: calc(100vh - 290px);
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
-}
-.section-intro {
-  display: grid;
-  gap: 8px;
-  margin-bottom: 18px;
-  color: var(--muted);
-  font-size: 12px;
-}
-.section-intro .eyebrow {
-  color: var(--blue);
 }
 .section-page label,
 .crate-picker {

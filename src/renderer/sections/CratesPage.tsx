@@ -21,10 +21,6 @@ export function CratesPage({
   const active = catalogue.view.crates.find((item) => item.id === catalogue.view.crateId);
   return (
     <section className="section-page crates-page" aria-label="Crate manager">
-      <div className="section-intro">
-        <span className="eyebrow">SAVE NOW. LISTEN LATER.</span>
-        <p>Records, picks and notes for the next session.</p>
-      </div>
       <div className="crate-management">
         <CratePicker crate={crate} />
         <form
