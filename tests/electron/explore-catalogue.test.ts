@@ -116,8 +116,14 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     await page.mouse.move(hoveredX, hoveredY);
     await expect.poll(async () => (await tickWidths())[middle]).toBeGreaterThan(restingMiddle + 7);
     const expanded = await tickWidths();
-    expect(expanded[middle]).toBeGreaterThan(expanded[middle + 2]);
-    expect(expanded[middle + 2]).toBeGreaterThan(resting[middle + 2]);
+    const outerTick = middle + 2;
+    const expandedOuter = expanded[outerTick];
+    const restingOuter = resting[outerTick];
+    if (expandedOuter === undefined || restingOuter === undefined) {
+      throw new Error('The track must have ticks beside the pointer');
+    }
+    expect(expanded[middle]).toBeGreaterThan(expandedOuter);
+    expect(expandedOuter).toBeGreaterThan(restingOuter);
     expect(expanded[0]).toBe(resting[0]);
     await page.mouse.move(hoveredX, hoveredY + track.height / 4);
     await expect.poll(async () => (await tickWidths())[middle]).toBeCloseTo(restingMiddle);
