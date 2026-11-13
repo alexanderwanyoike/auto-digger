@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import type { SearchPage } from '../../shared/search';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
 import { catalogueYears, firstSearchYear, recordsForYear } from './catalogue-years';
 
-const shelfSize = 6;
+const shelfSize = 4;
 
 export function CatalogueTimeline({
   style,
@@ -17,6 +17,8 @@ export function CatalogueTimeline({
   onOpen: (id: number) => void;
   onUnauthorized: () => void;
 }) {
+  const timeline = useRef<HTMLDivElement>(null);
+  const yearPosition = useRef(0);
   const [years, setYears] = useState<number[]>([]);
   const [start, setStart] = useState(firstSearchYear);
   const [next, setNext] = useState<number | null>(null);
@@ -29,6 +31,9 @@ export function CatalogueTimeline({
   const [recordsError, setRecordsError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
 
+  useLayoutEffect(() => {
+    if (!grid && timeline.current) timeline.current.scrollTop = yearPosition.current;
+  });
   useEffect(() => {
     let active = true;
     catalogueYears(
@@ -91,7 +96,7 @@ export function CatalogueTimeline({
   return (
     <>
       <div className="catalogue-timeline" hidden={grid}>
-        <nav aria-label="Release years" className="catalogue-years">
+        <nav aria-label="Release years" className="catalogue-years" ref={timeline}>
           <ol>
             {years.map((value) => (
               <li key={value}>
@@ -139,6 +144,7 @@ export function CatalogueTimeline({
                   className="secondary-button"
                   type="button"
                   onClick={() => {
+                    yearPosition.current = timeline.current?.scrollTop ?? 0;
                     setGrid(true);
                   }}
                 >

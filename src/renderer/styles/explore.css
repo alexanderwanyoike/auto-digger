@@ -264,7 +264,7 @@
   padding: 4px 0;
 }
 .catalogue-year-shelf > ul {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .catalogue-year-shelf h3,
 .catalogue-full-grid h3 {
