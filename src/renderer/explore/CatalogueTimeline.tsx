@@ -22,6 +22,16 @@ export function CatalogueTimeline({
   const [selected, setSelected] = useState<number | null>(null);
   const sentinel = useRef<HTMLDivElement>(null);
   const catalogue = useRef<HTMLDivElement>(null);
+  const yearRail = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const rail = yearRail.current;
+    const button = rail?.querySelector('[aria-current="true"]');
+    if (!rail || !button) return;
+    const visible = rail.getBoundingClientRect();
+    const target = button.getBoundingClientRect();
+    if (target.top < visible.top) rail.scrollBy(0, target.top - visible.top);
+    if (target.bottom > visible.bottom) rail.scrollBy(0, target.bottom - visible.bottom);
+  }, [selected]);
   useEffect(() => {
     const timeline = catalogue.current;
     const viewport = timeline?.closest<HTMLElement>('.explore-page');
@@ -84,7 +94,7 @@ export function CatalogueTimeline({
 
   return (
     <div className="catalogue-timeline" ref={catalogue}>
-      <nav aria-label="Release years" className="catalogue-years">
+      <nav aria-label="Release years" className="catalogue-years" ref={yearRail}>
         <ol>
           {index.years.map((year) => (
             <li key={year}>
