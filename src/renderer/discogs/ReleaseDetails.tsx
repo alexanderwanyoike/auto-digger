@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import { StoreLinks } from './StoreLinks';
 import { RecordArtwork } from '../components/RecordArtwork';
 import { FollowControl } from '../following/FollowControl';
-import { PlaylistTrackActions } from '../playlists/PlaylistTrackActions';
 import type { DiscogsRelease } from '../../shared/discogs';
 
 export function ReleaseDetails({
@@ -90,7 +89,6 @@ export function ReleaseDetails({
               <span className="track-position">{track.position || '•'}</span>
               <span>{track.title}</span>
               <span className="track-duration">{track.duration || 'Not listed'}</span>
-              <PlaylistTrackActions track={{ release, trackIndex }} />
             </li>
           ))}
         </ol>

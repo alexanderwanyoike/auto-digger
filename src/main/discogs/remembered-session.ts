@@ -40,35 +40,41 @@ export function createRememberedSession(
       signal,
     );
   }
+  async function readTopic<T>(
+    operation: () => Promise<DiscogsResult<T>>,
+    background: boolean,
+  ): Promise<DiscogsResult<T>> {
+    const revision = credentialRevision;
+    await serialize(() => Promise.resolve(), background);
+    if (revision !== credentialRevision)
+      return discogsFailure('cancelled', 'The Discogs session has changed.');
+    const result = await operation();
+    if (result.ok || result.error.code !== 'unauthorized') return result;
+    return serialize(async () => {
+      if (revision !== credentialRevision)
+        return discogsFailure('cancelled', 'The Discogs session has changed.');
+      credentialRevision += 1;
+      pendingSearches.clear();
+      session.disconnect();
+      const removed = await tokens.clear();
+      return removed.ok
+        ? result
+        : discogsFailure('unauthorized', `${result.error.message} ${removed.error.message}`);
+    });
+  }
   return {
     loadRelease: (input: unknown, signal?: AbortSignal) =>
       authorized(() => session.loadRelease(input, signal), signal),
     researchSearch: (input: unknown, signal?: AbortSignal) =>
       authorized(() => session.researchSearch(input, signal), signal),
-    topicArtwork: async (input: unknown) => {
-      const revision = credentialRevision;
-      await serialize(() => Promise.resolve());
-      if (revision !== credentialRevision)
-        return discogsFailure('cancelled', 'The Discogs session has changed.');
-      const result = await session.topicArtwork(input);
-      if (result.ok || result.error.code !== 'unauthorized') return result;
-      return serialize(async () => {
-        if (revision !== credentialRevision)
-          return discogsFailure('cancelled', 'The Discogs session has changed.');
-        credentialRevision += 1;
-        pendingSearches.clear();
-        session.disconnect();
-        const removed = await tokens.clear();
-        return removed.ok
-          ? result
-          : discogsFailure('unauthorized', `${result.error.message} ${removed.error.message}`);
-      });
-    },
+    topicArtwork: (input: unknown) => readTopic(() => session.topicArtwork(input), false),
     search: (input: unknown) => {
       const parsed = searchInputSchema.safeParse(input);
       if (!parsed.success) return authorized(() => session.search(input));
       const revision = credentialRevision;
-      const { context, filters, order, background } = parsed.data;
+      const { context, filters, order, background, topic } = parsed.data;
+      if (context === 'explore' && topic && topic.kind !== 'genre')
+        return readTopic(() => session.search(parsed.data), background ?? false);
       const isRange = context === 'catalogue-range';
       if (isRange) {
         const key = JSON.stringify({ filters, order });

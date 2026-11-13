@@ -11,12 +11,14 @@ export function ReleaseAudioDetails({
   crate,
   onBrowseArtist,
   artistBrowsingDisabled,
+  showCrateDestination,
 }: {
   release: DiscogsRelease;
   audio: ReturnType<typeof useAudioLibrary>;
   crate: ReturnType<typeof useCrate>;
   onBrowseArtist: (artist: string) => void;
   artistBrowsingDisabled: boolean;
+  showCrateDestination?: boolean;
 }) {
   return (
     <ReleaseDetails
@@ -24,7 +26,11 @@ export function ReleaseAudioDetails({
       onBrowseArtist={onBrowseArtist}
       artistBrowsingDisabled={artistBrowsingDisabled}
     >
-      <SaveToCrate release={release} crate={crate} />
+      <SaveToCrate
+        release={release}
+        crate={crate}
+        showDestination={showCrateDestination ?? false}
+      />
       <DownloadSources release={release} audio={audio} />
     </ReleaseDetails>
   );

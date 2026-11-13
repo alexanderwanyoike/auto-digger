@@ -44,6 +44,7 @@ export async function savePreview(
     const suffix = 'provider' in input ? `.slsk${extension}` : '.yt.mp3';
     const track: LocalTrack = {
       ...preview.track,
+      release,
       title,
       trackIndex,
       trackPosition: trackPositionKey(release, trackIndex),

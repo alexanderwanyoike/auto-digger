@@ -44,6 +44,11 @@ test('previews YouTube outside the library and saves the cached bytes with corre
     expect(await library.list()).toEqual({ ok: true, value: [] });
     expect(await previews.prepare(input)).toEqual(preview);
     expect(download).toHaveBeenCalledTimes(1);
+    expect(await previews.prepare({ ...input, trackIndex: 1 })).toMatchObject({
+      ok: true,
+      value: { title: 'Night Tide', trackIndex: 1 },
+    });
+    expect(download).toHaveBeenCalledTimes(1);
     const temporary = await previews.locate('12-abcdefghijk');
     if (!temporary.ok) throw new Error(temporary.error.message);
     const saved = await library.download({ ...input, trackIndex: 1 });

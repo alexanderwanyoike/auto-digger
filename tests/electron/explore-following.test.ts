@@ -40,6 +40,15 @@ test('discovers unopened releases, browses followed catalogues and compares genr
           { id: 14, title: 'Mira North - First Light', year: 1993 },
           { id: 15, title: 'Still Waters - Late Signal', year: 2000 },
         ];
+        if (url.searchParams.get('type') === 'artist')
+          return Promise.resolve(Response.json({ results: [{ id: 42, title: 'Low Tide' }] }));
+        if (url.pathname === '/artists/42/releases')
+          return Promise.resolve(
+            Response.json({
+              pagination: { page, pages: 1, per_page: 50, items: 2 },
+              releases: records.slice(0, 2),
+            }),
+          );
         const style = url.searchParams.get('style');
         const extraRecords = Array.from({ length: 10 }, (_, index) => ({
           id: 20 + index,

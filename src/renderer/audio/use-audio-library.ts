@@ -29,8 +29,14 @@ export function useAudioLibrary(
   const preparing = useRef<DownloadInput | null>(null);
   const [preparingPreview, setPreparingPreview] = useState<DownloadInput | null>(null);
   const [tracks, setTracks] = useState<LocalTrack[]>([]);
-  const [playback, setPlayback] = useState<{ track: PlaybackItem | null; request: number }>({
+  const [playback, setPlayback] = useState<{
+    track: PlaybackItem | null;
+    sourceTrack: LocalTrack | null;
+    previewSource?: DownloadInput;
+    request: number;
+  }>({
     track: null,
+    sourceTrack: null,
     request: 0,
   });
   const [busy, setBusy] = useState(false);
@@ -51,6 +57,7 @@ export function useAudioLibrary(
           if (version === actions.current)
             setPlayback({
               track: firstPlayable ? downloadedPlayback(firstPlayable) : null,
+              sourceTrack: firstPlayable ?? null,
               request: 0,
             });
         } else setError(result.error.message);
@@ -90,6 +97,7 @@ export function useAudioLibrary(
     actions.current += 1;
     setPlayback((previous) => ({
       track: downloadedPlayback(track),
+      sourceTrack: track,
       request: previous.request + 1,
     }));
   }, []);
@@ -199,6 +207,8 @@ export function useAudioLibrary(
               url: `auto-digger-audio://preview/${result.value.id}`,
               preview: true,
             },
+            sourceTrack: result.value,
+            previewSource: input,
             request: previous.request + 1,
           }));
         }

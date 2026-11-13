@@ -110,9 +110,7 @@
   font-size: 11px;
   color: var(--muted);
 }
-.playlist-entry-actions,
-.playlist-track-actions,
-.playlist-track-choices {
+.playlist-entry-actions {
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
@@ -122,11 +120,4 @@
   display: inline-flex;
   gap: 5px;
   align-items: center;
-}
-.playlist-track-actions .icon-button:hover:not(:disabled),
-.playlist-track-actions .icon-button[aria-pressed='true'] {
-  color: var(--blue);
-}
-.playlist-track-actions .icon-button[aria-pressed='true'] svg {
-  fill: var(--blue-soft);
 }

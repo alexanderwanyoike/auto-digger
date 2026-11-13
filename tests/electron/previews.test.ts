@@ -83,7 +83,7 @@ test('previews YouTube without saving, reuses the temporary file and saves style
   }
 });
 
-test('previews a Soulseek EP result, then saves the same MP3 with Discogs assignment and style tags', async () => {
+test('likes a Soulseek preview from the player and saves the same MP3 with Discogs tags', async () => {
   const { mkdir } = await import('node:fs/promises');
   const { startSlskdFixture } = await import('../slskd-server');
   const directory = test.info().outputPath('completed');
@@ -126,17 +126,12 @@ test('previews a Soulseek EP result, then saves the same MP3 with Discogs assign
     await preview.click();
     await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible();
     expect(await page.evaluate(() => window.audioLibrary?.list())).toEqual({ ok: true, value: [] });
-    await expect(preview).toBeEnabled();
-    await preview.click();
-    await expect(preview).toBeEnabled();
-    await page
-      .getByRole('button', { name: 'Download Quiet Orbit.mp3 from archive_peer', exact: true })
-      .click();
-    await expect(
-      page
-        .getByRole('table', { name: 'Soulseek search results' })
-        .getByText('Saved', { exact: true }),
-    ).toBeVisible();
+    const player = page.getByRole('contentinfo', { name: 'Playback' });
+    const like = player.getByRole('button', { name: 'Like Quiet Orbit', exact: true });
+    await like.click();
+    await expect(like).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Playlists', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeVisible();
     const result = await page.evaluate(() => window.audioLibrary?.list());
     if (!result?.ok || !result.value[0]) throw new Error('Expected a saved Soulseek preview');
     expect(result.value[0]).toMatchObject({

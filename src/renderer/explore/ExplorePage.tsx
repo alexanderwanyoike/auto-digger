@@ -177,7 +177,7 @@ export function ExplorePage({
           scrollWithWheel(event, scrollContainer.current);
         }}
         busy={busy}
-        refreshBusy={starterShelf.busy || followsShelf.busy}
+        refreshBusy={starterShelf.busy}
         previewError={previewError}
         onSelect={selectSection}
         onRefresh={
@@ -244,6 +244,7 @@ export function ExplorePage({
                     key={release.id}
                     release={release}
                     crate={crate}
+                    showCrateDestination
                     audio={audio}
                     artistBrowsingDisabled={disabled}
                     onBrowseArtist={(artist) => {

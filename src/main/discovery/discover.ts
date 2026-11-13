@@ -1,4 +1,4 @@
-import type { FollowingResult } from '../../shared/following';
+import type { FollowTopic, FollowingResult } from '../../shared/following';
 import { followTopicKey, followTopicSchema } from '../../shared/following';
 import type { CatalogueResult } from '../../shared/catalogue';
 import { filtersForTopic, starterStyle } from '../../shared/discovery';
@@ -26,7 +26,7 @@ function createReleaseDiscovery(
   seenReleases: () => Promise<CatalogueResult<Set<number>>>,
 ) {
   return async (
-    criteria: DigFilters[],
+    criteria: { filters: DigFilters; topic?: FollowTopic }[],
     shelfSize: number,
     background = false,
   ): Promise<DiscogsResult<SearchPage['releases']>> => {
@@ -35,10 +35,10 @@ function createReleaseDiscovery(
       page.releases.forEach((release) => candidates.set(release.id, release));
     };
     const searchTopic = async (index: number): Promise<DiscogsResult<undefined>> => {
-      const filters = criteria[index];
-      if (!filters) return { ok: true, value: undefined };
+      const criterion = criteria[index];
+      if (!criterion) return { ok: true, value: undefined };
       const first = await search({
-        filters,
+        ...criterion,
         page: 1,
         context: 'explore',
         ...(background || index > 0 ? { background: true } : {}),
@@ -50,8 +50,8 @@ function createReleaseDiscovery(
       }
       collect(first.value);
       if (first.value.pages > 1) {
-        const page = 2 + Math.floor(Math.random() * (Math.min(first.value.pages, 200) - 1));
-        const sampled = await search({ filters, page, context: 'explore', background: true });
+        const page = 2 + Math.floor(Math.random() * (first.value.pages - 1));
+        const sampled = await search({ ...criterion, page, context: 'explore', background: true });
         if (sampled.ok) collect(sampled.value);
         else if (sampled.error.code === 'unauthorized' || sampled.error.code === 'cancelled')
           return sampled;
@@ -92,7 +92,7 @@ export function createDiscover(
       );
     const discover = createReleaseDiscovery(search, () => knownReleases(!background));
     return discover(
-      topics.map((topic) => filtersForTopic(topic)),
+      topics.map((topic) => ({ filters: filtersForTopic(topic), topic })),
       8,
       background,
     );
@@ -110,14 +110,19 @@ export function createStarterShelf(
     const taste = await crateTaste();
     if (!taste.ok) return discogsFailure('unavailable', taste.error.message);
     const styles = rankedStyles(taste.value).slice(0, 3);
-    if (!styles.length) return discover([{ ...emptyFilters, style: [starterStyle] }], size, true);
+    if (!styles.length)
+      return discover([{ filters: { ...emptyFilters, style: [starterStyle] } }], size, true);
 
     const chosen = new Map<number, SearchPage['releases'][number]>();
     async function collectStyle(index: number): Promise<DiscogsResult<SearchPage['releases']>> {
       const style = styles[index];
       if (!style || chosen.size >= size)
         return { ok: true, value: [...chosen.values()].slice(0, size) };
-      const matches = await discover([{ ...emptyFilters, style: [style] }], size, true);
+      const matches = await discover(
+        [{ filters: { ...emptyFilters, style: [style] } }],
+        size,
+        true,
+      );
       if (!matches.ok) {
         if (
           !chosen.size ||

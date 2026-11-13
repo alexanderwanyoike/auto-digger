@@ -34,9 +34,11 @@ Open **Catalogue** in the Explore toolbar to browse a Discogs style by year. Sav
 
 **History** in Explore lists opened and played releases. Select an entry to reopen it. The player also has an **Open playing release** button for the track on the deck.
 
+When you open a release in Explore, use **Save to crate** to see or change the active crate before saving the record.
+
 ## Make track playlists
 
-Create a named list in **Playlists**. On a release, use the heart beside a track to add it to **Likes**, or the list icon to add it to one of your named playlists. Auto Digger reuses a saved file or queues an unambiguous YouTube match in **Downloads**. If you need to select a source, choose **Choose audio** beside the entry to return to the release. You can then pick a YouTube upload or find a file on Soulseek. Choose **Play playlist** to hear available tracks in list order, or **Shuffle playlist** for a shuffled order. Likes uses the same controls. Removing a track from one playlist keeps its local audio and other playlist entries.
+Play a downloaded track or preview a source assigned to a Discogs track. Use the heart in the bottom player to add the track to **Likes**, or the list icon to add it to a named playlist. Create named lists in **Playlists**. Auto Digger reuses a saved file or saves the previewed YouTube or Soulseek audio to **Downloads**. If a playlist entry still needs audio, choose **Choose audio** beside it to return to the release. Choose **Play playlist** to hear available tracks in list order, or **Shuffle playlist** for a shuffled order. Likes uses the same controls. Removing a track from one playlist keeps its local audio and other playlist entries.
 
 ## Download audio
 
