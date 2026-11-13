@@ -46,7 +46,7 @@ test('learns the saved record style when the listener refreshes Explore', async 
     await page.getByRole('button', { name: 'Back to Explore' }).click();
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*Back Channel/ })).toBeVisible();
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*First Light/ })).toHaveCount(0);
-    await shelf.getByRole('button', { name: 'Refresh', exact: true }).click();
+    await page.getByRole('button', { name: 'Refresh', exact: true }).click();
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*First Light/ })).toBeVisible();
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toHaveCount(0);
   } finally {

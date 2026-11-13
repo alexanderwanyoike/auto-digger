@@ -296,3 +296,42 @@
 .explore-years .search-results + .search-results {
   border-inline-start: 1px solid var(--line);
 }
+
+.explore-toolbar {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px clamp(12px, 2vw, 28px) 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.explore-toolbar nav,
+.explore-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.explore-toolbar nav button {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+.explore-toolbar nav button:hover,
+.explore-toolbar nav button[aria-current='page'] {
+  color: var(--text);
+}
+.explore-toolbar nav button[aria-current='page'] {
+  border-bottom-color: var(--blue);
+}
+.explore-actions {
+  padding-bottom: 7px;
+}

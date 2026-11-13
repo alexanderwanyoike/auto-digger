@@ -114,6 +114,7 @@ test('discovers unopened releases, browses followed catalogues and compares genr
       unseen.getByRole('button', { name: /^(?!Play ).*Low Tide - Night Transit/ }),
     ).toHaveCount(0);
 
+    await page.getByRole('button', { name: 'Following', exact: true }).click();
     await page.getByRole('button', { name: 'Browse Low Tide', exact: true }).click();
     await expect(
       page.getByRole('button', { name: /^(?!Play ).*Low Tide - Quiet Orbit EP/ }),
@@ -122,6 +123,7 @@ test('discovers unopened releases, browses followed catalogues and compares genr
       page.getByRole('button', { name: /^(?!Play ).*Mira North - First Light/ }),
     ).toHaveCount(0);
 
+    await page.getByRole('button', { name: 'All followed', exact: true }).click();
     await page.getByRole('button', { name: 'Browse Electronic', exact: true }).click();
     await page.getByLabel('First year', { exact: true }).fill('1993');
     await page.getByLabel('Second year', { exact: true }).fill('2000');

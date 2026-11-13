@@ -62,6 +62,7 @@ test('follows artists, labels and genres and manages them after restarting', asy
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
+    await page.getByRole('button', { name: 'Following', exact: true }).click();
     const following = page.getByRole('region', { name: 'Following', exact: true });
     await expect(following.getByText('Low Tide', { exact: true })).toBeVisible();
     await expect(following.getByText('Still Records', { exact: true })).toBeVisible();
