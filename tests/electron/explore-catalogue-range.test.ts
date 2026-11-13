@@ -29,7 +29,8 @@ test('browses a year range with one paginated search and opens an individual yea
             title: `Record ${date.toString()} ${index.toString()}`,
             year: date,
           }));
-        const ranged = year === '1993-1999';
+        const capped = year === '1993-2001';
+        const ranged = year === '1993-1999' || capped;
         const rangePages = [
           records(1993, 50),
           records(1994, 50),
@@ -44,9 +45,9 @@ test('browses a year range with one paginated search and opens an individual yea
           Response.json({
             pagination: {
               page: number,
-              pages: ranged ? rangePages.length : 1,
+              pages: capped ? 250 : rangePages.length,
               per_page: 50,
-              items: ranged ? 103 : 1,
+              items: capped ? 12500 : 103,
             },
             results,
           }),
@@ -116,6 +117,14 @@ test('browses a year range with one paginated search and opens an individual yea
     await page.getByRole('button', { name: 'Back to Catalogue' }).click();
     await expect(to).toHaveValue('1999');
     await expect(second.getByRole('button', { name: 'Play Record 1995 0' })).toBeAttached();
+
+    await to.fill('2001');
+    await to.press('Enter');
+    await expect(
+      page.getByText(
+        'Discogs shows the first 10,000 matches. Narrow the year range to see later releases.',
+      ),
+    ).toBeVisible();
   } finally {
     await desktop.close();
   }
