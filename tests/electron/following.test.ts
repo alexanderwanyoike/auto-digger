@@ -64,14 +64,18 @@ test('follows artists, labels and genres and manages them after restarting', asy
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await page.getByRole('button', { name: 'Following', exact: true }).click();
     const following = page.getByRole('region', { name: 'Following', exact: true });
-    await expect(following.getByText('Low Tide', { exact: true })).toBeVisible();
-    await expect(following.getByText('Still Records', { exact: true })).toBeVisible();
-    await expect(following.getByText('Electronic', { exact: true })).toBeVisible();
+    await following.getByRole('button', { name: 'Artists', exact: true }).click();
+    await expect(following.getByRole('button', { name: 'Browse Low Tide' })).toBeVisible();
+    await expect(following.getByRole('button', { name: 'Browse Still Records' })).toHaveCount(0);
+    await following.getByRole('button', { name: 'Labels', exact: true }).click();
+    await expect(following.getByRole('button', { name: 'Browse Still Records' })).toBeVisible();
+    await expect(following.getByRole('button', { name: 'Browse Low Tide' })).toHaveCount(0);
     await following
       .getByRole('button', { name: 'Unfollow label Still Records', exact: true })
       .click();
-    await expect(following.getByText('Still Records', { exact: true })).toHaveCount(0);
-    await expect(following.getByText('Low Tide', { exact: true })).toBeVisible();
+    await expect(following.getByRole('button', { name: 'Browse Still Records' })).toHaveCount(0);
+    await following.getByRole('button', { name: 'Genres', exact: true }).click();
+    await expect(following.getByRole('button', { name: 'Browse Electronic' })).toBeVisible();
   } finally {
     await desktop.close();
   }
