@@ -75,10 +75,11 @@ export function usePlaylists(
     preparing.current.add(key);
     try {
       const { source, error: probeError } = await findPlaylistSource(track, probe, audio.tracks);
-      if (!source) {
-        if (probeError) setError(`Track saved to playlist. ${probeError.message}`);
+      if (probeError) {
+        setError(`Track saved to playlist. ${probeError.message}`);
         return;
       }
+      if (!source) return;
       const result = await audio.queue.enqueue({ ...source, preserveAssignment: true });
       if (!result.ok) setError(`Track saved to playlist. ${result.error.message}`);
     } catch {

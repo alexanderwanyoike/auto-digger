@@ -34,8 +34,9 @@ export async function findPlaylistSource(
     if (!id || savedTracks.some((track) => track.id === id && !track.missing))
       return check(index + 1);
     const checked = await probe(video.url);
-    if (!checked.ok) error ??= checked.error;
-    else if (
+    if (!checked.ok) {
+      if (checked.error.code !== 'unavailable') error ??= checked.error;
+    } else if (
       sourceAssignment(release, videoIndex, checked, undefined, undefined).selected === trackIndex
     ) {
       if (source) return { source: null };
@@ -47,11 +48,10 @@ export async function findPlaylistSource(
 }
 
 export function playlistJob(track: PlaylistTrack, jobs: DownloadJob[]) {
-  const ids = new Set(
-    uniqueVideoIndexes(track.release.videos).map((videoIndex) =>
-      downloadSourceId({ release: track.release, videoIndex }),
-    ),
-  );
-  const title = track.release.tracks[track.trackIndex]?.title;
-  return [...jobs].reverse().find((job) => ids.has(job.sourceId ?? null) && job.title === title);
+  const position = trackPositionKey(track.release, track.trackIndex);
+  return [...jobs]
+    .reverse()
+    .find(
+      (job) => position && job.releaseId === track.release.id && job.trackPosition === position,
+    );
 }
