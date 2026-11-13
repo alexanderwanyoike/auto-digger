@@ -137,11 +137,12 @@ test('searches and pages through 1,000 followed labels', async () => {
     expect(seeded).toBe(true);
     await page.reload();
     await page.getByRole('button', { name: 'Following', exact: true }).click();
+    await page.setViewportSize({ width: 900, height: 780 });
     const gallery = page.getByRole('region', { name: 'Following' });
     await gallery.getByRole('button', { name: 'Labels', exact: true }).click();
     await expect(gallery.getByRole('listitem')).toHaveCount(24);
     await gallery.getByRole('button', { name: 'Next page' }).click();
-    await expect(gallery.getByRole('button', { name: 'Browse Label 0025' })).toBeVisible();
+    await expect(gallery.getByRole('button', { name: 'Browse Label 0025' })).toBeInViewport();
     await gallery.getByRole('searchbox', { name: 'Search follows' }).fill('1000');
     await expect(gallery.getByRole('listitem')).toHaveCount(1);
     await expect(gallery.getByRole('button', { name: 'Browse Label 1000' })).toBeVisible();
