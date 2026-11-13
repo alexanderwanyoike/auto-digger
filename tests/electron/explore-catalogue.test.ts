@@ -103,6 +103,30 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     expect(track.height).toBeLessThan(viewportBounds.height / 2);
     expect(track.y + track.height / 2).toBeCloseTo(viewportBounds.y + viewportBounds.height / 2, 0);
     expect(track.x + track.width).toBeLessThan(viewportBounds.x + viewportBounds.width);
+    const ticks = page.locator('.explore-scrollbar-tick');
+    const tickWidths = () =>
+      ticks.evaluateAll((marks) => marks.map((mark) => mark.getBoundingClientRect().width));
+    const resting = await tickWidths();
+    expect(resting.length).toBeGreaterThan(10);
+    const middle = Math.floor(resting.length / 2);
+    const hoveredX = track.x + track.width / 2;
+    const hoveredY = track.y + track.height / 2;
+    await page.mouse.move(hoveredX, hoveredY);
+    await expect
+      .poll(async () => (await tickWidths())[middle])
+      .toBeGreaterThan(resting[middle] + 7);
+    const expanded = await tickWidths();
+    expect(expanded[middle]).toBeGreaterThan(expanded[middle + 2]);
+    expect(expanded[middle + 2]).toBeGreaterThan(resting[middle + 2]);
+    expect(expanded[0]).toBe(resting[0]);
+    await page.mouse.move(hoveredX, hoveredY + track.height / 4);
+    await expect.poll(async () => (await tickWidths())[middle]).toBeCloseTo(resting[middle]);
+    await expect
+      .poll(async () => Math.max(...(await tickWidths())))
+      .toBeGreaterThan(resting[middle] + 7);
+    await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(0);
+    await page.mouse.move(hoveredX - 50, hoveredY);
+    await expect.poll(tickWidths).toEqual(resting);
     const catalogueTab = navigation.getByRole('button', { name: 'Catalogue' });
     const scrollTop = () => viewport.evaluate((element) => element.scrollTop);
     await catalogueTab.hover();
