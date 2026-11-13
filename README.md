@@ -18,16 +18,9 @@ Auto Digger is a desktop app for discovering records on Discogs. Follow a label,
 
 ## Download
 
-[Auto Digger 0.1.5](https://github.com/alexanderwanyoike/auto-digger/releases/tag/v0.1.5) is a desktop preview.
+[Download the latest Auto Digger release](https://github.com/alexanderwanyoike/auto-digger/releases/latest) for Windows x64, macOS (Apple silicon or Intel), or Linux x64. The release assets include the installers and their [SHA-256 checksums](https://github.com/alexanderwanyoike/auto-digger/releases/latest/download/SHA256SUMS).
 
-| Platform            | Package                                                                                                                       |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Windows x64         | [Installer](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.5/AutoDigger-0.1.5-windows-x64-setup.exe) |
-| macOS Apple silicon | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.5/AutoDigger-0.1.5-macos-arm64.dmg)      |
-| macOS Intel         | [Disk image](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.5/AutoDigger-0.1.5-macos-x64.dmg)        |
-| Linux x64           | [AppImage](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.5/AutoDigger-0.1.5-linux-x64.AppImage)     |
-
-[SHA-256 checksums](https://github.com/alexanderwanyoike/auto-digger/releases/download/v0.1.5/SHA256SUMS) accompany the installers. Windows builds are unsigned; macOS builds are ad-hoc signed and not notarized.
+Windows builds are unsigned. macOS builds are ad-hoc signed and not notarized.
 
 ### Opening the macOS app
 
@@ -147,9 +140,7 @@ Each time you reopen Auto Digger, choose **Enable MCP** again. Connected assista
 
 The footer shows **Update available** when a newer release is ready. Select it to download, then choose **Restart to update**. Windows installers and Linux AppImages replace the previous app; your crates, settings and music stay in place.
 
-On macOS, the notice opens the installer for your Mac. Install it manually while preview builds use ad-hoc signing. Existing v0.1.1 users need to install this release manually once to gain the updater.
-
-If you update a Linux AppImage from 0.1.2 or 0.1.3 and the app closes without reopening, open the new AppImage once from the folder where you keep Auto Digger. This refreshes its menu shortcut and starts the version with the restart fix.
+On macOS, the notice opens the installer for your Mac. Install it manually while preview builds use ad-hoc signing.
 
 ## Development
 
