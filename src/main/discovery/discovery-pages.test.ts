@@ -1,4 +1,7 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
+import type { DiscogsBridge } from '../../shared/discogs';
+import { discogsFailure } from '../../shared/discogs-failure';
+import type { FollowTopic } from '../../shared/following';
 import { createDiscoveryPages } from './discovery-pages';
 
 test('continues through every followed catalogue without exhausting the largest first', async () => {
@@ -99,4 +102,54 @@ test('continues a broad style through narrower Discogs searches', async () => {
   if (!first.ok || !first.value.next) throw new Error('Expected another page');
   const next = await load({ shelf: 'starter', cursor: first.value.next });
   expect(next).toMatchObject({ ok: true, value: { releases: [{ id: 20 }] } });
+});
+
+test('continues past an unavailable followed catalogue and skips newly unfollowed sources', async () => {
+  const gone = discogsFailure('not-found', 'Catalogue not found');
+  const search = vi.fn<DiscogsBridge['search']>().mockImplementation(({ filters, page }) => {
+    if (filters.label === 'Missing') return Promise.resolve(gone);
+    return Promise.resolve({
+      ok: true,
+      value: {
+        page,
+        pages: 2,
+        perPage: 50,
+        items: 2,
+        releases: [
+          {
+            id: filters.label === 'Healthy' ? 20 + page : 30 + page,
+            title: filters.label,
+            year: '',
+            labels: [],
+            formats: [],
+            artworkUrl: null,
+          },
+        ],
+      },
+    });
+  });
+  const follows: FollowTopic[] = [
+    { kind: 'label', name: 'Missing' },
+    { kind: 'label', name: 'Unfollowed' },
+    { kind: 'label', name: 'Healthy' },
+  ];
+  const load = createDiscoveryPages(
+    search,
+    () => Promise.resolve({ ok: true, value: [] }),
+    () => Promise.resolve({ ok: true, value: follows }),
+    () => Promise.resolve({ ok: true, value: new Set<number>() }),
+  );
+
+  const first = await load({ shelf: 'follows', cursor: null });
+  if (!first.ok || !first.value.next) throw new Error('Expected another followed source');
+  expect(first.value.releases).toEqual([]);
+  follows.splice(1, 1);
+  const second = await load({ shelf: 'follows', cursor: first.value.next });
+  if (!second.ok || !second.value.next) throw new Error('Expected the healthy source');
+  expect(second.value.releases).toEqual([]);
+  await expect(load({ shelf: 'follows', cursor: second.value.next })).resolves.toMatchObject({
+    ok: true,
+    value: { releases: [{ id: 21 }] },
+  });
+  expect(search.mock.calls.map(([{ filters }]) => filters.label)).toEqual(['Missing', 'Healthy']);
 });
