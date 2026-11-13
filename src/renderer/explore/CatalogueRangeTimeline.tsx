@@ -45,6 +45,7 @@ export function CatalogueRangeTimeline({
   const rail = useRef<HTMLElement>(null);
   const railContent = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<number>();
+  const [requestedYear, setRequestedYear] = useState<number>();
   const jumpPosition = useRef<number | undefined>(undefined);
   const sentinel = useScrollContinuation(active && !disabled ? loadMore : undefined);
 
@@ -94,6 +95,7 @@ export function CatalogueRangeTimeline({
                         setSelected(year);
                         return;
                       }
+                      setRequestedYear(year);
                       jumpPosition.current = undefined;
                       viewport.scrollTo(0, 0);
                       setSelected(year);
@@ -115,12 +117,12 @@ export function CatalogueRangeTimeline({
       </div>
       <div className="catalogue-records">
         {limited && (
-          <p className="catalogue-range-limit" role="status">
+          <p className="catalogue-range-status" role="status">
             Discogs shows the first 10,000 matches. Jump to a later year or narrow the range.
           </p>
         )}
-        {start !== from && firstYear !== undefined && firstYear > start && (
-          <p className="catalogue-range-limit" role="status">
+        {requestedYear === start && firstYear !== undefined && firstYear > start && (
+          <p className="catalogue-range-status" role="status">
             No releases found for {start}.
           </p>
         )}
@@ -142,7 +144,9 @@ export function CatalogueRangeTimeline({
           {busy && <p role="status">Loading releases…</p>}
           {!busy && !error && !loadMore && !groups.length && (
             <p>
-              No releases found from {start} to {to}.
+              {start === to
+                ? `No releases found for ${start.toString()}.`
+                : `No releases found from ${start.toString()} to ${to.toString()}.`}
             </p>
           )}
           {error && <p role={error.retryAt === undefined ? 'alert' : 'status'}>{error.message}</p>}
