@@ -96,7 +96,8 @@ export function App({
       discogs
         ?.recordDiscovery?.({
           id: track.releaseId,
-          title: track.album,
+          title:
+            track.album.trim() || track.title.trim() || `Release ${track.releaseId.toString()}`,
           artist: track.artist,
           artworkUrl: track.artworkUrl,
           activity: 'played',
