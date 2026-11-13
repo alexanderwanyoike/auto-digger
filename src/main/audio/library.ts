@@ -103,6 +103,7 @@ export function createAudioLibrary(
         const track: LocalTrack = {
           id,
           releaseId: release.id,
+          release,
           videoId: source.value.videoId,
           title: tagged.value.title,
           sourceTitle: source.value.title,

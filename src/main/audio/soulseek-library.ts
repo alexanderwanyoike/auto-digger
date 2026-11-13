@@ -63,6 +63,7 @@ export async function importSoulseekAudio(
     const saved: LocalTrack = {
       id,
       releaseId: input.release.id,
+      release: input.release,
       videoId: null,
       provider: 'soulseek',
       soulseek: { username: match.username, filename: match.filename, size: match.size },

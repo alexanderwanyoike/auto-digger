@@ -4,6 +4,8 @@ import { downloadInputSchema, trackIdSchema } from '../../shared/audio';
 import type { AudioResult, DownloadInput, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audio-failure';
 import { downloadSourceId } from '../../shared/download-source-id';
+import { matchTrack } from '../../shared/match-track';
+import { trackPositionKey } from '../../shared/track-position';
 import type { createDownloader } from './downloader';
 import { createAudioLibrary } from './library';
 import { importSoulseekAudio } from './soulseek-library';
@@ -13,6 +15,21 @@ import { waitForPreview } from './wait-for-preview';
 export interface PreviewAudio {
   track: LocalTrack;
   file: string;
+}
+
+function previewTrack(input: DownloadInput, track: LocalTrack): LocalTrack {
+  const { release } = input;
+  const trackIndex =
+    input.trackIndex === undefined ? matchTrack(release, track.sourceTitle) : input.trackIndex;
+  const sourceTitle =
+    track.provider === 'soulseek' ? track.sourceTitle.replace(/\.[^.]+$/, '') : track.sourceTitle;
+  return {
+    ...track,
+    release,
+    trackIndex,
+    trackPosition: trackPositionKey(release, trackIndex),
+    title: release.tracks[trackIndex ?? -1]?.title ?? sourceTitle,
+  };
 }
 
 export function createAudioPreviews(
@@ -107,14 +124,17 @@ export function createAudioPreviews(
       const id = downloadSourceId(parsed.data);
       if (!id) return audioFailure('invalid-input', 'Choose an available audio source.');
       const cached = await find(id);
-      if (cached.ok && cached.value) return { ok: true, value: cached.value.track };
-      if (active)
-        return active.id === id
-          ? active.task
-          : audioFailure(
-              'busy',
-              'Another preview is preparing. Cancel it before previewing another source.',
-            );
+      if (cached.ok && cached.value)
+        return { ok: true, value: previewTrack(parsed.data, cached.value.track) };
+      if (active) {
+        if (active.id !== id)
+          return audioFailure(
+            'busy',
+            'Another preview is preparing. Cancel it before previewing another source.',
+          );
+        const result = await active.task;
+        return result.ok ? { ok: true, value: previewTrack(parsed.data, result.value) } : result;
+      }
       const controller = new AbortController();
       const task = prepareFile(parsed.data, controller.signal);
       active = { id, controller, task };

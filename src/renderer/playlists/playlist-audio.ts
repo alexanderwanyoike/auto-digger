@@ -18,7 +18,7 @@ export function localPlaylistTrack({ release, trackIndex }: PlaylistTrack, track
 export async function findPlaylistSource(
   { release, trackIndex }: PlaylistTrack,
   probe: AudioBridge['probe'],
-  savedTracks: LocalTrack[],
+  unavailableSources: ReadonlySet<string>,
 ): Promise<{ source: YouTubeDownloadInput | null; error?: AudioError }> {
   let source: YouTubeDownloadInput | null = null;
   let error: AudioError | undefined;
@@ -31,8 +31,7 @@ export async function findPlaylistSource(
     if (videoIndex === undefined || !video) return { source, ...(error ? { error } : {}) };
     const input = { release, videoIndex, trackIndex };
     const id = downloadSourceId(input);
-    if (!id || savedTracks.some((track) => track.id === id && !track.missing))
-      return check(index + 1);
+    if (!id || unavailableSources.has(id)) return check(index + 1);
     const checked = await probe(video.url);
     if (!checked.ok) {
       if (checked.error.code !== 'unavailable') error ??= checked.error;

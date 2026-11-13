@@ -28,6 +28,7 @@ export const localTrackSchema = z
   .object({
     id: trackIdSchema,
     releaseId: z.number().int().positive(),
+    release: releaseSchema.optional(),
     videoId: z
       .string()
       .regex(/^[\w-]{11}$/)

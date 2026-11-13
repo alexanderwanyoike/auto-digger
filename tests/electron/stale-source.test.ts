@@ -23,10 +23,10 @@ test('plays and retags a saved source whose assignment belongs to a newer trackl
       const saved = await window.audioLibrary?.download({
         release: {
           ...release,
-          tracks: [...release.tracks, { position: 'B1', title: 'Old second track', duration: '' }],
+          tracks: [{ position: 'B1', title: 'Old second track', duration: '' }],
         },
         videoIndex: 0,
-        trackIndex: 1,
+        trackIndex: 0,
       });
       if (!saved?.ok) throw new Error('Could not prepare saved track');
       await window.crate?.save(release);
@@ -59,6 +59,13 @@ test('plays and retags a saved source whose assignment belongs to a newer trackl
         value: [{ id: '12-abcdefghijk', trackIndex: 0, title: 'Quiet Orbit' }],
       });
     await expect(sources.getByText('Saved', { exact: true })).toBeVisible();
+    await page.reload();
+    const player = page.getByRole('contentinfo', { name: 'Playback' });
+    const like = player.getByRole('button', { name: 'Like Quiet Orbit', exact: true });
+    await like.click();
+    await expect(like).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Playlists', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Play Quiet Orbit' })).toBeEnabled();
   } finally {
     await desktop.close();
   }

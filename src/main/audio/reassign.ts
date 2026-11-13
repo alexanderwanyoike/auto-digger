@@ -31,6 +31,7 @@ export async function reassignTrack(
       );
     const corrected = {
       ...saved,
+      release,
       title: tagged.value.title,
       warning: tagged.value.warning,
       trackIndex,
