@@ -76,6 +76,10 @@
 .save-to-crate .crate-picker select {
   max-width: min(32ch, 100%);
 }
+.save-to-crate .crate-destination-error {
+  flex-basis: 100%;
+  color: var(--text);
+}
 
 .crate-copy {
   display: grid;
