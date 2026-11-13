@@ -94,6 +94,7 @@ test('connects Cosine then previews and opens recommendations in the desk, prese
         }}
       />,
     );
+    await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
     await screen.findByRole('button', { name: 'Connected as quiet-digger' });
     await user.type(screen.getByLabelText('Label'), 'Keep this label');
     await user.click(screen.getByRole('button', { name: 'Settings' }));
@@ -180,6 +181,7 @@ test('ignores late recommendations after closing and presents a retryable provid
         }}
       />,
     );
+    await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
     await user.click(await screen.findByRole('button', { name: 'Find similar to Quiet Orbit' }));
     await user.click(screen.getByRole('button', { name: 'Back to Quiet Orbit EP' }));

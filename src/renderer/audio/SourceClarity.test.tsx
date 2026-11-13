@@ -24,6 +24,7 @@ test('distinguishes the selected Discogs track from the verified YouTube upload 
   };
   const user = userEvent.setup();
   render(<App crate={crate} audioLibrary={bridge} />);
+  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   const row = within(screen.getByRole('list', { name: 'YouTube audio sources' })).getByRole(
     'listitem',
@@ -83,6 +84,7 @@ test.each([
     };
     const user = userEvent.setup();
     render(<App crate={crate} audioLibrary={bridge} />);
+    await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
     const row = within(screen.getByRole('list', { name: 'YouTube audio sources' })).getByRole(
       'listitem',

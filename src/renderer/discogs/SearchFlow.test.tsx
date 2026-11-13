@@ -42,6 +42,7 @@ test('applies filters, browses another page and opens a matching release', async
   };
   const user = userEvent.setup();
   render(<App discogs={bridge} />);
+  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
   await screen.findByRole('button', { name: 'Connected as quiet-digger' });
   await user.click(screen.getByLabelText('Genre'));
   await user.click(screen.getByRole('option', { name: 'Electronic' }));

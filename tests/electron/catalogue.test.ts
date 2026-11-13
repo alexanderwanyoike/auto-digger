@@ -21,6 +21,7 @@ test('migrates the crate and persists named crate track annotations through isol
   let desktop = await electron.launch(options);
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     expect(await page.evaluate(async () => window.catalogue?.view())).toMatchObject({
       ok: true,
@@ -51,6 +52,7 @@ test('migrates the crate and persists named crate track annotations through isol
     await desktop.close();
     desktop = await electron.launch(options);
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     expect(
       await page.evaluate(async (crateId) => window.catalogue?.view(crateId), id),

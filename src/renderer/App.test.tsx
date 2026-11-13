@@ -4,8 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { App } from './App';
 import { version } from '../../package.json';
 
-test('opens a digging desk with honest empty states and inactive upcoming features', () => {
+test('shows the digging desk empty states when opened from Explore', async () => {
+  const user = userEvent.setup();
   render(<App />);
+  await user.click(screen.getByRole('button', { name: 'Digging desk', exact: true }));
 
   expect(screen.getByRole('heading', { name: 'Digging desk' })).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'Your next find starts here.' })).toBeInTheDocument();

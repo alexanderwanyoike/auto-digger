@@ -146,6 +146,7 @@ async function expectPanelEnds(panel: Locator, heading: string, footer: string) 
         );
       }, loadedRelease);
       await page.reload();
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).waitFor();
       await expect(crate.getByLabel('20 saved releases', { exact: true })).toBeVisible();
       await crate

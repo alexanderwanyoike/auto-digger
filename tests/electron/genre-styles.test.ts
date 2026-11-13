@@ -36,6 +36,7 @@ test('scopes styles by genre and submits only compatible selected styles through
       };
     }, identityResponse);
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.setViewportSize({ width: 1180, height: 1000 });
     await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
     await page.getByLabel('Personal token').fill('genre-style-fixture');
