@@ -25,7 +25,9 @@ export function createLegacyCrateStore(catalogue: ReturnType<typeof createCatalo
       if (!view.value.crateId) view = await catalogue.create('My crate');
       if (!view.ok) return view;
       if (!view.value.crateId) return crateFailure('storage', 'A crate could not be created.');
-      return releases(await catalogue.add({ crateId: view.value.crateId, release: release.data }));
+      return releases(
+        await catalogue.addPersonal({ crateId: view.value.crateId, release: release.data }),
+      );
     },
     async remove(input: unknown): Promise<CrateResult> {
       const id = z.number().int().positive().safeParse(input);

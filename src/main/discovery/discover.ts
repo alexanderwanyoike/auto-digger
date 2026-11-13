@@ -5,7 +5,9 @@ import { filtersForTopic } from '../../shared/discovery';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsBridge, DiscogsResult } from '../../shared/discogs';
 import type { DigFilters, SearchPage } from '../../shared/search';
+import { filtersSchema } from '../../shared/search';
 import { emptyFilters } from '../../shared/default-filters';
+import type { createCrateTaste } from './crate-taste';
 
 function shuffled<T>(items: readonly T[]): T[] {
   const pool = [...items];
@@ -80,7 +82,31 @@ export function createDiscover(
 export function createStarterShelf(
   search: DiscogsBridge['search'],
   seenReleases: () => Promise<CatalogueResult<Set<number>>>,
+  crateTaste: ReturnType<typeof createCrateTaste>,
 ) {
   const discover = createReleaseDiscovery(search, seenReleases, 6);
-  return () => discover([emptyFilters]);
+  return async () => {
+    const taste = await crateTaste();
+    if (!taste.ok) return discogsFailure('unavailable', taste.error.message);
+    const style = taste.value
+      .flatMap((signal) => {
+        const parsed = filtersSchema.shape.style.safeParse([signal.style]);
+        return parsed.success ? parsed.data : [];
+      })
+      .slice(0, 3);
+    if (!style.length) return discover([emptyFilters]);
+    const personalized = await discover([{ ...emptyFilters, style }]);
+    if (!personalized.ok || personalized.value.length >= 6) return personalized;
+    const starter = await discover([emptyFilters]);
+    if (!starter.ok) {
+      if (starter.error.code === 'unauthorized' || starter.error.code === 'cancelled')
+        return starter;
+      return personalized.value.length ? personalized : starter;
+    }
+    const chosen = new Map(personalized.value.map((release) => [release.id, release]));
+    starter.value.forEach((release) => {
+      if (!chosen.has(release.id)) chosen.set(release.id, release);
+    });
+    return { ok: true as const, value: [...chosen.values()].slice(0, 6) };
+  };
 }

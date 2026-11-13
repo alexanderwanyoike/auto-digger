@@ -172,7 +172,11 @@ export async function createWindow(): Promise<Result<undefined, string>> {
         catalogueStore.following.read,
         catalogueStore.discoveryHistory.known,
       ),
-      starterShelf: createStarterShelf(discogsSession.search, catalogueStore.discoveryHistory.seen),
+      starterShelf: createStarterShelf(
+        discogsSession.search,
+        catalogueStore.discoveryHistory.seen,
+        catalogueStore.crateTaste,
+      ),
       markOpened: catalogueStore.discoveryHistory.opened,
     });
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
