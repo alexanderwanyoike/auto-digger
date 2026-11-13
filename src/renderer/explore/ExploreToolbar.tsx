@@ -23,7 +23,7 @@ export function ExploreToolbar({
   onAllFollowed: (() => void) | undefined;
 }) {
   return (
-    <header className="explore-toolbar">
+    <div className="explore-toolbar">
       <nav aria-label="Explore sections">
         {exploreSections.map((item) => (
           <button
@@ -66,6 +66,6 @@ export function ExploreToolbar({
           </button>
         )}
       </div>
-    </header>
+    </div>
   );
 }
