@@ -1,5 +1,6 @@
 export interface PlaybackItem {
   preview?: boolean;
+  sleeveReleaseId?: number | undefined;
   id: string;
   title: string;
   artist: string;
