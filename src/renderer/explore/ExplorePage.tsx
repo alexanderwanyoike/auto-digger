@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { followTopicKey } from '../../shared/following';
 import type { FollowTopic } from '../../shared/following';
@@ -40,10 +40,18 @@ export function ExplorePage({
   audio: ReturnType<typeof useAudioLibrary>;
 }) {
   const scrollContainer = useRef<HTMLDivElement>(null);
+  const cataloguePosition = useRef(0);
+  const restoreCataloguePosition = useRef(false);
   const [section, setSection] = useState<ExploreSection>('Feed');
   const catalogue = section === 'Catalogue';
   const explore = useExplore(bridge, onUnauthorized);
   const { topic, release, view, busy, error } = explore;
+  useLayoutEffect(() => {
+    if (catalogue && !release && restoreCataloguePosition.current) {
+      scrollContainer.current?.scrollTo(0, cataloguePosition.current);
+      restoreCataloguePosition.current = false;
+    }
+  }, [catalogue, release]);
   const [previewBusy, setPreviewBusy] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const loadPreview = bridge?.previewRelease;
@@ -81,6 +89,7 @@ export function ExplorePage({
     explore.browse(next, page).catch(() => undefined);
   };
   const open = (id: number) => {
+    if (catalogue) cataloguePosition.current = scrollContainer.current?.scrollTop ?? 0;
     explore.open(id, markSeen).catch(() => undefined);
   };
   const selectSection = (next: ExploreSection) => {
@@ -139,7 +148,14 @@ export function ExplorePage({
       )}
       {release && (
         <section className="explore-workspace" aria-label="Selected release">
-          <button type="button" className="secondary-button explore-back" onClick={explore.back}>
+          <button
+            type="button"
+            className="secondary-button explore-back"
+            onClick={() => {
+              restoreCataloguePosition.current = catalogue;
+              explore.back();
+            }}
+          >
             {catalogue ? 'Back to Catalogue' : 'Back to Explore'}
           </button>
           <FollowingContext.Provider value={following}>
