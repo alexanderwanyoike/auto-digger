@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useEffectEvent, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsAccount, DiscogsBridge, DiscogsResult } from '../../shared/discogs';
 import type { SearchPage } from '../../shared/search';
@@ -23,31 +23,10 @@ export function useStarterShelf(
     result: DiscogsResult<Releases>;
   } | null>(null);
 
-  const receiveShelf = useEffectEvent(
-    (
-      currentAccount: DiscogsAccount,
-      currentLoad: NonNullable<DiscogsBridge['starterShelf']>,
-      currentRevision: number,
-      result: DiscogsResult<Releases>,
-    ) => {
-      setResponse((previous) => {
-        const activeRecord =
-          previous?.account === currentAccount && previous.result.ok
-            ? previous.result.value.find(({ id }) => id === playingReleaseId)
-            : undefined;
-        const releases =
-          result.ok && activeRecord && !result.value.some(({ id }) => id === activeRecord.id)
-            ? { ok: true as const, value: [activeRecord, ...result.value] }
-            : result;
-        return {
-          account: currentAccount,
-          load: currentLoad,
-          revision: currentRevision,
-          result: releases,
-        };
-      });
-    },
-  );
+  const playing = useRef(playingReleaseId);
+  useEffect(() => {
+    playing.current = playingReleaseId;
+  }, [playingReleaseId]);
 
   useEffect(() => {
     if (!load || !account) return undefined;
@@ -55,7 +34,20 @@ export function useStarterShelf(
     const receive = (result: DiscogsResult<Releases>) => {
       if (!active) return;
       if (!result.ok && result.error.code === 'unauthorized') onUnauthorized();
-      else receiveShelf(account, load, revision, result);
+      else {
+        const playingId = playing.current;
+        setResponse((previous) => {
+          const activeRecord =
+            previous?.account === account && previous.result.ok
+              ? previous.result.value.find(({ id }) => id === playingId)
+              : undefined;
+          const releases =
+            result.ok && activeRecord && !result.value.some(({ id }) => id === activeRecord.id)
+              ? { ok: true as const, value: [activeRecord, ...result.value] }
+              : result;
+          return { account, load, revision, result: releases };
+        });
+      }
     };
     load()
       .then(receive)
