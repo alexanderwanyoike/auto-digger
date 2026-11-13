@@ -91,6 +91,12 @@ test('downloads a liked track once, shares it with a playlist and restores both 
     await expect(transport.getByText('Night Signal', { exact: true })).toBeVisible({
       timeout: 18000,
     });
+    await page
+      .getByRole('button', { name: 'Shuffle playlist', exact: true })
+      .click({ timeout: 3000 });
+    await expect(transport.getByText(/^(Quiet Orbit|Night Signal)$/)).toBeVisible();
+    await page.getByRole('button', { name: 'Likes', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Play playlist', exact: true })).toBeDisabled();
   } finally {
     await desktop.close();
   }
