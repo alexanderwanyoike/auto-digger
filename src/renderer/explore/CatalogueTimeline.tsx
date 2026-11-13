@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { YearRecords } from './use-catalogue-records';
 import type { DiscogsBridge } from '../../shared/discogs';
+import { TickScrollbar } from './TickScrollbar';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
 import { useCatalogueRecords } from './use-catalogue-records';
 import { useScrollContinuation } from './use-scroll-continuation';
@@ -30,6 +31,7 @@ export function CatalogueTimeline({
   const [selected, setSelected] = useState<number | null>(null);
   const catalogue = useRef<HTMLDivElement>(null);
   const yearRail = useRef<HTMLElement>(null);
+  const yearRailContent = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const rail = yearRail.current;
     const button = rail?.querySelector('[aria-current="true"]');
@@ -41,12 +43,11 @@ export function CatalogueTimeline({
   }, [selected]);
   useEffect(() => {
     const timeline = catalogue.current;
-    const viewport = timeline?.closest<HTMLElement>('.explore-page');
-    const toolbar = viewport?.querySelector('.explore-toolbar');
-    if (!timeline || !viewport || !toolbar || disabled || !records.groups.length) return undefined;
+    const viewport = timeline?.closest<HTMLElement>('.explore-scroll');
+    if (!timeline || !viewport || disabled || !records.groups.length) return undefined;
     const update = () => {
       if (!timeline.getClientRects().length) return;
-      const edge = toolbar.getBoundingClientRect().bottom + 12;
+      const edge = viewport.getBoundingClientRect().top + 12;
       const years = Array.from(timeline.querySelectorAll<HTMLElement>('[data-release-year]'));
       const atEnd =
         viewport.scrollTop > 0 &&
@@ -91,30 +92,39 @@ export function CatalogueTimeline({
 
   return (
     <div className="catalogue-timeline" ref={catalogue}>
-      <nav aria-label="Release years" className="catalogue-years" ref={yearRail}>
-        <ol>
-          {index.years.map((year) => (
-            <li key={year}>
-              <button
-                type="button"
-                aria-current={year === (selected ?? index.years[0]) ? true : undefined}
-                disabled={disabled}
-                onClick={() => {
-                  select(year);
-                }}
-              >
-                {year}
+      <div className="catalogue-years-frame">
+        <nav aria-label="Release years" className="catalogue-years" ref={yearRail}>
+          <div ref={yearRailContent}>
+            <ol>
+              {index.years.map((year) => (
+                <li key={year}>
+                  <button
+                    type="button"
+                    aria-current={year === (selected ?? index.years[0]) ? true : undefined}
+                    disabled={disabled}
+                    onClick={() => {
+                      select(year);
+                    }}
+                  >
+                    {year}
+                  </button>
+                </li>
+              ))}
+            </ol>
+            {index.error && canLoadRecords && (
+              <button className="secondary-button" type="button" onClick={index.retry}>
+                Retry years
               </button>
-            </li>
-          ))}
-        </ol>
-        {index.error && canLoadRecords && (
-          <button className="secondary-button" type="button" onClick={index.retry}>
-            Retry years
-          </button>
-        )}
-        <div ref={moreYears} className="year-continuation" />
-      </nav>
+            )}
+            <div ref={moreYears} className="year-continuation" />
+          </div>
+        </nav>
+        <TickScrollbar
+          viewport={yearRail}
+          content={yearRailContent}
+          label="Catalogue years scroll position"
+        />
+      </div>
       <div className="catalogue-records">
         {records.groups.map((group) => (
           <section

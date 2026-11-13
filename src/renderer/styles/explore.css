@@ -1,44 +1,27 @@
 .explore-page {
+  --explore-padding: clamp(24px, 4vw, 48px);
+  display: flex;
   flex: 1;
+  flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  margin: 0 0 24px;
+}
+.explore-content {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.explore-scroll {
+  height: 100%;
+  overflow: auto;
+}
+.explore-scroll-content {
   display: grid;
   align-content: start;
   grid-auto-rows: max-content;
   gap: 10px;
-  margin: 0 0 24px;
-  --explore-padding: clamp(24px, 4vw, 48px);
-  min-height: 0;
-  overflow: auto;
-}
-@media (forced-colors: none) {
-  .explore-page {
-    --explore-scrollbar-opacity: 78%;
-  }
-  :root[data-theme='dark'] .explore-page {
-    --explore-scrollbar-opacity: 65%;
-  }
-  :is(.explore-page, .catalogue-years)::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-track,
-  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-corner {
-    background: transparent;
-  }
-  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-button {
-    display: none;
-  }
-  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb {
-    border: 3px solid transparent;
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--muted) var(--explore-scrollbar-opacity), transparent)
-      padding-box;
-  }
-  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb:hover,
-  :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb:active {
-    border-width: 2px;
-    background-color: color-mix(in srgb, var(--muted) 82%, transparent);
-  }
+  padding-top: 10px;
 }
 .explore-shelf {
   min-width: 0;
@@ -103,7 +86,7 @@
     11px/1.5 'IBM Plex Mono',
     monospace;
 }
-.explore-page > .explore-notice {
+.explore-scroll-content > .explore-notice {
   padding-top: 24px;
 }
 .explore-page .section-page {
@@ -212,14 +195,16 @@
   grid-template-columns: 100px minmax(0, 1fr);
   gap: 18px;
   align-items: start;
-  scroll-margin-top: 56px;
+  scroll-margin-top: 12px;
+}
+.catalogue-years-frame {
+  position: sticky;
+  top: 12px;
 }
 .catalogue-years {
-  position: sticky;
-  top: 60px;
   max-height: min(540px, calc(100vh - 200px));
   overflow: auto;
-  padding: 4px 8px;
+  padding: 4px 18px 4px 8px;
 }
 .catalogue-years ol {
   margin: 0 0 14px;
@@ -270,7 +255,7 @@
   padding: 0 0 20px;
   margin: 0 0 16px;
   border-bottom: 1px solid var(--line);
-  scroll-margin-top: 60px;
+  scroll-margin-top: 12px;
 }
 .catalogue-year > ul {
   grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
@@ -291,10 +276,8 @@
 }
 .explore-toolbar {
   flex-wrap: wrap;
-  position: sticky;
-  z-index: 2;
-  top: 0;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   gap: 12px;

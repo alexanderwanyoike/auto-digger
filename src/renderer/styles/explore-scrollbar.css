@@ -1,0 +1,51 @@
+@media (forced-colors: none) {
+  .explore-scroll,
+  .catalogue-years {
+    scrollbar-width: none;
+  }
+  .explore-scrollbar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 22px;
+    height: 100%;
+    margin: 0;
+    appearance: none;
+    writing-mode: vertical-lr;
+    direction: ltr;
+    cursor: ns-resize;
+    background: transparent;
+  }
+  .explore-scrollbar::-webkit-slider-runnable-track {
+    height: 100%;
+    background: repeating-linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--muted) 48%, transparent) 0 1px,
+        transparent 1px 9px
+      )
+      center / 5px 100% no-repeat;
+  }
+  .explore-scrollbar::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 12px;
+    margin-inline: 0;
+    margin-block-start: 3px;
+    border: 0;
+    background: linear-gradient(var(--text), var(--text)) center / 100% 1px no-repeat;
+  }
+  .explore-scrollbar:focus-visible {
+    outline-offset: -2px;
+  }
+  .catalogue-years-frame .explore-scrollbar {
+    width: 18px;
+  }
+  .catalogue-years-frame .explore-scrollbar::-webkit-slider-thumb {
+    width: 12px;
+  }
+}
+@media (forced-colors: active) {
+  .explore-scrollbar {
+    display: none;
+  }
+}
