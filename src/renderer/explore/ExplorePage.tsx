@@ -179,6 +179,9 @@ export function ExplorePage({
             following={following}
             browseDisabled={disabled}
             onBrowse={browse}
+            onPageChange={() => {
+              scrollContainer.current?.scrollTo(0, 0);
+            }}
             lookup={connected ? bridge?.topicArtwork : undefined}
             active={!release && !topic && !view}
             onUnauthorized={onUnauthorized}

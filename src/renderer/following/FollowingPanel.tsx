@@ -18,6 +18,7 @@ export function FollowingPanel({
   following,
   browseDisabled,
   onBrowse,
+  onPageChange,
   lookup,
   active,
   onUnauthorized,
@@ -25,6 +26,7 @@ export function FollowingPanel({
   following: ReturnType<typeof useFollowing>;
   browseDisabled: boolean;
   onBrowse: (topic: FollowTopic) => void;
+  onPageChange: () => void;
   lookup: DiscogsBridge['topicArtwork'];
   active: boolean;
   onUnauthorized: () => void;
@@ -120,6 +122,7 @@ export function FollowingPanel({
             disabled={current === 0}
             onClick={() => {
               setPage(current - 1);
+              onPageChange();
             }}
           >
             Previous page
@@ -133,6 +136,7 @@ export function FollowingPanel({
             disabled={current === lastPage}
             onClick={() => {
               setPage(current + 1);
+              onPageChange();
             }}
           >
             Next page
