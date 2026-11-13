@@ -43,12 +43,18 @@ export function ExplorePage({
   const [previewBusy, setPreviewBusy] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const loadPreview = bridge?.previewRelease;
+  const audioBridge = audio.bridge;
   const preview =
-    loadPreview && audio.available
+    loadPreview && audioBridge
       ? (id: number) => {
           setPreviewError(null);
           setPreviewBusy(true);
-          sleevePreview(loadPreview, (input, releaseId) => audio.preview(input, releaseId), id)
+          sleevePreview(
+            loadPreview,
+            audioBridge.probe,
+            (input, releaseId) => audio.preview(input, releaseId),
+            id,
+          )
             .then((result) => {
               if (!result.ok) {
                 if (result.error.code === 'unauthorized') onUnauthorized();
