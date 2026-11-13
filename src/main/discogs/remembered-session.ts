@@ -50,7 +50,19 @@ export function createRememberedSession(
       await serialize(() => Promise.resolve());
       if (revision !== credentialRevision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
-      return session.topicArtwork(input);
+      const result = await session.topicArtwork(input);
+      if (result.ok || result.error.code !== 'unauthorized') return result;
+      return serialize(async () => {
+        if (revision !== credentialRevision)
+          return discogsFailure('cancelled', 'The Discogs session has changed.');
+        credentialRevision += 1;
+        pendingSearches.clear();
+        session.disconnect();
+        const removed = await tokens.clear();
+        return removed.ok
+          ? result
+          : discogsFailure('unauthorized', `${result.error.message} ${removed.error.message}`);
+      });
     },
     search: (input: unknown) => {
       const parsed = searchInputSchema.safeParse(input);
