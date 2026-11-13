@@ -46,11 +46,18 @@ test('browses populated catalogue years and restores the timeline from a full ye
       { identityResponse, releaseResponse },
     );
     await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
-    await page.getByLabel('Personal token').fill('fixture-explore-taste');
+    await page.getByLabel('Personal token').fill('fixture-explore-catalogue');
     await page.getByRole('button', { name: 'Connect account', exact: true }).click();
     const shelf = page.getByRole('region', { name: 'Discover records' });
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toBeVisible();
+    await shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ }).click();
+    await page.getByRole('button', { name: 'Save EP to crate' }).click();
+    await expect(page.getByRole('button', { name: 'Saved to crate' })).toBeDisabled();
+    await page.getByRole('button', { name: 'Back to Explore', exact: true }).click();
     await page.getByRole('button', { name: 'Catalogue', exact: true }).click();
+    await expect(page.getByText('Deep House', { exact: true })).toBeVisible();
+    await page.getByRole('combobox', { name: 'Style' }).click();
+    await expect(page.getByRole('listbox').getByRole('option').first()).toHaveText('Deep House');
     const style = page.getByRole('combobox', { name: 'Style' });
     await style.fill('Progressive House');
     await page.getByRole('option', { name: 'Progressive House', exact: true }).click();
