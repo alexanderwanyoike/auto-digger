@@ -31,9 +31,8 @@ test('browses a year range with one paginated search and opens an individual yea
           }));
         const capped = year === '1993-2001';
         const emptyStart = year === '1997-1999';
-        const cappedJump = year === '1994-2001';
         const later = emptyStart || year === '1998-1999';
-        const ranged = year === '1993-1999' || capped || later || cappedJump;
+        const ranged = year === '1993-1999' || capped || later;
         const rangePages = later
           ? [records(1998, 50), records(1999, 1)]
           : [
@@ -42,19 +41,19 @@ test('browses a year range with one paginated search and opens an individual yea
               [...records(1993, 1), ...records(1994, 1), ...records(1995, 1), ...records(2000, 1)],
             ];
         const fallback = records(Number(year.split('-')[0]) || 1990, 1);
-        const results =
-          ranged && !cappedJump
-            ? (rangePages[number - 1] ?? []).map((record) =>
-                record.year === 1992 ? { ...record, year: '' } : record,
-              )
-            : fallback;
+        const results = ranged
+          ? (rangePages[number - 1] ?? []).map((record) =>
+              record.year === 1992 ? { ...record, year: '' } : record,
+            )
+          : fallback;
+        const pages = ranged ? rangePages.length : 1;
         return Promise.resolve(
           Response.json({
             pagination: {
               page: number,
-              pages: capped ? 250 : rangePages.length,
+              pages: capped ? 250 : pages,
               per_page: 50,
-              items: capped ? 12500 : 104,
+              items: capped ? 12500 : results.length,
             },
             results,
           }),
