@@ -1,6 +1,8 @@
 import { useCallback, useLayoutEffect, useState } from 'react';
-import type { RefObject } from 'react';
+import type { CSSProperties, RefObject } from 'react';
 import { scrollWithKeys, scrollWithWheel } from './scroll-input';
+
+const tickOffsets = Array.from({ length: 25 }, (_, index) => index - 12);
 
 export function TickScrollbar({
   viewport,
@@ -57,24 +59,47 @@ export function TickScrollbar({
   if (range.maximum === 0) return null;
 
   return (
-    <input
-      ref={connectTrack}
-      type="range"
-      className="explore-scrollbar"
-      aria-label={label}
-      aria-orientation="vertical"
-      aria-valuetext={`${Math.round((range.position / range.maximum) * 100).toString()}%`}
-      min={0}
-      max={range.maximum}
-      value={range.position}
-      onKeyDown={(event) => {
-        scrollWithKeys(event, viewport.current);
-      }}
-      onChange={(event) => {
-        const position = event.currentTarget.valueAsNumber;
-        viewport.current?.scrollTo(0, position);
-        setRange((previous) => ({ ...previous, position }));
-      }}
-    />
+    <div className="explore-scrollbar-frame">
+      <div className="explore-scrollbar-ticks" aria-hidden="true">
+        {tickOffsets.map((offset) => (
+          <span
+            key={offset}
+            className="explore-scrollbar-tick"
+            style={{ '--tick-offset': offset } as CSSProperties}
+          />
+        ))}
+      </div>
+      <input
+        ref={connectTrack}
+        type="range"
+        className="explore-scrollbar"
+        aria-label={label}
+        aria-orientation="vertical"
+        aria-valuetext={`${Math.round((range.position / range.maximum) * 100).toString()}%`}
+        min={0}
+        max={range.maximum}
+        value={range.position}
+        onPointerMove={(event) => {
+          if (event.pointerType === 'touch') return;
+          const track = event.currentTarget.getBoundingClientRect();
+          const offset = event.clientY - (track.top + track.height / 2);
+          event.currentTarget.parentElement?.style.setProperty(
+            '--pointer-offset',
+            `${offset.toString()}px`,
+          );
+        }}
+        onPointerLeave={(event) => {
+          event.currentTarget.parentElement?.style.removeProperty('--pointer-offset');
+        }}
+        onKeyDown={(event) => {
+          scrollWithKeys(event, viewport.current);
+        }}
+        onChange={(event) => {
+          const position = event.currentTarget.valueAsNumber;
+          viewport.current?.scrollTo(0, position);
+          setRange((previous) => ({ ...previous, position }));
+        }}
+      />
+    </div>
   );
 }
