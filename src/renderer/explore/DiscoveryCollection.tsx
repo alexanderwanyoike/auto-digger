@@ -15,6 +15,7 @@ export function DiscoveryCollection({
   seen,
   playingReleaseId,
   disabled,
+  active: visible,
   onOpen,
   onPreview,
   previewBusy,
@@ -26,6 +27,7 @@ export function DiscoveryCollection({
   seen: ReadonlySet<number>;
   playingReleaseId: number | undefined;
   disabled: boolean;
+  active: boolean;
   onOpen: (id: number) => void;
   onPreview: ((id: number) => void) | undefined;
   previewBusy: boolean;
@@ -44,7 +46,7 @@ export function DiscoveryCollection({
     setError(null);
     setAttempt((previous) => previous + 1);
   }, []);
-  useDiscogsRetry(retryAt, retry, !disabled);
+  useDiscogsRetry(retryAt, retry, visible && !disabled);
 
   useEffect(() => {
     if (!request) return undefined;

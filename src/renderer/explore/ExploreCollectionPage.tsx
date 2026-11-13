@@ -24,6 +24,7 @@ function YearCollection({
   style,
   group,
   disabled,
+  active,
   onOpen,
   onPreview,
   previewBusy,
@@ -33,12 +34,20 @@ function YearCollection({
   style: string;
   group: YearRecords;
   disabled: boolean;
+  active: boolean;
   onOpen: (id: number) => void;
   onPreview: ((id: number) => void) | undefined;
   previewBusy: boolean;
   onUnauthorized: () => void;
 }) {
-  const records = useCatalogueRecords(search, style, group.year, onUnauthorized, group);
+  const records = useCatalogueRecords(
+    search,
+    style,
+    group.year,
+    onUnauthorized,
+    group,
+    active && !disabled,
+  );
   const sentinel = useScrollContinuation(
     !disabled && !records.busy && !records.error && records.morePages
       ? () => {
@@ -78,6 +87,7 @@ export function ExploreCollectionPage({
   seen,
   playingReleaseId,
   disabled,
+  active,
   onBack,
   onOpen,
   onPreview,
@@ -91,6 +101,7 @@ export function ExploreCollectionPage({
   seen: ReadonlySet<number>;
   playingReleaseId: number | undefined;
   disabled: boolean;
+  active: boolean;
   onBack: () => void;
   onOpen: (id: number) => void;
   onPreview: ((id: number) => void) | undefined;
@@ -121,6 +132,7 @@ export function ExploreCollectionPage({
           onPreview={onPreview}
           previewBusy={previewBusy}
           disabled={disabled}
+          active={active}
           onOpen={onOpen}
           onUnauthorized={onUnauthorized}
         />
@@ -133,6 +145,7 @@ export function ExploreCollectionPage({
             seen={seen}
             playingReleaseId={playingReleaseId}
             disabled={disabled}
+            active={active}
             onOpen={onOpen}
             onPreview={onPreview}
             previewBusy={previewBusy}

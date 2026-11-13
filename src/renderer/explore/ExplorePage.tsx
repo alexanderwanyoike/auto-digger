@@ -257,6 +257,7 @@ export function ExplorePage({
               <div hidden={Boolean(release)}>
                 <ExploreCollectionPage
                   collection={collection}
+                  active={!release}
                   headingRef={collectionHeading}
                   bridge={bridge}
                   seed={
