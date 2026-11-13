@@ -10,12 +10,16 @@ export function CataloguePage({
   bridge,
   busy,
   onOpen,
+  onPreview,
+  previewBusy,
   onShowYear,
   onUnauthorized,
 }: {
   bridge: DiscogsBridge;
   busy: boolean;
   onOpen: (id: number) => void;
+  onPreview: ((id: number) => void) | undefined;
+  previewBusy: boolean;
   onShowYear: (style: string, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
@@ -67,6 +71,8 @@ export function CataloguePage({
           disabled={busy}
           search={bridge.search}
           onOpen={onOpen}
+          onPreview={onPreview}
+          previewBusy={previewBusy}
           onShowYear={onShowYear}
           onUnauthorized={onUnauthorized}
         />

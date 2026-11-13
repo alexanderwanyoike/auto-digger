@@ -395,3 +395,7 @@
   color: var(--text);
   font-size: 12px;
 }
+
+.year-continuation {
+  min-height: 1px;
+}

@@ -3,6 +3,7 @@ import type { YearRecords } from './use-catalogue-records';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
 import { useCatalogueRecords } from './use-catalogue-records';
+import { useScrollContinuation } from './use-scroll-continuation';
 import { useCatalogueYearIndex } from './use-catalogue-year-index';
 
 export function CatalogueTimeline({
@@ -10,6 +11,8 @@ export function CatalogueTimeline({
   disabled,
   search,
   onOpen,
+  onPreview,
+  previewBusy,
   onShowYear,
   onUnauthorized,
 }: {
@@ -17,13 +20,14 @@ export function CatalogueTimeline({
   disabled: boolean;
   search: DiscogsBridge['search'];
   onOpen: (id: number) => void;
+  onPreview: ((id: number) => void) | undefined;
+  previewBusy: boolean;
   onShowYear: (style: string, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
   const index = useCatalogueYearIndex(search, style, onUnauthorized);
   const records = useCatalogueRecords(search, style, index.years[0], onUnauthorized);
   const [selected, setSelected] = useState<number | null>(null);
-  const sentinel = useRef<HTMLDivElement>(null);
   const catalogue = useRef<HTMLDivElement>(null);
   const yearRail = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -68,22 +72,12 @@ export function CatalogueTimeline({
     if (canLoadRecords) records.loadMore(nextYear);
     else index.loadMore();
   };
-  useEffect(() => {
-    const element = sentinel.current;
-    if (!element || busy || error || disabled || !hasMore) return undefined;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        observer.disconnect();
-        loadMore();
-      },
-      { rootMargin: '200px 0px' },
-    );
-    observer.observe(element);
-    return () => {
-      observer.disconnect();
-    };
-  });
+  const sentinel = useScrollContinuation(
+    !busy && !error && !disabled && hasMore ? loadMore : undefined,
+  );
+  const moreYears = useScrollContinuation(
+    index.hasMore && !index.busy && !index.error && !disabled ? index.loadMore : undefined,
+  );
 
   const select = (year: number) => {
     setSelected(year);
@@ -114,16 +108,7 @@ export function CatalogueTimeline({
             </li>
           ))}
         </ol>
-        {index.hasMore && !index.error && (
-          <button
-            className="secondary-button"
-            type="button"
-            disabled={disabled || index.busy}
-            onClick={index.loadMore}
-          >
-            More years
-          </button>
-        )}
+        <div ref={moreYears} className="year-continuation" />
       </nav>
       <div className="catalogue-records">
         {records.groups.map((group) => (
@@ -147,7 +132,13 @@ export function CatalogueTimeline({
                 Show more
               </button>
             </header>
-            <ReleaseMatchList releases={group.releases} disabled={disabled} onOpen={onOpen} />
+            <ReleaseMatchList
+              releases={group.releases}
+              disabled={disabled}
+              onOpen={onOpen}
+              onPreview={onPreview}
+              previewBusy={previewBusy}
+            />
           </section>
         ))}
         <div ref={sentinel} className="catalogue-continuation">
@@ -161,11 +152,6 @@ export function CatalogueTimeline({
               onClick={records.error ? records.retry : index.retry}
             >
               Retry
-            </button>
-          )}
-          {!busy && !error && hasMore && (
-            <button className="secondary-button" type="button" onClick={loadMore}>
-              Load more releases
             </button>
           )}
         </div>

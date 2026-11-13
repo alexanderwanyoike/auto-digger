@@ -128,10 +128,10 @@ export function ExplorePage({
   };
   const open = useCallback(
     (id: number) => {
-      releasePosition.current = scrollContainer.current?.scrollTop ?? 0;
+      if (!release) releasePosition.current = scrollContainer.current?.scrollTop ?? 0;
       openRelease(id, markSeen).catch(() => undefined);
     },
-    [markSeen, openRelease],
+    [markSeen, openRelease, release],
   );
   useEffect(() => {
     if (!playerRelease || busy) return;
@@ -195,6 +195,8 @@ export function ExplorePage({
             bridge={bridge}
             busy={busy}
             onOpen={open}
+            onPreview={preview}
+            previewBusy={previewBusy || Boolean(audio.preparingPreview)}
             onShowYear={(style, group) => {
               showCollection(
                 { kind: 'year', style, group },
