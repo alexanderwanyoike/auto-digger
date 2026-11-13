@@ -24,9 +24,11 @@ function shuffled<T>(items: readonly T[]): T[] {
 function createReleaseDiscovery(
   search: DiscogsBridge['search'],
   seenReleases: () => Promise<CatalogueResult<Set<number>>>,
-  shelfSize: number,
 ) {
-  return async (criteria: DigFilters[]): Promise<DiscogsResult<SearchPage['releases']>> => {
+  return async (
+    criteria: DigFilters[],
+    shelfSize: number,
+  ): Promise<DiscogsResult<SearchPage['releases']>> => {
     const candidates = new Map<number, SearchPage['releases'][number]>();
     const collect = (page: SearchPage) => {
       page.releases.forEach((release) => candidates.set(release.id, release));
@@ -60,8 +62,8 @@ export function createDiscover(
   readFollowing: () => Promise<FollowingResult>,
   knownReleases: () => Promise<CatalogueResult<Set<number>>>,
 ) {
-  const discover = createReleaseDiscovery(search, knownReleases, 8);
-  return async (input: unknown): Promise<DiscogsResult<SearchPage['releases']>> => {
+  const discover = createReleaseDiscovery(search, knownReleases);
+  return async (input: unknown, size = 8): Promise<DiscogsResult<SearchPage['releases']>> => {
     const selected = followTopicSchema.nullable().safeParse(input);
     if (!selected.success)
       return discogsFailure('invalid-input', 'Choose a followed artist, label or genre.');
@@ -76,7 +78,10 @@ export function createDiscover(
         'invalid-input',
         'Follow an artist, label or genre to discover releases.',
       );
-    return discover(topics.map((topic) => filtersForTopic(topic)));
+    return discover(
+      topics.map((topic) => filtersForTopic(topic)),
+      size,
+    );
   };
 }
 
@@ -85,9 +90,8 @@ export function createStarterShelf(
   seenReleases: () => Promise<CatalogueResult<Set<number>>>,
   crateTaste: ReturnType<typeof createCrateTaste>,
 ) {
-  const size = 6;
-  const discover = createReleaseDiscovery(search, seenReleases, size);
-  return async () => {
+  const discover = createReleaseDiscovery(search, seenReleases);
+  return async (size = 6) => {
     const taste = await crateTaste();
     if (!taste.ok) return discogsFailure('unavailable', taste.error.message);
     const styles = taste.value
@@ -96,14 +100,14 @@ export function createStarterShelf(
         return parsed.success ? parsed.data : [];
       })
       .slice(0, 3);
-    if (!styles.length) return discover([{ ...emptyFilters, style: [starterStyle] }]);
+    if (!styles.length) return discover([{ ...emptyFilters, style: [starterStyle] }], size);
 
     const chosen = new Map<number, SearchPage['releases'][number]>();
     async function collectStyle(index: number): Promise<DiscogsResult<SearchPage['releases']>> {
       const style = styles[index];
       if (!style || chosen.size >= size)
         return { ok: true, value: [...chosen.values()].slice(0, size) };
-      const matches = await discover([{ ...emptyFilters, style: [style] }]);
+      const matches = await discover([{ ...emptyFilters, style: [style] }], size);
       if (!matches.ok) {
         if (
           !chosen.size ||

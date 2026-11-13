@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { YearRecords } from './use-catalogue-records';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
 import { useCatalogueRecords } from './use-catalogue-records';
@@ -9,12 +10,14 @@ export function CatalogueTimeline({
   disabled,
   search,
   onOpen,
+  onShowYear,
   onUnauthorized,
 }: {
   style: string;
   disabled: boolean;
   search: DiscogsBridge['search'];
   onOpen: (id: number) => void;
+  onShowYear: (style: string, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
   const index = useCatalogueYearIndex(search, style, onUnauthorized);
@@ -123,17 +126,28 @@ export function CatalogueTimeline({
         )}
       </nav>
       <div className="catalogue-records">
-        {records.groups.map(({ year, releases }) => (
+        {records.groups.map((group) => (
           <section
-            key={year}
+            key={group.year}
             className="explore-shelf catalogue-year"
-            aria-label={year.toString()}
-            data-release-year={year}
+            aria-label={group.year.toString()}
+            data-release-year={group.year}
           >
             <header className="explore-shelf-header">
-              <h3>{year}</h3>
+              <h3>{group.year}</h3>
+              <button
+                type="button"
+                id={`explore-year-more-${group.year.toString()}`}
+                className="explore-show-more"
+                disabled={disabled}
+                onClick={() => {
+                  onShowYear(style, group);
+                }}
+              >
+                Show more
+              </button>
             </header>
-            <ReleaseMatchList releases={releases} disabled={disabled} onOpen={onOpen} />
+            <ReleaseMatchList releases={group.releases} disabled={disabled} onOpen={onOpen} />
           </section>
         ))}
         <div ref={sentinel} className="catalogue-continuation">

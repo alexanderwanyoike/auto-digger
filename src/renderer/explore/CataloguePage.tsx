@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { YearRecords } from './use-catalogue-records';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { CatalogueStylePicker } from './CatalogueStylePicker';
 import { CatalogueTimeline } from './CatalogueTimeline';
@@ -9,11 +10,13 @@ export function CataloguePage({
   bridge,
   busy,
   onOpen,
+  onShowYear,
   onUnauthorized,
 }: {
   bridge: DiscogsBridge;
   busy: boolean;
   onOpen: (id: number) => void;
+  onShowYear: (style: string, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
   const [preferred, setPreferred] = useState<string[] | null>(null);
@@ -64,6 +67,7 @@ export function CataloguePage({
           disabled={busy}
           search={bridge.search}
           onOpen={onOpen}
+          onShowYear={onShowYear}
           onUnauthorized={onUnauthorized}
         />
       )}

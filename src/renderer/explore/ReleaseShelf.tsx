@@ -9,6 +9,7 @@ export function ReleaseShelf({
   open,
   preview,
   previewBusy,
+  onShowMore,
 }: {
   title: string;
   headingId: string;
@@ -17,11 +18,23 @@ export function ReleaseShelf({
   preview?: ((id: number) => void) | undefined;
   previewBusy?: boolean | undefined;
   open: (id: number) => void;
+  onShowMore: (() => void) | undefined;
 }) {
   return (
     <section className="explore-shelf" aria-labelledby={headingId}>
       <header className="explore-shelf-header">
         <h2 id={headingId}>{title}</h2>
+        {onShowMore && (
+          <button
+            type="button"
+            id={`${headingId}-more`}
+            className="explore-show-more"
+            onClick={onShowMore}
+            disabled={disabled}
+          >
+            Show more
+          </button>
+        )}
       </header>
       {shelf.busy && !shelf.releases.length && <p role="status">Loading releases…</p>}
       {shelf.error && !shelf.busy && <p role="alert">{shelf.error}</p>}

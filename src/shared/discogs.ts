@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { DiscoveryShelf } from './discovery';
 import type { DigResult } from './dig';
 import type { DigFilters, SearchPage } from './search';
 import type { FollowTopic } from './following';
@@ -66,6 +67,7 @@ export interface DiscogsBridge {
   }) => Promise<DiscogsResult<SearchPage>>;
   topicArtwork?: (topic: FollowTopic) => Promise<DiscogsResult<string | null>>;
   discover?: (topic: FollowTopic | null) => Promise<DiscogsResult<SearchPage['releases']>>;
+  expandDiscovery?: (shelf: DiscoveryShelf) => Promise<DiscogsResult<SearchPage['releases']>>;
   starterShelf?: () => Promise<DiscogsResult<SearchPage['releases']>>;
   previewRelease?: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
   crateStyles?: () => Promise<DiscogsResult<string[]>>;
@@ -81,6 +83,7 @@ export const discogsChannels = {
   topicArtwork: 'discogs:topic-artwork',
   discover: 'discogs:discover',
   starterShelf: 'discogs:starter-shelf',
+  expandDiscovery: 'discogs:expand-discovery',
   markSeen: 'discogs:mark-seen',
   previewRelease: 'discogs:preview-release',
   crateStyles: 'discogs:crate-styles',
