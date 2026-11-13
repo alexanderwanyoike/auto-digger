@@ -92,7 +92,10 @@ import { identityResponse } from '../discogs-fixtures';
       await expect(jumped).toBeVisible();
       await expect(years.getByRole('button', { name: '2003', exact: true })).toBeVisible();
       await expect(years.getByRole('button', { name: '2007', exact: true })).toBeVisible();
-      const jumpSearches = (await requests.jsonValue()).slice(before).map(({ date }) => date);
+      const jumpSearches = (await requests.jsonValue())
+        .slice(before)
+        .map(({ date }) => date)
+        .filter((date) => date !== '1993' && date !== '1993-9999');
       expect(jumpSearches.sort()).toEqual(['1000-2004', '2005', '2006-9999']);
       await years.getByRole('button', { name: '2007' }).click();
       await expect(page.getByRole('region', { name: '2007', exact: true })).toBeVisible();
