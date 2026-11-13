@@ -65,6 +65,13 @@ import { identityResponse } from '../discogs-fixtures';
       ).toBeVisible();
       await expect.poll(() => requestsFor('Progressive House')).toBe(3);
       await expect(years.getByRole('button', { name: '1992' })).toHaveCount(0);
+      if (size === 1) {
+        await navigation.getByRole('button', { name: 'Catalogue' }).press('PageDown');
+        await expect(
+          firstYear.getByRole('button', { name: 'Play Progressive House record 0' }),
+        ).toBeVisible();
+        await expect(page.getByRole('region', { name: '1991', exact: true })).toBeVisible();
+      }
       await years.hover();
       await page.mouse.wheel(0, 180);
       await expect(years.getByRole('button', { name: '1992' })).toBeVisible();
