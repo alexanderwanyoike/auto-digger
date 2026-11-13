@@ -2,27 +2,37 @@ import { RefreshCw } from 'lucide-react';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
 import type { useStarterShelf } from './use-starter-shelf';
 
-export function StarterShelf({
+export function ReleaseShelf({
+  title,
+  headingId,
+  refresh,
+  refreshBusy = false,
   shelf,
   disabled,
   open,
 }: {
+  title: string;
+  headingId: string;
+  refresh?: () => void;
+  refreshBusy?: boolean;
   shelf: ReturnType<typeof useStarterShelf>;
   disabled: boolean;
   open: (id: number) => void;
 }) {
   return (
-    <section className="explore-shelf" aria-labelledby="explore-starter-heading">
+    <section className="explore-shelf" aria-labelledby={headingId}>
       <header className="explore-shelf-header">
-        <h2 id="explore-starter-heading">Discover records</h2>
-        <button
-          className="secondary-button"
-          type="button"
-          onClick={shelf.refresh}
-          disabled={disabled || shelf.busy}
-        >
-          <RefreshCw size={14} aria-hidden="true" /> Refresh
-        </button>
+        <h2 id={headingId}>{title}</h2>
+        {refresh && (
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={refresh}
+            disabled={disabled || shelf.busy || refreshBusy}
+          >
+            <RefreshCw size={14} aria-hidden="true" /> Refresh
+          </button>
+        )}
       </header>
       {shelf.busy && !shelf.releases.length && <p role="status">Loading releases…</p>}
       {shelf.error && !shelf.busy && <p role="alert">{shelf.error}</p>}

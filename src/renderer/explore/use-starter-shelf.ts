@@ -17,6 +17,7 @@ export function useStarterShelf(
   }, []);
   const [response, setResponse] = useState<{
     account: DiscogsAccount;
+    load: NonNullable<DiscogsBridge['starterShelf']>;
     revision: number;
     result: DiscogsResult<Releases>;
   } | null>(null);
@@ -27,7 +28,7 @@ export function useStarterShelf(
     const receive = (result: DiscogsResult<Releases>) => {
       if (!active) return;
       if (!result.ok && result.error.code === 'unauthorized') onUnauthorized();
-      else setResponse({ account, revision, result });
+      else setResponse({ account, load, revision, result });
     };
     load()
       .then(receive)
@@ -39,7 +40,8 @@ export function useStarterShelf(
     };
   }, [account, load, onUnauthorized, revision]);
 
-  const result = account && response?.account === account ? response.result : null;
+  const result =
+    account && response?.account === account && response.load === load ? response.result : null;
   const busy = Boolean(account && load && (!result || response?.revision !== revision));
   return {
     releases: result?.ok ? result.value.filter(({ id }) => !seen.has(id)) : [],

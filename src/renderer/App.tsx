@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Compass, Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
 import { ExplorePage } from './explore/ExplorePage';
 import { useStarterShelf } from './explore/use-starter-shelf';
@@ -60,7 +60,22 @@ export function App({
     session.account,
     session.clearSession,
   );
-  const { markSeen } = starterShelf;
+  const discover = discogs?.discover;
+  const followTopics = following.topics;
+  const loadFollows = useCallback(() => {
+    if (!discover || !followTopics.length) return Promise.resolve({ ok: true as const, value: [] });
+    return discover(null);
+  }, [discover, followTopics]);
+  const followsShelf = useStarterShelf(loadFollows, session.account, session.clearSession);
+  const { markSeen: markStarterSeen } = starterShelf;
+  const { markSeen: markFollowsSeen } = followsShelf;
+  const markSeen = useCallback(
+    (id: number) => {
+      markStarterSeen(id);
+      markFollowsSeen(id);
+    },
+    [markStarterSeen, markFollowsSeen],
+  );
   useEffect(() => {
     if (session.release) markSeen(session.release.id);
   }, [markSeen, session.release]);
@@ -173,6 +188,8 @@ export function App({
             connected={Boolean(session.account)}
             onUnauthorized={session.clearSession}
             starterShelf={starterShelf}
+            followsShelf={followsShelf}
+            markSeen={markSeen}
             following={following}
             crate={crate}
             audio={audio}

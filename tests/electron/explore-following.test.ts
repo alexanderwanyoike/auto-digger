@@ -84,18 +84,26 @@ test('discovers unopened releases, browses followed catalogues and compares genr
     page = await desktop.firstWindow();
     await stubCatalogue();
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
+    const starter = page.getByRole('region', { name: 'Discover records' });
+    const followed = page.getByRole('region', { name: 'From your follows' });
+    await expect(followed.getByRole('button', { name: /Night Transit/ })).toBeVisible();
+    await expect(followed.getByRole('button', { name: /Quiet Orbit EP/ })).toHaveCount(0);
+    expect(
+      await starter.evaluate((element) =>
+        element.nextElementSibling?.getAttribute('aria-labelledby'),
+      ),
+    ).toBe(await followed.getAttribute('aria-labelledby'));
+    await followed.getByRole('button', { name: /Night Transit/ }).click();
+    await expect(page.getByRole('heading', { name: 'Night Transit', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Back to Explore', exact: true }).click();
+    await expect(followed.getByRole('button', { name: /Night Transit/ })).toHaveCount(0);
     const discover = page.getByRole('button', { name: 'Discover unseen releases', exact: true });
     await expect(discover).toBeEnabled();
     const unseen = page.getByRole('region', { name: 'Unseen releases' });
     await discover.click();
-    await expect(unseen.getByRole('button', { name: /Low Tide - Night Transit/ })).toHaveCount(1);
+
     await expect(unseen.getByRole('button', { name: /Mira North - First Light/ })).toBeVisible();
     await expect(unseen.getByRole('button', { name: /Quiet Orbit EP/ })).toHaveCount(0);
-    await unseen.getByRole('button', { name: /Low Tide - Night Transit/ }).click();
-    await expect(page.getByRole('heading', { name: 'Night Transit', exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'Back to Explore', exact: true }).click();
-    await discover.click();
-    await expect(unseen.getByRole('button', { name: /Mira North - First Light/ })).toBeVisible();
     await expect(unseen.getByRole('button', { name: /Low Tide - Night Transit/ })).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Browse Low Tide', exact: true }).click();
