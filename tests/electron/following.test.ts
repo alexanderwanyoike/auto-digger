@@ -166,12 +166,15 @@ test('drops queued portrait lookups when the listener leaves Following', async (
   try {
     const page = await desktop.firstWindow();
     await desktop.evaluate((_electron, identity) => {
+      const artworkStarted = { count: 0 };
+      Object.assign(globalThis, { artworkStarted });
       globalThis.fetch = async (input) => {
         const url = new URL(input instanceof Request ? input.url : input.toString());
         if (url.pathname === '/oauth/identity') return Response.json(identity);
         if (url.searchParams.get('type') === 'label') {
           await new Promise((done) => {
-            setTimeout(done, 750);
+            artworkStarted.count += 1;
+            setTimeout(done, 8000);
           });
           return Response.json({ results: [] });
         }
@@ -199,6 +202,9 @@ test('drops queued portrait lookups when the listener leaves Following', async (
     await page.getByRole('button', { name: 'Connect account', exact: true }).click();
     await page.getByRole('button', { name: 'Following', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Browse Label 0', exact: true })).toBeVisible();
+    await expect
+      .poll(() => desktop.evaluate(() => Reflect.get(globalThis, 'artworkStarted') as unknown))
+      .toMatchObject({ count: 1 });
     await page.getByRole('button', { name: 'Feed', exact: true }).click();
     await page.getByRole('button', { name: 'Refresh', exact: true }).click({ timeout: 3500 });
     await expect(page.getByRole('button', { name: 'Refresh', exact: true })).toBeEnabled({

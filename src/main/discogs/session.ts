@@ -69,7 +69,6 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       const result = await searchTopicArtwork(parsed.data, acceptedToken, request);
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
-      if (!result.ok && result.error.code === 'unauthorized') clear();
       return result;
     },
     async search(input: unknown): Promise<DiscogsResult<SearchPage>> {
