@@ -111,3 +111,41 @@ test('follows artists, labels and genres and manages them after restarting', asy
     await desktop.close();
   }
 });
+
+test('searches and pages through 1,000 followed labels', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encrypted-desktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('profile')}`,
+    ],
+  });
+  try {
+    const page = await desktop.firstWindow();
+    const seeded = await page.evaluate(async () => {
+      const bridge = window.following;
+      if (!bridge) return false;
+      const results = await Promise.all(
+        Array.from({ length: 1000 }, (_, index) =>
+          bridge.setFollowed({
+            topic: { kind: 'label', name: `Label ${(index + 1).toString().padStart(4, '0')}` },
+            followed: true,
+          }),
+        ),
+      );
+      return results.every((result) => result.ok);
+    });
+    expect(seeded).toBe(true);
+    await page.reload();
+    await page.getByRole('button', { name: 'Following', exact: true }).click();
+    const gallery = page.getByRole('region', { name: 'Following' });
+    await gallery.getByRole('button', { name: 'Labels', exact: true }).click();
+    await expect(gallery.getByRole('listitem')).toHaveCount(24);
+    await gallery.getByRole('button', { name: 'Next page' }).click();
+    await expect(gallery.getByRole('button', { name: 'Browse Label 0025' })).toBeVisible();
+    await gallery.getByRole('searchbox', { name: 'Search follows' }).fill('1000');
+    await expect(gallery.getByRole('listitem')).toHaveCount(1);
+    await expect(gallery.getByRole('button', { name: 'Browse Label 1000' })).toBeVisible();
+  } finally {
+    await desktop.close();
+  }
+});
