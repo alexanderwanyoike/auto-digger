@@ -9,6 +9,7 @@ export function useStarterShelf(
   load: DiscogsBridge['starterShelf'],
   account: DiscogsAccount | null,
   onUnauthorized: () => void,
+  playingReleaseId: number | undefined,
 ) {
   const [revision, setRevision] = useState(0);
   const [seen, setSeen] = useState<ReadonlySet<number>>(new Set());
@@ -44,7 +45,9 @@ export function useStarterShelf(
     account && response?.account === account && response.load === load ? response.result : null;
   const busy = Boolean(account && load && (!result || response?.revision !== revision));
   return {
-    releases: result?.ok ? result.value.filter(({ id }) => !seen.has(id)) : [],
+    releases: result?.ok
+      ? result.value.filter(({ id }) => id === playingReleaseId || !seen.has(id))
+      : [],
     busy,
     error: result && !result.ok ? result.error.message : null,
     refresh: () => {

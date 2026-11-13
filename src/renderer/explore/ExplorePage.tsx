@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { followTopicKey } from '../../shared/following';
 import type { FollowTopic } from '../../shared/following';
@@ -27,6 +27,8 @@ export function ExplorePage({
   starterShelf,
   followsShelf,
   markSeen,
+  playerRelease,
+  onPlayerReleaseOpened,
   following,
   crate,
   audio,
@@ -37,6 +39,8 @@ export function ExplorePage({
   starterShelf: ReturnType<typeof useStarterShelf>;
   followsShelf: ReturnType<typeof useStarterShelf>;
   markSeen: (id: number) => void;
+  playerRelease: { id: number } | null;
+  onPlayerReleaseOpened: () => void;
   following: ReturnType<typeof useFollowing>;
   crate: ReturnType<typeof useCrate>;
   audio: ReturnType<typeof useAudioLibrary>;
@@ -117,6 +121,12 @@ export function ExplorePage({
     releasePosition.current = scrollContainer.current?.scrollTop ?? 0;
     explore.open(id, markSeen).catch(() => undefined);
   };
+  useEffect(() => {
+    if (!playerRelease || busy) return;
+    if (release?.id !== playerRelease.id) open(playerRelease.id);
+    onPlayerReleaseOpened();
+  }, [playerRelease, busy, release, open, onPlayerReleaseOpened]);
+
   const selectSection = (next: ExploreSection) => {
     if (section === next && !collection && !release && !view && !topic && !error) return;
     explore.reset();
@@ -217,6 +227,7 @@ export function ExplorePage({
             bridge={bridge}
             seed={collection.kind === 'starter' ? starterShelf.releases : followsShelf.releases}
             seen={starterShelf.seen}
+            playingReleaseId={audio.playback.track?.releaseId}
             disabled={disabled}
             onBack={() => {
               restorePosition.current = collectionPosition.current;

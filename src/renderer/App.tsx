@@ -54,11 +54,14 @@ export function App({
   const following = useFollowing(window.following);
   const audio = useAudioLibrary(audioBridge);
   const crate = useCrate(crateBridge, catalogue);
+  const [playerRelease, setPlayerRelease] = useState<{ id: number } | null>(null);
+  const playingReleaseId = audio.playback.track?.releaseId;
   const session = useDiscogs(discogs, filters.rememberPage);
   const starterShelf = useStarterShelf(
     discogs?.starterShelf,
     session.account,
     session.clearSession,
+    playingReleaseId,
   );
   const discover = discogs?.discover;
   const followTopics = following.topics;
@@ -66,7 +69,12 @@ export function App({
     if (!discover || !followTopics.length) return Promise.resolve({ ok: true as const, value: [] });
     return discover(null);
   }, [discover, followTopics]);
-  const followsShelf = useStarterShelf(loadFollows, session.account, session.clearSession);
+  const followsShelf = useStarterShelf(
+    loadFollows,
+    session.account,
+    session.clearSession,
+    playingReleaseId,
+  );
   const { markSeen: markStarterSeen } = starterShelf;
   const { markSeen: markFollowsSeen } = followsShelf;
   const markSeen = useCallback(
@@ -205,6 +213,10 @@ export function App({
             starterShelf={starterShelf}
             followsShelf={followsShelf}
             markSeen={markSeen}
+            playerRelease={playerRelease}
+            onPlayerReleaseOpened={() => {
+              setPlayerRelease(null);
+            }}
             following={following}
             crate={crate}
             audio={audio}
@@ -263,7 +275,18 @@ export function App({
           {historyError}
         </p>
       )}
-      <PlaybackBar audio={audio} onSleevePlaying={recordSleevePlayback} />
+      <PlaybackBar
+        audio={audio}
+        onSleevePlaying={recordSleevePlayback}
+        onOpenRelease={
+          session.account
+            ? (id) => {
+                setPlayerRelease({ id });
+                setSection('Explore');
+              }
+            : undefined
+        }
+      />
       <div className="status-bar" role="region" aria-label="App status">
         <PreviewStatus audio={audio} />
         <UpdateNotice />

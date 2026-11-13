@@ -70,6 +70,7 @@ export function ExploreCollectionPage({
   bridge,
   seed,
   seen,
+  playingReleaseId,
   disabled,
   onBack,
   onOpen,
@@ -82,6 +83,7 @@ export function ExploreCollectionPage({
   bridge: DiscogsBridge;
   seed: Releases;
   seen: ReadonlySet<number>;
+  playingReleaseId: number | undefined;
   disabled: boolean;
   onBack: () => void;
   onOpen: (id: number) => void;
@@ -121,6 +123,7 @@ export function ExploreCollectionPage({
             kind={collection.kind}
             seed={seed}
             seen={seen}
+            playingReleaseId={playingReleaseId}
             disabled={disabled}
             onOpen={onOpen}
             onPreview={onPreview}
