@@ -30,6 +30,7 @@ test('shows a waiting Soulseek peer, queues YouTube and continues after cancella
     await expect(page.getByText('slskd connection saved.', { exact: true })).toBeVisible();
     await page.evaluate((release) => window.crate?.save(release), loadedRelease);
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     await page.getByRole('button', { name: 'Soulseek', exact: true }).click();
     await page.getByRole('button', { name: 'Search A1 · Quiet Orbit', exact: true }).click();
