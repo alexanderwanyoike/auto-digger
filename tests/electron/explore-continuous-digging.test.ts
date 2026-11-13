@@ -13,6 +13,7 @@ test('keeps digging through both dedicated discovery shelves as the listener scr
     const page = await desktop.firstWindow();
     await desktop.evaluate(
       (_electron, fixtures) => {
+        Math.random = () => 0.9;
         let retryFollowedPage = false;
         globalThis.fetch = (input) => {
           const url = new URL(input instanceof Request ? input.url : input.toString());
