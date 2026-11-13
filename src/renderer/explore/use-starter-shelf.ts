@@ -51,5 +51,6 @@ export function useStarterShelf(
       setRevision((value) => value + 1);
     },
     markSeen,
+    seen,
   };
 }

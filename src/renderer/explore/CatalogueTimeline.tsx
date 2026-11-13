@@ -1,3 +1,4 @@
+import type { YearRecords } from './use-catalogue-records';
 import { useEffect, useRef, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
@@ -16,7 +17,7 @@ export function CatalogueTimeline({
   disabled: boolean;
   search: DiscogsBridge['search'];
   onOpen: (id: number) => void;
-  onShowYear: (style: string, year: number) => void;
+  onShowYear: (style: string, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
   const index = useCatalogueYearIndex(search, style, onUnauthorized);
@@ -125,27 +126,27 @@ export function CatalogueTimeline({
         )}
       </nav>
       <div className="catalogue-records">
-        {records.groups.map(({ year, releases }) => (
+        {records.groups.map((group) => (
           <section
-            key={year}
+            key={group.year}
             className="explore-shelf catalogue-year"
-            aria-label={year.toString()}
-            data-release-year={year}
+            aria-label={group.year.toString()}
+            data-release-year={group.year}
           >
             <header className="explore-shelf-header">
-              <h3>{year}</h3>
+              <h3>{group.year}</h3>
               <button
                 type="button"
                 className="explore-show-more"
                 disabled={disabled}
                 onClick={() => {
-                  onShowYear(style, year);
+                  onShowYear(style, group);
                 }}
               >
                 Show more
               </button>
             </header>
-            <ReleaseMatchList releases={releases} disabled={disabled} onOpen={onOpen} />
+            <ReleaseMatchList releases={group.releases} disabled={disabled} onOpen={onOpen} />
           </section>
         ))}
         <div ref={sentinel} className="catalogue-continuation">

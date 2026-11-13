@@ -6,7 +6,6 @@ export type ExploreSection = (typeof exploreSections)[number];
 export function ExploreToolbar({
   section,
   busy,
-  connected,
   refreshBusy,
   onSelect,
   onRefresh,
@@ -15,10 +14,9 @@ export function ExploreToolbar({
 }: {
   section: ExploreSection;
   busy: boolean;
-  connected: boolean;
   refreshBusy: boolean;
   onSelect: (section: ExploreSection) => void;
-  onRefresh: () => void;
+  onRefresh: (() => void) | undefined;
   onDiscover: (() => void) | undefined;
   onAllFollowed: (() => void) | undefined;
 }) {
@@ -56,7 +54,7 @@ export function ExploreToolbar({
             <span>Discover unseen releases</span>
           </button>
         )}
-        {section === 'Feed' && connected && (
+        {onRefresh && (
           <button
             type="button"
             className="explore-action"

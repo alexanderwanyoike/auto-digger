@@ -1,3 +1,4 @@
+import type { YearRecords } from './use-catalogue-records';
 import { useEffect, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { CatalogueStylePicker } from './CatalogueStylePicker';
@@ -15,7 +16,7 @@ export function CataloguePage({
   bridge: DiscogsBridge;
   busy: boolean;
   onOpen: (id: number) => void;
-  onShowYear: (style: string, year: number) => void;
+  onShowYear: (style: string, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
   const [preferred, setPreferred] = useState<string[] | null>(null);

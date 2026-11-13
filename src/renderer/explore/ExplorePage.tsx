@@ -128,14 +128,17 @@ export function ExplorePage({
       <ExploreToolbar
         section={section}
         busy={busy}
-        connected={connected && !collection}
         refreshBusy={starterShelf.busy || followsShelf.busy}
         onSelect={selectSection}
-        onRefresh={() => {
-          explore.reset();
-          starterShelf.refresh();
-          followsShelf.refresh();
-        }}
+        onRefresh={
+          connected && section === 'Feed' && !collection
+            ? () => {
+                explore.reset();
+                starterShelf.refresh();
+                followsShelf.refresh();
+              }
+            : undefined
+        }
         onDiscover={canDiscover && !release ? discover : undefined}
         onAllFollowed={
           section === 'Following' && (topic || view) && !release
@@ -152,8 +155,8 @@ export function ExplorePage({
             bridge={bridge}
             busy={busy}
             onOpen={open}
-            onShowYear={(style, year) => {
-              showCollection({ kind: 'year', style, year });
+            onShowYear={(style, group) => {
+              showCollection({ kind: 'year', style, group });
             }}
             onUnauthorized={onUnauthorized}
           />
@@ -196,6 +199,7 @@ export function ExplorePage({
             collection={collection}
             bridge={bridge}
             seed={collection.kind === 'starter' ? starterShelf.releases : followsShelf.releases}
+            seen={starterShelf.seen}
             disabled={disabled}
             onBack={() => {
               restorePosition.current = collectionPosition.current;

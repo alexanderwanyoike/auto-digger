@@ -4,10 +4,11 @@ import type { DiscogsBridge, DiscogsResult } from '../../shared/discogs';
 import type { DiscoveryShelf } from '../../shared/discovery';
 import type { SearchPage } from '../../shared/search';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
+import type { YearRecords } from './use-catalogue-records';
 import { useCatalogueRecords } from './use-catalogue-records';
 
 export type ExploreCollection =
-  { kind: DiscoveryShelf } | { kind: 'year'; style: string; year: number };
+  { kind: DiscoveryShelf } | { kind: 'year'; style: string; group: YearRecords };
 
 export const discoveryTitles = {
   starter: 'Discover records',
@@ -20,6 +21,7 @@ function DiscoveryCollection({
   load,
   kind,
   seed,
+  seen,
   disabled,
   onOpen,
   onPreview,
@@ -29,6 +31,7 @@ function DiscoveryCollection({
   load: NonNullable<DiscogsBridge['expandDiscovery']>;
   kind: DiscoveryShelf;
   seed: Releases;
+  seen: ReadonlySet<number>;
   disabled: boolean;
   onOpen: (id: number) => void;
   onPreview: ((id: number) => void) | undefined;
@@ -59,7 +62,7 @@ function DiscoveryCollection({
   const matches = response?.ok ? response.value : [];
   const releases = [
     ...new Map([...seed, ...matches].map((record) => [record.id, record])).values(),
-  ];
+  ].filter(({ id }) => !seen.has(id));
   return (
     <>
       <ReleaseMatchList
@@ -93,19 +96,19 @@ function DiscoveryCollection({
 function YearCollection({
   search,
   style,
-  year,
+  group,
   disabled,
   onOpen,
   onUnauthorized,
 }: {
   search: DiscogsBridge['search'];
   style: string;
-  year: number;
+  group: YearRecords;
   disabled: boolean;
   onOpen: (id: number) => void;
   onUnauthorized: () => void;
 }) {
-  const records = useCatalogueRecords(search, style, year, onUnauthorized);
+  const records = useCatalogueRecords(search, style, group.year, onUnauthorized, group);
   return (
     <>
       <ReleaseMatchList
@@ -140,6 +143,7 @@ export function ExploreCollectionPage({
   collection,
   bridge,
   seed,
+  seen,
   disabled,
   onBack,
   onOpen,
@@ -150,6 +154,7 @@ export function ExploreCollectionPage({
   collection: ExploreCollection;
   bridge: DiscogsBridge;
   seed: Releases;
+  seen: ReadonlySet<number>;
   disabled: boolean;
   onBack: () => void;
   onOpen: (id: number) => void;
@@ -158,7 +163,7 @@ export function ExploreCollectionPage({
   onUnauthorized: () => void;
 }) {
   const year = collection.kind === 'year';
-  const title = year ? collection.year : discoveryTitles[collection.kind];
+  const title = year ? collection.group.year : discoveryTitles[collection.kind];
   return (
     <section
       className="explore-shelf explore-collection"
@@ -175,7 +180,7 @@ export function ExploreCollectionPage({
         <YearCollection
           search={bridge.search}
           style={collection.style}
-          year={collection.year}
+          group={collection.group}
           disabled={disabled}
           onOpen={onOpen}
           onUnauthorized={onUnauthorized}
@@ -186,6 +191,7 @@ export function ExploreCollectionPage({
             load={bridge.expandDiscovery}
             kind={collection.kind}
             seed={seed}
+            seen={seen}
             disabled={disabled}
             onOpen={onOpen}
             onPreview={onPreview}
