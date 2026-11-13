@@ -30,3 +30,31 @@ test('opens an exact label catalogue beyond the Discogs search result cap', asyn
     expect.any(Object),
   );
 });
+
+test('lists one pressing for multiple artist credits on the same record', async () => {
+  const request = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(Response.json(identityResponse))
+    .mockResolvedValueOnce(Response.json({ results: [{ id: 19, title: 'Aphex Twin' }] }))
+    .mockResolvedValueOnce(
+      Response.json({
+        pagination: { page: 1, pages: 2, per_page: 50, items: 52 },
+        releases: [
+          { id: 25128, main_release: 27090, type: 'master', title: 'Remixes', role: 'Producer' },
+          { id: 25128, main_release: 27090, type: 'master', title: 'Remixes', role: 'Remix' },
+        ],
+      }),
+    );
+  const session = createDiscogsSession(request);
+  await session.connect('token');
+  const result = await session.search({
+    filters: {},
+    topic: { kind: 'artist', name: 'Aphex Twin' },
+    context: 'explore',
+    page: 1,
+  });
+  expect(result).toMatchObject({
+    ok: true,
+    value: { page: 1, pages: 2, items: 52, releases: [{ id: 27090 }] },
+  });
+});
