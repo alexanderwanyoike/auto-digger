@@ -112,7 +112,7 @@ test('discovers unopened releases, browses followed catalogues and compares genr
     await expect(page.getByRole('heading', { name: 'Discover records', level: 2 })).toBeVisible();
     const expanded = page.getByRole('region', { name: 'Discover records' });
     await expect(expanded.getByRole('listitem')).toHaveCount(13);
-    const additional = expanded.getByRole('button', { name: /^(?!Play ).*Additional Record 0$/ });
+    const additional = expanded.getByRole('button', { name: /^(?!Play ).*Additional Record 0/ });
     await additional.click();
     await page.getByRole('button', { name: 'Back to results' }).click();
     await expect(additional).toHaveCount(0);
