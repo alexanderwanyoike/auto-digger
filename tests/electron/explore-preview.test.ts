@@ -19,7 +19,15 @@ test('plays a sleeve preview in place and excludes the release after playback st
           if (url.pathname === '/oauth/identity')
             return Promise.resolve(Response.json(fixtures.identityResponse));
           if (url.pathname === '/releases/12')
-            return Promise.resolve(Response.json(fixtures.releaseResponse));
+            return Promise.resolve(
+              Response.json({
+                ...fixtures.releaseResponse,
+                videos: [
+                  ...fixtures.releaseResponse.videos,
+                  { title: 'Low Tide - Quiet Orbit', uri: 'https://youtu.be/abcdefghijk' },
+                ],
+              }),
+            );
           if (url.pathname === '/releases/13')
             return Promise.resolve(
               Response.json({ ...fixtures.releaseResponse, id: 13, title: 'First Light' }),
