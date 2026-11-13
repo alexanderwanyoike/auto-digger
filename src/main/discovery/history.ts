@@ -1,6 +1,6 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { historyEntrySchema, historyRecordSchema } from '../../shared/discovery-history';
 import type { HistoryRecord } from '../../shared/discovery-history';
-import type { DatabaseSync } from 'node:sqlite';
 import type { CatalogueResult } from '../../shared/catalogue';
 import { catalogueFailure } from '../../shared/catalogue-failure';
 
