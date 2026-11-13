@@ -73,8 +73,7 @@ export function PlaylistTrackActions({
       const track = known ?? (loaded?.ok ? playbackPlaylistTrack(source, loaded.value) : null);
       if (!track) {
         if (loaded && !loaded.ok) setError(loaded.error.message);
-        else if (!loadRelease)
-          setError('Connect Discogs to load the release for this download.');
+        else if (!loadRelease) setError('Connect Discogs to load the release for this download.');
         else setError('The playing track could not be matched to its Discogs release.');
         return;
       }
