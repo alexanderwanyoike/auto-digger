@@ -89,7 +89,7 @@ export function CatalogueRangeTimeline({
                         `[data-release-year="${year.toString()}"]`,
                       );
                       if (!viewport) return;
-                      if (section) {
+                      if (section && (!limited || year === start)) {
                         section.scrollIntoView({ block: 'start', behavior: 'instant' });
                         jumpPosition.current = viewport.scrollTop;
                         setSelected(year);
