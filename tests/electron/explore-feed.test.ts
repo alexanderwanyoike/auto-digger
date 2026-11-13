@@ -24,6 +24,10 @@ test('opens Explore first and refreshes the starter shelf without saves or follo
             return Promise.resolve(
               Response.json({ ...fixtures.releaseResponse, id: 13, title: 'First Light' }),
             );
+          if (url.pathname === '/releases/16')
+            return Promise.resolve(
+              Response.json({ ...fixtures.releaseResponse, id: 16, title: 'New Dawn' }),
+            );
           if (url.pathname === '/releases/20')
             return Promise.resolve(new Response(null, { status: 404 }));
           searches += 1;
@@ -37,11 +41,13 @@ test('opens Explore first and refreshes the starter shelf without saves or follo
             { id: 12, title: 'Low Tide - Quiet Orbit EP', year: 1998 },
             { id: 20, title: 'Silt Relay - Missing Record', year: 2007 },
             {
-              id: shelf + 12,
+              id: Math.min(shelf + 12, 16),
               title: [
                 'Mira North - First Light',
                 'Still Waters - Late Signal',
                 'Silt Relay - Back Channel',
+                'Silt Relay - New Dawn',
+                'Silt Relay - New Dawn',
               ][shelf - 1],
               year: 2000,
             },
@@ -93,6 +99,15 @@ test('opens Explore first and refreshes the starter shelf without saves or follo
     await page.getByRole('button', { name: 'Refresh', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Discogs not connected' })).toBeEnabled();
     await expect(shelf).toHaveCount(0);
+    await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
+    await page.getByLabel('Personal token').fill('fixture-explore-token');
+    await page.getByRole('button', { name: 'Connect account', exact: true }).click();
+    await shelf.getByRole('button', { name: /^(?!Play ).*New Dawn/ }).click();
+    const opened = page.getByRole('heading', { name: 'New Dawn', exact: true });
+    await expect(opened).toBeVisible();
+    await page.getByRole('button', { name: /Connected as/ }).click();
+    await page.getByRole('button', { name: 'Disconnect', exact: true }).click();
+    await expect(opened).toHaveCount(0);
   } finally {
     await desktop.close();
   }
