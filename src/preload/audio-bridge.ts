@@ -22,7 +22,7 @@ export function createAudioBridge(
       /* Never pass process or filesystem details into the renderer. */
     }
     return audioFailure(
-      'unavailable',
+      channel === audioChannels.probe ? 'network' : 'unavailable',
       'Could not contact your audio library. Please retry or restart Auto Digger.',
     );
   }
