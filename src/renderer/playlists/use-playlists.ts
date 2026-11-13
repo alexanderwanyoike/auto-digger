@@ -70,17 +70,29 @@ export function usePlaylists(
   async function queueAudio(track: PlaylistTrack, preview?: DownloadInput) {
     if (!audio.bridge || !audio.queue.available || localPlaylistTrack(track, audio.tracks)) return;
     const { probe } = audio.bridge;
-    const job = preview
-      ? audio.queue.jobs.find(({ sourceId }) => sourceId === downloadSourceId(preview))
-      : playlistJob(track, audio.queue.jobs);
-    if (job && job.stage !== 'failed' && job.stage !== 'cancelled') return;
+    const jobs = audio.queue.jobs.filter(
+      ({ stage }) => stage !== 'failed' && stage !== 'cancelled',
+    );
+    const saved = [
+      ...audio.tracks,
+      ...jobs.flatMap(({ track: downloaded }) => (downloaded ? [downloaded] : [])),
+    ];
+    if (localPlaylistTrack(track, saved) || playlistJob(track, jobs)) return;
+    const unavailableSources = new Set(
+      jobs.flatMap(({ sourceId }) => (sourceId ? [sourceId] : [])),
+    );
+    saved.forEach(({ id, missing }) => {
+      if (!missing) unavailableSources.add(id);
+    });
+    const previewId = preview && downloadSourceId(preview);
+    const usablePreview = previewId && !unavailableSources.has(previewId) ? preview : undefined;
     const key = JSON.stringify([track.release.id, track.trackIndex]);
     if (preparing.current.has(key)) return;
     preparing.current.add(key);
     try {
-      const { source, error: probeError } = preview
-        ? { source: preview, error: undefined }
-        : await findPlaylistSource(track, probe, audio.tracks);
+      const { source, error: probeError } = usablePreview
+        ? { source: usablePreview, error: undefined }
+        : await findPlaylistSource(track, probe, unavailableSources);
       if (probeError) {
         setError(`Track saved to playlist. ${probeError.message}`);
         return;
