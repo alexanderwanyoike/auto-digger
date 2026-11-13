@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { DiscoveryShelf } from './discovery';
+import type { DiscoveryPage, DiscoveryPageRequest } from './discovery';
 import type { DigResult } from './dig';
 import type { DigFilters, SearchPage } from './search';
 import type { FollowTopic } from './following';
@@ -67,7 +67,7 @@ export interface DiscogsBridge {
   }) => Promise<DiscogsResult<SearchPage>>;
   topicArtwork?: (topic: FollowTopic) => Promise<DiscogsResult<string | null>>;
   discover?: (topic: FollowTopic | null) => Promise<DiscogsResult<SearchPage['releases']>>;
-  expandDiscovery?: (shelf: DiscoveryShelf) => Promise<DiscogsResult<SearchPage['releases']>>;
+  expandDiscovery?: (input: DiscoveryPageRequest) => Promise<DiscogsResult<DiscoveryPage>>;
   starterShelf?: () => Promise<DiscogsResult<SearchPage['releases']>>;
   previewRelease?: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
   crateStyles?: () => Promise<DiscogsResult<string[]>>;

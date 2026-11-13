@@ -5,7 +5,7 @@ import { filtersForTopic, starterStyle } from '../../shared/discovery';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsBridge, DiscogsResult } from '../../shared/discogs';
 import type { DigFilters, SearchPage } from '../../shared/search';
-import { filtersSchema } from '../../shared/search';
+import { rankedStyles } from './ranked-styles';
 import { emptyFilters } from '../../shared/default-filters';
 import type { createCrateTaste } from './crate-taste';
 
@@ -63,7 +63,7 @@ export function createDiscover(
   knownReleases: () => Promise<CatalogueResult<Set<number>>>,
 ) {
   const discover = createReleaseDiscovery(search, knownReleases);
-  return async (input: unknown, size = 8): Promise<DiscogsResult<SearchPage['releases']>> => {
+  return async (input: unknown): Promise<DiscogsResult<SearchPage['releases']>> => {
     const selected = followTopicSchema.nullable().safeParse(input);
     if (!selected.success)
       return discogsFailure('invalid-input', 'Choose a followed artist, label or genre.');
@@ -80,7 +80,7 @@ export function createDiscover(
       );
     return discover(
       topics.map((topic) => filtersForTopic(topic)),
-      size,
+      8,
     );
   };
 }
@@ -91,15 +91,11 @@ export function createStarterShelf(
   crateTaste: ReturnType<typeof createCrateTaste>,
 ) {
   const discover = createReleaseDiscovery(search, seenReleases);
-  return async (size = 6) => {
+  const size = 6;
+  return async () => {
     const taste = await crateTaste();
     if (!taste.ok) return discogsFailure('unavailable', taste.error.message);
-    const styles = taste.value
-      .flatMap(({ style }) => {
-        const parsed = filtersSchema.shape.style.safeParse([style]);
-        return parsed.success ? parsed.data : [];
-      })
-      .slice(0, 3);
+    const styles = rankedStyles(taste.value).slice(0, 3);
     if (!styles.length) return discover([{ ...emptyFilters, style: [starterStyle] }], size);
 
     const chosen = new Map<number, SearchPage['releases'][number]>();

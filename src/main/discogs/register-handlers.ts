@@ -1,6 +1,6 @@
 import { ipcMain, shell } from 'electron';
 import type { BrowserWindow } from 'electron';
-import { discoveryShelfSchema } from '../../shared/discovery';
+import type { createDiscoveryPages } from '../discovery/discovery-pages';
 import { discogsChannels } from '../../shared/discogs';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';
@@ -17,11 +17,13 @@ export function registerDiscogsHandlers(
   {
     discover,
     starterShelf,
+    discoveryPages,
     crateTaste,
     markOpened,
   }: {
     discover: ReturnType<typeof createDiscover>;
     starterShelf: ReturnType<typeof createStarterShelf>;
+    discoveryPages: ReturnType<typeof createDiscoveryPages>;
     crateTaste: ReturnType<typeof createCrateTaste>;
     markOpened: ReturnType<typeof createDiscoveryHistory>['opened'];
   },
@@ -57,11 +59,7 @@ export function registerDiscogsHandlers(
   handle(discogsChannels.search, (input) => session.search(input));
   handle(discogsChannels.discover, discover);
   handle(discogsChannels.starterShelf, () => starterShelf());
-  handle(discogsChannels.expandDiscovery, (input) => {
-    const shelf = discoveryShelfSchema.safeParse(input);
-    if (!shelf.success) return discogsFailure('invalid-input', 'Choose a discovery shelf.');
-    return shelf.data === 'starter' ? starterShelf(36) : discover(null, 36);
-  });
+  handle(discogsChannels.expandDiscovery, discoveryPages);
   handle(discogsChannels.previewRelease, (id) => session.loadRelease(id));
   handle(discogsChannels.crateStyles, async () => {
     const taste = await crateTaste();
