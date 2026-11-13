@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
 import type { Ref } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import type { DiscogsBridge, DiscogsResult } from '../../shared/discogs';
+import type { DiscogsBridge } from '../../shared/discogs';
 import type { DiscoveryShelf } from '../../shared/discovery';
 import type { SearchPage } from '../../shared/search';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
+import { DiscoveryCollection } from './DiscoveryCollection';
 import type { YearRecords } from './use-catalogue-records';
 import { useCatalogueRecords } from './use-catalogue-records';
 
@@ -17,82 +17,6 @@ export const discoveryTitles = {
 };
 
 type Releases = SearchPage['releases'];
-
-function DiscoveryCollection({
-  load,
-  kind,
-  seed,
-  seen,
-  disabled,
-  onOpen,
-  onPreview,
-  previewBusy,
-  onUnauthorized,
-}: {
-  load: NonNullable<DiscogsBridge['expandDiscovery']>;
-  kind: DiscoveryShelf;
-  seed: Releases;
-  seen: ReadonlySet<number>;
-  disabled: boolean;
-  onOpen: (id: number) => void;
-  onPreview: ((id: number) => void) | undefined;
-  previewBusy: boolean;
-  onUnauthorized: () => void;
-}) {
-  const [response, setResponse] = useState<DiscogsResult<Releases> | null>(null);
-  const [attempt, setAttempt] = useState(0);
-  useEffect(() => {
-    let active = true;
-    load(kind)
-      .then((result) => {
-        if (!active) return;
-        if (!result.ok && result.error.code === 'unauthorized') onUnauthorized();
-        setResponse(result);
-      })
-      .catch(() => {
-        if (active)
-          setResponse({
-            ok: false,
-            error: { code: 'unavailable', message: 'Could not load more releases.' },
-          });
-      });
-    return () => {
-      active = false;
-    };
-  }, [attempt, kind, load, onUnauthorized]);
-  const matches = response?.ok ? response.value : [];
-  const releases = [
-    ...new Map([...seed, ...matches].map((record) => [record.id, record])).values(),
-  ].filter(({ id }) => !seen.has(id));
-  return (
-    <>
-      <ReleaseMatchList
-        releases={releases}
-        disabled={disabled}
-        onOpen={onOpen}
-        onPreview={onPreview}
-        previewBusy={previewBusy}
-      />
-      {!response && <p role="status">Loading releases…</p>}
-      {response?.ok && !releases.length && <p>No unseen releases found.</p>}
-      {response && !response.ok && (
-        <>
-          <p role="alert">{response.error.message}</p>
-          <button
-            className="secondary-button"
-            type="button"
-            onClick={() => {
-              setResponse(null);
-              setAttempt((previous) => previous + 1);
-            }}
-          >
-            Retry
-          </button>
-        </>
-      )}
-    </>
-  );
-}
 
 function YearCollection({
   search,

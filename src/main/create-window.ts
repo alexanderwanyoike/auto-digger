@@ -17,6 +17,7 @@ import { createTokenStore } from './credentials/token-store';
 import { electronEncryption } from './credentials/electron-encryption';
 import { createDiscogsSession } from './discogs/session';
 import { registerDiscogsHandlers } from './discogs/register-handlers';
+import { createDiscoveryPages } from './discovery/discovery-pages';
 import { createDiscover, createStarterShelf } from './discovery/discover';
 import { createIndexedLibrary } from './audio/indexed-library';
 import { registerSavedFiltersHandlers } from './filters/register-handlers';
@@ -176,6 +177,12 @@ export async function createWindow(): Promise<Result<undefined, string>> {
         discogsSession.search,
         catalogueStore.discoveryHistory.seen,
         catalogueStore.crateTaste,
+      ),
+      discoveryPages: createDiscoveryPages(
+        discogsSession.search,
+        catalogueStore.crateTaste,
+        catalogueStore.following.read,
+        catalogueStore.discoveryHistory.seen,
       ),
       crateTaste: catalogueStore.crateTaste,
       markOpened: catalogueStore.discoveryHistory.opened,
