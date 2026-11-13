@@ -90,6 +90,24 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     await expect(
       page.getByRole('button', { name: 'Play Mira North - Evening Light' }),
     ).toBeVisible();
+    const scrollbar = page.getByRole('slider', { name: 'Explore content scroll position' });
+    await expect(scrollbar).toBeVisible();
+    const tabsBottom = await navigation.evaluate(
+      (element) => element.closest('.explore-toolbar')?.getBoundingClientRect().bottom ?? 0,
+    );
+    const track = await scrollbar.boundingBox();
+    if (!track) throw new Error('The Explore scrollbar must have a track');
+    expect(track.y).toBeGreaterThanOrEqual(tabsBottom);
+    await page.mouse.move(track.x + track.width / 2, track.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(track.x + track.width / 2, track.y + track.height / 3, { steps: 5 });
+    await page.mouse.up();
+    await expect
+      .poll(() => page.locator('.explore-scroll').evaluate((el) => el.scrollTop))
+      .toBeGreaterThan(0);
+    await expect(navigation).toBeInViewport();
+    await scrollbar.press('Home');
+    await expect.poll(() => page.locator('.explore-scroll').evaluate((el) => el.scrollTop)).toBe(0);
     await expect(page.getByRole('button', { name: 'Load more releases' })).toHaveCount(0);
     await page.getByRole('button', { name: 'Play Mira North - Evening Light' }).click();
     await expect(page.locator('.explore-toolbar').getByRole('alert')).toHaveText(
