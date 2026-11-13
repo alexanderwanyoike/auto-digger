@@ -114,7 +114,7 @@ export function usePlayer(
     };
     const ended = () => {
       recorded = false;
-      if (track && media.currentSrc === track.url) onTrackEnded?.();
+      if (media.currentSrc === track?.url) onTrackEnded?.();
     };
     media.addEventListener('playing', started);
     media.addEventListener('ended', ended);
