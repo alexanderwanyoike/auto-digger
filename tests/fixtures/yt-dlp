@@ -11,10 +11,14 @@ if (id === 'xxxxxxxxxxx') {
 if (args.includes('--dump-single-json')) {
   const delay = Number(process.env.AUTO_DIGGER_TEST_PROBE_DELAY || '0');
   if (delay > 0) await new Promise((done) => setTimeout(done, delay));
+  const titles = {
+    lmnopqrstuv: 'Unknown upload',
+    zyxwvutsrqp: 'Low Tide - Night Signal',
+  };
   process.stdout.write(
     JSON.stringify({
       id,
-      title: id === 'lmnopqrstuv' ? 'Unknown upload' : id === 'zyxwvutsrqp' ? 'Low Tide - Night Signal' : 'Low Tide - Quiet Orbit',
+      title: titles[id] ?? 'Low Tide - Quiet Orbit',
       is_live: false,
       url: 'https://fixture.googlevideo.com/audio',
     }),
