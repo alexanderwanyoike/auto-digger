@@ -8,7 +8,6 @@ import {
   Settings as SettingsIcon,
 } from 'lucide-react';
 import { PlaylistsPage } from './playlists/PlaylistsPage';
-import { PlaylistsContext } from './playlists/playlists-context';
 import { usePlaylists } from './playlists/use-playlists';
 import { ExplorePage } from './explore/ExplorePage';
 import { useStarterShelf } from './explore/use-starter-shelf';
@@ -243,25 +242,23 @@ export function App({
           />
         )}
         {section === 'Explore' && (
-          <PlaylistsContext.Provider value={playlists}>
-            <ExplorePage
-              key={session.account?.id ?? 'disconnected'}
-              bridge={discogs}
-              connected={Boolean(session.account)}
-              onUnauthorized={session.clearSession}
-              starterShelf={starterShelf}
-              followsShelf={followsShelf}
-              markSeen={markSeen}
-              historyRevision={historyRevision}
-              playerRelease={playerRelease}
-              onPlayerRequestHandled={() => {
-                setPlayerRelease(null);
-              }}
-              following={following}
-              crate={crate}
-              audio={audio}
-            />
-          </PlaylistsContext.Provider>
+          <ExplorePage
+            key={session.account?.id ?? 'disconnected'}
+            bridge={discogs}
+            connected={Boolean(session.account)}
+            onUnauthorized={session.clearSession}
+            starterShelf={starterShelf}
+            followsShelf={followsShelf}
+            markSeen={markSeen}
+            historyRevision={historyRevision}
+            playerRelease={playerRelease}
+            onPlayerRequestHandled={() => {
+              setPlayerRelease(null);
+            }}
+            following={following}
+            crate={crate}
+            audio={audio}
+          />
         )}
         {section === 'Settings' && (
           <SettingsPage
@@ -280,7 +277,7 @@ export function App({
           <div className="workspace">
             <FollowingContext.Provider value={following}>
               <FilterPanel session={session} filters={filters} />
-              <PlaylistsContext.Provider value={playlists}>{desk}</PlaylistsContext.Provider>
+              {desk}
             </FollowingContext.Provider>
             <CratePanel
               crate={crate}
@@ -332,6 +329,17 @@ export function App({
       <PlaybackBar
         audio={audio}
         onTrackPlaying={recordTrackPlayback}
+        release={
+          session.release?.id === playingReleaseId
+            ? session.release
+            : crate.releases.find(({ id }) => id === playingReleaseId)
+        }
+        loadRelease={session.account ? discogs?.previewRelease : undefined}
+        playlists={playlists}
+        openPlaylists={() => {
+          setPlayerRelease(null);
+          setSection('Playlists');
+        }}
         onOpenRelease={
           session.account
             ? (id) => {

@@ -6,6 +6,8 @@ import type {
   PlaylistTrack,
 } from '../../shared/playlists';
 import { catalogueFailure } from '../../shared/catalogue-failure';
+import type { DownloadInput } from '../../shared/audio';
+import { downloadSourceId } from '../../shared/download-source-id';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import { findPlaylistSource, localPlaylistTrack, playlistJob } from './playlist-audio';
 
@@ -65,22 +67,28 @@ export function usePlaylists(
     }
   }
 
-  async function queueAudio(track: PlaylistTrack) {
+  async function queueAudio(track: PlaylistTrack, preview?: DownloadInput) {
     if (!audio.bridge || !audio.queue.available || localPlaylistTrack(track, audio.tracks)) return;
     const { probe } = audio.bridge;
-    const job = playlistJob(track, audio.queue.jobs);
+    const job = preview
+      ? audio.queue.jobs.find(({ sourceId }) => sourceId === downloadSourceId(preview))
+      : playlistJob(track, audio.queue.jobs);
     if (job && job.stage !== 'failed' && job.stage !== 'cancelled') return;
     const key = JSON.stringify([track.release.id, track.trackIndex]);
     if (preparing.current.has(key)) return;
     preparing.current.add(key);
     try {
-      const { source, error: probeError } = await findPlaylistSource(track, probe, audio.tracks);
+      const { source, error: probeError } = preview
+        ? { source: preview, error: undefined }
+        : await findPlaylistSource(track, probe, audio.tracks);
       if (probeError) {
         setError(`Track saved to playlist. ${probeError.message}`);
         return;
       }
       if (!source) return;
-      const result = await audio.queue.enqueue({ ...source, preserveAssignment: true });
+      const result = await audio.queue.enqueue(
+        'provider' in source ? source : { ...source, preserveAssignment: true },
+      );
       if (!result.ok) setError(`Track saved to playlist. ${result.error.message}`);
     } catch {
       setError('Track saved to playlist. Audio could not be queued.');
@@ -102,9 +110,9 @@ export function usePlaylists(
     create: (name: string) => mutate((api) => api.create(name)),
     remove: (playlistId: string, entryId: string) =>
       mutate((api) => api.remove({ playlistId, entryId })),
-    async add(playlistId: string, track: PlaylistTrack) {
+    async add(playlistId: string, track: PlaylistTrack, preview?: DownloadInput) {
       const saved = await mutate((api) => api.add({ playlistId, track }));
-      if (saved.ok) await queueAudio(track);
+      if (saved.ok) await queueAudio(track, preview);
       return saved;
     },
   };

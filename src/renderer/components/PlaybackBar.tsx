@@ -1,7 +1,10 @@
 import { ArrowUpRight, FolderOpen, Pause, Play, Volume2 } from 'lucide-react';
 import type { PlaybackItem } from '../../shared/playback';
+import type { DiscogsBridge, DiscogsRelease } from '../../shared/discogs';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import { usePlayer } from '../audio/use-player';
+import { PlaylistTrackActions } from '../playlists/PlaylistTrackActions';
+import type { usePlaylists } from '../playlists/use-playlists';
 import { RecordArtwork } from './RecordArtwork';
 
 function timecode(value: number) {
@@ -13,12 +16,20 @@ export function PlaybackBar({
   audio,
   onTrackPlaying,
   onOpenRelease,
+  release,
+  loadRelease,
+  playlists,
+  openPlaylists,
 }: {
   audio: ReturnType<typeof useAudioLibrary>;
   onTrackPlaying?: (track: PlaybackItem & { releaseId: number }) => void;
   onOpenRelease?: ((id: number) => void) | undefined;
+  release: DiscogsRelease | null | undefined;
+  loadRelease: DiscogsBridge['previewRelease'];
+  playlists: ReturnType<typeof usePlaylists>;
+  openPlaylists: () => void;
 }) {
-  const { track, request } = audio.playback;
+  const { track, request, sourceTrack, previewSource } = audio.playback;
   const player = usePlayer(track, request, onTrackPlaying, audio.advanceSequence);
   const description = track
     ? `${track.artist} · ${track.album}`
@@ -51,6 +62,21 @@ export function PlaybackBar({
           >
             <ArrowUpRight size={16} aria-hidden="true" />
           </button>
+        )}
+        {playlists.available && sourceTrack?.trackIndex != null && (
+          <PlaylistTrackActions
+            key={JSON.stringify([
+              sourceTrack.id,
+              sourceTrack.trackPosition,
+              sourceTrack.trackIndex,
+            ])}
+            source={sourceTrack}
+            preview={previewSource}
+            release={release}
+            loadRelease={loadRelease}
+            playlists={playlists}
+            openPlaylists={openPlaylists}
+          />
         )}
       </div>
       <button
