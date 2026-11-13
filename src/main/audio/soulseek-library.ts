@@ -1,3 +1,4 @@
+import { trackPositionKey } from '../../shared/track-position';
 import { copyFile, link, mkdir, mkdtemp, rm, stat } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import type { AudioResult, LocalTrack, SoulseekDownloadInput } from '../../shared/audio';
@@ -68,6 +69,7 @@ export async function importSoulseekAudio(
       title,
       sourceTitle,
       trackIndex: input.trackIndex,
+      trackPosition: trackPositionKey(input.release, input.trackIndex),
       artist: input.release.artists.join(' / '),
       album: input.release.title,
       artworkUrl: input.release.artworkUrl,

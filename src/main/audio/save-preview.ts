@@ -1,3 +1,4 @@
+import { trackPositionKey } from '../../shared/track-position';
 import { copyFile, link, mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import type { AudioResult, DownloadInput, LocalTrack } from '../../shared/audio';
@@ -45,6 +46,7 @@ export async function savePreview(
       ...preview.track,
       title,
       trackIndex,
+      trackPosition: trackPositionKey(release, trackIndex),
       warning,
       artist: release.artists.join(' / '),
       album: release.title,

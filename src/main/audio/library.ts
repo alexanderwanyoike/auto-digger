@@ -1,3 +1,4 @@
+import { trackPositionKey } from '../../shared/track-position';
 import { link, mkdtemp, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { youtubeDownloadInputSchema } from '../../shared/audio';
@@ -93,14 +94,16 @@ export function createAudioLibrary(
         if (!tagged.ok) return tagged;
         if (options.signal?.aborted)
           return audioFailure('cancelled', 'This download was cancelled.');
+        const assigned =
+          trackIndex === undefined ? matchTrack(release, source.value.title) : trackIndex;
         const track: LocalTrack = {
           id,
           releaseId: release.id,
           videoId: source.value.videoId,
           title: tagged.value.title,
           sourceTitle: source.value.title,
-          trackIndex:
-            trackIndex === undefined ? matchTrack(release, source.value.title) : trackIndex,
+          trackIndex: assigned,
+          trackPosition: trackPositionKey(release, assigned),
           artist: release.artists.join(' / '),
           album: release.title,
           artworkUrl: release.artworkUrl,

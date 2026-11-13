@@ -1,3 +1,4 @@
+import { trackPositionKey } from '../../shared/track-position';
 import type { AudioBridge, AudioError, LocalTrack, YouTubeDownloadInput } from '../../shared/audio';
 import { downloadSourceId } from '../../shared/download-source-id';
 import type { PlaylistTrack } from '../../shared/playlists';
@@ -6,13 +7,12 @@ import { sourceAssignment } from '../audio/source-assignment';
 import { uniqueVideoIndexes } from '../audio/unique-video-indexes';
 
 export function localPlaylistTrack({ release, trackIndex }: PlaylistTrack, tracks: LocalTrack[]) {
-  return tracks.find(
-    (track) =>
-      !track.missing &&
-      track.releaseId === release.id &&
-      track.trackIndex === trackIndex &&
-      track.title === release.tracks[trackIndex]?.title,
-  );
+  const position = trackPositionKey(release, trackIndex);
+  return tracks.find((track) => {
+    if (track.missing || track.releaseId !== release.id) return false;
+    if (track.trackPosition !== undefined) return track.trackPosition === position;
+    return track.trackIndex === trackIndex && track.title === release.tracks[trackIndex]?.title;
+  });
 }
 
 export async function findPlaylistSource(

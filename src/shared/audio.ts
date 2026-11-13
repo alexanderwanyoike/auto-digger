@@ -39,6 +39,7 @@ export const localTrackSchema = z
     title: z.string(),
     sourceTitle: z.string(),
     trackIndex: z.number().int().nonnegative().nullable(),
+    trackPosition: z.string().optional(),
     artist: z.string(),
     album: z.string(),
     artworkUrl: z.string().nullable(),
