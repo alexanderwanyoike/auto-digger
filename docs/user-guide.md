@@ -28,7 +28,7 @@ Use the bookmark beside an artist or label on a release to follow it. Choose a g
 
 Select an artist, label or genre in **Following** to browse its releases. Choose **Discover unseen releases** in the Explore toolbar to draw a batch from the current topic or across your follows. The Explore feed excludes releases whose details you opened or whose sleeve preview started playing. To compare two years within a genre, choose the genre, enter both years and choose **Compare years**.
 
-Explore opens first. The starter shelf learns from the Discogs styles of new personal crate saves on the next launch or **Refresh**. **From your follows** appears below it when you follow artists, labels or genres. Choose the play button on a sleeve to try a matched YouTube preview in the bottom player. Select the sleeve itself to open the record.
+Explore opens first. **Discover records** learns from the Discogs styles of new personal crate saves on the next launch or **Refresh**. Until you have a saved style, it draws from your follows. A fresh profile with no follows starts with Progressive House. **From your follows** appears below it when you follow artists, labels or genres. Choose the play button on a sleeve to try a matched YouTube preview in the bottom player. Select the sleeve itself to open the record.
 
 Open **Catalogue** in the Explore toolbar to browse a Discogs style by year. Saved styles appear first and the most-saved style opens by default. Scroll through release grids in chronological order or pick a year on the left to jump. More releases load as you scroll. **Back to Catalogue** returns to your place after viewing a record.
 
