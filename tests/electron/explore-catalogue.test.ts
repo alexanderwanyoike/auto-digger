@@ -95,9 +95,12 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     const tabsBottom = await navigation.evaluate(
       (element) => element.closest('.explore-toolbar')?.getBoundingClientRect().bottom ?? 0,
     );
+    const viewport = page.locator('.explore-scroll');
+    const viewportBounds = await viewport.boundingBox();
     const track = await scrollbar.boundingBox();
-    if (!track) throw new Error('The Explore scrollbar must have a track');
-    expect(track.y).toBeGreaterThanOrEqual(tabsBottom);
+    if (!track || !viewportBounds) throw new Error('The Explore scrollbar must have a track');
+    expect(track.y).toBeCloseTo(tabsBottom, 0);
+    expect(track.x + track.width).toBeCloseTo(viewportBounds.x + viewportBounds.width, 0);
     await page.mouse.move(track.x + track.width / 2, track.y + 10);
     await page.mouse.down();
     await page.mouse.move(track.x + track.width / 2, track.y + track.height / 3, { steps: 5 });
@@ -106,6 +109,11 @@ test('scrolls through populated catalogue years and appends release pages', asyn
       .poll(() => page.locator('.explore-scroll').evaluate((el) => el.scrollTop))
       .toBeGreaterThan(0);
     await expect(navigation).toBeInViewport();
+    const beforeWheel = await viewport.evaluate((element) => element.scrollTop);
+    await page.mouse.wheel(0, -100);
+    await expect
+      .poll(() => viewport.evaluate((element) => element.scrollTop))
+      .toBeLessThan(beforeWheel);
     await scrollbar.press('Home');
     await expect.poll(() => page.locator('.explore-scroll').evaluate((el) => el.scrollTop)).toBe(0);
     await expect(page.getByRole('button', { name: 'Load more releases' })).toHaveCount(0);
@@ -121,18 +129,18 @@ test('scrolls through populated catalogue years and appends release pages', asyn
       page.getByRole('button', { name: 'Play Silt Relay - Back Channel 1' }),
     ).toBeVisible();
     await expect(page.getByRole('button', { name: 'Load more releases' })).toHaveCount(0);
-    await page.locator('.explore-page').evaluate((element) => {
+    await page.locator('.explore-scroll').evaluate((element) => {
       element.scrollTo(0, element.scrollHeight);
     });
     await expect(
       page.getByRole('button', { name: 'Play Silt Relay - Back Channel 8' }),
     ).toBeVisible();
     await page.getByRole('button', { name: 'Back to Catalogue' }).click();
-    await page.locator('.explore-page').evaluate((element) => {
+    await page.locator('.explore-scroll').evaluate((element) => {
       element.scrollTo(0, element.scrollHeight);
     });
     await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ })).toBeVisible();
-    await page.locator('.explore-page').evaluate((element) => {
+    await page.locator('.explore-scroll').evaluate((element) => {
       element.scrollTo(0, element.scrollHeight);
     });
     await expect(years.getByRole('button', { name: '2000' })).toHaveAttribute(
@@ -146,7 +154,6 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     await expect(page.getByRole('button', { name: /^(?!Play ).*Evening Light/ })).toHaveCount(0);
     await page.getByRole('button', { name: 'Back to Catalogue' }).click();
     await expect(year.getByRole('button', { name: 'Show more' })).toBeVisible();
-    const viewport = page.locator('.explore-page');
     const record = page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ });
     await record.scrollIntoViewIfNeeded();
     const scrollTop = await viewport.evaluate((element) => element.scrollTop);
