@@ -20,9 +20,16 @@ test('opens Explore first and refreshes the starter shelf without saves or follo
             return Promise.resolve(Response.json(fixtures.identityResponse));
           if (url.pathname === '/releases/12')
             return Promise.resolve(Response.json(fixtures.releaseResponse));
+          if (url.pathname === '/releases/13')
+            return Promise.resolve(
+              Response.json({ ...fixtures.releaseResponse, id: 13, title: 'First Light' }),
+            );
+          if (url.pathname === '/releases/20')
+            return Promise.resolve(new Response(null, { status: 404 }));
           searches += 1;
           const results = [
             { id: 12, title: 'Low Tide - Quiet Orbit EP', year: 1998 },
+            { id: 20, title: 'Silt Relay - Missing Record', year: 2007 },
             {
               id: searches + 12,
               title: searches === 1 ? 'Mira North - First Light' : 'Still Waters - Late Signal',
@@ -30,7 +37,10 @@ test('opens Explore first and refreshes the starter shelf without saves or follo
             },
           ];
           return Promise.resolve(
-            Response.json({ pagination: { page: 1, pages: 1, per_page: 50, items: 2 }, results }),
+            Response.json({
+              pagination: { page: 1, pages: 1, per_page: 50, items: results.length },
+              results,
+            }),
           );
         };
       },
@@ -47,6 +57,9 @@ test('opens Explore first and refreshes the starter shelf without saves or follo
     await page.getByRole('button', { name: 'Connect account', exact: true }).click();
     const shelf = page.getByRole('region', { name: 'Discover records' });
     await expect(shelf.getByRole('button', { name: /First Light/ })).toBeVisible();
+    await shelf.getByRole('button', { name: /Missing Record/ }).click();
+    await expect(page.getByRole('alert')).toBeVisible();
+    await expect(shelf.getByRole('button', { name: /Missing Record/ })).toBeEnabled();
     await shelf.getByRole('button', { name: /Quiet Orbit EP/ }).click();
     await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Back to Explore' }).click();
@@ -54,6 +67,12 @@ test('opens Explore first and refreshes the starter shelf without saves or follo
     await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await expect(shelf.getByRole('button', { name: /First Light/ })).toBeVisible();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await page.getByLabel('Discogs release ID').fill('13');
+    await page.getByRole('button', { name: 'Load release', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'First Light', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
+    await expect(shelf.getByRole('button', { name: /First Light/ })).toHaveCount(0);
     await page.getByRole('button', { name: 'Refresh', exact: true }).click();
     await expect(shelf.getByRole('button', { name: /Late Signal/ })).toBeVisible();
     await expect(shelf.getByRole('button', { name: /Quiet Orbit EP/ })).toHaveCount(0);
