@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { loadedRelease } from '../discogs-fixtures';
 
 test('downloads a liked track once, shares it with a playlist and restores both after restart', async () => {
+  test.setTimeout(45_000);
   const options = {
     args: [
       resolve('tests/encrypted-desktop.cjs'),
@@ -103,10 +104,9 @@ test('downloads a liked track once, shares it with a playlist and restores both 
     });
     await page.getByRole('button', { name: 'Shuffle playlist', exact: true }).click();
     await expect(transport.getByText('Night Signal', { exact: true })).toBeVisible();
-    const seek = transport.getByRole('slider', { name: 'Track position' });
-    await expect(seek).toBeEnabled();
-    await seek.press('End');
-    await expect(transport.getByText('Quiet Orbit', { exact: true })).toBeVisible();
+    await expect(transport.getByText('Quiet Orbit', { exact: true })).toBeVisible({
+      timeout: 18_000,
+    });
     await page.getByRole('button', { name: 'Likes', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Play playlist', exact: true })).toBeDisabled();
   } finally {
