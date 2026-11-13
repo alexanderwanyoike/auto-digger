@@ -49,3 +49,21 @@ test('continues through every followed catalogue without exhausting the largest 
   const last = await load({ shelf: 'follows', cursor: third.value.next });
   expect(last).toMatchObject({ ok: true, value: { releases: [{ id: 3 }], next: null } });
 });
+
+test('stops at the supported Discogs page limit', async () => {
+  const load = createDiscoveryPages(
+    ({ page }) =>
+      Promise.resolve({
+        ok: true,
+        value: { page, pages: 400, perPage: 25, items: 10000, releases: [] },
+      }),
+    () => Promise.resolve({ ok: true, value: [{ style: 'Techno', releases: 1 }] }),
+    () => Promise.resolve({ ok: true, value: [] }),
+    () => Promise.resolve({ ok: true, value: new Set<number>() }),
+  );
+
+  const first = await load({ shelf: 'starter', cursor: null });
+  if (!first.ok || !first.value.next) throw new Error('Expected another page');
+  const last = await load({ shelf: 'starter', cursor: { ...first.value.next, page: 200 } });
+  expect(last).toEqual({ ok: true, value: { releases: [], next: null } });
+});
