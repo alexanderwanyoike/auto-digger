@@ -6,6 +6,8 @@ import type { createPortraitQueue } from './portrait-queue';
 import type { DiscogsBridge } from '../../shared/discogs';
 
 const icons = { artist: UserRound, label: Disc3, genre: Tags };
+const rateLimitDelay = 60_000;
+const networkRetryDelay = 750;
 
 export function FollowPortrait({
   topic,
@@ -27,27 +29,43 @@ export function FollowPortrait({
   useEffect(() => {
     const element = portrait.current;
     if (!element || !lookup || kind === 'genre') return undefined;
-    let active = true;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry?.isIntersecting) return;
-      observer.disconnect();
+    const lifetime = new AbortController();
+    let retryTimer: number | undefined;
+    const load = (retry: boolean) => {
       enqueue(async () => {
-        if (!active) return;
+        if (lifetime.signal.aborted) return;
         const cached = cache.get(key);
         if (cached !== undefined) {
           setUrl(cached);
           return;
         }
         const result = await lookup({ kind, name });
-        if (result.ok) {
-          cache.set(key, result.value);
-          if (active) setUrl(result.value);
-        } else if (active && result.error.code === 'unauthorized') onUnauthorized();
+        if (result.ok) cache.set(key, result.value);
+        if (lifetime.signal.aborted) return;
+        if (result.ok) setUrl(result.value);
+        else if (result.error.code === 'unauthorized') onUnauthorized();
+        else if (
+          retry &&
+          (result.error.code === 'rate-limited' || result.error.code === 'network')
+        ) {
+          retryTimer = window.setTimeout(
+            () => {
+              load(false);
+            },
+            result.error.code === 'rate-limited' ? rateLimitDelay : networkRetryDelay,
+          );
+        }
       }).catch(() => undefined);
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting) return;
+      observer.disconnect();
+      load(true);
     });
     observer.observe(element);
     return () => {
-      active = false;
+      lifetime.abort();
+      window.clearTimeout(retryTimer);
       observer.disconnect();
     };
   }, [cache, enqueue, key, kind, lookup, name, onUnauthorized]);

@@ -65,10 +65,15 @@ test('follows artists, labels and genres and manages them after restarting', asy
     await page.getByRole('button', { name: 'Following', exact: true }).click();
     await desktop.evaluate(() => {
       const request = globalThis.fetch;
+      let retriedArtist = false;
       globalThis.fetch = (input, init) => {
         const url = new URL(input instanceof Request ? input.url : input.toString());
         if (url.pathname !== '/database/search') return request(input, init);
         const kind = url.searchParams.get('type');
+        if (kind === 'artist' && !retriedArtist) {
+          retriedArtist = true;
+          return Promise.resolve(new Response(null, { status: 503 }));
+        }
         if (kind === 'artist' || kind === 'label') {
           return Promise.resolve(
             Response.json({
@@ -181,7 +186,10 @@ test('drops queued portrait lookups when the listener leaves Following', async (
       if (!bridge) return;
       await Promise.all(
         Array.from({ length: 12 }, (_, index) =>
-          bridge.setFollowed({ topic: { kind: 'label', name: `Label ${index}` }, followed: true }),
+          bridge.setFollowed({
+            topic: { kind: 'label', name: `Label ${index.toString()}` },
+            followed: true,
+          }),
         ),
       );
     });
