@@ -2,7 +2,7 @@ import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import { identityResponse, releaseResponse } from '../discogs-fixtures';
 
-test('browses populated catalogue years and restores the timeline from a full year grid', async () => {
+test('scrolls through populated catalogue years and appends release pages', async () => {
   const desktop = await electron.launch({
     args: [
       resolve('tests/encrypted-desktop.cjs'),
@@ -20,9 +20,11 @@ test('browses populated catalogue years and restores the timeline from a full ye
           if (url.pathname === '/releases/12')
             return Promise.resolve(Response.json(fixtures.releaseResponse));
           const year = url.searchParams.get('year') ?? '';
+          const pageNumber = Number(url.searchParams.get('page') ?? 1);
           const range = year.split('-').map(Number);
           const matches = [
             { id: 14, title: 'Mira North - First Light', year: 1993 },
+            { id: 15, title: 'Mira North - Evening Light', year: 1993 },
             ...Array.from({ length: 8 }, (_, index) => ({
               id: 20 + index,
               title: `Silt Relay - Back Channel ${(index + 1).toString()}`,
@@ -37,8 +39,14 @@ test('browses populated catalogue years and restores the timeline from a full ye
             : [{ id: 12, title: 'Low Tide - Quiet Orbit EP', year: 1998 }];
           return Promise.resolve(
             Response.json({
-              pagination: { page: 1, pages: 1, per_page: 50, items: results.length },
-              results,
+              pagination: {
+                page: pageNumber,
+                pages: year === '2000' ? 2 : 1,
+                per_page: 50,
+                items: results.length,
+              },
+              results:
+                year === '2000' ? results.slice((pageNumber - 1) * 6, pageNumber * 6) : results,
             }),
           );
         };
@@ -72,17 +80,14 @@ test('browses populated catalogue years and restores the timeline from a full ye
       'true',
     );
     await expect(years.getByRole('button', { name: '1994' })).toHaveCount(0);
-    await years.getByRole('button', { name: '2000' }).click();
-    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 1/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ })).toHaveCount(0);
-    await page.getByRole('button', { name: 'Show more' }).click();
-    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ })).toBeVisible();
-    await page.getByRole('button', { name: 'Back to timeline' }).click();
-    await expect(years.getByRole('button', { name: '2000' })).toHaveAttribute(
-      'aria-current',
-      'true',
-    );
-    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Evening Light/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Back Channel 6/ })).toBeVisible();
+    await page.locator('.explore-page').evaluate((element) => {
+      element.scrollTop = element.scrollHeight;
+    });
+    await expect(page.getByRole('button', { name: /Back Channel 8/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Back Channel 6/ })).toBeAttached();
+    await expect(page.getByRole('button', { name: 'Show more' })).toHaveCount(0);
   } finally {
     await desktop.close();
   }
