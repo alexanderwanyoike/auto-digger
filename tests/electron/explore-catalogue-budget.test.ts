@@ -21,7 +21,8 @@ import { identityResponse } from '../discogs-fixtures';
             const style = url.searchParams.get('style') ?? '';
             const date = url.searchParams.get('year');
             if (date) searches.push({ style, date });
-            const year = Math.max(1990, Number(date?.split('-')[0]) || 1990);
+            const start = Math.max(1990, Number(date?.split('-')[0]) || 1990);
+            const year = start === 2006 && date?.includes('-') ? 2007 : start;
             const results = Array.from({ length: date === '2006' ? 0 : count }, (_, index) => ({
               id: year * 100 + index,
               title: `${style} record ${index.toString()}`,
@@ -86,6 +87,12 @@ import { identityResponse } from '../discogs-fixtures';
       expect((await requests.jsonValue()).slice(before)).toEqual([
         { style: 'Progressive House', date: '2005' },
       ]);
+      await years.hover();
+      await page.mouse.wheel(0, 180);
+      await years.getByRole('button', { name: '2007' }).click();
+      await expect(page.getByRole('region', { name: '2007', exact: true })).toBeVisible();
+      await yearInput.press('Enter');
+      await expect(jumped).toBeVisible();
       await yearInput.fill('2006');
       await yearInput.press('Enter');
       await expect(page.getByText('No releases found for 2006.')).toBeVisible();
