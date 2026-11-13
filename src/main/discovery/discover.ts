@@ -73,7 +73,10 @@ export function createDiscover(
   knownReleases: () => Promise<CatalogueResult<Set<number>>>,
 ) {
   const discover = createReleaseDiscovery(search, knownReleases);
-  return async (input: unknown): Promise<DiscogsResult<SearchPage['releases']>> => {
+  return async (
+    input: unknown,
+    background = false,
+  ): Promise<DiscogsResult<SearchPage['releases']>> => {
     const selected = followTopicSchema.nullable().safeParse(input);
     if (!selected.success)
       return discogsFailure('invalid-input', 'Choose a followed artist, label or genre.');
@@ -91,7 +94,7 @@ export function createDiscover(
     return discover(
       topics.map((topic) => filtersForTopic(topic)),
       8,
-      selected.data === null,
+      background,
     );
   };
 }

@@ -67,7 +67,11 @@ export function registerDiscogsHandlers(
   );
   handle(discogsChannels.topicArtwork, (input) => session.topicArtwork(input));
   handle(discogsChannels.search, (input) => session.search(input));
-  handle(discogsChannels.discover, discover);
+  handle(discogsChannels.discover, (input) => {
+    if (typeof input === 'object' && input !== null && 'topic' in input && 'background' in input)
+      return discover(input.topic, input.background === true);
+    return discover(input);
+  });
   handle(discogsChannels.starterShelf, () => starterShelf());
   handle(discogsChannels.expandDiscovery, discoveryPages);
   handle(discogsChannels.previewRelease, (id) => session.loadRelease(id));

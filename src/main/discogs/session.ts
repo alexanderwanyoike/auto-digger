@@ -103,11 +103,7 @@ export function createDiscogsSession(
       const read = () =>
         searchDiscogs(query, token, request, { budget, background: background ?? false });
       const reuse = query.context === 'catalogue' || (Boolean(background) && query.page > 1);
-      const result = await searches.read(
-        JSON.stringify({ ...query, background: Boolean(background) }),
-        read,
-        reuse,
-      );
+      const result = await searches.read(JSON.stringify(query), read, reuse);
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();

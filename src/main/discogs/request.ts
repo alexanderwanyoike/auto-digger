@@ -33,6 +33,7 @@ export async function requestDiscogs<T>(
       redirect: 'error',
     });
   } catch {
+    if (allowed?.ok) budget?.observe(token !== null, allowed.value, undefined, undefined);
     if (signal?.aborted) return discogsFailure('cancelled', 'This Discogs request was cancelled.');
     return discogsFailure(
       'network',

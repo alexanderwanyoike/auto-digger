@@ -70,7 +70,7 @@ export function createRememberedSession(
     },
     dig: (input: unknown) => authorized(() => session.dig(input)),
     account: () =>
-      serialize<DiscogsAccount | null>(async () => {
+      serialize<DiscogsResult<DiscogsAccount | null>>(async () => {
         const current = session.account();
         if (!current.ok || current.value) return current;
         const stored = await tokens.load();

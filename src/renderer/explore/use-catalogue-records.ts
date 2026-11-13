@@ -11,7 +11,11 @@ export interface YearRecords {
   releases: SearchPage['releases'];
 }
 
-type YearRequest = { year: number; page: number; background?: boolean };
+interface YearRequest {
+  year: number;
+  page: number;
+  background?: boolean;
+}
 
 export function useCatalogueRecords(
   search: DiscogsBridge['search'],
