@@ -93,13 +93,35 @@ export function CatalogueTimeline({
   useEffect(() => {
     const viewport = catalogue.current?.closest<HTMLElement>('.explore-scroll');
     if (!viewport || exploring || disabled) return undefined;
+    const forward = () => {
+      setExploring(true);
+    };
     const wheel = (event: WheelEvent) => {
       if (event.deltaY > 0 && !event.ctrlKey && !yearRail.current?.contains(event.target as Node))
         setExploring(true);
     };
+    let touchY: number | undefined;
+    const startTouch = (event: TouchEvent) => {
+      touchY = event.touches[0]?.clientY;
+    };
+    const moveTouch = (event: TouchEvent) => {
+      const y = event.touches[0]?.clientY;
+      if (touchY !== undefined && y !== undefined && touchY - y >= 24) {
+        touchY = undefined;
+        if (event.target instanceof Node && yearRail.current?.contains(event.target))
+          yearRail.current.dispatchEvent(new Event('scroll-forward'));
+        else forward();
+      }
+    };
+    viewport.addEventListener('scroll-forward', forward);
     viewport.addEventListener('wheel', wheel, { passive: true });
+    viewport.addEventListener('touchstart', startTouch, { passive: true });
+    viewport.addEventListener('touchmove', moveTouch, { passive: true });
     return () => {
+      viewport.removeEventListener('scroll-forward', forward);
       viewport.removeEventListener('wheel', wheel);
+      viewport.removeEventListener('touchstart', startTouch);
+      viewport.removeEventListener('touchmove', moveTouch);
     };
   }, [disabled, exploring]);
 
@@ -115,8 +137,10 @@ export function CatalogueTimeline({
       event.preventDefault();
       loadMoreYears();
     };
+    rail.addEventListener('scroll-forward', loadMoreYears);
     rail.addEventListener('wheel', wheel, { passive: false });
     return () => {
+      rail.removeEventListener('scroll-forward', loadMoreYears);
       rail.removeEventListener('wheel', wheel);
     };
   }, [disabled, index.busy, index.error, index.hasMore, loadMoreYears]);

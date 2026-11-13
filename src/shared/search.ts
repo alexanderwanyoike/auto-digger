@@ -48,7 +48,7 @@ export const searchInputSchema = z.object({
   filters: filtersSchema,
   page: z.number().int().min(1).max(maxSearchPage),
 });
-export type SearchInput = z.input<typeof searchInputSchema>;
+export type SearchInput = z.output<typeof searchInputSchema>;
 export const searchPageSchema = z.object({
   page: z.number().int().positive(),
   pages: z.number().int().nonnegative(),
