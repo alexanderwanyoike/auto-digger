@@ -18,3 +18,17 @@ test('validates audio responses and hides transport errors at the desktop bounda
   expect(await bridge.reveal()).toMatchObject({ ok: false, error: { code: 'unavailable' } });
   expect(invoke.mock.calls[1]).toEqual(['audio:probe', 'https://youtu.be/abcdefghijk']);
 });
+
+test('distinguishes a probe transport failure from an unavailable video', async () => {
+  const invoke = vi
+    .fn<(channel: string, input?: unknown) => Promise<unknown>>()
+    .mockRejectedValueOnce(new Error('private details'))
+    .mockResolvedValueOnce({
+      ok: false,
+      error: { code: 'unavailable', message: 'This video is private.' },
+    });
+  const bridge = createAudioBridge(invoke);
+  const url = 'https://youtu.be/abcdefghijk';
+  expect(await bridge.probe(url)).toMatchObject({ ok: false, error: { code: 'network' } });
+  expect(await bridge.probe(url)).toMatchObject({ ok: false, error: { code: 'unavailable' } });
+});
