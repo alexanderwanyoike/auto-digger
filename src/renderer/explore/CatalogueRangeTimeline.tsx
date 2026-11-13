@@ -1,0 +1,143 @@
+import { useEffect, useRef, useState } from 'react';
+import type { DiscogsBridge } from '../../shared/discogs';
+import { CatalogueYearShelf } from './CatalogueYearShelf';
+import { TickScrollbar } from './TickScrollbar';
+import { catalogueScrollYear } from './catalogue-scroll-year';
+import { useRevealCatalogueYear } from './use-reveal-catalogue-year';
+import { useCatalogueRange } from './use-catalogue-range';
+import { useScrollContinuation } from './use-scroll-continuation';
+
+export function CatalogueRangeTimeline({
+  style,
+  from,
+  to,
+  disabled,
+  active,
+  search,
+  onOpen,
+  onPreview,
+  previewBusy,
+  onShowYear,
+  onUnauthorized,
+}: {
+  style: string;
+  from: number;
+  to: number;
+  disabled: boolean;
+  active: boolean;
+  search: DiscogsBridge['search'];
+  onOpen: (id: number) => void;
+  onPreview: ((id: number) => void) | undefined;
+  previewBusy: boolean;
+  onShowYear: (style: string, year: number) => void;
+  onUnauthorized: () => void;
+}) {
+  const { groups, limited, busy, error, retry, loadMore } = useCatalogueRange({
+    search,
+    style,
+    from,
+    to,
+    active: active && !disabled,
+    onUnauthorized,
+  });
+  const timeline = useRef<HTMLDivElement>(null);
+  const rail = useRef<HTMLElement>(null);
+  const railContent = useRef<HTMLDivElement>(null);
+  const [selected, setSelected] = useState<number>();
+  const jumpPosition = useRef<number | undefined>(undefined);
+  const sentinel = useScrollContinuation(active && !disabled ? loadMore : undefined);
+
+  useEffect(() => {
+    const content = timeline.current;
+    const viewport = content?.closest<HTMLElement>('.explore-scroll');
+    if (!active || !content || !viewport || !groups.length) return undefined;
+    const update = () => {
+      if (jumpPosition.current === viewport.scrollTop) return;
+      jumpPosition.current = undefined;
+      const year = catalogueScrollYear(content, viewport);
+      if (year !== undefined) setSelected(year);
+    };
+    update();
+    viewport.addEventListener('scroll', update, { passive: true });
+    return () => {
+      viewport.removeEventListener('scroll', update);
+    };
+  }, [active, groups]);
+
+  useRevealCatalogueYear(rail, selected);
+
+  return (
+    <div className="catalogue-timeline" ref={timeline}>
+      <div className="catalogue-years-frame">
+        <nav className="catalogue-years" aria-label="Release years" ref={rail}>
+          <div ref={railContent}>
+            <ol>
+              {groups.map(([year]) => (
+                <li key={year}>
+                  <button
+                    type="button"
+                    aria-current={year === (selected ?? groups[0]?.[0]) ? true : undefined}
+                    disabled={disabled}
+                    onClick={() => {
+                      const content = timeline.current;
+                      const viewport = content?.closest<HTMLElement>('.explore-scroll');
+                      const section = content?.querySelector(
+                        `[data-release-year="${year.toString()}"]`,
+                      );
+                      if (!viewport || !section) return;
+                      section.scrollIntoView({ block: 'start', behavior: 'instant' });
+                      jumpPosition.current = viewport.scrollTop;
+                      setSelected(year);
+                    }}
+                  >
+                    {year}
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </nav>
+        <TickScrollbar
+          viewport={rail}
+          content={railContent}
+          label="Catalogue years scroll position"
+        />
+      </div>
+      <div className="catalogue-records">
+        {limited && (
+          <p className="catalogue-range-limit" role="status">
+            Discogs shows the first 10,000 matches. Narrow the year range to see later releases.
+          </p>
+        )}
+        {groups.map(([year, releases]) => (
+          <CatalogueYearShelf
+            key={year}
+            year={year}
+            releases={releases}
+            disabled={disabled}
+            onOpen={onOpen}
+            onPreview={onPreview}
+            previewBusy={previewBusy}
+            onShowMore={() => {
+              onShowYear(style, year);
+            }}
+          />
+        ))}
+        <div className="catalogue-continuation" ref={sentinel}>
+          {busy && <p role="status">Loading releases…</p>}
+          {!busy && !error && !loadMore && !groups.length && (
+            <p>
+              No releases found from {from} to {to}.
+            </p>
+          )}
+          {error && <p role={error.retryAt === undefined ? 'alert' : 'status'}>{error.message}</p>}
+          {error && error.retryAt === undefined && (
+            <button className="secondary-button" type="button" onClick={retry}>
+              Retry
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

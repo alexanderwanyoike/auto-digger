@@ -81,7 +81,7 @@ import { identityResponse } from '../discogs-fixtures';
       await expect(years.getByRole('button', { name: '1992' })).toBeVisible();
       await years.getByRole('button', { name: '1992' }).click();
       await expect(page.getByRole('region', { name: '1992', exact: true })).toBeVisible();
-      const yearInput = page.getByRole('textbox', { name: 'Jump to year' });
+      const yearInput = page.getByRole('textbox', { name: 'From year' });
       const before = (await requests.jsonValue()).length;
       await yearInput.fill('2005');
       await yearInput.press('Enter');

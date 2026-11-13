@@ -10,7 +10,8 @@ import { useScrollContinuation } from './use-scroll-continuation';
 import { useCatalogueRecords } from './use-catalogue-records';
 
 export type ExploreCollection =
-  { kind: DiscoveryShelf } | { kind: 'year'; style: string; group: YearRecords };
+  | { kind: DiscoveryShelf }
+  | { kind: 'year'; style: string; year: number; group: YearRecords | undefined };
 
 export const discoveryTitles = {
   starter: 'Discover records',
@@ -22,6 +23,7 @@ type Releases = SearchPage['releases'];
 function YearCollection({
   search,
   style,
+  year,
   group,
   disabled,
   active,
@@ -32,7 +34,8 @@ function YearCollection({
 }: {
   search: DiscogsBridge['search'];
   style: string;
-  group: YearRecords;
+  year: number;
+  group: YearRecords | undefined;
   disabled: boolean;
   active: boolean;
   onOpen: (id: number) => void;
@@ -43,7 +46,7 @@ function YearCollection({
   const records = useCatalogueRecords(
     search,
     style,
-    group.year,
+    year,
     onUnauthorized,
     group,
     active && !disabled,
@@ -109,7 +112,7 @@ export function ExploreCollectionPage({
   onUnauthorized: () => void;
 }) {
   const year = collection.kind === 'year';
-  const title = year ? collection.group.year : discoveryTitles[collection.kind];
+  const title = year ? collection.year : discoveryTitles[collection.kind];
   return (
     <section
       className="explore-shelf explore-collection"
@@ -128,6 +131,7 @@ export function ExploreCollectionPage({
         <YearCollection
           search={bridge.search}
           style={collection.style}
+          year={collection.year}
           group={collection.group}
           onPreview={onPreview}
           previewBusy={previewBusy}

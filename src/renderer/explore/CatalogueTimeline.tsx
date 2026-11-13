@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import type { YearRecords } from './use-catalogue-records';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { TickScrollbar } from './TickScrollbar';
-import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
+import { catalogueScrollYear } from './catalogue-scroll-year';
+import { useRevealCatalogueYear } from './use-reveal-catalogue-year';
+import { CatalogueYearShelf } from './CatalogueYearShelf';
 import { useCatalogueRecords } from './use-catalogue-records';
 import { useScrollContinuation } from './use-scroll-continuation';
 import { useCatalogueYearIndex } from './use-catalogue-year-index';
@@ -27,7 +29,7 @@ export function CatalogueTimeline({
   onOpen: (id: number) => void;
   onPreview: ((id: number) => void) | undefined;
   previewBusy: boolean;
-  onShowYear: (style: string, group: YearRecords) => void;
+  onShowYear: (style: string, year: number, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
   const [jumpResult, setJumpResult] = useState<{ empty: boolean }>();
@@ -62,15 +64,7 @@ export function CatalogueTimeline({
   const catalogue = useRef<HTMLDivElement>(null);
   const yearRail = useRef<HTMLElement>(null);
   const yearRailContent = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const rail = yearRail.current;
-    const button = rail?.querySelector('[aria-current="true"]');
-    if (!rail || !button) return;
-    const visible = rail.getBoundingClientRect();
-    const target = button.getBoundingClientRect();
-    if (target.top < visible.top) rail.scrollBy(0, target.top - visible.top);
-    if (target.bottom > visible.bottom) rail.scrollBy(0, target.bottom - visible.bottom);
-  }, [selected]);
+  useRevealCatalogueYear(yearRail, selected);
   useEffect(() => {
     const timeline = catalogue.current;
     const viewport = timeline?.closest<HTMLElement>('.explore-scroll');
@@ -78,16 +72,8 @@ export function CatalogueTimeline({
     const update = () => {
       if (!timeline.getClientRects().length) return;
       if (viewport.scrollTop > 0) setExploring(true);
-      const inset = parseFloat(getComputedStyle(timeline).scrollMarginTop);
-      const edge = viewport.getBoundingClientRect().top + inset;
-      const years = Array.from(timeline.querySelectorAll<HTMLElement>('[data-release-year]'));
-      const atEnd =
-        viewport.scrollTop > 0 &&
-        viewport.scrollTop + viewport.clientHeight >= viewport.scrollHeight - 2;
-      const year = atEnd
-        ? years.at(-1)
-        : years.find((group) => group.getBoundingClientRect().bottom > edge);
-      if (year?.dataset.releaseYear) setSelected(Number(year.dataset.releaseYear));
+      const year = catalogueScrollYear(timeline, viewport);
+      if (year !== undefined) setSelected(year);
     };
     update();
     viewport.addEventListener('scroll', update, { passive: true });
@@ -243,34 +229,18 @@ export function CatalogueTimeline({
         {records.groups
           .filter(({ releases }) => releases.length)
           .map((group) => (
-            <section
+            <CatalogueYearShelf
               key={group.year}
-              className="explore-shelf catalogue-year"
-              aria-label={group.year.toString()}
-              data-release-year={group.year}
-            >
-              <header className="explore-shelf-header">
-                <h3>{group.year}</h3>
-                <button
-                  type="button"
-                  id={`explore-year-more-${group.year.toString()}`}
-                  className="explore-show-more"
-                  disabled={disabled}
-                  onClick={() => {
-                    onShowYear(style, group);
-                  }}
-                >
-                  Show more
-                </button>
-              </header>
-              <ReleaseMatchList
-                releases={group.releases}
-                disabled={disabled}
-                onOpen={onOpen}
-                onPreview={onPreview}
-                previewBusy={previewBusy}
-              />
-            </section>
+              year={group.year}
+              releases={group.releases}
+              disabled={disabled}
+              onOpen={onOpen}
+              onPreview={onPreview}
+              previewBusy={previewBusy}
+              onShowMore={() => {
+                onShowYear(style, group.year, group);
+              }}
+            />
           ))}
         <div ref={sentinel} className="catalogue-continuation">
           {busy && <p role="status">Loading releases…</p>}

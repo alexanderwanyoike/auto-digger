@@ -211,10 +211,10 @@ export function ExplorePage({
                   onOpen={open}
                   onPreview={preview}
                   previewBusy={previewBusy || Boolean(audio.preparingPreview)}
-                  onShowYear={(style, group) => {
+                  onShowYear={(style, year, group) => {
                     showCollection(
-                      { kind: 'year', style, group },
-                      `explore-year-more-${group.year.toString()}`,
+                      { kind: 'year', style, year, group },
+                      `explore-year-more-${year.toString()}`,
                     );
                   }}
                   onUnauthorized={onUnauthorized}
