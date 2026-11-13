@@ -13,14 +13,30 @@ test('keeps digging through both dedicated discovery shelves as the listener scr
     const page = await desktop.firstWindow();
     await desktop.evaluate(
       (_electron, fixtures) => {
+        let retryFollowedPage = false;
         globalThis.fetch = (input) => {
           const url = new URL(input instanceof Request ? input.url : input.toString());
           if (url.pathname === '/oauth/identity')
             return Promise.resolve(Response.json(fixtures.identityResponse));
           if (url.pathname === '/releases/12')
             return Promise.resolve(Response.json(fixtures.releaseResponse));
-          const scope = url.searchParams.get('label') ? 'Followed' : 'Personal';
+          const label = url.searchParams.get('label');
+          const style = url.searchParams.get('style');
+          const scope = label === 'Still Records' ? 'Followed' : 'Personal';
           const current = Number(url.searchParams.get('page') ?? 1);
+          if (!label && style !== 'Deep House' && style !== 'Progressive House')
+            return Promise.resolve(new Response(null, { status: 400 }));
+          if (label && label !== 'Still Records')
+            return Promise.resolve(new Response(null, { status: 400 }));
+          if (
+            label &&
+            current === 2 &&
+            !retryFollowedPage &&
+            Reflect.get(globalThis, 'rejectDiscoveryPage') === true
+          ) {
+            retryFollowedPage = true;
+            return Promise.resolve(new Response(null, { status: 429 }));
+          }
           const start = (current - 1) * 30 + 1;
           const ids = Array.from({ length: 30 }, (_, index) => start + index);
           if (current === 3) ids[0] = 1;
@@ -44,6 +60,8 @@ test('keeps digging through both dedicated discovery shelves as the listener scr
     await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByLabel('Discogs release ID', { exact: true }).fill('12');
     await page.getByRole('button', { name: 'Load release', exact: true }).click();
+    await page.getByRole('button', { name: 'Save EP to crate' }).click();
+    await expect(page.getByRole('button', { name: 'Saved to crate' })).toBeDisabled();
     await page.getByRole('button', { name: 'Follow label Still Records', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Follow label Still Records' })).toHaveAttribute(
       'aria-pressed',
@@ -60,7 +78,15 @@ test('keeps digging through both dedicated discovery shelves as the listener scr
           element.scrollTo(0, element.scrollHeight);
         });
       await expect(releases.nth(20)).toBeVisible();
-      await scroll();
+      if (scope === 'Followed') {
+        await desktop.evaluate(() => {
+          Reflect.set(globalThis, 'rejectDiscoveryPage', true);
+        });
+        await scroll();
+        await expect(section.getByRole('alert')).toContainText('Discogs rate limit reached');
+        await expect(releases.nth(20)).toBeVisible();
+        await section.getByRole('button', { name: 'Retry' }).click();
+      } else await scroll();
       await expect(releases.nth(55)).toBeVisible();
       await scroll();
       await expect(releases).toHaveCount(89);
