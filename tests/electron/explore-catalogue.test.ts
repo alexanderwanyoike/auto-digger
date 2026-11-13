@@ -103,7 +103,7 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     expect(track.height).toBeLessThan(viewportBounds.height / 2);
     expect(track.y + track.height / 2).toBeCloseTo(viewportBounds.y + viewportBounds.height / 2, 0);
     expect(track.x + track.width).toBeLessThan(viewportBounds.x + viewportBounds.width);
-    const ticks = page.locator('.explore-scrollbar-tick');
+    const ticks = scrollbar.locator('..').locator('.explore-scrollbar-tick');
     const tickWidths = () =>
       ticks.evaluateAll((marks) => marks.map((mark) => mark.getBoundingClientRect().width));
     const resting = await tickWidths();
@@ -125,10 +125,13 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     expect(expanded[middle]).toBeGreaterThan(expandedOuter);
     expect(expandedOuter).toBeGreaterThan(restingOuter);
     expect(expanded[0]).toBe(resting[0]);
-    await page.mouse.move(hoveredX, hoveredY + track.height / 4);
+    const nextTick = ticks.nth(middle + 6);
+    const nextTickBounds = await nextTick.boundingBox();
+    if (!nextTickBounds) throw new Error('The next hover target must be visible');
+    await page.mouse.move(hoveredX, nextTickBounds.y);
     await expect.poll(async () => (await tickWidths())[middle]).toBeCloseTo(restingMiddle);
     await expect
-      .poll(async () => Math.max(...(await tickWidths())))
+      .poll(async () => (await nextTick.boundingBox())?.width)
       .toBeGreaterThan(restingMiddle + 7);
     await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(0);
     await page.mouse.move(hoveredX - 50, hoveredY);
