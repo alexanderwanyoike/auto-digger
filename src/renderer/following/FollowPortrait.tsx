@@ -41,10 +41,13 @@ export function FollowPortrait({
           return;
         }
         const result = await lookup({ kind, name });
+        if (!result.ok && result.error.code === 'unauthorized') {
+          onUnauthorized();
+          return;
+        }
         if (result.ok) cache.set(key, result.value);
         if (cancelled()) return;
         if (result.ok) setUrl(result.value);
-        else if (result.error.code === 'unauthorized') onUnauthorized();
         else if (
           retry &&
           (result.error.code === 'rate-limited' || result.error.code === 'network')
