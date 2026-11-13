@@ -76,6 +76,9 @@ test('keeps a persistent Explore history of opened and played releases', async (
     const shelf = page.getByRole('region', { name: 'Discover records' });
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*First Light/ })).toBeVisible();
 
+    await shelf.getByRole('button', { name: /^(?!Play ).*First Light/ }).click();
+    await expect(page.getByRole('heading', { name: 'First Light', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Back to Explore', exact: true }).click();
     await shelf.getByRole('button', { name: 'Play Low Tide - Quiet Orbit EP' }).click();
     const playback = page.getByRole('contentinfo', { name: 'Playback' });
     await expect(playback.getByRole('button', { name: 'Pause' })).toBeVisible();
@@ -83,11 +86,14 @@ test('keeps a persistent Explore history of opened and played releases', async (
     await page.getByRole('button', { name: 'History', exact: true }).click({ timeout: 3000 });
     const history = page.getByRole('region', { name: 'History', exact: true });
     await expect(history.getByRole('button', { name: /Quiet Orbit EP.*Played/ })).toBeVisible();
+    await expect(history.getByRole('button', { name: /First Light.*Opened/ })).toBeVisible();
+    await expect(history.getByRole('listitem').first()).toContainText('Quiet Orbit EP');
     await history.getByRole('button', { name: /Quiet Orbit EP.*Played/ }).click();
     await expect(page.getByRole('heading', { name: 'Quiet Orbit EP', exact: true })).toBeVisible();
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: 'History', exact: true }).click();
     await expect(history.getByRole('button', { name: /Quiet Orbit EP.*Played/ })).toBeVisible();
+    await expect(history.getByRole('button', { name: /First Light.*Opened/ })).toBeVisible();
   } finally {
     await desktop.close();
   }
