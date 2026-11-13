@@ -287,3 +287,60 @@ test('downloads distinct liked tracks that share the same title', async () => {
     await desktop.close();
   }
 });
+
+test('uses another matched upload when the preview source was saved for a different track', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encrypted-desktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('profile')}`,
+    ],
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await page.getByRole('heading', { name: 'Explore' }).waitFor();
+    const release = {
+      ...loadedRelease,
+      tracks: [...loadedRelease.tracks, { position: 'B1', title: 'Night Signal', duration: '' }],
+      videos: [
+        ...loadedRelease.videos,
+        { title: 'Low Tide - Night Signal', url: 'https://www.youtube.com/watch?v=zyxwvutsrqp' },
+      ],
+    };
+    expect((await page.evaluate((record) => window.crate?.save(record), release))?.ok).toBe(true);
+    await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    const source = page.getByRole('listitem').filter({ hasText: 'Low Tide - Quiet Orbit' });
+    await source.getByLabel('Discogs track').selectOption('1');
+    await source.getByRole('button', { name: 'Preview audio' }).click();
+    const player = page.getByRole('contentinfo', { name: 'Playback' });
+    const like = player.getByRole('button', { name: 'Like Night Signal' });
+    await expect(like).toBeEnabled();
+    const started = await page.evaluate(
+      (record) => window.downloadJobs?.start([{ release: record, videoIndex: 0, trackIndex: 0 }]),
+      release,
+    );
+    expect(started?.ok).toBe(true);
+    await expect
+      .poll(() => page.evaluate(() => window.downloadJobs?.list()))
+      .toMatchObject({
+        ok: true,
+        value: [{ stage: 'complete' }],
+      });
+    await expect(source.getByRole('button', { name: 'Play track', exact: true })).toBeVisible();
+    await like.click();
+    await page.getByRole('button', { name: 'Playlists', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Play Night Signal' })).toBeVisible();
+    await expect
+      .poll(() => page.evaluate(() => window.audioLibrary?.list()))
+      .toMatchObject({
+        ok: true,
+        value: [
+          { id: '12-abcdefghijk', trackIndex: 0 },
+          { id: '12-zyxwvutsrqp', trackIndex: 1 },
+        ],
+      });
+  } finally {
+    await desktop.close();
+  }
+});
