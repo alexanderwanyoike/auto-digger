@@ -60,6 +60,16 @@ test('learns the saved record style when the listener refreshes Explore', async 
     await expect(destination.locator('option:checked')).toHaveText('Deep picks (1)');
     await destination.selectOption({ label: 'After hours (0)' });
     await expect(page.getByRole('button', { name: 'Save EP to crate' })).toBeEnabled();
+    await desktop.evaluate(({ ipcMain }) => {
+      ipcMain.removeHandler('catalogue:view');
+      ipcMain.handle('catalogue:view', () => ({
+        ok: false,
+        error: { code: 'storage', message: 'The crate could not be opened.' },
+      }));
+    });
+    await destination.selectOption({ label: 'Deep picks (1)' });
+    await expect(page.getByRole('alert')).toContainText('The crate could not be opened.');
+    await expect(page.getByRole('button', { name: 'Save EP to crate' })).toBeDisabled();
     await page.getByRole('button', { name: 'Back to Explore' }).click();
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*Back Channel/ })).toBeVisible();
     await expect(shelf.getByRole('button', { name: /^(?!Play ).*First Light/ })).toHaveCount(0);
