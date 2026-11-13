@@ -21,13 +21,15 @@ test('keeps digging through both dedicated discovery shelves as the listener scr
             return Promise.resolve(Response.json(fixtures.identityResponse));
           if (url.pathname === '/releases/12')
             return Promise.resolve(Response.json(fixtures.releaseResponse));
-          const label = url.searchParams.get('label');
+          if (url.searchParams.get('type') === 'label')
+            return Promise.resolve(
+              Response.json({ results: [{ id: 42, title: 'Still Records' }] }),
+            );
+          const label = url.pathname === '/labels/42/releases' ? 'Still Records' : null;
           const style = url.searchParams.get('style');
           const scope = label === 'Still Records' ? 'Followed' : 'Personal';
           const current = Number(url.searchParams.get('page') ?? 1);
           if (!label && style !== 'Deep House' && style !== 'Progressive House')
-            return Promise.resolve(new Response(null, { status: 400 }));
-          if (label && label !== 'Still Records')
             return Promise.resolve(new Response(null, { status: 400 }));
           if (
             label &&
@@ -43,14 +45,15 @@ test('keeps digging through both dedicated discovery shelves as the listener scr
           const start = (current - 1) * 30 + 1;
           const ids = Array.from({ length: 30 }, (_, index) => start + index);
           if (current === 3) ids[0] = 1;
+          const records = ids.map((id) => ({
+            id: id + (scope === 'Followed' ? 200 : 100),
+            title: `${scope} Record ${id.toString().padStart(3, '0')}`,
+            year: 1998,
+          }));
           return Promise.resolve(
             Response.json({
               pagination: { page: current, pages: 3, per_page: 50, items: 90 },
-              results: ids.map((id) => ({
-                id: id + (scope === 'Followed' ? 200 : 100),
-                title: `${scope} Record ${id.toString().padStart(3, '0')}`,
-                year: 1998,
-              })),
+              ...(label ? { releases: records } : { results: records }),
             }),
           );
         };

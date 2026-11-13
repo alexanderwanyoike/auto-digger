@@ -53,20 +53,40 @@ test('opens the exact Berg artist and label catalogues from existing follows', a
                 ],
               }),
             );
+          if (url.pathname === '/labels/969622/releases')
+            return Promise.resolve(
+              Response.json({
+                pagination,
+                releases: [
+                  {
+                    id: 25116568,
+                    artist: 'DJOKO (3)',
+                    title: 'Endless Explorations Pt. III',
+                    year: 2022,
+                  },
+                ],
+              }),
+            );
           const type = url.searchParams.get('type');
           const query = url.searchParams.get('q');
-          const results =
-            type === 'artist' && query === 'Berg (15)'
-              ? [
-                  { id: 1213860, title: 'Berg (6)' },
-                  { id: 3470200, title: 'Berg (15)' },
-                ]
-              : type === 'label' && query === 'Berg (2)'
-                ? [
-                    { id: 388029, title: 'Berg' },
-                    { id: 592563, title: 'Berg (2)' },
-                  ]
-                : [];
+          const topics = new Map([
+            [
+              'artist:Berg (15)',
+              [
+                { id: 1213860, title: 'Berg (6)' },
+                { id: 3470200, title: 'Berg (15)' },
+              ],
+            ],
+            [
+              'label:Berg (2)',
+              [
+                { id: 388029, title: 'Berg' },
+                { id: 592563, title: 'Berg (2)' },
+              ],
+            ],
+            ['label:Berg Audio', [{ id: 969622, title: 'Berg Audio' }]],
+          ]);
+          const results = topics.get(`${type ?? ''}:${query ?? ''}`) ?? [];
           return Promise.resolve(
             Response.json({ pagination: { ...pagination, items: results.length }, results }),
           );
@@ -84,6 +104,10 @@ test('opens the exact Berg artist and label catalogues from existing follows', a
         topic: { kind: 'label', name: 'Berg (2)' },
         followed: true,
       });
+      await window.following?.setFollowed({
+        topic: { kind: 'label', name: 'Berg Audio' },
+        followed: true,
+      });
     });
     await page.reload();
     await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
@@ -96,14 +120,21 @@ test('opens the exact Berg artist and label catalogues from existing follows', a
     ).toBeVisible();
     const tabs = page.getByRole('navigation', { name: 'Explore sections' });
     await tabs.getByRole('button', { name: 'Following', exact: true }).click();
-    await page.getByRole('button', { name: 'Explore artist Berg (15)' }).click();
+    await page.getByRole('button', { name: 'Browse Berg (15)' }).click();
     const catalogue = page.getByRole('region', { name: 'Catalogue results' });
     await catalogue.getByRole('button', { name: /Berg 03/ }).click();
     await expect(page.getByRole('heading', { name: 'Berg 03' })).toBeVisible();
-    await page.getByRole('button', { name: 'Back to Following' }).click();
+    await page.getByRole('button', { name: 'Back to Explore' }).click();
+    await page.getByRole('button', { name: 'All followed', exact: true }).click();
     await page.getByRole('button', { name: 'Labels', exact: true }).click();
-    await page.getByRole('button', { name: 'Explore label Berg (2)' }).click();
+    await page.getByRole('button', { name: 'Browse Berg (2)' }).click();
     await expect(catalogue.getByRole('button', { name: /Berg 02/ })).toBeVisible();
+    await expect(catalogue.getByRole('button', { name: /Endless Explorations/ })).toHaveCount(0);
+    await page.getByRole('button', { name: 'All followed', exact: true }).click();
+    await page.getByRole('button', { name: 'Labels', exact: true }).click();
+    await page.getByRole('button', { name: 'Browse Berg Audio' }).click();
+    await expect(catalogue.getByRole('button', { name: /Endless Explorations/ })).toBeVisible();
+    await expect(catalogue.getByRole('button', { name: /Berg 02/ })).toHaveCount(0);
   } finally {
     await desktop.close();
   }
