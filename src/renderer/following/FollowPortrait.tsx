@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Disc3, Tags, UserRound } from 'lucide-react';
+import { followTopicKey } from '../../shared/following';
 import type { FollowTopic } from '../../shared/following';
 import type { createPortraitQueue } from './portrait-queue';
 import type { DiscogsBridge } from '../../shared/discogs';
@@ -20,7 +21,7 @@ export function FollowPortrait({
   onUnauthorized: () => void;
 }) {
   const { kind, name } = topic;
-  const key = `${kind}:${name}`;
+  const key = followTopicKey(topic);
   const portrait = useRef<HTMLSpanElement>(null);
   const [url, setUrl] = useState(() => cache.get(key) ?? null);
   useEffect(() => {
