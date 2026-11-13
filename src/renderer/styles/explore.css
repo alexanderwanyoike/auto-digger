@@ -181,12 +181,14 @@
   gap: 12px 20px;
   margin-bottom: 14px;
 }
-.catalogue-jump {
+.catalogue-jump,
+.catalogue-jump-field {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.catalogue-jump label {
+.catalogue-jump-field {
+  margin: 0;
   color: var(--muted);
   font-size: 12px;
 }
