@@ -82,7 +82,11 @@ export function registerDiscogsHandlers(
   });
   handle(discogsChannels.recordDiscovery, async (input) => {
     const result = await history.record(input);
-    return result.ok ? result : discogsFailure('unavailable', result.error.message);
+    if (result.ok) return result;
+    return discogsFailure(
+      result.error.code === 'invalid-input' ? 'invalid-input' : 'unavailable',
+      result.error.message,
+    );
   });
   handle(discogsChannels.markSeen, async (id) => {
     if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1)

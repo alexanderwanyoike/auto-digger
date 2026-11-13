@@ -34,7 +34,10 @@ export function createDiscoveryHistory(connection: () => Promise<CatalogueResult
             `
           INSERT INTO release_activity(id,title,artist,artwork_url,played,last_activity)
           VALUES (?, ?, ?, ?, ?, ?)
-          ON CONFLICT(id) DO UPDATE SET title=excluded.title, artist=excluded.artist,
+          ON CONFLICT(id) DO UPDATE SET
+            title=CASE WHEN excluded.played=0 THEN excluded.title ELSE release_activity.title END,
+            artist=CASE WHEN excluded.played=0 OR release_activity.artist=''
+              THEN excluded.artist ELSE release_activity.artist END,
             artwork_url=COALESCE(excluded.artwork_url, release_activity.artwork_url),
             played=MAX(release_activity.played, excluded.played),
             last_activity=excluded.last_activity
