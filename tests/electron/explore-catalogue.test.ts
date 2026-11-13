@@ -99,8 +99,10 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     const viewportBounds = await viewport.boundingBox();
     const track = await scrollbar.boundingBox();
     if (!track || !viewportBounds) throw new Error('The Explore scrollbar must have a track');
-    expect(track.y).toBeCloseTo(tabsBottom, 0);
-    expect(track.x + track.width).toBeCloseTo(viewportBounds.x + viewportBounds.width, 0);
+    expect(viewportBounds.y).toBeCloseTo(tabsBottom, 0);
+    expect(track.height).toBeLessThan(viewportBounds.height / 2);
+    expect(track.y + track.height / 2).toBeCloseTo(viewportBounds.y + viewportBounds.height / 2, 0);
+    expect(track.x + track.width).toBeLessThan(viewportBounds.x + viewportBounds.width);
     await page.mouse.move(track.x + track.width / 2, track.y + 10);
     await page.mouse.down();
     await page.mouse.move(track.x + track.width / 2, track.y + track.height / 3, { steps: 5 });
