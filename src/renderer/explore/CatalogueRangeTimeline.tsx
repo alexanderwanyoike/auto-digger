@@ -44,6 +44,7 @@ export function CatalogueRangeTimeline({
   const rail = useRef<HTMLElement>(null);
   const railContent = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<number>();
+  const jumpPosition = useRef<number | undefined>(undefined);
   const sentinel = useScrollContinuation(active && !disabled ? loadMore : undefined);
 
   useEffect(() => {
@@ -51,6 +52,8 @@ export function CatalogueRangeTimeline({
     const viewport = content?.closest<HTMLElement>('.explore-scroll');
     if (!active || !content || !viewport || !groups.length) return undefined;
     const update = () => {
+      if (jumpPosition.current === viewport.scrollTop) return;
+      jumpPosition.current = undefined;
       const year = catalogueScrollYear(content, viewport);
       if (year !== undefined) setSelected(year);
     };
@@ -76,10 +79,15 @@ export function CatalogueRangeTimeline({
                     aria-current={year === (selected ?? groups[0]?.[0]) ? true : undefined}
                     disabled={disabled}
                     onClick={() => {
+                      const content = timeline.current;
+                      const viewport = content?.closest<HTMLElement>('.explore-scroll');
+                      const section = content?.querySelector(
+                        `[data-release-year="${year.toString()}"]`,
+                      );
+                      if (!viewport || !section) return;
+                      section.scrollIntoView({ block: 'start', behavior: 'instant' });
+                      jumpPosition.current = viewport.scrollTop;
                       setSelected(year);
-                      timeline.current
-                        ?.querySelector(`[data-release-year="${year.toString()}"]`)
-                        ?.scrollIntoView({ block: 'start' });
                     }}
                   >
                     {year}
