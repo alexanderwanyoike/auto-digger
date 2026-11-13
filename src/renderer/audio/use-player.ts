@@ -9,7 +9,7 @@ const unavailableAudio =
 export function usePlayer(
   track: PlaybackItem | null,
   request: number,
-  onSleevePlaying?: (id: number) => void,
+  onTrackPlaying?: (track: PlaybackItem & { releaseId: number }) => void,
 ) {
   const [media] = useState(() => new Audio());
   const [playing, setPlaying] = useState(false);
@@ -104,15 +104,18 @@ export function usePlayer(
     }
   }, [track, request, media, start]);
   useEffect(() => {
+    let recorded = false;
     const started = () => {
-      if (track?.sleeveReleaseId !== undefined && media.currentSrc === track.url)
-        onSleevePlaying?.(track.sleeveReleaseId);
+      if (!recorded && track?.releaseId !== undefined && media.currentSrc === track.url) {
+        recorded = true;
+        onTrackPlaying?.({ ...track, releaseId: track.releaseId });
+      }
     };
     media.addEventListener('playing', started);
     return () => {
       media.removeEventListener('playing', started);
     };
-  }, [media, onSleevePlaying, track]);
+  }, [media, onTrackPlaying, track, request]);
   useEffect(() => {
     media.volume = volume;
   }, [media, volume]);

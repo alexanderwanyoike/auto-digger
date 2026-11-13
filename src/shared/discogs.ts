@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { DiscoveryPage, DiscoveryPageRequest } from './discovery';
 import type { DigResult } from './dig';
 import type { DigFilters, SearchPage } from './search';
+import type { HistoryEntry, HistoryRecord } from './discovery-history';
 import type { FollowTopic } from './following';
 import type { Result } from './result';
 
@@ -71,6 +72,8 @@ export interface DiscogsBridge {
   starterShelf?: () => Promise<DiscogsResult<SearchPage['releases']>>;
   previewRelease?: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
   crateStyles?: () => Promise<DiscogsResult<string[]>>;
+  discoveryHistory?: () => Promise<DiscogsResult<HistoryEntry[]>>;
+  recordDiscovery?: (entry: HistoryRecord) => Promise<DiscogsResult<undefined>>;
   markSeen?: (id: number) => Promise<DiscogsResult<undefined>>;
   loadRelease: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;
   disconnect: () => Promise<DiscogsResult<undefined>>;
@@ -85,6 +88,8 @@ export const discogsChannels = {
   starterShelf: 'discogs:starter-shelf',
   expandDiscovery: 'discogs:expand-discovery',
   markSeen: 'discogs:mark-seen',
+  discoveryHistory: 'discogs:discovery-history',
+  recordDiscovery: 'discogs:record-discovery',
   previewRelease: 'discogs:preview-release',
   crateStyles: 'discogs:crate-styles',
   account: 'discogs:account',

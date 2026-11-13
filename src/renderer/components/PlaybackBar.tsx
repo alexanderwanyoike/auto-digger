@@ -1,4 +1,5 @@
 import { ArrowUpRight, FolderOpen, Pause, Play, Volume2 } from 'lucide-react';
+import type { PlaybackItem } from '../../shared/playback';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import { usePlayer } from '../audio/use-player';
 import { RecordArtwork } from './RecordArtwork';
@@ -10,15 +11,15 @@ function timecode(value: number) {
 
 export function PlaybackBar({
   audio,
-  onSleevePlaying,
+  onTrackPlaying,
   onOpenRelease,
 }: {
   audio: ReturnType<typeof useAudioLibrary>;
-  onSleevePlaying?: (id: number) => void;
+  onTrackPlaying?: (track: PlaybackItem & { releaseId: number }) => void;
   onOpenRelease?: ((id: number) => void) | undefined;
 }) {
   const { track, request } = audio.playback;
-  const player = usePlayer(track, request, onSleevePlaying);
+  const player = usePlayer(track, request, onTrackPlaying);
   const description = track
     ? `${track.artist} · ${track.album}`
     : 'Download a track to listen here.';

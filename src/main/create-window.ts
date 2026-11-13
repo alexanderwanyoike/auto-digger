@@ -185,7 +185,7 @@ export async function createWindow(): Promise<Result<undefined, string>> {
         catalogueStore.discoveryHistory.seen,
       ),
       crateTaste: catalogueStore.crateTaste,
-      markOpened: catalogueStore.discoveryHistory.opened,
+      history: catalogueStore.discoveryHistory,
     });
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event) => {
