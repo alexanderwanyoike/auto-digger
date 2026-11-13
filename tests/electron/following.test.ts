@@ -149,3 +149,53 @@ test('searches and pages through 1,000 followed labels', async () => {
     await desktop.close();
   }
 });
+
+test('drops queued portrait lookups when the listener leaves Following', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encrypted-desktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('profile')}`,
+    ],
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await desktop.evaluate((_electron, identity) => {
+      globalThis.fetch = async (input) => {
+        const url = new URL(input instanceof Request ? input.url : input.toString());
+        if (url.pathname === '/oauth/identity') return Response.json(identity);
+        if (url.searchParams.get('type') === 'label') {
+          await new Promise((done) => {
+            setTimeout(done, 750);
+          });
+          return Response.json({ results: [] });
+        }
+        return Response.json({
+          pagination: { page: 1, pages: 0, per_page: 50, items: 0 },
+          results: [],
+        });
+      };
+    }, identityResponse);
+    await page.evaluate(async () => {
+      const bridge = window.following;
+      if (!bridge) return;
+      await Promise.all(
+        Array.from({ length: 12 }, (_, index) =>
+          bridge.setFollowed({ topic: { kind: 'label', name: `Label ${index}` }, followed: true }),
+        ),
+      );
+    });
+    await page.reload();
+    await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
+    await page.getByLabel('Personal token').fill('fixture-following-queue');
+    await page.getByRole('button', { name: 'Connect account', exact: true }).click();
+    await page.getByRole('button', { name: 'Following', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Browse Label 0', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Feed', exact: true }).click();
+    await page.getByRole('button', { name: 'Refresh', exact: true }).click({ timeout: 3500 });
+    await expect(page.getByRole('button', { name: 'Refresh', exact: true })).toBeEnabled({
+      timeout: 3500,
+    });
+  } finally {
+    await desktop.close();
+  }
+});
