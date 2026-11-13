@@ -33,7 +33,7 @@ export function CatalogueTimeline({
 
   useLayoutEffect(() => {
     if (!grid && timeline.current) timeline.current.scrollTop = yearPosition.current;
-  });
+  }, [grid]);
   useEffect(() => {
     let active = true;
     catalogueYears(
