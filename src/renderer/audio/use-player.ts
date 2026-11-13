@@ -10,6 +10,7 @@ export function usePlayer(
   track: PlaybackItem | null,
   request: number,
   onTrackPlaying?: (track: PlaybackItem & { releaseId: number }) => void,
+  onTrackEnded?: () => void,
 ) {
   const [media] = useState(() => new Audio());
   const [playing, setPlaying] = useState(false);
@@ -113,6 +114,7 @@ export function usePlayer(
     };
     const ended = () => {
       recorded = false;
+      if (track && media.currentSrc === track.url) onTrackEnded?.();
     };
     media.addEventListener('playing', started);
     media.addEventListener('ended', ended);
@@ -120,7 +122,7 @@ export function usePlayer(
       media.removeEventListener('playing', started);
       media.removeEventListener('ended', ended);
     };
-  }, [media, onTrackPlaying, track, request]);
+  }, [media, onTrackEnded, onTrackPlaying, track, request]);
   useEffect(() => {
     media.volume = volume;
   }, [media, volume]);

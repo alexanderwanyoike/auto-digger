@@ -60,8 +60,21 @@
   flex-shrink: 0;
   color: var(--blue);
 }
+.playlist-content-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.playlist-content-header .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
 .playlist-content h2 {
-  margin: 0 0 16px;
+  margin: 0;
   font-size: 16px;
   overflow-wrap: anywhere;
 }

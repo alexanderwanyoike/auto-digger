@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Heart, ListMusic } from 'lucide-react';
+import { Heart, ListMusic, Play } from 'lucide-react';
 import type { DiscogsRelease } from '../../shared/discogs';
 import { likesId } from '../../shared/playlists';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import type { usePlaylists } from './use-playlists';
+import { localPlaylistTrack } from './playlist-audio';
 import { PlaylistEntryRow } from './PlaylistEntryRow';
 
 export function PlaylistsPage({
@@ -18,6 +19,10 @@ export function PlaylistsPage({
   const [active, setActive] = useState(likesId);
   const [name, setName] = useState('');
   const selected = playlists.lists.find((list) => list.id === active);
+  const playable = (selected?.entries ?? []).flatMap(({ track }) => {
+    const saved = localPlaylistTrack(track, audio.tracks);
+    return saved ? [saved] : [];
+  });
   return (
     <div className="playlist-page">
       <aside className="playlist-browser" aria-label="Your playlists">
@@ -76,7 +81,19 @@ export function PlaylistsPage({
       </aside>
       {selected && (
         <section className="playlist-content" aria-labelledby="selected-playlist">
-          <h2 id="selected-playlist">{selected.name}</h2>
+          <header className="playlist-content-header">
+            <h2 id="selected-playlist">{selected.name}</h2>
+            <button
+              type="button"
+              className="secondary-button"
+              disabled={!playable.length}
+              onClick={() => {
+                audio.playSequence(playable);
+              }}
+            >
+              <Play size={13} aria-hidden="true" /> Play playlist
+            </button>
+          </header>
           {!selected.entries.length && <p>No tracks in this playlist.</p>}
           <ul>
             {selected.entries.map((entry) => (

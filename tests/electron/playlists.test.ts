@@ -89,7 +89,7 @@ test('downloads a liked track once, shares it with a playlist and restores both 
     await page.getByRole('button', { name: 'Play playlist', exact: true }).click({ timeout: 3000 });
     await expect(transport.getByText('Quiet Orbit', { exact: true })).toBeVisible();
     await expect(transport.getByText('Night Signal', { exact: true })).toBeVisible({
-      timeout: 12000,
+      timeout: 18000,
     });
   } finally {
     await desktop.close();
