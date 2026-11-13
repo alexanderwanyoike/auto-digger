@@ -128,10 +128,10 @@ export function ExplorePage({
   };
   const open = useCallback(
     (id: number) => {
-      releasePosition.current = scrollContainer.current?.scrollTop ?? 0;
+      if (!release) releasePosition.current = scrollContainer.current?.scrollTop ?? 0;
       openRelease(id, markSeen).catch(() => undefined);
     },
-    [markSeen, openRelease],
+    [markSeen, openRelease, release],
   );
   useEffect(() => {
     if (!playerRelease || busy) return;
@@ -169,6 +169,7 @@ export function ExplorePage({
         section={section}
         busy={busy}
         refreshBusy={starterShelf.busy || followsShelf.busy}
+        previewError={previewError}
         onSelect={selectSection}
         onRefresh={
           connected && section === 'Feed' && !collection
@@ -195,6 +196,8 @@ export function ExplorePage({
             bridge={bridge}
             busy={busy}
             onOpen={open}
+            onPreview={preview}
+            previewBusy={previewBusy || Boolean(audio.preparingPreview)}
             onShowYear={(style, group) => {
               showCollection(
                 { kind: 'year', style, group },
@@ -277,11 +280,6 @@ export function ExplorePage({
         <>
           {!connected && section !== 'History' && (
             <p className="explore-notice">Connect Discogs to browse and discover releases.</p>
-          )}
-          {previewError && (
-            <p role="alert" className="explore-notice">
-              {previewError}
-            </p>
           )}
           {busy && (
             <p className="explore-notice" role="status">

@@ -6,6 +6,7 @@ import type { SearchPage } from '../../shared/search';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
 import { DiscoveryCollection } from './DiscoveryCollection';
 import type { YearRecords } from './use-catalogue-records';
+import { useScrollContinuation } from './use-scroll-continuation';
 import { useCatalogueRecords } from './use-catalogue-records';
 
 export type ExploreCollection =
@@ -24,6 +25,8 @@ function YearCollection({
   group,
   disabled,
   onOpen,
+  onPreview,
+  previewBusy,
   onUnauthorized,
 }: {
   search: DiscogsBridge['search'];
@@ -31,35 +34,36 @@ function YearCollection({
   group: YearRecords;
   disabled: boolean;
   onOpen: (id: number) => void;
+  onPreview: ((id: number) => void) | undefined;
+  previewBusy: boolean;
   onUnauthorized: () => void;
 }) {
   const records = useCatalogueRecords(search, style, group.year, onUnauthorized, group);
+  const sentinel = useScrollContinuation(
+    !disabled && !records.busy && !records.error && records.morePages
+      ? () => {
+          records.loadMore(undefined);
+        }
+      : undefined,
+  );
   return (
     <>
       <ReleaseMatchList
         releases={records.groups[0]?.releases ?? []}
         disabled={disabled}
         onOpen={onOpen}
+        onPreview={onPreview}
+        previewBusy={previewBusy}
       />
-      {records.busy && <p role="status">Loading releases…</p>}
-      {records.error && <p role="alert">{records.error}</p>}
-      {records.error && (
-        <button className="secondary-button" type="button" onClick={records.retry}>
-          Retry
-        </button>
-      )}
-      {!records.busy && !records.error && records.morePages && (
-        <button
-          className="secondary-button"
-          type="button"
-          disabled={disabled}
-          onClick={() => {
-            records.loadMore(undefined);
-          }}
-        >
-          Load more releases
-        </button>
-      )}
+      <div className="catalogue-continuation" ref={sentinel}>
+        {records.busy && <p role="status">Loading releases…</p>}
+        {records.error && <p role="alert">{records.error}</p>}
+        {records.error && (
+          <button className="secondary-button" type="button" onClick={records.retry}>
+            Retry
+          </button>
+        )}
+      </div>
     </>
   );
 }
@@ -112,6 +116,8 @@ export function ExploreCollectionPage({
           search={bridge.search}
           style={collection.style}
           group={collection.group}
+          onPreview={onPreview}
+          previewBusy={previewBusy}
           disabled={disabled}
           onOpen={onOpen}
           onUnauthorized={onUnauthorized}

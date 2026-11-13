@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import type { DiscoveryPage, DiscoveryShelf } from '../../shared/discovery';
 import type { SearchPage } from '../../shared/search';
+import { useScrollContinuation } from './use-scroll-continuation';
 import { ReleaseMatchList } from '../discogs/ReleaseMatchList';
 
 type Releases = SearchPage['releases'];
@@ -36,7 +37,6 @@ export function DiscoveryCollection({
   const [next, setNext] = useState<DiscoveryPage['next']>(null);
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
-  const sentinel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!request) return undefined;
@@ -65,22 +65,13 @@ export function DiscoveryCollection({
     };
   }, [kind, load, onUnauthorized, request, retry]);
 
-  useEffect(() => {
-    const target = sentinel.current;
-    if (!target || !next || request || disabled) return undefined;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        observer.disconnect();
-        setRequest({ cursor: next });
-      },
-      { rootMargin: '200px 0px' },
-    );
-    observer.observe(target);
-    return () => {
-      observer.disconnect();
-    };
-  }, [disabled, next, request]);
+  const sentinel = useScrollContinuation(
+    next && !request && !disabled
+      ? () => {
+          setRequest({ cursor: next });
+        }
+      : undefined,
+  );
 
   const releases = [
     ...new Map([...seed, ...records].map((record) => [record.id, record])).values(),
@@ -112,18 +103,6 @@ export function DiscoveryCollection({
               Retry
             </button>
           </>
-        )}
-        {!request && next && (
-          <button
-            className="secondary-button"
-            type="button"
-            disabled={disabled}
-            onClick={() => {
-              setRequest({ cursor: next });
-            }}
-          >
-            Load more releases
-          </button>
         )}
       </div>
     </>

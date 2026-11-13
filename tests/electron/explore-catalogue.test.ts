@@ -17,6 +17,10 @@ test('scrolls through populated catalogue years and appends release pages', asyn
           const url = new URL(input instanceof Request ? input.url : input.toString());
           if (url.pathname === '/oauth/identity')
             return Promise.resolve(Response.json(fixtures.identityResponse));
+          if (url.pathname === '/releases/15')
+            return Promise.resolve(
+              Response.json({ ...fixtures.releaseResponse, id: 15, videos: [] }),
+            );
           if (url.pathname.startsWith('/releases/')) {
             const id = Number(url.pathname.split('/').at(-1));
             return Promise.resolve(Response.json({ ...fixtures.releaseResponse, id }));
@@ -82,12 +86,34 @@ test('scrolls through populated catalogue years and appends release pages', asyn
       'true',
     );
     await expect(years.getByRole('button', { name: '1994' })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /Evening Light/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Back Channel 6/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^(?!Play ).*Evening Light/ })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Play Mira North - Evening Light' }),
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Load more releases' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Play Mira North - Evening Light' }).click();
+    await expect(page.locator('.explore-toolbar').getByRole('alert')).toHaveText(
+      'No clear preview source is available for this release.',
+    );
+    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 6/ })).toBeVisible();
+    const year = page.getByRole('region', { name: '2000', exact: true });
+    await year.getByRole('button', { name: 'Show more' }).click({ timeout: 3000 });
+    await expect(page.getByRole('heading', { name: '2000', level: 2 })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Play Silt Relay - Back Channel 1' }),
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Load more releases' })).toHaveCount(0);
     await page.locator('.explore-page').evaluate((element) => {
       element.scrollTo(0, element.scrollHeight);
     });
-    await expect(page.getByRole('button', { name: /Back Channel 8/ })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Play Silt Relay - Back Channel 8' }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Back to Catalogue' }).click();
+    await page.locator('.explore-page').evaluate((element) => {
+      element.scrollTo(0, element.scrollHeight);
+    });
+    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ })).toBeVisible();
     await page.locator('.explore-page').evaluate((element) => {
       element.scrollTo(0, element.scrollHeight);
     });
@@ -95,16 +121,15 @@ test('scrolls through populated catalogue years and appends release pages', asyn
       'aria-current',
       'true',
     );
-    await expect(page.getByRole('button', { name: /Back Channel 6/ })).toBeAttached();
-    const year = page.getByRole('region', { name: '2000', exact: true });
+    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 6/ })).toBeAttached();
     await year.getByRole('button', { name: 'Show more' }).click({ timeout: 3000 });
     await expect(page.getByRole('heading', { name: '2000', level: 2 })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Back Channel 8/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Evening Light/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^(?!Play ).*Evening Light/ })).toHaveCount(0);
     await page.getByRole('button', { name: 'Back to Catalogue' }).click();
     await expect(year.getByRole('button', { name: 'Show more' })).toBeVisible();
     const viewport = page.locator('.explore-page');
-    const record = page.getByRole('button', { name: /Back Channel 8/ });
+    const record = page.getByRole('button', { name: /^(?!Play ).*Back Channel 8/ });
     await record.scrollIntoViewIfNeeded();
     const scrollTop = await viewport.evaluate((element) => element.scrollTop);
     expect(scrollTop).toBeGreaterThan(0);
