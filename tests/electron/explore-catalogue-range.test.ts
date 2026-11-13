@@ -129,6 +129,11 @@ test('browses a year range with one paginated search and opens an individual yea
     await page.getByRole('button', { name: 'Back to Catalogue' }).click();
     await expect(to).toHaveValue('1999');
     await expect(second.getByRole('button', { name: 'Play Record 1995 0' })).toBeAttached();
+    const style = page.getByRole('combobox', { name: 'Style' });
+    await style.click();
+    await page.getByRole('option', { name: 'Progressive House', exact: true }).click();
+    await expect(to).toHaveValue('1999');
+    await expect(second.getByRole('button', { name: 'Play Record 1995 0' })).toBeAttached();
 
     await to.fill('2001');
     await to.press('Enter');
