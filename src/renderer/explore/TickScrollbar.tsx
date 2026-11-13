@@ -1,5 +1,28 @@
 import { useCallback, useLayoutEffect, useState } from 'react';
-import type { RefObject } from 'react';
+import type { KeyboardEvent, RefObject, WheelEvent as ReactWheelEvent } from 'react';
+
+export function scrollWithPageKeys(
+  event: KeyboardEvent<HTMLElement>,
+  viewport: HTMLElement | null,
+) {
+  if (!viewport || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  const { key } = event;
+  if (key !== 'PageDown' && key !== 'PageUp') return;
+  event.preventDefault();
+  viewport.scrollBy(0, key === 'PageDown' ? viewport.clientHeight : -viewport.clientHeight);
+}
+
+export function scrollWithWheel(event: WheelEvent | ReactWheelEvent, viewport: HTMLElement | null) {
+  if (!viewport || event.ctrlKey) return false;
+  const { deltaMode, deltaY } = event;
+  if (deltaY === 0) return false;
+  let distance = deltaY;
+  if (deltaMode === WheelEvent.DOM_DELTA_LINE) distance *= 16;
+  if (deltaMode === WheelEvent.DOM_DELTA_PAGE) distance *= viewport.clientHeight;
+  const { scrollTop } = viewport;
+  viewport.scrollBy(0, distance);
+  return viewport.scrollTop !== scrollTop;
+}
 
 export function TickScrollbar({
   viewport,
@@ -43,16 +66,12 @@ export function TickScrollbar({
       if (!track || !element) return undefined;
 
       const scroll = (event: WheelEvent) => {
-        if (event.ctrlKey || event.deltaY === 0) return;
-        const { deltaMode, deltaY } = event;
-        let distance = deltaY;
-        if (deltaMode === WheelEvent.DOM_DELTA_LINE) distance *= 16;
-        if (deltaMode === WheelEvent.DOM_DELTA_PAGE) distance *= element.clientHeight;
-        element.scrollBy(0, distance);
-        event.preventDefault();
+        if (scrollWithWheel(event, element)) event.preventDefault();
       };
       track.addEventListener('wheel', scroll, { passive: false });
-      return () => track.removeEventListener('wheel', scroll);
+      return () => {
+        track.removeEventListener('wheel', scroll);
+      };
     },
     [viewport],
   );
@@ -70,6 +89,20 @@ export function TickScrollbar({
       min={0}
       max={range.maximum}
       value={range.position}
+      onKeyDown={(event) => {
+        const element = viewport.current;
+        if (!element || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        const { key } = event;
+        if (key === 'Home' || key === 'End') {
+          event.preventDefault();
+          element.scrollTo(0, key === 'Home' ? 0 : element.scrollHeight);
+        } else if (key === 'ArrowDown' || key === 'ArrowUp') {
+          event.preventDefault();
+          element.scrollBy(0, key === 'ArrowDown' ? 40 : -40);
+        } else {
+          scrollWithPageKeys(event, element);
+        }
+      }}
       onChange={(event) => {
         const position = event.currentTarget.valueAsNumber;
         viewport.current?.scrollTo(0, position);
