@@ -67,3 +67,36 @@ test('stops at the supported Discogs page limit', async () => {
   const last = await load({ shelf: 'starter', cursor: { ...first.value.next, page: 200 } });
   expect(last).toEqual({ ok: true, value: { releases: [], next: null } });
 });
+
+test('continues a broad style through narrower Discogs searches', async () => {
+  const load = createDiscoveryPages(
+    ({ filters, page }) =>
+      Promise.resolve({
+        ok: true,
+        value: {
+          page,
+          pages: filters.year ? 1 : 200,
+          perPage: 50,
+          items: filters.year ? 1 : 10001,
+          releases: [
+            {
+              id: filters.year ? 20 : 10,
+              title: filters.style.join(', '),
+              year: '1999',
+              labels: [],
+              formats: [],
+              artworkUrl: null,
+            },
+          ],
+        },
+      }),
+    () => Promise.resolve({ ok: true, value: [{ style: 'Techno', releases: 1 }] }),
+    () => Promise.resolve({ ok: true, value: [] }),
+    () => Promise.resolve({ ok: true, value: new Set<number>() }),
+  );
+
+  const first = await load({ shelf: 'starter', cursor: null });
+  if (!first.ok || !first.value.next) throw new Error('Expected another page');
+  const next = await load({ shelf: 'starter', cursor: first.value.next });
+  expect(next).toMatchObject({ ok: true, value: { releases: [{ id: 20 }] } });
+});
