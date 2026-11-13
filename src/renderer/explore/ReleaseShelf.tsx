@@ -27,6 +27,7 @@ export function ReleaseShelf({
         {onShowMore && (
           <button
             type="button"
+            id={`${headingId}-more`}
             className="explore-show-more"
             onClick={onShowMore}
             disabled={disabled}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { Ref } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import type { DiscogsBridge, DiscogsResult } from '../../shared/discogs';
 import type { DiscoveryShelf } from '../../shared/discovery';
@@ -141,6 +142,7 @@ function YearCollection({
 
 export function ExploreCollectionPage({
   collection,
+  headingRef,
   bridge,
   seed,
   seen,
@@ -152,6 +154,7 @@ export function ExploreCollectionPage({
   onUnauthorized,
 }: {
   collection: ExploreCollection;
+  headingRef: Ref<HTMLHeadingElement>;
   bridge: DiscogsBridge;
   seed: Releases;
   seen: ReadonlySet<number>;
@@ -173,7 +176,9 @@ export function ExploreCollectionPage({
         <ArrowLeft size={15} aria-hidden="true" /> {year ? 'Back to Catalogue' : 'Back to Feed'}
       </button>
       <header className="explore-shelf-header">
-        <h2 id="explore-collection-heading">{title}</h2>
+        <h2 id="explore-collection-heading" ref={headingRef} tabIndex={-1}>
+          {title}
+        </h2>
         {year && <span>{collection.style}</span>}
       </header>
       {year ? (

@@ -45,6 +45,8 @@ export function ExplorePage({
   const releasePosition = useRef(0);
   const collectionPosition = useRef(0);
   const restorePosition = useRef<number | null>(null);
+  const returnFocus = useRef<string | null>(null);
+  const collectionHeading = useRef<HTMLHeadingElement>(null);
   const [collection, setCollection] = useState<ExploreCollection | null>(null);
   const [section, setSection] = useState<ExploreSection>('Feed');
   const catalogue = section === 'Catalogue';
@@ -59,7 +61,16 @@ export function ExplorePage({
     }
   }, [collection, release]);
 
-  const showCollection = (next: ExploreCollection) => {
+  useLayoutEffect(() => {
+    if (collection) collectionHeading.current?.focus({ preventScroll: true });
+    else if (returnFocus.current) {
+      document.getElementById(returnFocus.current)?.focus({ preventScroll: true });
+      returnFocus.current = null;
+    }
+  }, [collection]);
+
+  const showCollection = (next: ExploreCollection, opener: string) => {
+    returnFocus.current = opener;
     collectionPosition.current = scrollContainer.current?.scrollTop ?? 0;
     setCollection(next);
     scrollContainer.current?.scrollTo(0, 0);
@@ -96,6 +107,7 @@ export function ExplorePage({
       : undefined;
   const disabled = !connected || busy;
   const browse = (next: FollowTopic, page?: number) => {
+    returnFocus.current = null;
     setCollection(null);
     setSection('Following');
     scrollContainer.current?.scrollTo(0, 0);
@@ -108,6 +120,7 @@ export function ExplorePage({
   const selectSection = (next: ExploreSection) => {
     if (section === next && !collection && !release && !view && !topic && !error) return;
     explore.reset();
+    returnFocus.current = null;
     setCollection(null);
     setSection(next);
     scrollContainer.current?.scrollTo(0, 0);
@@ -156,7 +169,10 @@ export function ExplorePage({
             busy={busy}
             onOpen={open}
             onShowYear={(style, group) => {
-              showCollection({ kind: 'year', style, group });
+              showCollection(
+                { kind: 'year', style, group },
+                `explore-year-more-${group.year.toString()}`,
+              );
             }}
             onUnauthorized={onUnauthorized}
           />
@@ -197,6 +213,7 @@ export function ExplorePage({
         <div hidden={Boolean(release)}>
           <ExploreCollectionPage
             collection={collection}
+            headingRef={collectionHeading}
             bridge={bridge}
             seed={collection.kind === 'starter' ? starterShelf.releases : followsShelf.releases}
             seen={starterShelf.seen}
@@ -256,7 +273,7 @@ export function ExplorePage({
                 onShowMore={
                   bridge?.expandDiscovery
                     ? () => {
-                        showCollection({ kind: 'starter' });
+                        showCollection({ kind: 'starter' }, 'explore-starter-heading-more');
                       }
                     : undefined
                 }
@@ -273,7 +290,7 @@ export function ExplorePage({
                   onShowMore={
                     bridge?.expandDiscovery
                       ? () => {
-                          showCollection({ kind: 'follows' });
+                          showCollection({ kind: 'follows' }, 'explore-follows-heading-more');
                         }
                       : undefined
                   }

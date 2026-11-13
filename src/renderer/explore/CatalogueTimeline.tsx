@@ -137,6 +137,7 @@ export function CatalogueTimeline({
               <h3>{group.year}</h3>
               <button
                 type="button"
+                id={`explore-year-more-${group.year.toString()}`}
                 className="explore-show-more"
                 disabled={disabled}
                 onClick={() => {
