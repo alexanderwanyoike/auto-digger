@@ -176,3 +176,29 @@ test('recognises Likes when Discogs adds a preceding track to the same release',
     await desktop.close();
   }
 });
+
+test('downloads a liked track using the verified YouTube title', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encrypted-desktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('profile')}`,
+    ],
+  });
+  try {
+    const page = await desktop.firstWindow();
+    await page.getByRole('heading', { name: 'Explore' }).waitFor();
+    const saved = await page.evaluate((release) => window.crate?.save(release), {
+      ...loadedRelease,
+      videos: [{ ...loadedRelease.videos[0], title: 'Record upload' }],
+    });
+    expect(saved?.ok).toBe(true);
+    await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    await page.getByRole('button', { name: 'Like Quiet Orbit', exact: true }).click();
+    await page.getByRole('button', { name: 'Playlists', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Play Quiet Orbit' })).toBeVisible();
+  } finally {
+    await desktop.close();
+  }
+});
