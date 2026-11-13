@@ -15,9 +15,14 @@ test('downloads a liked track once, shares it with a playlist and restores both 
     await page.getByRole('heading', { name: 'Explore' }).waitFor();
     await page.evaluate(async (record) => window.crate?.save(record), {
       ...loadedRelease,
+      videos: [
+        ...loadedRelease.videos,
+        { title: 'Low Tide - Night Signal', url: 'https://www.youtube.com/watch?v=zyxwvutsrqp' },
+      ],
       tracks: [
         ...loadedRelease.tracks,
-        { position: 'B1', title: 'No attached audio', duration: '' },
+        { position: 'B1', title: 'Night Signal', duration: '' },
+        { position: 'B2', title: 'No attached audio', duration: '' },
       ],
     });
     await page.reload();
@@ -70,6 +75,22 @@ test('downloads a liked track once, shares it with a playlist and restores both 
     );
     await page.getByRole('button', { name: 'After hours', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Play Quiet Orbit', exact: true })).toBeEnabled();
+
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    await page.getByRole('button', { name: 'Add Night Signal to playlist', exact: true }).click();
+    await page.getByRole('button', { name: 'Add to After hours', exact: true }).click();
+    await page.getByRole('button', { name: 'Playlists', exact: true }).click();
+    await page.getByRole('button', { name: 'After hours', exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Play Night Signal', exact: true }),
+    ).toBeEnabled();
+    const transport = page.getByRole('contentinfo', { name: 'Playback' });
+    await page.getByRole('button', { name: 'Play playlist', exact: true }).click({ timeout: 3000 });
+    await expect(transport.getByText('Quiet Orbit', { exact: true })).toBeVisible();
+    await expect(transport.getByText('Night Signal', { exact: true })).toBeVisible({
+      timeout: 12000,
+    });
   } finally {
     await desktop.close();
   }

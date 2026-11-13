@@ -14,7 +14,7 @@ if (args.includes('--dump-single-json')) {
   process.stdout.write(
     JSON.stringify({
       id,
-      title: id === 'lmnopqrstuv' ? 'Unknown upload' : 'Low Tide - Quiet Orbit',
+      title: id === 'lmnopqrstuv' ? 'Unknown upload' : id === 'zyxwvutsrqp' ? 'Low Tide - Night Signal' : 'Low Tide - Quiet Orbit',
       is_live: false,
       url: 'https://fixture.googlevideo.com/audio',
     }),
