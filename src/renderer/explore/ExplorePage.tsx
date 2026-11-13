@@ -17,7 +17,8 @@ import { HistorySection } from './HistorySection';
 import { CataloguePage } from './CataloguePage';
 import { ExploreCollectionPage, discoveryTitles } from './ExploreCollectionPage';
 import type { ExploreCollection } from './ExploreCollectionPage';
-import { scrollWithPageKeys, scrollWithWheel, TickScrollbar } from './TickScrollbar';
+import { TickScrollbar } from './TickScrollbar';
+import { scrollWithKeys, scrollWithWheel } from './scroll-input';
 import { ExploreToolbar } from './ExploreToolbar';
 import type { ExploreSection } from './ExploreToolbar';
 import type { useStarterShelf } from './use-starter-shelf';
@@ -170,7 +171,7 @@ export function ExplorePage({
       <ExploreToolbar
         section={section}
         onKeyDown={(event) => {
-          scrollWithPageKeys(event, scrollContainer.current);
+          scrollWithKeys(event, scrollContainer.current);
         }}
         onWheel={(event) => {
           scrollWithWheel(event, scrollContainer.current);
