@@ -74,18 +74,22 @@ export function usePlaylists(
     const job = playlistJob(track, audio.queue.jobs);
     if (job && job.stage !== 'failed' && job.stage !== 'cancelled') return;
     const id = downloadSourceId(source);
+    if (audio.tracks.some((saved) => saved.id === id && !saved.missing)) return;
     const video = source.release.videos[source.videoIndex];
     if (!id || !video || preparing.current.has(id)) return;
     preparing.current.add(id);
     try {
       const checked = await audio.bridge.probe(video.url);
+      if (!checked.ok) {
+        setError(`Track saved to playlist. ${checked.error.message}`);
+        return;
+      }
       if (
-        !checked.ok ||
         sourceAssignment(track.release, source.videoIndex, checked, undefined, undefined)
           .selected !== track.trackIndex
       )
         return;
-      const result = await audio.queue.enqueue(source);
+      const result = await audio.queue.enqueue({ ...source, preserveAssignment: true });
       if (!result.ok) setError(`Track saved to playlist. ${result.error.message}`);
     } catch {
       setError('Track saved to playlist. Audio could not be queued.');

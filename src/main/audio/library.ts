@@ -39,7 +39,7 @@ export function createAudioLibrary(
       const parsed = youtubeDownloadInputSchema.safeParse(input);
       if (!parsed.success)
         return audioFailure('invalid-input', 'Choose a video and a valid Discogs track.');
-      const { release, videoIndex, trackIndex } = parsed.data;
+      const { release, videoIndex, trackIndex, preserveAssignment } = parsed.data;
       const video = release.videos[videoIndex];
       if (!video || (typeof trackIndex === 'number' && !release.tracks[trackIndex]))
         return audioFailure('invalid-input', 'Choose a video and a valid Discogs track.');
@@ -59,7 +59,7 @@ export function createAudioLibrary(
         const id = `${release.id.toString()}-${sourceId}`;
         const saved = existing.value.find((track) => track.id === id);
         if (saved && !saved.missing) {
-          if (trackIndex === undefined || trackIndex === saved.trackIndex)
+          if (preserveAssignment || trackIndex === undefined || trackIndex === saved.trackIndex)
             return { ok: true, value: saved };
           options.onProgress?.(downloadStage('tagging'));
           return await reassignTrack(

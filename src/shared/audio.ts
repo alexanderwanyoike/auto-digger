@@ -67,11 +67,13 @@ export type LocalTrack = z.infer<typeof localTrackSchema>;
 export const youtubeDownloadInputSchema = z.object({
   release: releaseSchema,
   videoIndex: z.number().int().nonnegative(),
+  preserveAssignment: z.boolean().optional(),
   trackIndex: z.number().int().nonnegative().nullable().optional(),
 });
 export interface YouTubeDownloadInput {
   release: DiscogsRelease;
   videoIndex: number;
+  preserveAssignment?: boolean | undefined;
   trackIndex?: number | null | undefined;
 }
 export const soulseekDownloadInputSchema = z.object({
