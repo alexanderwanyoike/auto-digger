@@ -41,19 +41,13 @@ test('discovers unopened releases, browses followed catalogues and compares genr
           { id: 15, title: 'Still Waters - Late Signal', year: 2000 },
         ];
         const style = url.searchParams.get('style');
-        const catalogue =
-          style === 'Progressive House'
-            ? [
-                ...records,
-                ...Array.from({ length: 10 }, (_, index) => ({
-                  id: 20 + index,
-                  title: `Additional Record ${index.toString()}`,
-                  year: 2000,
-                })),
-              ]
-            : artist
-              ? records.slice(0, 2)
-              : records;
+        const extraRecords = Array.from({ length: 10 }, (_, index) => ({
+          id: 20 + index,
+          title: `Additional Record ${index.toString()}`,
+          year: 2000,
+        }));
+        const followed = artist ? records.slice(0, 2) : records;
+        const catalogue = style === 'Progressive House' ? [...records, ...extraRecords] : followed;
         const results = year
           ? catalogue.filter((release) => release.year.toString() === year)
           : catalogue;

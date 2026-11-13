@@ -1,5 +1,5 @@
-import type { YearRecords } from './use-catalogue-records';
 import { useEffect, useState } from 'react';
+import type { YearRecords } from './use-catalogue-records';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { CatalogueStylePicker } from './CatalogueStylePicker';
 import { CatalogueTimeline } from './CatalogueTimeline';
