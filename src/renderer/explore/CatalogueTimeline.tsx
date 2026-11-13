@@ -9,6 +9,7 @@ import { useCatalogueYearIndex } from './use-catalogue-year-index';
 
 export function CatalogueTimeline({
   style,
+  jumpYear,
   disabled,
   search,
   onOpen,
@@ -18,6 +19,7 @@ export function CatalogueTimeline({
   onUnauthorized,
 }: {
   style: string;
+  jumpYear: number | undefined;
   disabled: boolean;
   search: DiscogsBridge['search'];
   onOpen: (id: number) => void;
@@ -26,8 +28,8 @@ export function CatalogueTimeline({
   onShowYear: (style: string, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
-  const index = useCatalogueYearIndex(search, style, onUnauthorized);
-  const records = useCatalogueRecords(search, style, index.years[0], onUnauthorized);
+  const index = useCatalogueYearIndex(search, style, onUnauthorized, jumpYear);
+  const records = useCatalogueRecords(search, style, jumpYear ?? index.years[0], onUnauthorized);
   const [exploring, setExploring] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const catalogue = useRef<HTMLDivElement>(null);
@@ -192,39 +194,47 @@ export function CatalogueTimeline({
         />
       </div>
       <div className="catalogue-records">
-        {records.groups.map((group) => (
-          <section
-            key={group.year}
-            className="explore-shelf catalogue-year"
-            aria-label={group.year.toString()}
-            data-release-year={group.year}
-          >
-            <header className="explore-shelf-header">
-              <h3>{group.year}</h3>
-              <button
-                type="button"
-                id={`explore-year-more-${group.year.toString()}`}
-                className="explore-show-more"
+        {records.groups
+          .filter(({ releases }) => releases.length)
+          .map((group) => (
+            <section
+              key={group.year}
+              className="explore-shelf catalogue-year"
+              aria-label={group.year.toString()}
+              data-release-year={group.year}
+            >
+              <header className="explore-shelf-header">
+                <h3>{group.year}</h3>
+                <button
+                  type="button"
+                  id={`explore-year-more-${group.year.toString()}`}
+                  className="explore-show-more"
+                  disabled={disabled}
+                  onClick={() => {
+                    onShowYear(style, group);
+                  }}
+                >
+                  Show more
+                </button>
+              </header>
+              <ReleaseMatchList
+                releases={group.releases}
                 disabled={disabled}
-                onClick={() => {
-                  onShowYear(style, group);
-                }}
-              >
-                Show more
-              </button>
-            </header>
-            <ReleaseMatchList
-              releases={group.releases}
-              disabled={disabled}
-              onOpen={onOpen}
-              onPreview={onPreview}
-              previewBusy={previewBusy}
-            />
-          </section>
-        ))}
+                onOpen={onOpen}
+                onPreview={onPreview}
+                previewBusy={previewBusy}
+              />
+            </section>
+          ))}
         <div ref={sentinel} className="catalogue-continuation">
           {busy && <p role="status">Loading releases…</p>}
-          {!busy && !records.groups.length && !error && <p>No dated releases found.</p>}
+          {!busy && !error && records.groups.every(({ releases }) => !releases.length) && (
+            <p>
+              {jumpYear
+                ? `No releases found for ${jumpYear.toString()}.`
+                : 'No dated releases found.'}
+            </p>
+          )}
           {error && <p role="alert">{error}</p>}
           {error && (
             <button

@@ -6,14 +6,18 @@ export function useCatalogueYearIndex(
   search: DiscogsBridge['search'],
   style: string,
   onUnauthorized: () => void,
+  jumpYear?: number,
 ) {
-  const [years, setYears] = useState<number[]>([]);
+  const [years, setYears] = useState<number[]>(() => (jumpYear === undefined ? [] : [jumpYear]));
   const [start, setStart] = useState(firstSearchYear);
-  const [next, setNext] = useState<number | null>(null);
-  const [busy, setBusy] = useState(true);
+  const [next, setNext] = useState<number | null>(
+    jumpYear === undefined || jumpYear >= 9999 ? null : jumpYear + 1,
+  );
+  const [busy, setBusy] = useState(jumpYear === undefined);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
+    if (jumpYear !== undefined && start === firstSearchYear) return undefined;
     let active = true;
     catalogueYears(
       search,
@@ -42,7 +46,7 @@ export function useCatalogueYearIndex(
     return () => {
       active = false;
     };
-  }, [attempt, onUnauthorized, search, start, style]);
+  }, [attempt, jumpYear, onUnauthorized, search, start, style]);
   const loadMore = useCallback(() => {
     if (busy || next === null || error) return;
     setBusy(true);
