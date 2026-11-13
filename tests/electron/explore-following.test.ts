@@ -1,6 +1,6 @@
 import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
-import { releaseResponse } from '../discogs-fixtures';
+import { loadedRelease, releaseResponse } from '../discogs-fixtures';
 
 test('discovers unopened releases, browses followed catalogues and compares genre years', async () => {
   const options = {
@@ -102,6 +102,7 @@ test('discovers unopened releases, browses followed catalogues and compares genr
         element.nextElementSibling?.getAttribute('aria-labelledby'),
       ),
     ).toBe(await followed.getAttribute('aria-labelledby'));
+    await expect(followed.getByRole('button', { name: /^(?!Play ).*Late Signal/ })).toBeVisible();
     const showDiscover = starter.getByRole('button', { name: 'Show more' });
     await showDiscover.focus();
     await showDiscover.press('Enter');
@@ -134,12 +135,19 @@ test('discovers unopened releases, browses followed catalogues and compares genr
       page.locator('.explore-toolbar').getByRole('button', { name: 'Discover unseen releases' }),
     ).toBeVisible();
     const unseen = page.getByRole('region', { name: 'Unseen releases' });
+    const saved = await page.evaluate((record) => window.crate?.save(record), {
+      ...loadedRelease,
+      id: 15,
+      title: 'Late Signal',
+    });
+    expect(saved?.ok).toBe(true);
     await discover.click();
 
     await expect(
       unseen.getByRole('button', { name: /^(?!Play ).*Mira North - First Light/ }),
     ).toBeVisible();
     await expect(unseen.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toHaveCount(0);
+    await expect(unseen.getByRole('button', { name: /^(?!Play ).*Late Signal/ })).toHaveCount(0);
     await expect(
       unseen.getByRole('button', { name: /^(?!Play ).*Low Tide - Night Transit/ }),
     ).toHaveCount(0);
