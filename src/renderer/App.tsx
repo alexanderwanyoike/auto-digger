@@ -334,7 +334,16 @@ export function App({
             ? session.release
             : crate.releases.find(({ id }) => id === playingReleaseId)
         }
-        loadRelease={session.account ? discogs?.previewRelease : undefined}
+        loadRelease={
+          session.account && discogs?.previewRelease
+            ? async (id) => {
+                const result = await discogs.previewRelease?.(id);
+                if (!result) throw new Error('Discogs is unavailable.');
+                if (!result.ok && result.error.code === 'unauthorized') session.clearSession();
+                return result;
+              }
+            : undefined
+        }
         playlists={playlists}
         openPlaylists={() => {
           setPlayerRelease(null);

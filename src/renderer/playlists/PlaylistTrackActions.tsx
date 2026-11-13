@@ -59,21 +59,30 @@ export function PlaylistTrackActions({
     setBusy(true);
     setError(null);
     try {
-      const known = playbackPlaylistTrack(source, preview?.release ?? source.release ?? release);
+      const known =
+        playbackPlaylistTrack(source, source.release) ??
+        playbackPlaylistTrack(source, preview?.release) ??
+        playbackPlaylistTrack(source, release) ??
+        playlists.lists
+          .flatMap((list) => list.entries.map(({ track }) => track))
+          .find(
+            (track) =>
+              playbackPlaylistTrack(source, track.release)?.trackIndex === track.trackIndex,
+          );
       const loaded = known ? null : await loadRelease?.(source.releaseId);
       const track = known ?? (loaded?.ok ? playbackPlaylistTrack(source, loaded.value) : null);
       if (!track) {
-        setError(
-          loaded && !loaded.ok
-            ? loaded.error.message
-            : 'The playing track could not be matched to its Discogs release.',
-        );
+        if (loaded && !loaded.ok) setError(loaded.error.message);
+        else if (!loadRelease)
+          setError('Connect Discogs to load the release for this download.');
+        else setError('The playing track could not be matched to its Discogs release.');
         return;
       }
+      const matchedPreview = preview && playbackPlaylistTrack(source, preview.release);
       await playlists.add(
         id,
         track,
-        preview ? { ...preview, trackIndex: track.trackIndex } : undefined,
+        matchedPreview ? { ...preview, trackIndex: matchedPreview.trackIndex } : undefined,
       );
     } catch {
       setError('The playing track could not be saved. Please retry.');
