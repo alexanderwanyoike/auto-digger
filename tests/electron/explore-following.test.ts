@@ -95,6 +95,14 @@ test('discovers unopened releases, browses followed catalogues and compares genr
         element.nextElementSibling?.getAttribute('aria-labelledby'),
       ),
     ).toBe(await followed.getAttribute('aria-labelledby'));
+    await starter.getByRole('button', { name: 'Show more' }).click({ timeout: 3000 });
+    await expect(page.getByRole('heading', { name: 'Discover records', level: 2 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'From your follows' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Back to Feed' }).click();
+    await followed.getByRole('button', { name: 'Show more' }).click();
+    await expect(page.getByRole('heading', { name: 'From your follows', level: 2 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Discover records' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Back to Feed' }).click();
     await followed.getByRole('button', { name: /^(?!Play ).*Night Transit/ }).click();
     await expect(page.getByRole('heading', { name: 'Night Transit', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Back to Explore', exact: true }).click();

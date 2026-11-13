@@ -96,7 +96,13 @@ test('scrolls through populated catalogue years and appends release pages', asyn
       'true',
     );
     await expect(page.getByRole('button', { name: /Back Channel 6/ })).toBeAttached();
-    await expect(page.getByRole('button', { name: 'Show more' })).toHaveCount(0);
+    const year = page.getByRole('region', { name: '2000', exact: true });
+    await year.getByRole('button', { name: 'Show more' }).click({ timeout: 3000 });
+    await expect(page.getByRole('heading', { name: '2000', level: 2 })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Back Channel 6/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Evening Light/ })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Back to Catalogue' }).click();
+    await expect(year.getByRole('button', { name: 'Show more' })).toBeVisible();
     const viewport = page.locator('.explore-page');
     const record = page.getByRole('button', { name: /Back Channel 8/ });
     await record.scrollIntoViewIfNeeded();
