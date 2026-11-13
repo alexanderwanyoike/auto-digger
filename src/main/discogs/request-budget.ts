@@ -4,36 +4,54 @@ import { rateLimited } from './retry-after';
 const windowMs = 60_000;
 const interactiveReserve = 8;
 
+function quota(limit: number) {
+  return { limit, sent: [] as number[], remaining: undefined as number | undefined, observedAt: 0 };
+}
+
 export function createDiscogsRequestBudget() {
-  const sent: number[] = [];
-  let remaining: number | undefined;
-  let lastResponse = 0;
+  const authenticatedQuota = quota(60);
+  const anonymousQuota = quota(25);
   let blockedUntil = 0;
+  let generation = 0;
 
   return {
-    acquire(authenticated: boolean, background: boolean): DiscogsResult<undefined> {
+    acquire(authenticated: boolean, background: boolean): DiscogsResult<number> {
       const now = Date.now();
       if (blockedUntil > now) return rateLimited(blockedUntil);
-      while (sent[0] !== undefined && sent[0] + windowMs <= now) sent.shift();
-      if (lastResponse + windowMs <= now) remaining = undefined;
+      const current = authenticated ? authenticatedQuota : anonymousQuota;
+      while (current.sent[0] !== undefined && current.sent[0] + windowMs <= now)
+        current.sent.shift();
+      if (current.observedAt + windowMs <= now) current.remaining = undefined;
       const reserve = background ? interactiveReserve : 0;
-      const capacity = (authenticated ? 60 : 25) - reserve;
-      if (remaining !== undefined && remaining <= reserve)
-        return rateLimited(lastResponse + windowMs);
-      if (sent.length >= capacity) return rateLimited((sent[0] ?? now) + windowMs);
-      sent.push(now);
-      if (remaining !== undefined) remaining -= 1;
-      return { ok: true, value: undefined };
+      if (current.remaining !== undefined && current.remaining <= reserve)
+        return rateLimited(current.observedAt + windowMs);
+      if (current.sent.length >= current.limit - reserve)
+        return rateLimited((current.sent[0] ?? now) + windowMs);
+      current.sent.push(now);
+      if (current.remaining !== undefined) current.remaining -= 1;
+      return { ok: true, value: generation };
     },
-    observe(response: Response, retryAt: number | undefined) {
-      const header = response.headers.get('X-Discogs-Ratelimit-Remaining');
-      if (header !== null && /^\d+$/.test(header)) {
-        remaining = Number(header);
-        lastResponse = Date.now();
-      }
+    observe(
+      authenticated: boolean,
+      started: number,
+      response: Response,
+      retryAt: number | undefined,
+    ) {
       if (retryAt !== undefined) {
+        generation += 1;
         blockedUntil = Math.max(blockedUntil, retryAt);
-        remaining = undefined;
+        authenticatedQuota.remaining = undefined;
+        anonymousQuota.remaining = undefined;
+        return;
+      }
+      if (started !== generation) return;
+      const header = response.headers.get('X-Discogs-Ratelimit-Remaining');
+      if (header === null || !/^\d+$/.test(header)) return;
+      const current = authenticated ? authenticatedQuota : anonymousQuota;
+      const remaining = Number(header);
+      if (current.remaining === undefined || remaining < current.remaining) {
+        current.remaining = remaining;
+        current.observedAt = Date.now();
       }
     },
   };

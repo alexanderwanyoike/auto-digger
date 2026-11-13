@@ -12,7 +12,11 @@ export function registerCosineHandlers(
     'save-key': (input: unknown) => service.saveKey(input),
     forget: () => service.forget(),
     similar: (input: unknown) => service.similar(input),
-    resolve: (input: unknown) => service.resolve(input),
+    resolve: (input: unknown) => {
+      if (typeof input === 'object' && input !== null && 'item' in input && 'background' in input)
+        return service.resolve(input.item, input.background === true);
+      return service.resolve(input);
+    },
   };
   Object.entries(operations).forEach(([name, operation]) => {
     ipcMain.removeHandler(`cosine:${name}`);

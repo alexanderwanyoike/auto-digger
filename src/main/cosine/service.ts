@@ -58,6 +58,7 @@ export function createCosineService(
         );
       return fetchSimilar(parsed.data, key.value, fetchRequest);
     },
-    resolve: (input: unknown) => resolveRecommendation(input, fetchRequest, discogsBudget),
+    resolve: (input: unknown, background = false) =>
+      resolveRecommendation(input, fetchRequest, discogsBudget, background),
   };
 }

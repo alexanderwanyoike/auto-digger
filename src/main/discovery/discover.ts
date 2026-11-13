@@ -91,6 +91,7 @@ export function createDiscover(
     return discover(
       topics.map((topic) => filtersForTopic(topic)),
       8,
+      selected.data === null,
     );
   };
 }
@@ -106,14 +107,14 @@ export function createStarterShelf(
     const taste = await crateTaste();
     if (!taste.ok) return discogsFailure('unavailable', taste.error.message);
     const styles = rankedStyles(taste.value).slice(0, 3);
-    if (!styles.length) return discover([{ ...emptyFilters, style: [starterStyle] }], size);
+    if (!styles.length) return discover([{ ...emptyFilters, style: [starterStyle] }], size, true);
 
     const chosen = new Map<number, SearchPage['releases'][number]>();
     async function collectStyle(index: number): Promise<DiscogsResult<SearchPage['releases']>> {
       const style = styles[index];
       if (!style || chosen.size >= size)
         return { ok: true, value: [...chosen.values()].slice(0, size) };
-      const matches = await discover([{ ...emptyFilters, style: [style] }], size, index > 0);
+      const matches = await discover([{ ...emptyFilters, style: [style] }], size, true);
       if (!matches.ok) {
         if (
           !chosen.size ||

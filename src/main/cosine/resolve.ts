@@ -16,6 +16,7 @@ export async function resolveRecommendation(
   input: unknown,
   request: typeof fetch,
   budget?: DiscogsRequestBudget,
+  background = false,
 ): Promise<CosineResult<ResolvedRecommendation>> {
   const parsed = recommendationSchema.safeParse(input);
   if (!parsed.success)
@@ -28,7 +29,7 @@ export async function resolveRecommendation(
     null,
     releaseMetadataSchema,
     request,
-    budget ? { budget } : undefined,
+    budget ? { budget, background } : undefined,
   );
   if (!result.ok)
     return cosineFailure(

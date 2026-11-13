@@ -40,7 +40,7 @@ export async function requestDiscogs<T>(
     );
   }
   const retryAt = response.status === 429 ? retryAfter(response, Date.now()) : undefined;
-  budget?.observe(response, retryAt);
+  if (allowed?.ok) budget?.observe(token !== null, allowed.value, response, retryAt);
   if (retryAt !== undefined) return rateLimited(retryAt);
   if (response.status === 401 || response.status === 403) {
     return discogsFailure(

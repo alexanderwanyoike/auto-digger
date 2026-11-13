@@ -6,7 +6,7 @@ const capacity = 128;
 export function createDiscogsReadCache<T>() {
   const entries = new Map<string, { result: Promise<DiscogsResult<T>>; expires: number }>();
   return {
-    read(key: string, load: () => Promise<DiscogsResult<T>>) {
+    read(key: string, load: () => Promise<DiscogsResult<T>>, reuse = true) {
       const cached = entries.get(key);
       if (cached && cached.expires > Date.now()) return cached.result;
       entries.delete(key);
@@ -15,7 +15,7 @@ export function createDiscogsReadCache<T>() {
         result: load().then(
           (result) => {
             if (entries.get(key) === entry) {
-              if (result.ok) entry.expires = Date.now() + lifetime;
+              if (result.ok && reuse) entry.expires = Date.now() + lifetime;
               else entries.delete(key);
             }
             return result;
