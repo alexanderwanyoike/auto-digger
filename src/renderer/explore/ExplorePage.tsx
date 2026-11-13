@@ -217,7 +217,7 @@ export function ExplorePage({
             </>
           )}
           {section === 'Following' && (
-            <div hidden={Boolean(topic || view)}>
+            <div hidden={Boolean(topic ?? view)}>
               <FollowingPanel
                 following={following}
                 browseDisabled={disabled}

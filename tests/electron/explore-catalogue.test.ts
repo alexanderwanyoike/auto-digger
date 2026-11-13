@@ -85,7 +85,7 @@ test('scrolls through populated catalogue years and appends release pages', asyn
     await expect(page.getByRole('button', { name: /Evening Light/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /Back Channel 6/ })).toBeVisible();
     await page.locator('.explore-page').evaluate((element) => {
-      element.scrollTop = element.scrollHeight;
+      element.scrollTo(0, element.scrollHeight);
     });
     await expect(page.getByRole('button', { name: /Back Channel 8/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /Back Channel 6/ })).toBeAttached();

@@ -43,7 +43,9 @@ export function CatalogueTimeline({
       { rootMargin: '200px 0px' },
     );
     observer.observe(element);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   });
 
   const select = (year: number) => {
