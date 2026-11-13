@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Shuffle } from 'lucide-react';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { followTopicKey } from '../../shared/following';
@@ -12,6 +12,7 @@ import type { useCrate } from '../crate/use-crate';
 import { useExplore } from './use-explore';
 import { YearComparisonForm } from './YearComparisonForm';
 import { ExploreResults } from './ExploreResults';
+import { sleevePreview } from './sleeve-preview';
 import { ReleaseShelf } from './ReleaseShelf';
 import type { useStarterShelf } from './use-starter-shelf';
 
@@ -39,6 +40,29 @@ export function ExplorePage({
   const scrollContainer = useRef<HTMLDivElement>(null);
   const explore = useExplore(bridge, onUnauthorized);
   const { topic, release, view, busy, error } = explore;
+  const [previewBusy, setPreviewBusy] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const loadPreview = bridge?.previewRelease;
+  const preview =
+    loadPreview && audio.available
+      ? (id: number) => {
+          setPreviewError(null);
+          setPreviewBusy(true);
+          sleevePreview(loadPreview, audio.preview, id)
+            .then((result) => {
+              if (!result.ok) {
+                if (result.error.code === 'unauthorized') onUnauthorized();
+                setPreviewError(result.error.message);
+              }
+            })
+            .catch(() => {
+              setPreviewError('The preview could not start. Please retry.');
+            })
+            .finally(() => {
+              setPreviewBusy(false);
+            });
+        }
+      : undefined;
   const disabled = !connected || busy;
   const browse = (next: FollowTopic, page?: number) => {
     scrollContainer.current?.scrollTo(0, 0);
@@ -77,6 +101,8 @@ export function ExplorePage({
               disabled={disabled}
               open={open}
               refreshBusy={followsShelf.busy}
+              preview={preview}
+              previewBusy={previewBusy || Boolean(audio.preparingPreview)}
               refresh={() => {
                 starterShelf.refresh();
                 followsShelf.refresh();
@@ -90,7 +116,14 @@ export function ExplorePage({
               shelf={followsShelf}
               disabled={disabled}
               open={open}
+              preview={preview}
+              previewBusy={previewBusy || Boolean(audio.preparingPreview)}
             />
+          )}
+          {previewError && (
+            <p role="alert" className="explore-notice">
+              {previewError}
+            </p>
           )}
           {!connected && (
             <p className="explore-notice">Connect Discogs to browse and discover releases.</p>

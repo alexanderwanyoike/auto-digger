@@ -79,6 +79,21 @@ export function App({
   useEffect(() => {
     if (session.release) markSeen(session.release.id);
   }, [markSeen, session.release]);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const recordSleevePlayback = useCallback(
+    (id: number) => {
+      markSeen(id);
+      discogs
+        ?.markSeen?.(id)
+        .then((result) => {
+          setHistoryError(result.ok ? null : result.error.message);
+        })
+        .catch(() => {
+          setHistoryError('Discovery history could not be saved.');
+        });
+    },
+    [discogs, markSeen],
+  );
   const recommendations = useRecommendations(session.release, session.openSavedRelease, audio);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const { appearance, selectAppearance, storageAvailable } = useAppearance();
@@ -243,7 +258,12 @@ export function App({
           </button>
         </p>
       )}
-      <PlaybackBar audio={audio} />
+      {historyError && (
+        <p role="alert" className="request-error">
+          {historyError}
+        </p>
+      )}
+      <PlaybackBar audio={audio} onSleevePlaying={recordSleevePlayback} />
       <div className="status-bar" role="region" aria-label="App status">
         <PreviewStatus audio={audio} />
         <UpdateNotice />

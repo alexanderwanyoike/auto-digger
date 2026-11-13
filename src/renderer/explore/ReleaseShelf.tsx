@@ -10,6 +10,8 @@ export function ReleaseShelf({
   shelf,
   disabled,
   open,
+  preview,
+  previewBusy,
 }: {
   title: string;
   headingId: string;
@@ -17,6 +19,8 @@ export function ReleaseShelf({
   refreshBusy?: boolean;
   shelf: ReturnType<typeof useStarterShelf>;
   disabled: boolean;
+  preview?: ((id: number) => void) | undefined;
+  previewBusy?: boolean | undefined;
   open: (id: number) => void;
 }) {
   return (
@@ -37,7 +41,13 @@ export function ReleaseShelf({
       {shelf.busy && !shelf.releases.length && <p role="status">Loading releases…</p>}
       {shelf.error && !shelf.busy && <p role="alert">{shelf.error}</p>}
       {!shelf.busy && !shelf.error && !shelf.releases.length && <p>No unseen releases found.</p>}
-      <ReleaseMatchList releases={shelf.releases} disabled={disabled} onOpen={open} />
+      <ReleaseMatchList
+        releases={shelf.releases}
+        disabled={disabled}
+        onOpen={open}
+        onPreview={preview}
+        previewBusy={previewBusy}
+      />
     </section>
   );
 }

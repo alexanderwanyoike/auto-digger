@@ -8,9 +8,15 @@ function timecode(value: number) {
   return `${Math.floor(seconds / 60).toString()}:${(seconds % 60).toString().padStart(2, '0')}`;
 }
 
-export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrary> }) {
+export function PlaybackBar({
+  audio,
+  onSleevePlaying,
+}: {
+  audio: ReturnType<typeof useAudioLibrary>;
+  onSleevePlaying?: (id: number) => void;
+}) {
   const { track, request } = audio.playback;
-  const player = usePlayer(track, request);
+  const player = usePlayer(track, request, onSleevePlaying);
   const description = track
     ? `${track.artist} · ${track.album}`
     : 'Download a track to listen here.';

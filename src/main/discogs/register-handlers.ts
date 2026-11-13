@@ -52,6 +52,7 @@ export function registerDiscogsHandlers(
   handle(discogsChannels.search, (input) => session.search(input));
   handle(discogsChannels.discover, discover);
   handle(discogsChannels.starterShelf, starterShelf);
+  handle(discogsChannels.previewRelease, (id) => session.loadRelease(id));
   handle(discogsChannels.markSeen, async (id) => {
     if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1)
       return discogsFailure('invalid-input', 'Choose a valid Discogs release.');
