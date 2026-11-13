@@ -1,4 +1,4 @@
-import type { LocalTrack, YouTubeDownloadInput } from '../../shared/audio';
+import type { AudioBridge, AudioError, LocalTrack, YouTubeDownloadInput } from '../../shared/audio';
 import { downloadSourceId } from '../../shared/download-source-id';
 import type { PlaylistTrack } from '../../shared/playlists';
 import type { DownloadJob } from '../../shared/download-jobs';
@@ -15,23 +15,43 @@ export function localPlaylistTrack({ release, trackIndex }: PlaylistTrack, track
   );
 }
 
-export function playlistSource({
-  release,
-  trackIndex,
-}: PlaylistTrack): YouTubeDownloadInput | null {
-  const matches = uniqueVideoIndexes(release.videos).filter(
-    (index) =>
-      sourceAssignment(release, index, undefined, undefined, undefined).selected === trackIndex,
-  );
-  const [videoIndex] = matches;
-  return matches.length === 1 && videoIndex !== undefined
-    ? { release, videoIndex, trackIndex }
-    : null;
+export async function findPlaylistSource(
+  { release, trackIndex }: PlaylistTrack,
+  probe: AudioBridge['probe'],
+  savedTracks: LocalTrack[],
+): Promise<{ source: YouTubeDownloadInput | null; error?: AudioError }> {
+  let source: YouTubeDownloadInput | null = null;
+  let error: AudioError | undefined;
+  const candidates = uniqueVideoIndexes(release.videos);
+  const check = async (
+    index: number,
+  ): Promise<{ source: YouTubeDownloadInput | null; error?: AudioError }> => {
+    const videoIndex = candidates[index];
+    const video = videoIndex === undefined ? undefined : release.videos[videoIndex];
+    if (videoIndex === undefined || !video) return { source, ...(error ? { error } : {}) };
+    const input = { release, videoIndex, trackIndex };
+    const id = downloadSourceId(input);
+    if (!id || savedTracks.some((track) => track.id === id && !track.missing))
+      return check(index + 1);
+    const checked = await probe(video.url);
+    if (!checked.ok) error ??= checked.error;
+    else if (
+      sourceAssignment(release, videoIndex, checked, undefined, undefined).selected === trackIndex
+    ) {
+      if (source) return { source: null };
+      source = input;
+    }
+    return check(index + 1);
+  };
+  return check(0);
 }
 
 export function playlistJob(track: PlaylistTrack, jobs: DownloadJob[]) {
-  const source = playlistSource(track);
-  if (!source) return undefined;
-  const id = downloadSourceId(source);
-  return [...jobs].reverse().find((job) => job.sourceId === id);
+  const ids = new Set(
+    uniqueVideoIndexes(track.release.videos).map((videoIndex) =>
+      downloadSourceId({ release: track.release, videoIndex }),
+    ),
+  );
+  const title = track.release.tracks[track.trackIndex]?.title;
+  return [...jobs].reverse().find((job) => ids.has(job.sourceId ?? null) && job.title === title);
 }

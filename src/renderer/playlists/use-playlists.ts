@@ -6,10 +6,8 @@ import type {
   PlaylistTrack,
 } from '../../shared/playlists';
 import { catalogueFailure } from '../../shared/catalogue-failure';
-import { downloadSourceId } from '../../shared/download-source-id';
 import type { useAudioLibrary } from '../audio/use-audio-library';
-import { sourceAssignment } from '../audio/source-assignment';
-import { localPlaylistTrack, playlistJob, playlistSource } from './playlist-audio';
+import { findPlaylistSource, localPlaylistTrack, playlistJob } from './playlist-audio';
 
 const unavailable = 'Your playlists could not be reached. Please retry.';
 
@@ -69,32 +67,24 @@ export function usePlaylists(
 
   async function queueAudio(track: PlaylistTrack) {
     if (!audio.bridge || !audio.queue.available || localPlaylistTrack(track, audio.tracks)) return;
-    const source = playlistSource(track);
-    if (!source) return;
+    const { probe } = audio.bridge;
     const job = playlistJob(track, audio.queue.jobs);
     if (job && job.stage !== 'failed' && job.stage !== 'cancelled') return;
-    const id = downloadSourceId(source);
-    if (audio.tracks.some((saved) => saved.id === id && !saved.missing)) return;
-    const video = source.release.videos[source.videoIndex];
-    if (!id || !video || preparing.current.has(id)) return;
-    preparing.current.add(id);
+    const key = JSON.stringify([track.release.id, track.trackIndex]);
+    if (preparing.current.has(key)) return;
+    preparing.current.add(key);
     try {
-      const checked = await audio.bridge.probe(video.url);
-      if (!checked.ok) {
-        setError(`Track saved to playlist. ${checked.error.message}`);
+      const { source, error: probeError } = await findPlaylistSource(track, probe, audio.tracks);
+      if (!source) {
+        if (probeError) setError(`Track saved to playlist. ${probeError.message}`);
         return;
       }
-      if (
-        sourceAssignment(track.release, source.videoIndex, checked, undefined, undefined)
-          .selected !== track.trackIndex
-      )
-        return;
       const result = await audio.queue.enqueue({ ...source, preserveAssignment: true });
       if (!result.ok) setError(`Track saved to playlist. ${result.error.message}`);
     } catch {
       setError('Track saved to playlist. Audio could not be queued.');
     } finally {
-      preparing.current.delete(id);
+      preparing.current.delete(key);
     }
   }
 
