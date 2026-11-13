@@ -304,6 +304,7 @@ test('uses another matched upload when the preview source was saved for a differ
       videos: [
         ...loadedRelease.videos,
         { title: 'Low Tide - Night Signal', url: 'https://www.youtube.com/watch?v=zyxwvutsrqp' },
+        { title: 'Unknown upload', url: 'https://www.youtube.com/watch?v=lmnopqrstuv' },
       ],
     };
     expect((await page.evaluate((record) => window.crate?.save(record), release))?.ok).toBe(true);
@@ -340,6 +341,32 @@ test('uses another matched upload when the preview source was saved for a differ
           { id: '12-zyxwvutsrqp', trackIndex: 1 },
         ],
       });
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    const savedSource = page.getByRole('listitem').filter({ hasText: 'Low Tide - Night Signal' });
+    await savedSource.getByLabel('Discogs track').selectOption('0');
+    await page.getByText('1 alternate upload', { exact: true }).click();
+    await savedSource.getByRole('button', { name: 'Update tags' }).click();
+    await expect
+      .poll(() => page.evaluate(() => window.audioLibrary?.list()))
+      .toMatchObject({
+        ok: true,
+        value: [
+          { id: '12-abcdefghijk', trackIndex: 0 },
+          { id: '12-zyxwvutsrqp', trackIndex: 0 },
+        ],
+      });
+    await page.getByRole('button', { name: 'Playlists', exact: true }).click();
+    await page.getByRole('button', { name: 'Remove Night Signal from Likes' }).click();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    await page.getByText('1 unmatched upload', { exact: true }).click();
+    const alternate = page.getByRole('listitem').filter({ hasText: 'Unknown upload' }).last();
+    await alternate.getByLabel('Discogs track').selectOption('1');
+    await alternate.getByRole('button', { name: 'Preview audio' }).click();
+    await like.click();
+    await page.getByRole('button', { name: 'Playlists', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Play Night Signal' })).toBeVisible();
   } finally {
     await desktop.close();
   }
