@@ -43,15 +43,12 @@ export function createRememberedSession(
       authorized(() => session.loadRelease(input, signal), signal),
     researchSearch: (input: unknown, signal?: AbortSignal) =>
       authorized(() => session.researchSearch(input, signal), signal),
-    topicArtwork: (input: unknown) => {
+    topicArtwork: async (input: unknown) => {
       const revision = credentialRevision;
-      return serialize(
-        () =>
-          revision === credentialRevision
-            ? session.topicArtwork(input)
-            : Promise.resolve(discogsFailure('cancelled', 'The Discogs session has changed.')),
-        true,
-      );
+      await serialize(() => Promise.resolve());
+      if (revision !== credentialRevision)
+        return discogsFailure('cancelled', 'The Discogs session has changed.');
+      return session.topicArtwork(input);
     },
     search: (input: unknown) => {
       const parsed = searchInputSchema.safeParse(input);
