@@ -40,15 +40,15 @@ test('learns the saved record style when the listener refreshes Explore', async 
     await page.getByLabel('Personal token').fill('fixture-explore-taste');
     await page.getByRole('button', { name: 'Connect account', exact: true }).click();
     const shelf = page.getByRole('region', { name: 'Discover records' });
-    await shelf.getByRole('button', { name: /Quiet Orbit EP/ }).click();
+    await shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ }).click();
     await page.getByRole('button', { name: 'Save EP to crate' }).click();
     await expect(page.getByRole('button', { name: 'Saved to crate' })).toBeDisabled();
     await page.getByRole('button', { name: 'Back to Explore' }).click();
-    await expect(shelf.getByRole('button', { name: /Back Channel/ })).toBeVisible();
-    await expect(shelf.getByRole('button', { name: /First Light/ })).toHaveCount(0);
+    await expect(shelf.getByRole('button', { name: /^(?!Play ).*Back Channel/ })).toBeVisible();
+    await expect(shelf.getByRole('button', { name: /^(?!Play ).*First Light/ })).toHaveCount(0);
     await shelf.getByRole('button', { name: 'Refresh', exact: true }).click();
-    await expect(shelf.getByRole('button', { name: /First Light/ })).toBeVisible();
-    await expect(shelf.getByRole('button', { name: /Quiet Orbit EP/ })).toHaveCount(0);
+    await expect(shelf.getByRole('button', { name: /^(?!Play ).*First Light/ })).toBeVisible();
+    await expect(shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toHaveCount(0);
   } finally {
     await desktop.close();
   }

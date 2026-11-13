@@ -61,17 +61,17 @@ test('plays a sleeve preview in place and excludes the release after playback st
     await page.getByLabel('Personal token').fill('fixture-explore-token');
     await page.getByRole('button', { name: 'Connect account', exact: true }).click();
     const shelf = page.getByRole('region', { name: 'Discover records' });
-    await expect(shelf.getByRole('button', { name: /First Light/ })).toBeVisible();
+    await expect(shelf.getByRole('button', { name: /^(?!Play ).*First Light/ })).toBeVisible();
 
     await shelf.getByRole('button', { name: 'Play Low Tide - Quiet Orbit EP' }).click();
     const playback = page.getByRole('contentinfo', { name: 'Playback' });
     await expect(playback.getByRole('button', { name: 'Pause' })).toBeVisible();
     await expect(playback).toContainText('Quiet Orbit');
     await expect(shelf).toBeVisible();
-    await expect(shelf.getByRole('button', { name: /Quiet Orbit EP/ })).toHaveCount(0);
+    await expect(shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toHaveCount(0);
     await page.reload();
-    await expect(shelf.getByRole('button', { name: /Late Signal/ })).toBeVisible();
-    await expect(shelf.getByRole('button', { name: /Quiet Orbit EP/ })).toHaveCount(0);
+    await expect(shelf.getByRole('button', { name: /^(?!Play ).*Late Signal/ })).toBeVisible();
+    await expect(shelf.getByRole('button', { name: /^(?!Play ).*Quiet Orbit EP/ })).toHaveCount(0);
   } finally {
     await desktop.close();
   }
