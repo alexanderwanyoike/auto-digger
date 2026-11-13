@@ -60,6 +60,8 @@ export async function openCatalogue(
         database.prepare('SELECT id,crate_id,metadata FROM research_notes LIMIT 0').all();
       if (version >= 4) database.prepare('SELECT id,kind,name FROM follows LIMIT 0').all();
       if (version >= 5) database.prepare('SELECT id FROM opened_releases LIMIT 0').all();
+      if (version >= 7)
+        database.prepare('SELECT crate_id,release_id FROM personal_crate_saves LIMIT 0').all();
       database.exec('PRAGMA foreign_keys=ON');
     }
     if (version < catalogueVersion) upgradeCatalogue(database);

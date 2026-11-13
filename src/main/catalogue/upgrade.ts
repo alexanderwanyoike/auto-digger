@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 
-export const catalogueVersion = 5;
+export const catalogueVersion = 7;
 
 export function upgradeCatalogue(database: DatabaseSync) {
   database.exec(`
@@ -22,6 +22,12 @@ export function upgradeCatalogue(database: DatabaseSync) {
       name TEXT NOT NULL
     ) STRICT;
     CREATE TABLE IF NOT EXISTS opened_releases (id INTEGER PRIMARY KEY) STRICT;
+    CREATE TABLE IF NOT EXISTS personal_crate_saves (
+      crate_id TEXT NOT NULL,
+      release_id INTEGER NOT NULL,
+      PRIMARY KEY(crate_id, release_id),
+      FOREIGN KEY(crate_id, release_id) REFERENCES entries(crate_id, release_id) ON DELETE CASCADE
+    ) STRICT;
     PRAGMA user_version=${catalogueVersion.toString()};
     COMMIT;
   `);

@@ -84,7 +84,7 @@ export function catalogueMutations(database: DatabaseSync) {
       database.prepare('DELETE FROM crates WHERE id=?').run(id.data);
       return readCatalogueView(database);
     },
-    add(input: unknown): CatalogueResult<CatalogueView> {
+    add(input: unknown, personal = false): CatalogueResult<CatalogueView> {
       const parsed = addSchema.safeParse(input);
       if (!parsed.success || !exists(parsed.data.crateId))
         return catalogueFailure('invalid-input', 'Choose a crate and a complete Discogs release.');
@@ -92,11 +92,15 @@ export function catalogueMutations(database: DatabaseSync) {
       database
         .prepare('INSERT OR IGNORE INTO releases(id,metadata) VALUES(?,?)')
         .run(release.id, JSON.stringify(release));
-      database
+      const entry = database
         .prepare(
           'INSERT OR IGNORE INTO entries(crate_id,release_id,ordinal) VALUES(?,?,(SELECT COALESCE(MAX(ordinal)+1,0) FROM entries WHERE crate_id=?))',
         )
         .run(crateId, release.id, crateId);
+      if (personal && entry.changes === 1)
+        database
+          .prepare('INSERT INTO personal_crate_saves(crate_id,release_id) VALUES(?,?)')
+          .run(crateId, release.id);
       return readCatalogueView(database, crateId);
     },
     remove(input: unknown): CatalogueResult<CatalogueView> {
