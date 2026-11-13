@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Heart, ListMusic, Play } from 'lucide-react';
+import { Heart, ListMusic, Play, Shuffle } from 'lucide-react';
 import type { DiscogsRelease } from '../../shared/discogs';
 import { likesId } from '../../shared/playlists';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import type { usePlaylists } from './use-playlists';
+import { shuffleTracks } from './shuffle-tracks';
 import { localPlaylistTrack } from './playlist-audio';
 import { PlaylistEntryRow } from './PlaylistEntryRow';
 
@@ -83,16 +84,28 @@ export function PlaylistsPage({
         <section className="playlist-content" aria-labelledby="selected-playlist">
           <header className="playlist-content-header">
             <h2 id="selected-playlist">{selected.name}</h2>
-            <button
-              type="button"
-              className="secondary-button"
-              disabled={!playable.length}
-              onClick={() => {
-                audio.playSequence(playable);
-              }}
-            >
-              <Play size={13} aria-hidden="true" /> Play playlist
-            </button>
+            <div className="playlist-entry-actions">
+              <button
+                type="button"
+                className="secondary-button"
+                disabled={!playable.length}
+                onClick={() => {
+                  audio.playSequence(playable);
+                }}
+              >
+                <Play size={13} aria-hidden="true" /> Play playlist
+              </button>
+              <button
+                type="button"
+                className="secondary-button"
+                disabled={!playable.length}
+                onClick={() => {
+                  audio.playSequence(shuffleTracks(playable));
+                }}
+              >
+                <Shuffle size={13} aria-hidden="true" /> Shuffle playlist
+              </button>
+            </div>
           </header>
           {!selected.entries.length && <p>No tracks in this playlist.</p>}
           <ul>
