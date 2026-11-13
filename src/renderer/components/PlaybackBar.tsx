@@ -63,21 +63,6 @@ export function PlaybackBar({
             <ArrowUpRight size={16} aria-hidden="true" />
           </button>
         )}
-        {playlists.available && sourceTrack?.trackIndex != null && (
-          <PlaylistTrackActions
-            key={JSON.stringify([
-              sourceTrack.id,
-              sourceTrack.trackPosition,
-              sourceTrack.trackIndex,
-            ])}
-            source={sourceTrack}
-            preview={previewSource}
-            release={release}
-            loadRelease={loadRelease}
-            playlists={playlists}
-            openPlaylists={openPlaylists}
-          />
-        )}
       </div>
       <button
         type="button"
@@ -110,6 +95,17 @@ export function PlaybackBar({
         />
         <span>{timecode(player.duration)}</span>
       </div>
+      {playlists.available && sourceTrack?.trackIndex != null && (
+        <PlaylistTrackActions
+          key={JSON.stringify([sourceTrack.id, sourceTrack.trackPosition, sourceTrack.trackIndex])}
+          source={sourceTrack}
+          preview={previewSource}
+          release={release}
+          loadRelease={loadRelease}
+          playlists={playlists}
+          openPlaylists={openPlaylists}
+        />
+      )}
       <div className="player-volume">
         <Volume2 size={14} aria-hidden="true" />
         <input
