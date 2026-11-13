@@ -2,7 +2,7 @@ import { _electron as electron, expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
 import { identityResponse } from '../discogs-fixtures';
 
-for (const size of [1, 50]) {
+[1, 50].forEach((size) => {
   test(`loads a style with ${size.toString()} records per year within the request budget`, async () => {
     const desktop = await electron.launch({
       args: [
@@ -74,4 +74,4 @@ for (const size of [1, 50]) {
       await desktop.close();
     }
   });
-}
+});
