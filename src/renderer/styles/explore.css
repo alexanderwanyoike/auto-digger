@@ -191,15 +191,16 @@
   font-size: 12px;
 }
 .catalogue-timeline {
+  --catalogue-scroll-inset: 12px;
   display: grid;
   grid-template-columns: 100px minmax(0, 1fr);
   gap: 18px;
   align-items: start;
-  scroll-margin-top: 12px;
+  scroll-margin-top: var(--catalogue-scroll-inset);
 }
 .catalogue-years-frame {
   position: sticky;
-  top: 12px;
+  top: var(--catalogue-scroll-inset);
 }
 .catalogue-years {
   max-height: min(540px, calc(100vh - 200px));
@@ -255,7 +256,7 @@
   padding: 0 0 20px;
   margin: 0 0 16px;
   border-bottom: 1px solid var(--line);
-  scroll-margin-top: 12px;
+  scroll-margin-top: var(--catalogue-scroll-inset);
 }
 .catalogue-year > ul {
   grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));

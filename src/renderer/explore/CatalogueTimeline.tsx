@@ -47,7 +47,8 @@ export function CatalogueTimeline({
     if (!timeline || !viewport || disabled || !records.groups.length) return undefined;
     const update = () => {
       if (!timeline.getClientRects().length) return;
-      const edge = viewport.getBoundingClientRect().top + 12;
+      const inset = parseFloat(getComputedStyle(timeline).scrollMarginTop);
+      const edge = viewport.getBoundingClientRect().top + inset;
       const years = Array.from(timeline.querySelectorAll<HTMLElement>('[data-release-year]'));
       const atEnd =
         viewport.scrollTop > 0 &&
