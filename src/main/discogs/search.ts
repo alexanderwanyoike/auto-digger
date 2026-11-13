@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { supportedUrl } from './media-url';
-import { maxSearchResults } from '../../shared/search';
+import { maxSearchResults } from '../../shared/search-limits';
 import type { SearchInput, SearchPage } from '../../shared/search';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';

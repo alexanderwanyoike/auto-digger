@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { DiscogsBridge, DiscogsError } from '../../shared/discogs';
 import { emptyFilters } from '../../shared/default-filters';
-import { maxSearchResults } from '../../shared/search';
+import { maxSearchResults } from '../../shared/search-limits';
 import type { SearchPage } from '../../shared/search';
 import { useDiscogsRetry } from './use-discogs-retry';
 

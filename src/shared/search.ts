@@ -39,7 +39,6 @@ export function sameSearchFilters(left: DigFilters, right: DigFilters | null) {
   );
 }
 
-export const maxSearchResults = 10_000;
 export const maxSearchPage = 200;
 
 export const searchInputSchema = z.object({
