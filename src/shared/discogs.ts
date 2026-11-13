@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { DiscoveryPage, DiscoveryPageRequest } from './discovery';
 import type { DigResult } from './dig';
-import type { DigFilters, SearchPage } from './search';
+import type { DigFilters, SearchInput, SearchPage } from './search';
 import type { HistoryEntry, HistoryRecord } from './discovery-history';
 import type { FollowTopic } from './following';
 import type { Result } from './result';
@@ -60,12 +60,7 @@ export interface DiscogsBridge {
     reset: boolean;
     context?: 'artist';
   }) => Promise<DiscogsResult<DigResult>>;
-  search: (input: {
-    filters: DigFilters;
-    page: number;
-    context?: 'artist' | 'explore';
-    order?: 'oldest';
-  }) => Promise<DiscogsResult<SearchPage>>;
+  search: (input: SearchInput) => Promise<DiscogsResult<SearchPage>>;
   topicArtwork?: (topic: FollowTopic) => Promise<DiscogsResult<string | null>>;
   discover?: (topic: FollowTopic | null) => Promise<DiscogsResult<SearchPage['releases']>>;
   expandDiscovery?: (input: DiscoveryPageRequest) => Promise<DiscogsResult<DiscoveryPage>>;

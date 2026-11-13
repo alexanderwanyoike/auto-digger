@@ -9,6 +9,7 @@ import { useCatalogueYearIndex } from './use-catalogue-year-index';
 
 export function CatalogueTimeline({
   style,
+  jumpYear,
   disabled,
   search,
   onOpen,
@@ -18,6 +19,7 @@ export function CatalogueTimeline({
   onUnauthorized,
 }: {
   style: string;
+  jumpYear: number | undefined;
   disabled: boolean;
   search: DiscogsBridge['search'];
   onOpen: (id: number) => void;
@@ -26,8 +28,21 @@ export function CatalogueTimeline({
   onShowYear: (style: string, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
-  const index = useCatalogueYearIndex(search, style, onUnauthorized);
-  const records = useCatalogueRecords(search, style, index.years[0], onUnauthorized);
+  const [jumpResult, setJumpResult] = useState<{ empty: boolean }>();
+  const index = useCatalogueYearIndex(
+    search,
+    style,
+    onUnauthorized,
+    jumpYear,
+    jumpResult !== undefined,
+  );
+  const records = useCatalogueRecords(search, style, jumpYear ?? index.years[0], onUnauthorized);
+  useEffect(() => {
+    if (jumpYear === undefined || jumpResult !== undefined) return;
+    const group = records.groups.find(({ year }) => year === jumpYear);
+    if (group) setJumpResult({ empty: !group.releases.length });
+  }, [jumpResult, jumpYear, records.groups]);
+  const [exploring, setExploring] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const catalogue = useRef<HTMLDivElement>(null);
   const yearRail = useRef<HTMLElement>(null);
@@ -47,6 +62,7 @@ export function CatalogueTimeline({
     if (!timeline || !viewport || disabled || !records.groups.length) return undefined;
     const update = () => {
       if (!timeline.getClientRects().length) return;
+      if (viewport.scrollTop > 0) setExploring(true);
       const inset = parseFloat(getComputedStyle(timeline).scrollMarginTop);
       const edge = viewport.getBoundingClientRect().top + inset;
       const years = Array.from(timeline.querySelectorAll<HTMLElement>('[data-release-year]'));
@@ -75,13 +91,73 @@ export function CatalogueTimeline({
     else index.loadMore();
   };
   const sentinel = useScrollContinuation(
-    !busy && !error && !disabled && hasMore ? loadMore : undefined,
+    exploring && !busy && !error && !disabled && hasMore ? loadMore : undefined,
   );
-  const moreYears = useScrollContinuation(
-    index.hasMore && !index.busy && !index.error && !disabled ? index.loadMore : undefined,
-  );
+  useEffect(() => {
+    const viewport = catalogue.current?.closest<HTMLElement>('.explore-scroll');
+    if (!viewport || disabled) return undefined;
+    const forward = () => {
+      if (catalogue.current?.getClientRects().length) setExploring(true);
+    };
+    const wheel = (event: WheelEvent) => {
+      if (
+        event.deltaY > 0 &&
+        !event.ctrlKey &&
+        event.target instanceof Node &&
+        !yearRail.current?.contains(event.target)
+      )
+        forward();
+    };
+    let touchY: number | undefined;
+    const startTouch = (event: TouchEvent) => {
+      touchY = event.touches[0]?.clientY;
+    };
+    const moveTouch = (event: TouchEvent) => {
+      const y = event.touches[0]?.clientY;
+      if (touchY !== undefined && y !== undefined && touchY - y >= 24) {
+        touchY = undefined;
+        if (event.target instanceof Node && yearRail.current?.contains(event.target))
+          yearRail.current.dispatchEvent(new Event('scroll-forward'));
+        else forward();
+      }
+    };
+    viewport.addEventListener('scroll-forward', forward);
+    viewport.addEventListener('wheel', wheel, { passive: true });
+    viewport.addEventListener('touchstart', startTouch, { passive: true });
+    viewport.addEventListener('touchmove', moveTouch, { passive: true });
+    return () => {
+      viewport.removeEventListener('scroll-forward', forward);
+      viewport.removeEventListener('wheel', wheel);
+      viewport.removeEventListener('touchstart', startTouch);
+      viewport.removeEventListener('touchmove', moveTouch);
+    };
+  }, [disabled]);
+
+  const { loadMore: loadMoreYears } = index;
+  const extendYearRail = (rail: HTMLElement) => {
+    if (!disabled && rail.scrollHeight - rail.clientHeight - rail.scrollTop <= 40) loadMoreYears();
+  };
+  useEffect(() => {
+    const rail = yearRail.current;
+    if (!rail || disabled || !index.hasMore || index.busy || index.error) return undefined;
+    const wheel = (event: WheelEvent) => {
+      if (event.ctrlKey || event.deltaY <= 0 || rail.scrollHeight > rail.clientHeight) return;
+      event.preventDefault();
+      loadMoreYears();
+    };
+    const forward = () => {
+      if (rail.scrollHeight - rail.clientHeight - rail.scrollTop <= 40) loadMoreYears();
+    };
+    rail.addEventListener('scroll-forward', forward);
+    rail.addEventListener('wheel', wheel, { passive: false });
+    return () => {
+      rail.removeEventListener('scroll-forward', forward);
+      rail.removeEventListener('wheel', wheel);
+    };
+  }, [disabled, index.busy, index.error, index.hasMore, loadMoreYears]);
 
   const select = (year: number) => {
+    setExploring(true);
     setSelected(year);
     const section = catalogue.current?.querySelector(`[data-release-year="${year.toString()}"]`);
     if (section) section.scrollIntoView({ block: 'start' });
@@ -94,30 +170,50 @@ export function CatalogueTimeline({
   return (
     <div className="catalogue-timeline" ref={catalogue}>
       <div className="catalogue-years-frame">
-        <nav aria-label="Release years" className="catalogue-years" ref={yearRail}>
+        <nav
+          aria-label="Release years"
+          className="catalogue-years"
+          ref={yearRail}
+          onScroll={(event) => {
+            extendYearRail(event.currentTarget);
+          }}
+        >
           <div ref={yearRailContent}>
+            {index.previousError && (
+              <button className="secondary-button" type="button" onClick={index.retryPrevious}>
+                Retry earlier year
+              </button>
+            )}
             <ol>
-              {index.years.map((year) => (
-                <li key={year}>
-                  <button
-                    type="button"
-                    aria-current={year === (selected ?? index.years[0]) ? true : undefined}
-                    disabled={disabled}
-                    onClick={() => {
-                      select(year);
-                    }}
-                  >
-                    {year}
-                  </button>
-                </li>
-              ))}
+              {index.years
+                .filter((year) => !(year === jumpYear && jumpResult?.empty))
+                .map((year) => (
+                  <li key={year}>
+                    <button
+                      type="button"
+                      aria-current={
+                        year === (selected ?? jumpYear ?? index.years[0]) ? true : undefined
+                      }
+                      disabled={disabled}
+                      onKeyDown={(event) => {
+                        const rail = yearRail.current;
+                        if (rail && year === index.years.at(-1) && event.key === 'ArrowDown')
+                          extendYearRail(rail);
+                      }}
+                      onClick={() => {
+                        select(year);
+                      }}
+                    >
+                      {year}
+                    </button>
+                  </li>
+                ))}
             </ol>
             {index.error && canLoadRecords && (
               <button className="secondary-button" type="button" onClick={index.retry}>
                 Retry years
               </button>
             )}
-            <div ref={moreYears} className="year-continuation" />
           </div>
         </nav>
         <TickScrollbar
@@ -127,39 +223,47 @@ export function CatalogueTimeline({
         />
       </div>
       <div className="catalogue-records">
-        {records.groups.map((group) => (
-          <section
-            key={group.year}
-            className="explore-shelf catalogue-year"
-            aria-label={group.year.toString()}
-            data-release-year={group.year}
-          >
-            <header className="explore-shelf-header">
-              <h3>{group.year}</h3>
-              <button
-                type="button"
-                id={`explore-year-more-${group.year.toString()}`}
-                className="explore-show-more"
+        {records.groups
+          .filter(({ releases }) => releases.length)
+          .map((group) => (
+            <section
+              key={group.year}
+              className="explore-shelf catalogue-year"
+              aria-label={group.year.toString()}
+              data-release-year={group.year}
+            >
+              <header className="explore-shelf-header">
+                <h3>{group.year}</h3>
+                <button
+                  type="button"
+                  id={`explore-year-more-${group.year.toString()}`}
+                  className="explore-show-more"
+                  disabled={disabled}
+                  onClick={() => {
+                    onShowYear(style, group);
+                  }}
+                >
+                  Show more
+                </button>
+              </header>
+              <ReleaseMatchList
+                releases={group.releases}
                 disabled={disabled}
-                onClick={() => {
-                  onShowYear(style, group);
-                }}
-              >
-                Show more
-              </button>
-            </header>
-            <ReleaseMatchList
-              releases={group.releases}
-              disabled={disabled}
-              onOpen={onOpen}
-              onPreview={onPreview}
-              previewBusy={previewBusy}
-            />
-          </section>
-        ))}
+                onOpen={onOpen}
+                onPreview={onPreview}
+                previewBusy={previewBusy}
+              />
+            </section>
+          ))}
         <div ref={sentinel} className="catalogue-continuation">
           {busy && <p role="status">Loading releases…</p>}
-          {!busy && !records.groups.length && !error && <p>No dated releases found.</p>}
+          {!busy && !error && records.groups.every(({ releases }) => !releases.length) && (
+            <p>
+              {jumpYear
+                ? `No releases found for ${jumpYear.toString()}.`
+                : 'No dated releases found.'}
+            </p>
+          )}
           {error && <p role="alert">{error}</p>}
           {error && (
             <button

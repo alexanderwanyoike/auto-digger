@@ -1,24 +1,56 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { DiscogsBridge } from '../../shared/discogs';
-import { catalogueYears, firstSearchYear } from './catalogue-years';
+import { catalogueYear, catalogueYears, firstSearchYear, lastSearchYear } from './catalogue-years';
 
 export function useCatalogueYearIndex(
   search: DiscogsBridge['search'],
   style: string,
   onUnauthorized: () => void,
+  jumpYear?: number,
+  jumpLoaded = false,
 ) {
-  const [years, setYears] = useState<number[]>([]);
+  const [years, setYears] = useState<number[]>(() => (jumpYear === undefined ? [] : [jumpYear]));
   const [start, setStart] = useState(firstSearchYear);
-  const [next, setNext] = useState<number | null>(null);
-  const [busy, setBusy] = useState(true);
+  const [next, setNext] = useState<number | null>(
+    jumpYear === undefined || jumpYear >= lastSearchYear ? null : jumpYear + 1,
+  );
+  const [busy, setBusy] = useState(jumpYear === undefined);
   const [error, setError] = useState<string | null>(null);
+  const [previousYear, setPreviousYear] = useState<number | null>(null);
+  const [previousError, setPreviousError] = useState(false);
+  const [previousAttempt, setPreviousAttempt] = useState(0);
+  useEffect(() => {
+    if (jumpYear === undefined || !jumpLoaded) return undefined;
+    let active = true;
+    catalogueYear(search, style, firstSearchYear, jumpYear - 1, 'newest')
+      .then((result) => {
+        if (!active) return;
+        if (result.ok) setPreviousYear(result.value);
+        else if (result.error.code === 'unauthorized') onUnauthorized();
+        else setPreviousError(true);
+      })
+      .catch(() => {
+        if (active) setPreviousError(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [jumpLoaded, jumpYear, onUnauthorized, previousAttempt, search, style]);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
+    if (jumpYear !== undefined && start === firstSearchYear) {
+      if (jumpLoaded && jumpYear < lastSearchYear) {
+        setBusy(true);
+        setStart(jumpYear + 1);
+      }
+      return undefined;
+    }
     let active = true;
     catalogueYears(
       search,
       style,
       start,
+      start === firstSearchYear ? 2 : 1,
       () => active,
       (year) => {
         setYears((previous) => (previous.includes(year) ? previous : [...previous, year]));
@@ -41,17 +73,23 @@ export function useCatalogueYearIndex(
     return () => {
       active = false;
     };
-  }, [attempt, onUnauthorized, search, start, style]);
+  }, [attempt, jumpLoaded, jumpYear, onUnauthorized, search, start, style]);
+  const loadMore = useCallback(() => {
+    if (busy || next === null || error) return;
+    setBusy(true);
+    setStart(next);
+  }, [busy, error, next]);
   return {
-    years,
+    years: previousYear === null ? years : [previousYear, ...years],
     busy,
     error,
     hasMore: next !== null,
-    loadMore: () => {
-      if (busy || next === null || error) return;
-      setBusy(true);
-      setStart(next);
+    previousError,
+    retryPrevious: () => {
+      setPreviousError(false);
+      setPreviousAttempt((attemptNumber) => attemptNumber + 1);
     },
+    loadMore,
     retry: () => {
       setBusy(true);
       setError(null);

@@ -25,6 +25,8 @@ export function CataloguePage({
 }) {
   const [preferred, setPreferred] = useState<string[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [year, setYear] = useState('');
+  const [jump, setJump] = useState<{ year: number; revision: number }>();
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
@@ -60,13 +62,48 @@ export function CataloguePage({
           disabled={busy}
           style={style}
           styles={styles}
-          onChange={setSelected}
+          onChange={(next) => {
+            setSelected(next);
+            setYear('');
+            setJump(undefined);
+          }}
         />
+        <form
+          className="catalogue-jump"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (/^[1-9][0-9]{3}$/.test(year))
+              setJump((previous) => ({
+                year: Number(year),
+                revision: (previous?.revision ?? 0) + 1,
+              }));
+          }}
+        >
+          <label className="catalogue-jump-field" htmlFor="catalogue-jump-year">
+            <span>Jump to year</span>
+            <input
+              type="text"
+              id="catalogue-jump-year"
+              inputMode="numeric"
+              maxLength={4}
+              pattern="[1-9][0-9]{3}"
+              required
+              value={year}
+              onChange={(event) => {
+                setYear(event.target.value);
+              }}
+            />
+          </label>
+          <button type="submit" className="secondary-button" disabled={busy || year.length !== 4}>
+            Go
+          </button>
+        </form>
       </header>
       {error && <p role="alert">{error}</p>}
       {(preferred !== null || !bridge.crateStyles || selected !== null) && (
         <CatalogueTimeline
-          key={style}
+          key={`${style}:${jump?.revision.toString() ?? ''}`}
+          jumpYear={jump?.year}
           style={style}
           disabled={busy}
           search={bridge.search}

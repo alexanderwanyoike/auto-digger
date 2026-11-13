@@ -176,7 +176,24 @@
 .catalogue-header {
   display: flex;
   justify-content: end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 20px;
   margin-bottom: 14px;
+}
+.catalogue-jump,
+.catalogue-jump-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.catalogue-jump-field {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.catalogue-jump input {
+  width: 72px;
 }
 .catalogue-style {
   display: grid;
@@ -407,10 +424,6 @@
 .history-release strong {
   color: var(--text);
   font-size: 12px;
-}
-
-.year-continuation {
-  min-height: 1px;
 }
 
 .explore-preview-error {
