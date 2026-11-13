@@ -70,9 +70,8 @@ function createReleaseDiscovery(
 export function createDiscover(
   search: DiscogsBridge['search'],
   readFollowing: () => Promise<FollowingResult>,
-  knownReleases: () => Promise<CatalogueResult<Set<number>>>,
+  knownReleases: (includeCrates: boolean) => Promise<CatalogueResult<Set<number>>>,
 ) {
-  const discover = createReleaseDiscovery(search, knownReleases);
   return async (
     input: unknown,
     background = false,
@@ -91,6 +90,7 @@ export function createDiscover(
         'invalid-input',
         'Follow an artist, label or genre to discover releases.',
       );
+    const discover = createReleaseDiscovery(search, () => knownReleases(!background));
     return discover(
       topics.map((topic) => filtersForTopic(topic)),
       8,

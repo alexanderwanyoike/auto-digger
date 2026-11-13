@@ -14,6 +14,20 @@ export function createDiscoveryHistory(connection: () => Promise<CatalogueResult
       return catalogueFailure('storage', 'Your discovery history could not be reached.');
     }
   }
+  const seen = (includeCrates = false) =>
+    query(
+      (database) =>
+        new Set(
+          database
+            .prepare(
+              includeCrates
+                ? 'SELECT id FROM opened_releases UNION SELECT id FROM release_activity UNION SELECT release_id AS id FROM entries'
+                : 'SELECT id FROM opened_releases UNION SELECT id FROM release_activity',
+            )
+            .all()
+            .flatMap(({ id }) => (typeof id === 'number' ? [id] : [])),
+        ),
+    );
   return {
     opened: (id: number) =>
       query((database) => {
@@ -65,15 +79,6 @@ export function createDiscoveryHistory(connection: () => Promise<CatalogueResult
             historyEntrySchema.parse({ ...entry, played: played === 1 }),
           ),
       ),
-    seen: () =>
-      query(
-        (database) =>
-          new Set(
-            database
-              .prepare('SELECT id FROM opened_releases UNION SELECT id FROM release_activity')
-              .all()
-              .flatMap(({ id }) => (typeof id === 'number' ? [id] : [])),
-          ),
-      ),
+    seen,
   };
 }
