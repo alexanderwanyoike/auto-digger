@@ -30,7 +30,7 @@ test('browses a year range with one paginated search and opens an individual yea
             year: date,
           }));
         const capped = year === '1993-2001';
-        const later = year === '1998-1999';
+        const later = year === '1997-1999' || year === '1998-1999';
         const ranged = year === '1993-1999' || capped || later;
         const rangePages = later
           ? [records(1998, 50), records(1999, 1)]
@@ -166,11 +166,16 @@ test('browses a year range with one paginated search and opens an individual yea
     await expect(to).toHaveValue('1999');
     await expect(second.getByRole('button', { name: 'Play Record 1995 0' })).toBeAttached();
 
+    await years.getByRole('button', { name: '1997', exact: true }).click();
+    await expect(laterYear.getByRole('button', { name: 'Play Record 1998 0' })).toBeVisible();
+    await expect(page.getByText('No releases found for 1997.')).toBeVisible();
+    await expect(page.getByRole('region', { name: '1997', exact: true })).toHaveCount(0);
+
     await to.fill('2001');
     await to.press('Enter');
     await expect(
       page.getByText(
-        'Discogs shows the first 10,000 matches. Narrow the year range to see later releases.',
+        'Discogs shows the first 10,000 matches. Jump to a later year or narrow the range.',
       ),
     ).toBeVisible();
   } finally {
