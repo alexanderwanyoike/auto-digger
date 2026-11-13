@@ -102,8 +102,10 @@ test('discovers unopened releases, browses followed catalogues and compares genr
         element.nextElementSibling?.getAttribute('aria-labelledby'),
       ),
     ).toBe(await followed.getAttribute('aria-labelledby'));
-    await starter.getByRole('button', { name: 'Show more' }).click({ timeout: 3000 });
-    await expect(page.getByRole('heading', { name: 'Discover records', level: 2 })).toBeVisible();
+    const showDiscover = starter.getByRole('button', { name: 'Show more' });
+    await showDiscover.focus();
+    await showDiscover.press('Enter');
+    await expect(page.getByRole('heading', { name: 'Discover records', level: 2 })).toBeFocused();
     const expanded = page.getByRole('region', { name: 'Discover records' });
     await expect(expanded.getByRole('listitem')).toHaveCount(13);
     const additional = expanded.getByRole('button', { name: /^(?!Play ).*Additional Record 0/ });
@@ -112,6 +114,7 @@ test('discovers unopened releases, browses followed catalogues and compares genr
     await expect(additional).toHaveCount(0);
     await expect(page.getByRole('heading', { name: 'From your follows' })).toHaveCount(0);
     await page.getByRole('button', { name: 'Back to Feed' }).click();
+    await expect(showDiscover).toBeFocused();
     await followed.getByRole('button', { name: 'Show more' }).click();
     await expect(page.getByRole('heading', { name: 'From your follows', level: 2 })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Discover records' })).toHaveCount(0);
