@@ -34,7 +34,6 @@ const sectionIcons = {
   Explore: Compass,
   Crates: Library,
   Downloads: ListMusic,
-  Settings: SettingsIcon,
 };
 
 export function App({
@@ -48,8 +47,7 @@ export function App({
   audioLibrary?: AudioBridge;
   catalogue?: CatalogueBridge;
 }) {
-  const [section, setSection] = useState<keyof typeof sectionIcons>('Digging desk');
-  const SectionIcon = sectionIcons[section];
+  const [section, setSection] = useState<keyof typeof sectionIcons | 'Settings'>('Digging desk');
   const preferences = usePreferences(window.preferences);
   const filters = useSavedFilters(window.savedFilters);
   const following = useFollowing(window.following);
@@ -139,16 +137,7 @@ export function App({
         </p>
       )}
       <main>
-        {section === 'Digging desk' ? (
-          <h1 className="sr-only">{section}</h1>
-        ) : (
-          <div className="desk-toolbar">
-            <div className="desk-title">
-              <SectionIcon size={17} aria-hidden="true" />
-              <h1>{section}</h1>
-            </div>
-          </div>
-        )}
+        <h1 className="sr-only">{section}</h1>
         {section === 'Digging desk' && recommendations.view === 'release' && (
           <div className="desk-toolbar">
             <button type="button" className="source-folder" onClick={recommendations.back}>
