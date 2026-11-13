@@ -27,9 +27,16 @@ test('downloads a liked track once, shares it with a playlist and restores both 
     });
     await page.reload();
     await page.getByRole('button', { name: 'Playlists', exact: true }).click({ timeout: 5000 });
+    const topGap = async () =>
+      page.locator('.playlist-page').evaluate((section) => {
+        const header = document.querySelector('.app-header');
+        return section.getBoundingClientRect().top - (header?.getBoundingClientRect().bottom ?? 0);
+      });
+    expect(await topGap()).toBeGreaterThanOrEqual(12);
     await page.getByLabel('New playlist name', { exact: true }).fill('After hours');
     await page.getByRole('button', { name: 'Create playlist', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'After hours', exact: true })).toBeVisible();
+    expect(await topGap()).toBeGreaterThanOrEqual(12);
     await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     const like = page.getByRole('button', { name: 'Like Quiet Orbit', exact: true });
