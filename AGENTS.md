@@ -28,4 +28,4 @@ Use existing labels; no project triage workflow is configured. See `docs/agents/
 
 ### Domain docs
 
-Single context in `CONTEXT.md`, with decisions in `docs/adr/`. See `docs/agents/domain.md`.
+Single context in `docs/CONTEXT.md`, with decisions in `docs/adr/`. See `docs/agents/domain.md`.

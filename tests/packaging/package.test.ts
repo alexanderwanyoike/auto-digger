@@ -62,7 +62,7 @@ test.skipIf(process.platform !== 'linux')(
     });
     try {
       const page = await desktop.firstWindow();
-      await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
+      await page.getByRole('heading', { name: 'Explore', exact: true }).waitFor();
       const entry = join(profile, 'data/applications', `${applicationId}.desktop`);
       await expect
         .poll(async () => readFile(entry, 'utf8').catch(() => ''))
