@@ -25,7 +25,7 @@
   :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb {
     border: 3px solid transparent;
     border-radius: 8px;
-    background: color-mix(in srgb, var(--muted) 34%, transparent) padding-box;
+    background: color-mix(in srgb, var(--muted) 65%, transparent) padding-box;
   }
   :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb:hover,
   :is(.explore-page, .catalogue-years)::-webkit-scrollbar-thumb:active {
