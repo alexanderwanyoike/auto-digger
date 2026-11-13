@@ -22,6 +22,7 @@ export function useCatalogueRange({
   active: boolean;
   onUnauthorized: () => void;
 }) {
+  const [start, setStart] = useState(from);
   const [releases, setReleases] = useState<Releases>([]);
   const [page, setPage] = useState(1);
   const [loaded, setLoaded] = useState(0);
@@ -38,7 +39,7 @@ export function useCatalogueRange({
     if (!busy) return undefined;
     let current = true;
     search({
-      filters: { ...emptyFilters, style: [style], year: `${from.toString()}-${to.toString()}` },
+      filters: { ...emptyFilters, style: [style], year: `${start.toString()}-${to.toString()}` },
       page,
       context: 'catalogue-range',
       order: 'oldest',
@@ -53,7 +54,7 @@ export function useCatalogueRange({
         }
         const incoming = result.value.releases.filter(({ year }) => {
           const date = Number(year);
-          return Number.isInteger(date) && date >= from && date <= to;
+          return Number.isInteger(date) && date >= start && date <= to;
         });
         setReleases((previous) => {
           const seen = new Set(previous.map(({ id }) => id));
@@ -76,7 +77,7 @@ export function useCatalogueRange({
     return () => {
       current = false;
     };
-  }, [busy, from, onUnauthorized, page, search, style, to]);
+  }, [busy, onUnauthorized, page, search, start, style, to]);
 
   const groups = useMemo(() => {
     const byYear = new Map<number, Releases>();
@@ -91,10 +92,21 @@ export function useCatalogueRange({
 
   return {
     groups,
+    start,
     limited,
     busy,
     error,
     retry,
+    jump: (year: number) => {
+      if (year === start) return;
+      setStart(year);
+      setReleases([]);
+      setPage(1);
+      setLoaded(0);
+      setPages(1);
+      setLimited(false);
+      setError(null);
+    },
     loadMore:
       !busy && !error && loaded < pages
         ? () => {

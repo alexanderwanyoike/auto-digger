@@ -32,7 +32,7 @@ export function CatalogueRangeTimeline({
   onShowYear: (style: string, year: number) => void;
   onUnauthorized: () => void;
 }) {
-  const { groups, limited, busy, error, retry, loadMore } = useCatalogueRange({
+  const { groups, start, limited, busy, error, retry, jump, loadMore } = useCatalogueRange({
     search,
     style,
     from,
@@ -40,6 +40,7 @@ export function CatalogueRangeTimeline({
     active: active && !disabled,
     onUnauthorized,
   });
+  const years = Array.from({ length: to - from + 1 }, (_, index) => from + index);
   const timeline = useRef<HTMLDivElement>(null);
   const rail = useRef<HTMLElement>(null);
   const railContent = useRef<HTMLDivElement>(null);
@@ -64,7 +65,8 @@ export function CatalogueRangeTimeline({
     };
   }, [active, groups]);
 
-  useRevealCatalogueYear(rail, selected);
+  const currentYear = selected ?? start;
+  useRevealCatalogueYear(rail, currentYear);
 
   return (
     <div className="catalogue-timeline" ref={timeline}>
@@ -72,11 +74,11 @@ export function CatalogueRangeTimeline({
         <nav className="catalogue-years" aria-label="Release years" ref={rail}>
           <div ref={railContent}>
             <ol>
-              {groups.map(([year]) => (
+              {years.map((year) => (
                 <li key={year}>
                   <button
                     type="button"
-                    aria-current={year === (selected ?? groups[0]?.[0]) ? true : undefined}
+                    aria-current={year === currentYear ? true : undefined}
                     disabled={disabled}
                     onClick={() => {
                       const content = timeline.current;
@@ -84,10 +86,17 @@ export function CatalogueRangeTimeline({
                       const section = content?.querySelector(
                         `[data-release-year="${year.toString()}"]`,
                       );
-                      if (!viewport || !section) return;
-                      section.scrollIntoView({ block: 'start', behavior: 'instant' });
-                      jumpPosition.current = viewport.scrollTop;
+                      if (!viewport) return;
+                      if (section) {
+                        section.scrollIntoView({ block: 'start', behavior: 'instant' });
+                        jumpPosition.current = viewport.scrollTop;
+                        setSelected(year);
+                        return;
+                      }
+                      jumpPosition.current = undefined;
+                      viewport.scrollTo(0, 0);
                       setSelected(year);
+                      jump(year);
                     }}
                   >
                     {year}
@@ -127,7 +136,7 @@ export function CatalogueRangeTimeline({
           {busy && <p role="status">Loading releases…</p>}
           {!busy && !error && !loadMore && !groups.length && (
             <p>
-              No releases found from {from} to {to}.
+              No releases found from {start} to {to}.
             </p>
           )}
           {error && <p role={error.retryAt === undefined ? 'alert' : 'status'}>{error.message}</p>}
