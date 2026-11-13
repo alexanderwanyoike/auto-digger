@@ -1,5 +1,6 @@
 import type { CosineBridge } from './cosine';
 import type { SavedFiltersBridge } from './saved-filters';
+import type { FollowingBridge } from './following';
 import type { UpdatesBridge } from './updates';
 import type { ResearchAccessBridge } from './research-access';
 import type { DownloadJobsBridge } from './download-jobs';
@@ -18,6 +19,7 @@ declare global {
     audioPreviews?: AudioPreviewBridge;
     soulseek?: SoulseekBridge;
     savedFilters?: SavedFiltersBridge;
+    following?: FollowingBridge;
     updates?: UpdatesBridge;
     researchAccess?: ResearchAccessBridge;
     downloadJobs?: DownloadJobsBridge;

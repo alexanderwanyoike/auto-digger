@@ -1,5 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
+import { Compass, Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
+import { FollowingPanel } from './following/FollowingPanel';
+import { FollowingContext } from './following/following-context';
+import { useFollowing } from './following/use-following';
 import { useRecommendations } from './recommendations/use-recommendations';
 import { RecommendationsContext } from './recommendations/recommendations-context';
 import { RecommendationsView } from './recommendations/RecommendationsView';
@@ -28,6 +31,7 @@ import appIcon from '../../resources/icons/icon.svg';
 
 const sectionIcons = {
   'Digging desk': Radio,
+  Explore: Compass,
   Crates: Library,
   Downloads: ListMusic,
 };
@@ -46,6 +50,7 @@ export function App({
   const [section, setSection] = useState<keyof typeof sectionIcons | 'Settings'>('Digging desk');
   const preferences = usePreferences(window.preferences);
   const filters = useSavedFilters(window.savedFilters);
+  const following = useFollowing(window.following);
   const audio = useAudioLibrary(audioBridge);
   const crate = useCrate(crateBridge, catalogue);
   const session = useDiscogs(discogs, filters.rememberPage);
@@ -75,7 +80,7 @@ export function App({
         </div>
         <nav className="section-nav" aria-label="Main sections">
           <div className="section-switcher">
-            {(['Digging desk', 'Crates', 'Downloads'] as const).map((item) => {
+            {(['Digging desk', 'Explore', 'Crates', 'Downloads'] as const).map((item) => {
               const Icon = sectionIcons[item];
               return (
                 <button
@@ -152,6 +157,7 @@ export function App({
           />
         )}
         {section === 'Downloads' && <DownloadsPage audio={audio} />}
+        {section === 'Explore' && <FollowingPanel following={following} />}
         {section === 'Settings' && (
           <SettingsPage
             preferences={preferences}
@@ -167,8 +173,10 @@ export function App({
         )}
         {section === 'Digging desk' && (
           <div className="workspace">
-            <FilterPanel session={session} filters={filters} />
-            {desk}
+            <FollowingContext.Provider value={following}>
+              <FilterPanel session={session} filters={filters} />
+              {desk}
+            </FollowingContext.Provider>
             <CratePanel
               crate={crate}
               disabled={session.busy}
@@ -183,6 +191,19 @@ export function App({
       {session.error && !connectionOpen && (
         <p role="alert" className="request-error">
           {session.error.message}
+        </p>
+      )}
+      {following.error && !connectionOpen && (
+        <p role="alert" className="request-error">
+          {following.error}{' '}
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={following.retry}
+            disabled={following.busy}
+          >
+            Reload following
+          </button>
         </p>
       )}
       <PlaybackBar audio={audio} />
