@@ -14,6 +14,8 @@ export function createRememberedSession(
 ) {
   const serialize = createDiscogsRequestQueue();
   let credentialRevision = 0;
+  let activeRange = '';
+  let rangeRevision = 0;
   const pendingSearches = createDiscogsReadCache<SearchPage>();
   function authorized<T>(
     operation: () => Promise<DiscogsResult<T>>,
@@ -54,16 +56,33 @@ export function createRememberedSession(
       const parsed = searchInputSchema.safeParse(input);
       if (!parsed.success) return authorized(() => session.search(input));
       const revision = credentialRevision;
+      const { context, filters, order, background } = parsed.data;
+      const isRange = context === 'catalogue-range';
+      if (isRange) {
+        const key = JSON.stringify({ filters, order });
+        if (key !== activeRange) {
+          activeRange = key;
+          rangeRevision += 1;
+        }
+      }
+      const requestedRange = isRange ? rangeRevision : undefined;
       const search = () =>
         authorized(
-          () =>
-            revision === credentialRevision
-              ? session.search(parsed.data)
-              : Promise.resolve(discogsFailure('cancelled', 'The Discogs session has changed.')),
+          () => {
+            if (revision !== credentialRevision)
+              return Promise.resolve(
+                discogsFailure('cancelled', 'The Discogs session has changed.'),
+              );
+            if (requestedRange !== undefined && requestedRange !== rangeRevision)
+              return Promise.resolve(
+                discogsFailure('cancelled', 'The Catalogue range has changed.'),
+              );
+            return session.search(parsed.data);
+          },
           undefined,
-          parsed.data.background,
+          background,
         );
-      return pendingSearches.read(JSON.stringify(parsed.data), search, false);
+      return pendingSearches.read(JSON.stringify([parsed.data, requestedRange]), search, false);
     },
     dig: (input: unknown) => authorized(() => session.dig(input)),
     account: () =>

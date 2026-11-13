@@ -30,24 +30,30 @@ test('browses a year range with one paginated search and opens an individual yea
             year: date,
           }));
         const capped = year === '1993-2001';
-        const ranged = year === '1993-1999' || capped;
-        const rangePages = [
-          records(1993, 50),
-          records(1992, 50),
-          [...records(1993, 1), ...records(1994, 1), ...records(1995, 1), ...records(2000, 1)],
-        ];
+        const emptyStart = year === '1997-1999';
+        const later = emptyStart || year === '1998-1999';
+        const ranged = year === '1993-1999' || capped || later;
+        const rangePages = later
+          ? [records(1998, 50), records(1999, 1)]
+          : [
+              capped ? [...records(1993, 49), ...records(1994, 1)] : records(1993, 50),
+              records(1992, 50),
+              [...records(1993, 1), ...records(1994, 1), ...records(1995, 1), ...records(2000, 1)],
+            ];
+        const fallback = records(Number(year.split('-')[0]) || 1990, 1);
         const results = ranged
           ? (rangePages[number - 1] ?? []).map((record) =>
               record.year === 1992 ? { ...record, year: '' } : record,
             )
-          : records(Number(year.split('-')[0]) || 1990, 1);
+          : fallback;
+        const pages = ranged ? rangePages.length : 1;
         return Promise.resolve(
           Response.json({
             pagination: {
               page: number,
-              pages: capped ? 250 : rangePages.length,
+              pages: capped ? 250 : pages,
               per_page: 50,
-              items: capped ? 12500 : 104,
+              items: capped ? 12500 : results.length,
             },
             results,
           }),
@@ -86,18 +92,46 @@ test('browses a year range with one paginated search and opens an individual yea
     const second = page.getByRole('region', { name: '1995', exact: true });
     const query = { year: '1993-1999', style: 'Progressive House', sort: 'year', order: 'asc' };
     await expect(first.getByRole('button', { name: 'Play Record 1993 49' })).toBeAttached();
-    await expect(years.getByRole('button')).toHaveText(['1993']);
+    await expect(years.getByRole('button', { name: '1998', exact: true })).toBeVisible({
+      timeout: 3000,
+    });
     expect(await rangeRequests()).toEqual([{ ...query, page: 1 }]);
+
+    await years.getByRole('button', { name: '1998', exact: true }).click();
+    const laterYear = page.getByRole('region', { name: '1998', exact: true });
+    await expect(laterYear.getByRole('button', { name: 'Play Record 1998 49' })).toBeAttached();
+    await expect(years.getByRole('button', { name: '1998', exact: true })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+    await expect(first).toHaveCount(0);
+    await expect(from).toHaveValue('1993');
+    await expect(to).toHaveValue('1999');
+    const jumpRequests = async () => (await rangeRequests()).slice(1);
+    const suffix = { ...query, year: '1998-1999' };
+    expect(await jumpRequests()).toEqual([{ ...suffix, page: 1 }]);
+    await page.locator('.explore-scroll').evaluate((viewport) => {
+      viewport.scrollTo(0, viewport.scrollHeight);
+    });
+    await expect(page.getByRole('region', { name: '1999', exact: true })).toBeVisible();
+    expect(await jumpRequests()).toEqual([1, 2].map((number) => ({ ...suffix, page: number })));
+
+    await years.getByRole('button', { name: '1993', exact: true }).click();
+    await expect(first.getByRole('button', { name: 'Play Record 1993 49' })).toBeAttached();
+    expect(await jumpRequests()).toEqual([1, 2].map((number) => ({ ...suffix, page: number })));
 
     await page.locator('.explore-scroll').evaluate((viewport) => {
       viewport.scrollTo(0, viewport.scrollHeight);
     });
     await expect(second.getByRole('button', { name: 'Play Record 1995 0' })).toBeVisible();
-    await expect(years.getByRole('button')).toHaveText(['1993', '1994', '1995']);
+    await expect(page.getByRole('region', { name: '1996', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('region', { name: '2000', exact: true })).toHaveCount(0);
     await expect(
       first.getByRole('button', { name: 'Play Record 1993 0', exact: true }),
     ).toHaveCount(1);
-    expect(await rangeRequests()).toEqual([1, 2, 3].map((number) => ({ ...query, page: number })));
+    expect((await rangeRequests()).filter(({ year }) => year === query.year)).toEqual(
+      [1, 2, 3].map((number) => ({ ...query, page: number })),
+    );
 
     await years.getByRole('button', { name: '1995', exact: true }).click();
     await page.evaluate(
@@ -135,13 +169,34 @@ test('browses a year range with one paginated search and opens an individual yea
     await expect(to).toHaveValue('1999');
     await expect(second.getByRole('button', { name: 'Play Record 1995 0' })).toBeAttached();
 
+    await years.getByRole('button', { name: '1997', exact: true }).click();
+    await expect(laterYear.getByRole('button', { name: 'Play Record 1998 0' })).toBeVisible();
+    await expect(page.getByText('No releases found for 1997.')).toBeVisible();
+    await expect(page.getByRole('region', { name: '1997', exact: true })).toHaveCount(0);
+
+    await from.fill('1997');
+    await to.press('Enter');
+    await expect(laterYear.getByRole('button', { name: 'Play Record 1998 0' })).toBeVisible();
+    await years.getByRole('button', { name: '1997', exact: true }).click();
+    await expect(page.getByText('No releases found for 1997.')).toBeVisible();
+
+    await from.fill('1993');
     await to.fill('2001');
     await to.press('Enter');
     await expect(
       page.getByText(
-        'Discogs shows the first 10,000 matches. Narrow the year range to see later releases.',
+        'Discogs shows the first 10,000 matches. Jump to a later year or narrow the range.',
       ),
     ).toBeVisible();
+    await expect(page.getByRole('region', { name: '1994', exact: true })).toBeAttached();
+    await years.getByRole('button', { name: '1994', exact: true }).click();
+    await expect(first).toHaveCount(0);
+    await expect
+      .poll(async () => (await rangeRequests()).at(-1))
+      .toMatchObject({
+        year: '1994-2001',
+        page: 1,
+      });
   } finally {
     await desktop.close();
   }

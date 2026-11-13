@@ -32,7 +32,7 @@ export function CatalogueRangeTimeline({
   onShowYear: (style: string, year: number) => void;
   onUnauthorized: () => void;
 }) {
-  const { groups, limited, busy, error, retry, loadMore } = useCatalogueRange({
+  const { groups, start, limited, busy, error, retry, jump, loadMore } = useCatalogueRange({
     search,
     style,
     from,
@@ -40,10 +40,12 @@ export function CatalogueRangeTimeline({
     active: active && !disabled,
     onUnauthorized,
   });
+  const years = Array.from({ length: to - from + 1 }, (_, index) => from + index);
   const timeline = useRef<HTMLDivElement>(null);
   const rail = useRef<HTMLElement>(null);
   const railContent = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<number>();
+  const [requestedYear, setRequestedYear] = useState<number>();
   const jumpPosition = useRef<number | undefined>(undefined);
   const sentinel = useScrollContinuation(active && !disabled ? loadMore : undefined);
 
@@ -64,7 +66,9 @@ export function CatalogueRangeTimeline({
     };
   }, [active, groups]);
 
-  useRevealCatalogueYear(rail, selected);
+  const currentYear = selected ?? start;
+  const firstYear = groups[0]?.[0];
+  useRevealCatalogueYear(rail, currentYear);
 
   return (
     <div className="catalogue-timeline" ref={timeline}>
@@ -72,11 +76,11 @@ export function CatalogueRangeTimeline({
         <nav className="catalogue-years" aria-label="Release years" ref={rail}>
           <div ref={railContent}>
             <ol>
-              {groups.map(([year]) => (
+              {years.map((year) => (
                 <li key={year}>
                   <button
                     type="button"
-                    aria-current={year === (selected ?? groups[0]?.[0]) ? true : undefined}
+                    aria-current={year === currentYear ? true : undefined}
                     disabled={disabled}
                     onClick={() => {
                       const content = timeline.current;
@@ -84,10 +88,18 @@ export function CatalogueRangeTimeline({
                       const section = content?.querySelector(
                         `[data-release-year="${year.toString()}"]`,
                       );
-                      if (!viewport || !section) return;
-                      section.scrollIntoView({ block: 'start', behavior: 'instant' });
-                      jumpPosition.current = viewport.scrollTop;
+                      if (!viewport) return;
+                      if (section && (!limited || year === start)) {
+                        section.scrollIntoView({ block: 'start', behavior: 'instant' });
+                        jumpPosition.current = viewport.scrollTop;
+                        setSelected(year);
+                        return;
+                      }
+                      setRequestedYear(year);
+                      jumpPosition.current = undefined;
+                      viewport.scrollTo(0, 0);
                       setSelected(year);
+                      jump(year);
                     }}
                   >
                     {year}
@@ -105,8 +117,13 @@ export function CatalogueRangeTimeline({
       </div>
       <div className="catalogue-records">
         {limited && (
-          <p className="catalogue-range-limit" role="status">
-            Discogs shows the first 10,000 matches. Narrow the year range to see later releases.
+          <p className="catalogue-range-status" role="status">
+            Discogs shows the first 10,000 matches. Jump to a later year or narrow the range.
+          </p>
+        )}
+        {requestedYear === start && firstYear !== undefined && firstYear > start && (
+          <p className="catalogue-range-status" role="status">
+            No releases found for {start}.
           </p>
         )}
         {groups.map(([year, releases]) => (
@@ -127,7 +144,9 @@ export function CatalogueRangeTimeline({
           {busy && <p role="status">Loading releases…</p>}
           {!busy && !error && !loadMore && !groups.length && (
             <p>
-              No releases found from {from} to {to}.
+              {start === to
+                ? `No releases found for ${start.toString()}.`
+                : `No releases found from ${start.toString()} to ${to.toString()}.`}
             </p>
           )}
           {error && <p role={error.retryAt === undefined ? 'alert' : 'status'}>{error.message}</p>}
