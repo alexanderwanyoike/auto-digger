@@ -85,7 +85,7 @@ export function CatalogueTimeline({
     const viewport = catalogue.current?.closest<HTMLElement>('.explore-scroll');
     if (!viewport || disabled) return undefined;
     const forward = () => {
-      setExploring(true);
+      if (catalogue.current?.getClientRects().length) setExploring(true);
     };
     const wheel = (event: WheelEvent) => {
       if (
@@ -94,7 +94,7 @@ export function CatalogueTimeline({
         event.target instanceof Node &&
         !yearRail.current?.contains(event.target)
       )
-        setExploring(true);
+        forward();
     };
     let touchY: number | undefined;
     const startTouch = (event: TouchEvent) => {
