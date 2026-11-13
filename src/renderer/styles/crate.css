@@ -67,6 +67,19 @@
   font-size: 10px;
   color: var(--muted);
 }
+.save-to-crate .crate-picker {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  min-width: 0;
+}
+.save-to-crate .crate-picker select {
+  max-width: min(32ch, 100%);
+}
+.save-to-crate .crate-destination-error {
+  flex-basis: 100%;
+  color: var(--text);
+}
 
 .crate-copy {
   display: grid;
