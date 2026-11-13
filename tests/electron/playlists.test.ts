@@ -108,3 +108,37 @@ test('downloads a liked track once, shares it with a playlist and restores both 
     await desktop.close();
   }
 });
+
+test('preserves a downloaded upload assigned to a different liked track', async () => {
+  const desktop = await electron.launch({
+    args: [
+      resolve('tests/encrypted-desktop.cjs'),
+      `--user-data-dir=${test.info().outputPath('profile')}`,
+    ],
+  });
+  try {
+    const page = await desktop.firstWindow();
+    const record = {
+      ...loadedRelease,
+      tracks: [...loadedRelease.tracks, { position: 'B1', title: 'Night Signal', duration: '' }],
+    };
+    const saved = await page.evaluate(async (release) => {
+      const crate = await window.crate?.save(release);
+      const audio = await window.audioLibrary?.download({ release, videoIndex: 0, trackIndex: 1 });
+      return crate?.ok && audio?.ok;
+    }, record);
+    expect(saved).toBe(true);
+    await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
+    await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
+    await page.getByRole('button', { name: 'Like Night Signal', exact: true }).click();
+    const like = page.getByRole('button', { name: 'Like Quiet Orbit', exact: true });
+    await like.click();
+    await expect(like).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Playlists', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Choose audio for Quiet Orbit' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Play Night Signal' })).toBeVisible();
+  } finally {
+    await desktop.close();
+  }
+});
