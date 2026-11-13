@@ -36,7 +36,7 @@ Open **Catalogue** in the Explore toolbar to browse a Discogs style by year. Sav
 
 ## Make track playlists
 
-Create a named list in **Playlists**. On a release, use the heart beside a track to add it to **Likes**, or the list icon to add it to one of your named playlists. Auto Digger reuses a saved file or queues an unambiguous YouTube match in **Downloads**. If you need to select a source, choose **Choose audio** beside the entry to return to the release. You can then pick a YouTube upload or find a file on Soulseek. Removing a track from one playlist keeps its local audio and other playlist entries.
+Create a named list in **Playlists**. On a release, use the heart beside a track to add it to **Likes**, or the list icon to add it to one of your named playlists. Auto Digger reuses a saved file or queues an unambiguous YouTube match in **Downloads**. If you need to select a source, choose **Choose audio** beside the entry to return to the release. You can then pick a YouTube upload or find a file on Soulseek. Choose **Play playlist** to hear available tracks in list order, or **Shuffle playlist** for a shuffled order. Likes uses the same controls. Removing a track from one playlist keeps its local audio and other playlist entries.
 
 ## Download audio
 
