@@ -22,9 +22,13 @@ test('ranks Discogs styles from new personal memberships once per record across 
       store.addPersonal({ crateId: crate, release: { ...loadedRelease, id, styles } });
 
     await store.add({ crateId: 'default', release: { ...loadedRelease, id: 21, styles: ['Dub'] } });
+    await store.add({ crateId: 'default', release: { ...loadedRelease, id: 12, styles: [] } });
+    const second = await store.create('After hours');
+    const personalCrateId = second.ok && second.value.crateId;
+    if (!personalCrateId) throw new Error('Expected another crate');
     await add(20, ['Trance']);
     await add(21, ['Dub']);
-    await add(12, ['Deep House', 'Deep House', 'Acid House']);
+    await add(12, ['Deep House', 'Deep House', 'Acid House'], personalCrateId);
     await add(12, ['Deep House', 'Acid House'], crateId);
     await add(13, ['Deep House'], crateId);
     await expect(store.crateTaste()).resolves.toEqual({
@@ -54,7 +58,7 @@ test('ranks Discogs styles from new personal memberships once per record across 
           { style: 'Deep House', releases: 1 },
         ],
       });
-      await reopened.remove({ crateId: 'default', releaseId: 12 });
+      await reopened.remove({ crateId: personalCrateId, releaseId: 12 });
       await expect(reopened.crateTaste()).resolves.toEqual({ ok: true, value: [] });
     } finally {
       await reopened.close();
