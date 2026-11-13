@@ -33,12 +33,12 @@ test('browses a year range with one paginated search and opens an individual yea
         const ranged = year === '1993-1999' || capped;
         const rangePages = [
           records(1993, 50),
-          records(1994, 50),
-          [...records(1993, 1), ...records(1995, 1), ...records(2000, 1)],
+          records(1992, 50),
+          [...records(1993, 1), ...records(1994, 1), ...records(1995, 1), ...records(2000, 1)],
         ];
         const results = ranged
           ? (rangePages[number - 1] ?? []).map((record) =>
-              record.year === 1994 ? { ...record, year: '' } : record,
+              record.year === 1992 ? { ...record, year: '' } : record,
             )
           : records(Number(year.split('-')[0]) || 1990, 1);
         return Promise.resolve(
@@ -47,7 +47,7 @@ test('browses a year range with one paginated search and opens an individual yea
               page: number,
               pages: capped ? 250 : rangePages.length,
               per_page: 50,
-              items: capped ? 12500 : 103,
+              items: capped ? 12500 : 104,
             },
             results,
           }),
@@ -93,7 +93,7 @@ test('browses a year range with one paginated search and opens an individual yea
       viewport.scrollTo(0, viewport.scrollHeight);
     });
     await expect(second.getByRole('button', { name: 'Play Record 1995 0' })).toBeVisible();
-    await expect(years.getByRole('button')).toHaveText(['1993', '1995']);
+    await expect(years.getByRole('button')).toHaveText(['1993', '1994', '1995']);
     await expect(
       first.getByRole('button', { name: 'Play Record 1993 0', exact: true }),
     ).toHaveCount(1);
@@ -107,6 +107,18 @@ test('browses a year range with one paginated search and opens an individual yea
         }),
     );
     await expect(years.getByRole('button', { name: '1995', exact: true })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+    await years.getByRole('button', { name: '1993', exact: true }).click();
+    await years.getByRole('button', { name: '1994', exact: true }).click();
+    await page.evaluate(
+      () =>
+        new Promise((done) => {
+          requestAnimationFrame(() => requestAnimationFrame(done));
+        }),
+    );
+    await expect(years.getByRole('button', { name: '1994', exact: true })).toHaveAttribute(
       'aria-current',
       'true',
     );
