@@ -111,9 +111,14 @@ export function usePlayer(
         onTrackPlaying?.({ ...track, releaseId: track.releaseId });
       }
     };
+    const ended = () => {
+      recorded = false;
+    };
     media.addEventListener('playing', started);
+    media.addEventListener('ended', ended);
     return () => {
       media.removeEventListener('playing', started);
+      media.removeEventListener('ended', ended);
     };
   }, [media, onTrackPlaying, track, request]);
   useEffect(() => {
