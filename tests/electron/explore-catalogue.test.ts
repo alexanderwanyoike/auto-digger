@@ -17,6 +17,10 @@ test('scrolls through populated catalogue years and appends release pages', asyn
           const url = new URL(input instanceof Request ? input.url : input.toString());
           if (url.pathname === '/oauth/identity')
             return Promise.resolve(Response.json(fixtures.identityResponse));
+          if (url.pathname === '/releases/15')
+            return Promise.resolve(
+              Response.json({ ...fixtures.releaseResponse, id: 15, videos: [] }),
+            );
           if (url.pathname.startsWith('/releases/')) {
             const id = Number(url.pathname.split('/').at(-1));
             return Promise.resolve(Response.json({ ...fixtures.releaseResponse, id }));
@@ -87,6 +91,10 @@ test('scrolls through populated catalogue years and appends release pages', asyn
       page.getByRole('button', { name: 'Play Mira North - Evening Light' }),
     ).toBeVisible();
     await expect(page.getByRole('button', { name: 'Load more releases' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Play Mira North - Evening Light' }).click();
+    await expect(page.locator('.explore-toolbar').getByRole('alert')).toHaveText(
+      'No clear preview source is available for this release.',
+    );
     await expect(page.getByRole('button', { name: /^(?!Play ).*Back Channel 6/ })).toBeVisible();
     const year = page.getByRole('region', { name: '2000', exact: true });
     await year.getByRole('button', { name: 'Show more' }).click({ timeout: 3000 });
