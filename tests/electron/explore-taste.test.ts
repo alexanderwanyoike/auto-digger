@@ -61,6 +61,16 @@ test('learns the saved record style when the listener refreshes Explore', async 
     await destination.selectOption({ label: 'After hours (0)' });
     await expect(page.getByRole('button', { name: 'Save EP to crate' })).toBeEnabled();
     await desktop.evaluate(({ ipcMain }) => {
+      ipcMain.removeHandler('catalogue:add');
+      ipcMain.handle('catalogue:add', () => ({
+        ok: false,
+        error: { code: 'storage', message: 'The release could not be saved.' },
+      }));
+    });
+    await page.getByRole('button', { name: 'Save EP to crate' }).click();
+    await expect(page.getByRole('alert')).toContainText('The release could not be saved.');
+    await expect(page.getByRole('button', { name: 'Save EP to crate' })).toBeEnabled();
+    await desktop.evaluate(({ ipcMain }) => {
       ipcMain.removeHandler('catalogue:view');
       ipcMain.handle('catalogue:view', () => ({
         ok: false,
