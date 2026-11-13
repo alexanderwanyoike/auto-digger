@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { supportedUrl } from './media-url';
-import type { DigFilters, SearchInput, SearchPage } from '../../shared/search';
+import type { SearchInput, SearchPage } from '../../shared/search';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';
 import { requestDiscogs } from './request';
@@ -43,7 +43,7 @@ const responseSchema = z
   }));
 
 export async function searchDiscogs(
-  input: SearchInput & { filters: DigFilters },
+  input: SearchInput,
   token: string,
   request: typeof fetch,
   options: { query?: string; signal?: AbortSignal } = {},
