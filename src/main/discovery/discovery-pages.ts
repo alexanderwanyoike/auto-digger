@@ -16,7 +16,10 @@ export function createDiscoveryPages(
   readFollowing: () => Promise<FollowingResult>,
   seenReleases: () => Promise<CatalogueResult<Set<number>>>,
 ) {
-  const walks = new Map<DiscoveryShelf, { id: string; filters: DigFilters[] }>();
+  const collections = new Map<
+    DiscoveryShelf,
+    { id: string; filters: DigFilters[]; pageCounts: Map<number, number> }
+  >();
 
   async function start(shelf: DiscoveryShelf) {
     if (shelf === 'follows') {
@@ -40,18 +43,18 @@ export function createDiscoveryPages(
     const parsed = discoveryPageRequestSchema.safeParse(input);
     if (!parsed.success) return discogsFailure('invalid-input', 'Choose a valid discovery page.');
     const { shelf, cursor } = parsed.data;
-    let walk = walks.get(shelf);
+    let collection = collections.get(shelf);
     if (!cursor) {
       const filters = await start(shelf);
       if (!filters.ok) return filters;
-      walk = { id: randomUUID(), filters: filters.value };
-      walks.set(shelf, walk);
+      collection = { id: randomUUID(), filters: filters.value, pageCounts: new Map() };
+      collections.set(shelf, collection);
     }
-    if (!walk || (cursor && cursor.id !== walk.id))
+    if (!collection || (cursor && cursor.id !== collection.id))
       return discogsFailure('cancelled', 'Reopen this discovery page to continue.');
     const source = cursor?.source ?? 0;
     const page = cursor?.page ?? 1;
-    const filters = walk.filters[source];
+    const filters = collection.filters[source];
     if (!filters) return { ok: true, value: { releases: [], next: null } };
 
     const result = await search({ filters, page, context: 'explore' });
@@ -59,13 +62,14 @@ export function createDiscoveryPages(
     const known = await seenReleases();
     if (!known.ok) return discogsFailure('unavailable', known.error.message);
     const releases = result.value.releases.filter(({ id }) => !known.value.has(id));
-    const nextPage = { id: walk.id, source, page: page + 1 };
-    const nextSource = walk.filters[source + 1]
-      ? { id: walk.id, source: source + 1, page: 1 }
-      : null;
-    return {
-      ok: true,
-      value: { releases, next: page < result.value.pages ? nextPage : nextSource },
-    };
+    const { id, filters: sources, pageCounts } = collection;
+    pageCounts.set(source, result.value.pages);
+    const hasPage = (index: number, target: number) => (pageCounts.get(index) ?? 200) >= target;
+    const laterSource = sources.findIndex((_, index) => index > source && hasPage(index, page));
+    if (laterSource !== -1)
+      return { ok: true, value: { releases, next: { id, source: laterSource, page } } };
+    const firstSource = sources.findIndex((_, index) => hasPage(index, page + 1));
+    const next = firstSource === -1 ? null : { id, source: firstSource, page: page + 1 };
+    return { ok: true, value: { releases, next } };
   };
 }
