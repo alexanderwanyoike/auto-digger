@@ -4,6 +4,7 @@ import type { SearchInput, SearchPage } from '../../shared/search';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';
 import { requestDiscogs } from './request';
+import type { DiscogsRequestOptions } from './request';
 
 const responseSchema = z
   .object({
@@ -46,7 +47,7 @@ export async function searchDiscogs(
   input: SearchInput,
   token: string,
   request: typeof fetch,
-  options: { query?: string; signal?: AbortSignal } = {},
+  options: DiscogsRequestOptions & { query?: string } = {},
 ): Promise<DiscogsResult<SearchPage>> {
   const { filters, page } = input;
   const query = new URLSearchParams({
@@ -69,7 +70,7 @@ export async function searchDiscogs(
     token,
     responseSchema,
     request,
-    options.signal,
+    options,
   );
   if (input.context === 'catalogue' && input.order && result.ok && result.value.items) {
     const [start, end = start] = filters.year.split('-').map(Number);

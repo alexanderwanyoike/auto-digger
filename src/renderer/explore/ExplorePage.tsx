@@ -207,6 +207,7 @@ export function ExplorePage({
                 <CataloguePage
                   bridge={bridge}
                   busy={busy}
+                  active={!release && !collection}
                   onOpen={open}
                   onPreview={preview}
                   previewBusy={previewBusy || Boolean(audio.preparingPreview)}
@@ -256,6 +257,7 @@ export function ExplorePage({
               <div hidden={Boolean(release)}>
                 <ExploreCollectionPage
                   collection={collection}
+                  active={!release}
                   headingRef={collectionHeading}
                   bridge={bridge}
                   seed={

@@ -21,13 +21,28 @@ export function useRecommendationReleases(
     setCovers({});
   }, []);
   const read = useCallback(
-    async (item: Recommendation): Promise<CosineResult<ResolvedRecommendation>> => {
-      const existing = cache.current.get(item.id);
-      if (existing) return existing;
+    async (
+      item: Recommendation,
+      background = false,
+    ): Promise<CosineResult<ResolvedRecommendation>> => {
       const version = revision.current;
+      const existing = cache.current.get(item.id);
+      if (existing) {
+        const result = await existing;
+        if (
+          version !== revision.current ||
+          background ||
+          result.ok ||
+          result.error.code !== 'rate-limited'
+        )
+          return result;
+        if (cache.current.get(item.id) === existing) cache.current.delete(item.id);
+        const replacement = cache.current.get(item.id);
+        if (replacement) return replacement;
+      }
       const pending = bridge
         ? bridge
-            .resolve(item)
+            .resolve(item, background)
             .catch(() =>
               cosineFailure<ResolvedRecommendation>(
                 'unavailable',
@@ -69,7 +84,8 @@ export function useRecommendationReleases(
       if (!active || version !== revision.current) return;
       const item = items[index];
       if (!item) return;
-      await read(item);
+      const result = await read(item, true);
+      if (!result.ok && result.error.code === 'rate-limited') return;
       await next(index + 1);
     }
     next(0).catch(() => undefined);

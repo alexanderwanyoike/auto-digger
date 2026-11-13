@@ -11,6 +11,7 @@ export function CatalogueTimeline({
   style,
   jumpYear,
   disabled,
+  active,
   search,
   onOpen,
   onPreview,
@@ -21,6 +22,7 @@ export function CatalogueTimeline({
   style: string;
   jumpYear: number | undefined;
   disabled: boolean;
+  active: boolean;
   search: DiscogsBridge['search'];
   onOpen: (id: number) => void;
   onPreview: ((id: number) => void) | undefined;
@@ -33,10 +35,23 @@ export function CatalogueTimeline({
     search,
     style,
     onUnauthorized,
+    active,
     jumpYear,
     jumpResult !== undefined,
   );
-  const records = useCatalogueRecords(search, style, jumpYear ?? index.years[0], onUnauthorized);
+  const records = useCatalogueRecords(
+    search,
+    style,
+    jumpYear ?? index.years[0],
+    onUnauthorized,
+    undefined,
+    active,
+  );
+  useEffect(() => {
+    if (jumpYear === undefined || jumpResult !== undefined) return;
+    const group = records.groups.find(({ year }) => year === jumpYear);
+    if (group) setJumpResult({ empty: !group.releases.length });
+  }, [jumpResult, jumpYear, records.groups]);
   useEffect(() => {
     if (jumpYear === undefined || jumpResult !== undefined) return;
     const group = records.groups.find(({ year }) => year === jumpYear);
@@ -86,6 +101,8 @@ export function CatalogueTimeline({
   const hasMore = canLoadRecords || index.hasMore;
   const busy = records.busy || (!canLoadRecords && index.busy);
   const error = records.error ?? (canLoadRecords ? null : index.error);
+  const yearRetryAt = canLoadRecords ? undefined : index.retryAt;
+  const retryAt = records.error ? records.retryAt : yearRetryAt;
   const loadMore = () => {
     if (canLoadRecords) records.loadMore(nextYear);
     else index.loadMore();
@@ -209,7 +226,7 @@ export function CatalogueTimeline({
                   </li>
                 ))}
             </ol>
-            {index.error && canLoadRecords && (
+            {index.error && canLoadRecords && index.retryAt === undefined && (
               <button className="secondary-button" type="button" onClick={index.retry}>
                 Retry years
               </button>
@@ -264,8 +281,8 @@ export function CatalogueTimeline({
                 : 'No dated releases found.'}
             </p>
           )}
-          {error && <p role="alert">{error}</p>}
-          {error && (
+          {error && <p role={retryAt === undefined ? 'alert' : 'status'}>{error}</p>}
+          {error && retryAt === undefined && (
             <button
               className="secondary-button"
               type="button"

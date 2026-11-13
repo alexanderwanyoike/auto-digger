@@ -68,7 +68,7 @@ export function App({
   const followTopics = following.topics;
   const loadFollows = useCallback(() => {
     if (!discover || !followTopics.length) return Promise.resolve({ ok: true as const, value: [] });
-    return discover(null);
+    return discover(null, true);
   }, [discover, followTopics]);
   const followsShelf = useStarterShelf(
     loadFollows,

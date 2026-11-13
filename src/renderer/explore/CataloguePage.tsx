@@ -9,6 +9,7 @@ import { catalogueStyles } from './catalogue-years';
 export function CataloguePage({
   bridge,
   busy,
+  active,
   onOpen,
   onPreview,
   previewBusy,
@@ -17,6 +18,7 @@ export function CataloguePage({
 }: {
   bridge: DiscogsBridge;
   busy: boolean;
+  active: boolean;
   onOpen: (id: number) => void;
   onPreview: ((id: number) => void) | undefined;
   previewBusy: boolean;
@@ -29,12 +31,12 @@ export function CataloguePage({
   const [jump, setJump] = useState<{ year: number; revision: number }>();
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    let active = true;
+    let current = true;
     const load = bridge.crateStyles;
     if (!load) return undefined;
     load()
       .then((result) => {
-        if (!active) return;
+        if (!current) return;
         if (result.ok) setPreferred(result.value);
         else {
           setError(result.error.message);
@@ -42,12 +44,12 @@ export function CataloguePage({
         }
       })
       .catch(() => {
-        if (!active) return;
+        if (!current) return;
         setError('Saved styles could not be loaded.');
         setPreferred([]);
       });
     return () => {
-      active = false;
+      current = false;
     };
   }, [bridge]);
   const styles = catalogueStyles(preferred ?? []);
@@ -106,6 +108,7 @@ export function CataloguePage({
           jumpYear={jump?.year}
           style={style}
           disabled={busy}
+          active={active}
           search={bridge.search}
           onOpen={onOpen}
           onPreview={onPreview}

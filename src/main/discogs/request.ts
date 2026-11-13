@@ -1,14 +1,25 @@
 import type { z } from 'zod';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';
+import type { DiscogsRequestBudget } from './request-budget';
+import { rateLimited, retryAfter } from './retry-after';
+
+export interface DiscogsRequestOptions {
+  signal?: AbortSignal;
+  budget?: DiscogsRequestBudget;
+  background?: boolean;
+}
 
 export async function requestDiscogs<T>(
   path: string,
   token: string | null,
   schema: z.ZodType<T>,
   request: typeof fetch,
-  signal?: AbortSignal,
+  { signal, budget, background = false }: DiscogsRequestOptions = {},
 ): Promise<DiscogsResult<T>> {
+  if (signal?.aborted) return discogsFailure('cancelled', 'This Discogs request was cancelled.');
+  const allowed = budget?.acquire(token !== null, background);
+  if (allowed && !allowed.ok) return allowed;
   let response: Response;
   try {
     response = await request(`https://api.discogs.com${path}`, {
@@ -22,22 +33,20 @@ export async function requestDiscogs<T>(
       redirect: 'error',
     });
   } catch {
+    if (allowed?.ok) budget?.observe(token !== null, allowed.value, undefined, undefined);
     if (signal?.aborted) return discogsFailure('cancelled', 'This Discogs request was cancelled.');
     return discogsFailure(
       'network',
       'Could not reach Discogs. Check your connection and try again.',
     );
   }
+  const retryAt = response.status === 429 ? retryAfter(response, Date.now()) : undefined;
+  if (allowed?.ok) budget?.observe(token !== null, allowed.value, response, retryAt);
+  if (retryAt !== undefined) return rateLimited(retryAt);
   if (response.status === 401 || response.status === 403) {
     return discogsFailure(
       'unauthorized',
       'Discogs rejected this token. Connect again with a valid personal token.',
-    );
-  }
-  if (response.status === 429) {
-    return discogsFailure(
-      'rate-limited',
-      'Discogs rate limit reached. Please wait a minute and try again.',
     );
   }
   if (response.status === 404) {

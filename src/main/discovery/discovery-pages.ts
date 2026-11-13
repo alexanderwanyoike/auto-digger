@@ -86,7 +86,12 @@ export function createDiscoveryPages(
     const current = !topicKey || follows?.value.some((item) => followTopicKey(item) === topicKey);
     let releases: DiscoveryPage['releases'] = [];
     if (current) {
-      const result = await search({ filters, page, context: 'explore' });
+      const result = await search({
+        filters,
+        page,
+        context: 'explore',
+        ...(cursor ? { background: true } : {}),
+      });
       if (result.ok) {
         const known = await seenReleases();
         if (!known.ok) return discogsFailure('unavailable', known.error.message);

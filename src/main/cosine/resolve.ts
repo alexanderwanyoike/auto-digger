@@ -3,6 +3,7 @@ import type { CosineResult, ResolvedRecommendation } from '../../shared/cosine';
 import { cosineFailure } from '../../shared/cosine-failure';
 import { videoId } from '../../shared/youtube-video-id';
 import { requestDiscogs } from '../discogs/request';
+import type { DiscogsRequestBudget } from '../discogs/request-budget';
 import { releaseMetadataSchema } from '../discogs/release-metadata';
 
 function normalise(value: string) {
@@ -14,6 +15,8 @@ function normalise(value: string) {
 export async function resolveRecommendation(
   input: unknown,
   request: typeof fetch,
+  budget?: DiscogsRequestBudget,
+  background = false,
 ): Promise<CosineResult<ResolvedRecommendation>> {
   const parsed = recommendationSchema.safeParse(input);
   if (!parsed.success)
@@ -26,6 +29,7 @@ export async function resolveRecommendation(
     null,
     releaseMetadataSchema,
     request,
+    budget ? { budget, background } : undefined,
   );
   if (!result.ok)
     return cosineFailure(

@@ -26,6 +26,7 @@ export const discogsErrorSchema = z.object({
     'credential-storage',
   ]),
   message: z.string(),
+  retryAt: z.number().int().positive().optional(),
 });
 export type DiscogsError = z.infer<typeof discogsErrorSchema>;
 export type DiscogsResult<T> = Result<T, DiscogsError>;
@@ -62,7 +63,10 @@ export interface DiscogsBridge {
   }) => Promise<DiscogsResult<DigResult>>;
   search: (input: SearchInput) => Promise<DiscogsResult<SearchPage>>;
   topicArtwork?: (topic: FollowTopic) => Promise<DiscogsResult<string | null>>;
-  discover?: (topic: FollowTopic | null) => Promise<DiscogsResult<SearchPage['releases']>>;
+  discover?: (
+    topic: FollowTopic | null,
+    background?: boolean,
+  ) => Promise<DiscogsResult<SearchPage['releases']>>;
   expandDiscovery?: (input: DiscoveryPageRequest) => Promise<DiscogsResult<DiscoveryPage>>;
   starterShelf?: () => Promise<DiscogsResult<SearchPage['releases']>>;
   previewRelease?: (id: number) => Promise<DiscogsResult<DiscogsRelease>>;

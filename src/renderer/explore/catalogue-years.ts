@@ -20,6 +20,7 @@ export async function catalogueYear(
   start: number,
   end: number,
   order: 'oldest' | 'newest',
+  background = false,
 ): Promise<DiscogsResult<number | null>> {
   if (start > end) return { ok: true, value: null };
   const result = await search({
@@ -31,6 +32,7 @@ export async function catalogueYear(
     page: 1,
     context: 'catalogue',
     order,
+    background,
   });
   if (!result.ok) return result;
   if (!result.value.items) return { ok: true, value: null };
@@ -53,7 +55,14 @@ export async function catalogueYears(
   async function next(start: number, remaining: number): Promise<DiscogsResult<number | null>> {
     if (!active() || start > lastSearchYear) return { ok: true, value: null };
     if (remaining === 0) return { ok: true, value: start };
-    const result = await catalogueYear(search, style, start, lastSearchYear, 'oldest');
+    const result = await catalogueYear(
+      search,
+      style,
+      start,
+      lastSearchYear,
+      'oldest',
+      start !== firstSearchYear,
+    );
     if (!result.ok) return result;
     if (!active() || result.value === null) return { ok: true, value: null };
     onYear(result.value);
@@ -67,10 +76,12 @@ export function recordsForYear(
   style: string,
   year: number,
   page: number,
+  background = false,
 ): Promise<DiscogsResult<SearchPage>> {
   return search({
     filters: { ...emptyFilters, style: [style], year: year.toString() },
     page,
     context: 'catalogue',
+    background,
   });
 }
