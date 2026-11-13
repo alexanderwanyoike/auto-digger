@@ -59,7 +59,18 @@ export function TickScrollbar({
   if (range.maximum === 0) return null;
 
   return (
-    <div className="explore-scrollbar-frame">
+    <div
+      className="explore-scrollbar-frame"
+      onPointerMove={(event) => {
+        if (event.pointerType === 'touch') return;
+        const track = event.currentTarget.getBoundingClientRect();
+        const offset = event.clientY - (track.top + track.height / 2);
+        event.currentTarget.style.setProperty('--pointer-offset', `${offset.toString()}px`);
+      }}
+      onPointerLeave={(event) => {
+        event.currentTarget.style.removeProperty('--pointer-offset');
+      }}
+    >
       <div className="explore-scrollbar-ticks" aria-hidden="true">
         {tickOffsets.map((offset) => (
           <span
@@ -79,18 +90,6 @@ export function TickScrollbar({
         min={0}
         max={range.maximum}
         value={range.position}
-        onPointerMove={(event) => {
-          if (event.pointerType === 'touch') return;
-          const track = event.currentTarget.getBoundingClientRect();
-          const offset = event.clientY - (track.top + track.height / 2);
-          event.currentTarget.parentElement?.style.setProperty(
-            '--pointer-offset',
-            `${offset.toString()}px`,
-          );
-        }}
-        onPointerLeave={(event) => {
-          event.currentTarget.parentElement?.style.removeProperty('--pointer-offset');
-        }}
         onKeyDown={(event) => {
           scrollWithKeys(event, viewport.current);
         }}

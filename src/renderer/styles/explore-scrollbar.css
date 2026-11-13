@@ -4,10 +4,9 @@
     scrollbar-width: none;
   }
   .explore-scrollbar-frame {
-    --active-tick-width: 17px;
+    --active-tick-width: 23px;
     --track-width: 26px;
-    --hover-tick-scale: 4.4;
-    --pointer-offset: 10000px;
+    --hover-tick-scale: 3.6;
     position: absolute;
     top: 50%;
     right: 10px;
@@ -23,7 +22,10 @@
   }
   .explore-scrollbar-tick {
     --tick-position: calc(var(--tick-offset) * 9px);
-    --proximity: max(0, 1 - abs(var(--pointer-offset) - var(--tick-position)) / 38px);
+    --proximity: max(
+      0,
+      1 - abs(var(--pointer-offset, 38px + var(--tick-position)) - var(--tick-position)) / 38px
+    );
     position: absolute;
     top: calc(50% + var(--tick-position));
     right: 2px;
@@ -67,8 +69,8 @@
     outline-offset: -2px;
   }
   .catalogue-years-frame .explore-scrollbar-frame {
-    --active-tick-width: 13px;
-    --hover-tick-scale: 3.6;
+    --active-tick-width: 19px;
+    --hover-tick-scale: 3.2;
     right: 0;
     --track-width: 22px;
     height: min(180px, 42%);
