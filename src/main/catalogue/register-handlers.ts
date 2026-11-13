@@ -33,7 +33,7 @@ export function registerCatalogueHandlers(
   handle(catalogueChannels.create, (input) => store.create(input));
   handle(catalogueChannels.rename, (input) => store.rename(input));
   handle(catalogueChannels.deleteCrate, (input) => store.deleteCrate(input));
-  handle(catalogueChannels.add, (input) => store.add(input));
+  handle(catalogueChannels.add, (input) => store.addPersonal(input));
   handle(catalogueChannels.remove, (input) => store.remove(input));
   handle(catalogueChannels.annotate, (input) => store.annotate(input));
 }

@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 
-export const catalogueVersion = 3;
+export const catalogueVersion = 9;
 
 export function upgradeCatalogue(database: DatabaseSync) {
   database.exec(`
@@ -15,6 +15,36 @@ export function upgradeCatalogue(database: DatabaseSync) {
       id TEXT PRIMARY KEY,
       crate_id TEXT NOT NULL REFERENCES crates(id) ON DELETE CASCADE,
       metadata TEXT NOT NULL
+    ) STRICT;
+    CREATE TABLE IF NOT EXISTS follows (
+      id TEXT PRIMARY KEY,
+      kind TEXT NOT NULL CHECK(kind IN ('artist', 'label', 'genre')),
+      name TEXT NOT NULL
+    ) STRICT;
+    CREATE TABLE IF NOT EXISTS opened_releases (id INTEGER PRIMARY KEY) STRICT;
+    CREATE TABLE IF NOT EXISTS playlists (id TEXT PRIMARY KEY, name TEXT NOT NULL COLLATE NOCASE UNIQUE) STRICT;
+    CREATE TABLE IF NOT EXISTS playlist_tracks (id TEXT PRIMARY KEY, metadata TEXT NOT NULL) STRICT;
+    CREATE TABLE IF NOT EXISTS playlist_entries (
+      ordinal INTEGER PRIMARY KEY,
+      playlist_id TEXT NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
+      track_id TEXT NOT NULL REFERENCES playlist_tracks(id),
+      UNIQUE(playlist_id, track_id)
+    ) STRICT;
+    INSERT INTO playlists(id, name) VALUES('likes', 'Likes') ON CONFLICT(id) DO NOTHING;
+    CREATE TABLE IF NOT EXISTS release_activity (
+      id INTEGER PRIMARY KEY,
+      title TEXT NOT NULL,
+      artist TEXT NOT NULL,
+      artwork_url TEXT,
+      played INTEGER NOT NULL CHECK(played IN (0,1)),
+      last_activity INTEGER NOT NULL
+    ) STRICT;
+    CREATE TABLE IF NOT EXISTS personal_crate_saves (
+      crate_id TEXT NOT NULL,
+      release_id INTEGER NOT NULL,
+      styles TEXT NOT NULL,
+      PRIMARY KEY(crate_id, release_id),
+      FOREIGN KEY(crate_id, release_id) REFERENCES entries(crate_id, release_id) ON DELETE CASCADE
     ) STRICT;
     PRAGMA user_version=${catalogueVersion.toString()};
     COMMIT;

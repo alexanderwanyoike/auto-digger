@@ -1,5 +1,6 @@
 import { link, mkdtemp, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
+import { matchesTrackPosition, trackPositionKey } from '../../shared/track-position';
 import { youtubeDownloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audio-failure';
@@ -39,7 +40,7 @@ export function createAudioLibrary(
       const parsed = youtubeDownloadInputSchema.safeParse(input);
       if (!parsed.success)
         return audioFailure('invalid-input', 'Choose a video and a valid Discogs track.');
-      const { release, videoIndex, trackIndex } = parsed.data;
+      const { release, videoIndex, trackIndex, preserveAssignment } = parsed.data;
       const video = release.videos[videoIndex];
       if (!video || (typeof trackIndex === 'number' && !release.tracks[trackIndex]))
         return audioFailure('invalid-input', 'Choose a video and a valid Discogs track.');
@@ -59,7 +60,11 @@ export function createAudioLibrary(
         const id = `${release.id.toString()}-${sourceId}`;
         const saved = existing.value.find((track) => track.id === id);
         if (saved && !saved.missing) {
-          if (trackIndex === undefined || trackIndex === saved.trackIndex)
+          if (
+            preserveAssignment ||
+            trackIndex === undefined ||
+            matchesTrackPosition(saved, release, trackIndex)
+          )
             return { ok: true, value: saved };
           options.onProgress?.(downloadStage('tagging'));
           return await reassignTrack(
@@ -93,14 +98,16 @@ export function createAudioLibrary(
         if (!tagged.ok) return tagged;
         if (options.signal?.aborted)
           return audioFailure('cancelled', 'This download was cancelled.');
+        const assigned =
+          trackIndex === undefined ? matchTrack(release, source.value.title) : trackIndex;
         const track: LocalTrack = {
           id,
           releaseId: release.id,
           videoId: source.value.videoId,
           title: tagged.value.title,
           sourceTitle: source.value.title,
-          trackIndex:
-            trackIndex === undefined ? matchTrack(release, source.value.title) : trackIndex,
+          trackIndex: assigned,
+          trackPosition: trackPositionKey(release, assigned),
           artist: release.artists.join(' / '),
           album: release.title,
           artworkUrl: release.artworkUrl,

@@ -1,5 +1,19 @@
-import { useMemo, useState } from 'react';
-import { Library, ListMusic, Radio, Settings as SettingsIcon } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Compass,
+  Library,
+  ListMusic,
+  ListPlus,
+  Radio,
+  Settings as SettingsIcon,
+} from 'lucide-react';
+import { PlaylistsPage } from './playlists/PlaylistsPage';
+import { PlaylistsContext } from './playlists/playlists-context';
+import { usePlaylists } from './playlists/use-playlists';
+import { ExplorePage } from './explore/ExplorePage';
+import { useStarterShelf } from './explore/use-starter-shelf';
+import { FollowingContext } from './following/following-context';
+import { useFollowing } from './following/use-following';
 import { useRecommendations } from './recommendations/use-recommendations';
 import { RecommendationsContext } from './recommendations/recommendations-context';
 import { RecommendationsView } from './recommendations/RecommendationsView';
@@ -12,6 +26,7 @@ import { DownloadsPage } from './sections/DownloadsPage';
 import { SettingsPage } from './sections/SettingsPage';
 import type { CrateBridge } from '../shared/crate';
 import { useCrate } from './crate/use-crate';
+import type { PlaybackItem } from '../shared/playback';
 import type { DiscogsBridge } from '../shared/discogs';
 import { useDiscogs } from './discogs/use-discogs';
 import { ConnectionDialog } from './discogs/ConnectionDialog';
@@ -28,7 +43,9 @@ import appIcon from '../../resources/icons/icon.svg';
 
 const sectionIcons = {
   'Digging desk': Radio,
+  Explore: Compass,
   Crates: Library,
+  Playlists: ListPlus,
   Downloads: ListMusic,
 };
 
@@ -43,12 +60,70 @@ export function App({
   audioLibrary?: AudioBridge;
   catalogue?: CatalogueBridge;
 }) {
-  const [section, setSection] = useState<keyof typeof sectionIcons | 'Settings'>('Digging desk');
+  const [section, setSection] = useState<keyof typeof sectionIcons | 'Settings'>('Explore');
   const preferences = usePreferences(window.preferences);
   const filters = useSavedFilters(window.savedFilters);
+  const following = useFollowing(window.following);
   const audio = useAudioLibrary(audioBridge);
+  const playlists = usePlaylists(window.playlists, audio);
   const crate = useCrate(crateBridge, catalogue);
-  const session = useDiscogs(discogs);
+  const [playerRelease, setPlayerRelease] = useState<{ id: number } | null>(null);
+  const playingReleaseId = audio.playback.track?.releaseId;
+  const session = useDiscogs(discogs, filters.rememberPage);
+  const starterShelf = useStarterShelf(
+    discogs?.starterShelf,
+    session.account,
+    session.clearSession,
+    playingReleaseId,
+  );
+  const discover = discogs?.discover;
+  const followTopics = following.topics;
+  const loadFollows = useCallback(() => {
+    if (!discover || !followTopics.length) return Promise.resolve({ ok: true as const, value: [] });
+    return discover(null, true);
+  }, [discover, followTopics]);
+  const followsShelf = useStarterShelf(
+    loadFollows,
+    session.account,
+    session.clearSession,
+    playingReleaseId,
+  );
+  const { markSeen: markStarterSeen } = starterShelf;
+  const { markSeen: markFollowsSeen } = followsShelf;
+  const markSeen = useCallback(
+    (id: number) => {
+      markStarterSeen(id);
+      markFollowsSeen(id);
+    },
+    [markStarterSeen, markFollowsSeen],
+  );
+  useEffect(() => {
+    if (session.release) markSeen(session.release.id);
+  }, [markSeen, session.release]);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [historyRevision, setHistoryRevision] = useState(0);
+  const recordTrackPlayback = useCallback(
+    (track: PlaybackItem & { releaseId: number }) => {
+      markSeen(track.releaseId);
+      discogs
+        ?.recordDiscovery?.({
+          id: track.releaseId,
+          title:
+            track.album.trim() || track.title.trim() || `Release ${track.releaseId.toString()}`,
+          artist: track.artist,
+          artworkUrl: track.artworkUrl,
+          activity: 'played',
+        })
+        .then((result) => {
+          setHistoryError(result.ok ? null : result.error.message);
+          if (result.ok) setHistoryRevision((previous) => previous + 1);
+        })
+        .catch(() => {
+          setHistoryError('Discovery history could not be saved.');
+        });
+    },
+    [discogs, markSeen],
+  );
   const recommendations = useRecommendations(session.release, session.openSavedRelease, audio);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const { appearance, selectAppearance, storageAvailable } = useAppearance();
@@ -75,24 +150,27 @@ export function App({
         </div>
         <nav className="section-nav" aria-label="Main sections">
           <div className="section-switcher">
-            {(['Digging desk', 'Crates', 'Downloads'] as const).map((item) => {
-              const Icon = sectionIcons[item];
-              return (
-                <button
-                  type="button"
-                  key={item}
-                  aria-current={section === item ? 'page' : undefined}
-                  onClick={() => {
-                    setSection(item);
-                    if (item === 'Crates' && crate.catalogue.available)
-                      crate.reload().catch(() => undefined);
-                  }}
-                >
-                  <Icon size={14} aria-hidden="true" />
-                  {item}
-                </button>
-              );
-            })}
+            {(['Explore', 'Digging desk', 'Crates', 'Playlists', 'Downloads'] as const).map(
+              (item) => {
+                const Icon = sectionIcons[item];
+                return (
+                  <button
+                    type="button"
+                    key={item}
+                    aria-current={section === item ? 'page' : undefined}
+                    onClick={() => {
+                      setPlayerRelease(null);
+                      setSection(item);
+                      if (item === 'Crates' && crate.catalogue.available)
+                        crate.reload().catch(() => undefined);
+                    }}
+                  >
+                    <Icon size={14} aria-hidden="true" />
+                    {item}
+                  </button>
+                );
+              },
+            )}
           </div>
           <button
             type="button"
@@ -100,6 +178,7 @@ export function App({
             title="Settings"
             aria-current={section === 'Settings' ? 'page' : undefined}
             onClick={() => {
+              setPlayerRelease(null);
               setSection('Settings');
             }}
           >
@@ -152,6 +231,38 @@ export function App({
           />
         )}
         {section === 'Downloads' && <DownloadsPage audio={audio} />}
+        {section === 'Playlists' && (
+          <PlaylistsPage
+            playlists={playlists}
+            audio={audio}
+            onOpen={(release) => {
+              recommendations.dismiss();
+              session.openSavedRelease(release);
+              setSection('Digging desk');
+            }}
+          />
+        )}
+        {section === 'Explore' && (
+          <PlaylistsContext.Provider value={playlists}>
+            <ExplorePage
+              key={session.account?.id ?? 'disconnected'}
+              bridge={discogs}
+              connected={Boolean(session.account)}
+              onUnauthorized={session.clearSession}
+              starterShelf={starterShelf}
+              followsShelf={followsShelf}
+              markSeen={markSeen}
+              historyRevision={historyRevision}
+              playerRelease={playerRelease}
+              onPlayerRequestHandled={() => {
+                setPlayerRelease(null);
+              }}
+              following={following}
+              crate={crate}
+              audio={audio}
+            />
+          </PlaylistsContext.Provider>
+        )}
         {section === 'Settings' && (
           <SettingsPage
             preferences={preferences}
@@ -167,8 +278,10 @@ export function App({
         )}
         {section === 'Digging desk' && (
           <div className="workspace">
-            <FilterPanel session={session} filters={filters} />
-            {desk}
+            <FollowingContext.Provider value={following}>
+              <FilterPanel session={session} filters={filters} />
+              <PlaylistsContext.Provider value={playlists}>{desk}</PlaylistsContext.Provider>
+            </FollowingContext.Provider>
             <CratePanel
               crate={crate}
               disabled={session.busy}
@@ -185,7 +298,49 @@ export function App({
           {session.error.message}
         </p>
       )}
-      <PlaybackBar audio={audio} />
+      {following.error && !connectionOpen && (
+        <p role="alert" className="request-error">
+          {following.error}{' '}
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={following.retry}
+            disabled={following.busy}
+          >
+            Reload following
+          </button>
+        </p>
+      )}
+      {playlists.error && !connectionOpen && (
+        <p role="alert" className="request-error">
+          {playlists.error}{' '}
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={playlists.reload}
+            disabled={playlists.busy}
+          >
+            Reload playlists
+          </button>
+        </p>
+      )}
+      {historyError && (
+        <p role="alert" className="request-error">
+          {historyError}
+        </p>
+      )}
+      <PlaybackBar
+        audio={audio}
+        onTrackPlaying={recordTrackPlayback}
+        onOpenRelease={
+          session.account
+            ? (id) => {
+                setPlayerRelease({ id });
+                setSection('Explore');
+              }
+            : undefined
+        }
+      />
       <div className="status-bar" role="region" aria-label="App status">
         <PreviewStatus audio={audio} />
         <UpdateNotice />

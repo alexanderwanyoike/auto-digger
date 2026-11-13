@@ -25,6 +25,7 @@ test('remembers Cosine securely, previews recommendations, opens the EP and save
   let desktop = await launch();
   try {
     let page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Discogs not connected', exact: true }).click();
     await page.getByLabel('Personal token').fill('synthetic-discogs-token');
     await page.getByRole('button', { name: 'Connect account', exact: true }).click();
@@ -44,6 +45,7 @@ test('remembers Cosine securely, previews recommendations, opens the EP and save
     await desktop.close();
     desktop = await launch();
     page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.route('https://i.discogs.com/cosine-fixture.svg', (route) =>
       route.fulfill({
         path: resolve('tests/fixtures/record-sleeve.svg'),
@@ -171,12 +173,14 @@ test('shows an accurate Cosine timeout and retries without losing the original E
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
     await page.evaluate(async (release) => {
       await window.cosine?.saveKey('synthetic-cosine-key');
       await window.crate?.save(release);
     }, loadedRelease);
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.route('https://i.discogs.com/cosine-fixture.svg', (route) =>
       route.fulfill({
         path: resolve('tests/fixtures/record-sleeve.svg'),

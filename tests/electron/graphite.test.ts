@@ -11,6 +11,7 @@ test('opens with rounded matte surfaces in light and dark mode', async () => {
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.setViewportSize({ width: 900, height: 780 });
     await expect(page.locator('html')).toHaveAttribute('data-material', 'graphite');
     const banner = page.getByRole('banner');

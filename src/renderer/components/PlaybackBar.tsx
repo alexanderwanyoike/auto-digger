@@ -1,4 +1,5 @@
-import { FolderOpen, Pause, Play, Volume2 } from 'lucide-react';
+import { ArrowUpRight, FolderOpen, Pause, Play, Volume2 } from 'lucide-react';
+import type { PlaybackItem } from '../../shared/playback';
 import type { useAudioLibrary } from '../audio/use-audio-library';
 import { usePlayer } from '../audio/use-player';
 import { RecordArtwork } from './RecordArtwork';
@@ -8,9 +9,17 @@ function timecode(value: number) {
   return `${Math.floor(seconds / 60).toString()}:${(seconds % 60).toString().padStart(2, '0')}`;
 }
 
-export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrary> }) {
+export function PlaybackBar({
+  audio,
+  onTrackPlaying,
+  onOpenRelease,
+}: {
+  audio: ReturnType<typeof useAudioLibrary>;
+  onTrackPlaying?: (track: PlaybackItem & { releaseId: number }) => void;
+  onOpenRelease?: ((id: number) => void) | undefined;
+}) {
   const { track, request } = audio.playback;
-  const player = usePlayer(track, request);
+  const player = usePlayer(track, request, onTrackPlaying, audio.advanceSequence);
   const description = track
     ? `${track.artist} · ${track.album}`
     : 'Download a track to listen here.';
@@ -30,6 +39,19 @@ export function PlaybackBar({ audio }: { audio: ReturnType<typeof useAudioLibrar
             {description}
           </span>
         </div>
+        {onOpenRelease && track?.releaseId !== undefined && (
+          <button
+            type="button"
+            className="icon-button playing-release"
+            aria-label="Open playing release"
+            title="Open playing release"
+            onClick={() => {
+              if (track.releaseId !== undefined) onOpenRelease(track.releaseId);
+            }}
+          >
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </button>
+        )}
       </div>
       <button
         type="button"

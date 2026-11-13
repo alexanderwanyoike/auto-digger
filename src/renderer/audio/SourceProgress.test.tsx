@@ -45,6 +45,7 @@ test('keeps download progress inside the original source button without insertin
   try {
     const user = userEvent.setup();
     const view = render(<App crate={crate} audioLibrary={audio} />);
+    await user.click(screen.getByRole('button', { name: 'Digging desk' }));
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
     const control = await screen.findByRole('button', { name: 'Download audio' });
     await user.click(control);
@@ -131,6 +132,7 @@ test('can queue a YouTube source while a Soulseek request is waiting for a peer'
         }}
       />,
     );
+    await user.click(screen.getByRole('button', { name: 'Digging desk' }));
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
     await user.click(screen.getByRole('button', { name: 'Soulseek' }));
     await user.click(screen.getByRole('button', { name: 'Search A1 · Quiet Orbit' }));

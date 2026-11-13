@@ -1,5 +1,9 @@
 import type { DatabaseSync } from 'node:sqlite';
 import { createSavedFiltersStore } from '../filters/store';
+import { createFollowingStore } from '../following/store';
+import { createDiscoveryHistory } from '../discovery/history';
+import { createPlaylistsStore } from '../playlists/store';
+import { createCrateTaste } from '../discovery/crate-taste';
 import { createResearchStore } from '../research/store';
 import { createDownloadIndex } from '../audio/download-index';
 import { createPreferencesStore } from '../settings/store';
@@ -62,6 +66,10 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
   return {
     preferences: createPreferencesStore(getConnection),
     filters: createSavedFiltersStore(getConnection),
+    following: createFollowingStore(getConnection),
+    discoveryHistory: createDiscoveryHistory(getConnection),
+    playlists: createPlaylistsStore(getConnection),
+    crateTaste: createCrateTaste(getConnection),
     downloads: createDownloadIndex(getConnection),
     research: createResearchStore(getConnection),
     annotate: (input: unknown, signal?: AbortSignal) =>
@@ -71,7 +79,8 @@ export function createCatalogueStore(file: string, legacyFile?: string) {
     rename: (input: unknown) => change((mutations) => mutations.rename(input)),
     deleteCrate: (id: unknown) => change((mutations) => mutations.deleteCrate(id)),
     add: (input: unknown, signal?: AbortSignal) =>
-      change((mutations) => mutations.add(input), signal),
+      change((mutations) => mutations.add(input, 'research'), signal),
+    addPersonal: (input: unknown) => change((mutations) => mutations.add(input, 'personal')),
     remove: (input: unknown) => change((mutations) => mutations.remove(input)),
     async view(crateId?: string): Promise<CatalogueResult<CatalogueView>> {
       const database = await getConnection();

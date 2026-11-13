@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DigFilters } from '../../shared/search';
+import { sameSearchFilters } from '../../shared/search';
 import { emptyFilters } from '../../shared/default-filters';
 import type {
   SavedFilters,
@@ -11,6 +12,8 @@ import { catalogueFailure } from '../../shared/catalogue-failure';
 export function useSavedFilters(bridge: SavedFiltersBridge | undefined) {
   const [draft, setDraft] = useState(emptyFilters);
   const [presets, setPresets] = useState<SavedFilters['presets']>([]);
+  const [selectedId, setSelectedId] = useState('');
+  const selectedPreset = presets.find((preset) => preset.id === selectedId);
   const [ready, setReady] = useState(!bridge);
   const [busy, setBusy] = useState(false);
   const [reloadVersion, setReloadVersion] = useState(0);
@@ -80,13 +83,23 @@ export function useSavedFilters(bridge: SavedFiltersBridge | undefined) {
     draft,
     setDraft: changeDraft,
     presets,
+    selectedPreset,
+    setSelectedId,
     ready,
     busy,
     error,
     reload,
     available: Boolean(bridge) && ready,
-    save: (name: string, id?: string) =>
-      mutate((api) => api.savePreset({ name, filters: draft, ...(id ? { id } : {}) })),
+    save: (name: string, page: number, id?: string) =>
+      mutate((api) => api.savePreset({ name, filters: draft, page, ...(id ? { id } : {}) })),
+    rememberPage: async (criteria: DigFilters, page: number) => {
+      if (
+        selectedPreset &&
+        selectedPreset.page !== page &&
+        sameSearchFilters(criteria, selectedPreset.filters)
+      )
+        await mutate((api) => api.rememberPage({ id: selectedPreset.id, filters: criteria, page }));
+    },
     remove: (id: string) => mutate((api) => api.removePreset(id)),
   };
 }

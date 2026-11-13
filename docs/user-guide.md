@@ -20,9 +20,23 @@ Combine label, artist, a year (`1998`) or inclusive range (`1990-1999`), title, 
 
 Submit **Search releases** to apply your filters. Browse sleeves, choose **Dig a random release**, then **Dig again**. Draft filter edits take effect on the next search. Reset digging starts a fresh session with the applied filters. You can also load a numeric Discogs release ID directly.
 
-Use **Save filters** to name a filter selection. Choose it from **Saved filters** to fill the form, then search when ready. Saving with the same name updates that selection; a different name saves a new one. The trash icon removes the selected preset. Named filters and your last valid draft stay on this device after restarting.
+Use **Save filters** to name a filter selection and bookmark its current results page. Choose a preset from **Saved filters**, then choose **Search releases** to resume from that page. Paging through the selected preset updates its bookmark. Editing its criteria starts a search from page one. Saving with the same name updates that selection; a different name saves a new one. The trash icon removes the selected preset. Named filters, their bookmarked pages and your last valid draft stay on this device after restarting.
 
 Discogs search exposes up to the first 10,000 matching results. Narrow broad criteria to explore further. Seen release IDs and cached search pages stay in memory for the session.
+
+Use the bookmark beside an artist or label on a release to follow it. Choose a genre in the filter and use its bookmark to follow the genre. Open **Following** in Explore to see and manage what you follow. Switch between **Artists**, **Labels** and **Genres**, or search by name. Your following list stays on this device.
+
+Select an artist, label or genre in **Following** to browse its releases. Choose **Discover unseen releases** in the Explore toolbar to draw a batch from the current topic or across your follows. The Explore feed excludes releases whose details you opened or whose sleeve preview started playing. To compare two years within a genre, choose the genre, enter both years and choose **Compare years**.
+
+Explore opens first. **Discover records** learns from the Discogs styles of new personal crate saves on the next launch or **Refresh**. The shelf starts with Progressive House until you have a saved style. **From your follows** appears below it when you follow artists, labels or genres. Choose the play button on a sleeve to try a matched YouTube preview in the bottom player. Select the sleeve itself to open the record. Choose **Show more** on either shelf to open its discovery page. Scroll to load more releases. The page rotates through relevant Discogs styles or followed catalogues and skips releases you have already opened or played.
+
+Open **Catalogue** in the Explore toolbar to browse a Discogs style by year. Saved styles appear first and the most-saved style opens by default. Enter **From year** and **To year**, then choose **Go** to browse that inclusive range. Leave **To year** blank to jump to one year. For a range, the timeline lists every year from earliest to latest. Pick a year on the left to jump directly to it. If its releases are still to be loaded, Catalogue starts the search there and skips the earlier years. Scroll to load later releases within the range. Choose **Show more** beside any year to browse that year on its own page, where scrolling loads more releases from that year. Select a sleeve’s play button to check for a preview on demand. **Back to Catalogue** returns to your place after viewing a record.
+
+**History** in Explore lists opened and played releases. Select an entry to reopen it. The player also has an **Open playing release** button for the track on the deck.
+
+## Make track playlists
+
+Create a named list in **Playlists**. On a release, use the heart beside a track to add it to **Likes**, or the list icon to add it to one of your named playlists. Auto Digger reuses a saved file or queues an unambiguous YouTube match in **Downloads**. If you need to select a source, choose **Choose audio** beside the entry to return to the release. You can then pick a YouTube upload or find a file on Soulseek. Choose **Play playlist** to hear available tracks in list order, or **Shuffle playlist** for a shuffled order. Likes uses the same controls. Removing a track from one playlist keeps its local audio and other playlist entries.
 
 ## Download audio
 

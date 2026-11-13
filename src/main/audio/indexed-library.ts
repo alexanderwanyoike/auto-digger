@@ -9,6 +9,7 @@ import { downloadDirectory } from './download-directory';
 import { downloadInputSchema } from '../../shared/audio';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import { audioFailure } from '../../shared/audio-failure';
+import { matchesTrackPosition } from '../../shared/track-position';
 import { downloadSourceId } from '../../shared/download-source-id';
 import { importSoulseekAudio } from './soulseek-library';
 import type { ReceiveSoulseek } from './soulseek-library';
@@ -154,7 +155,8 @@ export function createIndexedLibrary(
           if (
             'provider' in parsed.data ||
             parsed.data.trackIndex === undefined ||
-            parsed.data.trackIndex === existing.track.trackIndex
+            parsed.data.preserveAssignment ||
+            matchesTrackPosition(existing.track, release, parsed.data.trackIndex)
           )
             return { ok: true, value: existing.track };
           const recovered = await createLibraryFiles(existing.directory).save(existing.track);

@@ -51,6 +51,7 @@ import { identityResponse, releaseResponse } from '../discogs-fixtures';
         { identityResponse, releaseResponse },
       );
       const page = await desktop.firstWindow();
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await page.setViewportSize({ width, height: 1000 });
       await page.route('https://i.discogs.com/**', (route) =>
         route.fulfill({

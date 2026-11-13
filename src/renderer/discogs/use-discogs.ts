@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { DigResult } from '../../shared/dig';
 import { emptyFilters } from '../../shared/default-filters';
 import type { DigFilters, SearchPage } from '../../shared/search';
@@ -11,7 +11,10 @@ import type {
   DiscogsResult,
 } from '../../shared/discogs';
 
-export function useDiscogs(bridge: DiscogsBridge | undefined) {
+export function useDiscogs(
+  bridge: DiscogsBridge | undefined,
+  onSearchPage?: (criteria: DigFilters, page: number) => Promise<void>,
+) {
   const [account, setAccount] = useState<DiscogsAccount | null>(null);
   const [release, setRelease] = useState<DiscogsRelease | null>(null);
   const [digging, setDigging] = useState<DigResult | null>(null);
@@ -29,14 +32,14 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
       digging: DigResult | null;
     };
   } | null>(null);
-  const clearSession = () => {
+  const clearSession = useCallback(() => {
     setArtistBrowse(null);
     setDigging(null);
     setMatches(null);
     setFilters(null);
     setAccount(null);
     setRelease(null);
-  };
+  }, []);
   useEffect(() => {
     if (!bridge) return undefined;
     let active = true;
@@ -64,7 +67,7 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
 
   async function perform<T>(
     operation: (api: DiscogsBridge) => Promise<DiscogsResult<T>>,
-    apply?: (value: T) => void,
+    apply?: (value: T) => void | Promise<void>,
   ): Promise<DiscogsResult<T>> {
     setBusy(true);
     setError(null);
@@ -79,8 +82,10 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
         'Could not contact the desktop. Please restart Auto Digger.',
       );
     }
-    if (result.ok) apply?.(result.value);
-    else {
+    if (result.ok) {
+      await apply?.(result.value);
+      if (result.historyWarning) setError({ code: 'unavailable', message: result.historyWarning });
+    } else {
       setError(result.error);
       if (result.error.code === 'unauthorized') {
         clearSession();
@@ -124,6 +129,20 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
     openSavedRelease: (saved: DiscogsRelease) => {
       setRelease(saved);
       setError(null);
+      bridge
+        ?.recordDiscovery?.({
+          id: saved.id,
+          title: saved.title,
+          artist: saved.artists.join(', '),
+          artworkUrl: saved.artworkUrl,
+          activity: 'opened',
+        })
+        .then((result) => {
+          if (!result.ok) setError(result.error);
+        })
+        .catch(() => {
+          setError({ code: 'unavailable', message: 'Discovery history could not be saved.' });
+        });
     },
     matches,
     digging,
@@ -159,9 +178,10 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
             page,
             ...(artistBrowse && sameFilters ? { context: 'artist' as const } : {}),
           }),
-        (value) => {
+        async (value) => {
           setMatches(value);
           setFilters(criteria);
+          if (!artistBrowse || !sameFilters) await onSearchPage?.(criteria, value.page);
         },
       );
     },
@@ -169,6 +189,7 @@ export function useDiscogs(bridge: DiscogsBridge | undefined) {
     busy,
     error,
     available: Boolean(bridge),
+    clearSession,
     clearError: () => {
       setError(null);
     },

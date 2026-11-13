@@ -1,4 +1,4 @@
-import { RecordArtwork } from '../components/RecordArtwork';
+import { ReleaseMatchList } from './ReleaseMatchList';
 import type { useDiscogs } from './use-discogs';
 
 export function SearchResults({ session }: { session: ReturnType<typeof useDiscogs> }) {
@@ -13,29 +13,13 @@ export function SearchResults({ session }: { session: ReturnType<typeof useDisco
         </p>
       )}
       {!matches.releases.length && <p>No matching releases. Try a broader label, year or style.</p>}
-      <ul>
-        {matches.releases.map((release) => (
-          <li key={release.id}>
-            <button
-              type="button"
-              className="search-result"
-              disabled={session.busy}
-              onClick={() => {
-                session.loadRelease(release.id).catch(() => undefined);
-              }}
-            >
-              <RecordArtwork url={release.artworkUrl} title={release.title} decorative />
-              <strong title={release.title}>{release.title}</strong>
-              <span
-                title={`${release.year || 'Year not listed'} · ${release.labels.join(', ') || 'Label not listed'}`}
-              >
-                {release.year || 'Year not listed'} ·{' '}
-                {release.labels.join(', ') || 'Label not listed'}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      <ReleaseMatchList
+        releases={matches.releases}
+        disabled={session.busy}
+        onOpen={(id) => {
+          session.loadRelease(id).catch(() => undefined);
+        }}
+      />
       {matches.pages > 1 && (
         <nav aria-label="Search pages">
           <button

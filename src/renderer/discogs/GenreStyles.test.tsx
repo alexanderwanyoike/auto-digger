@@ -5,7 +5,7 @@ import type { DiscogsBridge } from '../../shared/discogs';
 import { identityResponse } from '../../../tests/discogs-fixtures';
 import { App } from '../App';
 
-function renderDesk() {
+async function renderDesk(user: ReturnType<typeof userEvent.setup>) {
   const search = vi.fn<DiscogsBridge['search']>().mockResolvedValue({
     ok: true,
     value: { page: 1, pages: 0, perPage: 50, items: 0, releases: [] },
@@ -20,12 +20,13 @@ function renderDesk() {
     search,
   };
   render(<App discogs={bridge} />);
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   return search;
 }
 
 test('offers Hip Hop styles without unrelated electronic options', async () => {
-  renderDesk();
   const user = userEvent.setup();
+  await renderDesk(user);
   await screen.findByRole('button', { name: 'Connected as quiet-digger' });
   await user.type(screen.getByLabelText('Genre'), 'Hip Hop');
   await user.click(screen.getByRole('option', { name: 'Hip Hop' }));
@@ -41,8 +42,8 @@ test('offers Hip Hop styles without unrelated electronic options', async () => {
 });
 
 test('combines genres and removes stale styles while preserving compatible selections', async () => {
-  const search = renderDesk();
   const user = userEvent.setup();
+  const search = await renderDesk(user);
   await screen.findByRole('button', { name: 'Connected as quiet-digger' });
   await user.type(screen.getByLabelText('Genre'), 'Electronic');
   await user.click(screen.getByRole('option', { name: 'Electronic' }));
@@ -67,8 +68,8 @@ test('combines genres and removes stale styles while preserving compatible selec
 });
 
 test('allows explicit newer styles absent from the reference without guessing their genre', async () => {
-  const search = renderDesk();
   const user = userEvent.setup();
+  const search = await renderDesk(user);
   await screen.findByRole('button', { name: 'Connected as quiet-digger' });
   await user.type(screen.getByLabelText('Genre'), 'Hip Hop');
   await user.click(screen.getByRole('option', { name: 'Hip Hop' }));
@@ -89,8 +90,8 @@ test.each([
 ])(
   'keeps selected reference style $style when the last genre is cleared',
   async ({ genre, style }) => {
-    const search = renderDesk();
     const user = userEvent.setup();
+    const search = await renderDesk(user);
     await screen.findByRole('button', { name: 'Connected as quiet-digger' });
     await user.type(screen.getByLabelText('Genre'), genre);
     await user.click(screen.getByRole('option', { name: genre }));

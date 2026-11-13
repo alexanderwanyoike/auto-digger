@@ -30,6 +30,7 @@ export const downloadJobSchema = downloadProgressSchema
     title: z.string(),
     releaseId: z.number().int().positive(),
     videoIndex: z.number().int().nonnegative().optional(),
+    trackPosition: z.string().optional(),
     sourceId: trackIdSchema.optional(),
     artist: z.string().optional(),
     album: z.string().optional(),

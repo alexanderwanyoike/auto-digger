@@ -39,6 +39,7 @@ export const localTrackSchema = z
     title: z.string(),
     sourceTitle: z.string(),
     trackIndex: z.number().int().nonnegative().nullable(),
+    trackPosition: z.string().optional(),
     artist: z.string(),
     album: z.string(),
     artworkUrl: z.string().nullable(),
@@ -67,11 +68,13 @@ export type LocalTrack = z.infer<typeof localTrackSchema>;
 export const youtubeDownloadInputSchema = z.object({
   release: releaseSchema,
   videoIndex: z.number().int().nonnegative(),
+  preserveAssignment: z.boolean().optional(),
   trackIndex: z.number().int().nonnegative().nullable().optional(),
 });
 export interface YouTubeDownloadInput {
   release: DiscogsRelease;
   videoIndex: number;
+  preserveAssignment?: boolean | undefined;
   trackIndex?: number | null | undefined;
 }
 export const soulseekDownloadInputSchema = z.object({

@@ -31,6 +31,7 @@ test('only marks an EP saved after a completed write, then reopens it without Di
   };
   const user = userEvent.setup();
   const view = render(<App discogs={discogs} crate={crate} />);
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await user.type(await screen.findByLabelText('Discogs release ID'), '12');
   await user.click(screen.getByRole('button', { name: 'Load release' }));
   await user.click(await screen.findByRole('button', { name: 'Save EP to crate' }));
@@ -45,6 +46,7 @@ test('only marks an EP saved after a completed write, then reopens it without Di
     list: () => Promise.resolve({ ok: true, value: [loadedRelease] }),
   };
   render(<App crate={offline} />);
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
   expect(await screen.findByRole('heading', { name: 'Quiet Orbit EP' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Discogs not connected' })).toBeDisabled();
@@ -74,6 +76,7 @@ test('tries the next saved record artwork after the previous artwork fails', asy
   };
   const user = userEvent.setup();
   render(<App crate={crate} />);
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   await user.click(await screen.findByRole('button', { name: 'Open First EP' }));
   fireEvent.error(screen.getByRole('img', { name: 'First EP record sleeve' }));
   expect(screen.getByText('No artwork available')).toBeInTheDocument();
@@ -93,6 +96,7 @@ test('shows saved sleeves and places the selected sleeve before playback', async
   };
   const user = userEvent.setup();
   render(<App crate={crate} />);
+  await user.click(screen.getByRole('button', { name: 'Digging desk' }));
   const open = await screen.findByRole('button', { name: 'Open Quiet Orbit EP' });
   expect(
     within(screen.getByRole('complementary', { name: 'Your crate' })).getByAltText(''),

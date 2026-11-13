@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { digResultSchema } from '../shared/dig';
+import { historyEntrySchema } from '../shared/discovery-history';
+import { discoveryPageSchema } from '../shared/discovery';
 import { searchPageSchema } from '../shared/search';
 import {
   accountSchema,
@@ -15,6 +17,7 @@ const envelopeSchema = z.object({
   ok: z.boolean(),
   value: z.unknown().optional(),
   error: z.unknown().optional(),
+  historyWarning: z.string().optional(),
 });
 
 export function createDiscogsBridge(invoke: Invoke): DiscogsBridge {
@@ -28,7 +31,14 @@ export function createDiscogsBridge(invoke: Invoke): DiscogsBridge {
       if (envelope.success) {
         if (envelope.data.ok) {
           const value = schema.safeParse(envelope.data.value);
-          if (value.success) return { ok: true, value: value.data };
+          if (value.success) {
+            const { historyWarning } = envelope.data;
+            return {
+              ok: true,
+              value: value.data,
+              ...(historyWarning ? { historyWarning } : {}),
+            };
+          }
         } else {
           const error = discogsErrorSchema.safeParse(envelope.data.error);
           if (error.success) return { ok: false, error: error.data };
@@ -47,7 +57,21 @@ export function createDiscogsBridge(invoke: Invoke): DiscogsBridge {
   }
   return {
     dig: (input) => call(discogsChannels.dig, digResultSchema, input),
+    topicArtwork: (topic) => call(discogsChannels.topicArtwork, z.string().nullable(), topic),
     search: (input) => call(discogsChannels.search, searchPageSchema, input),
+    discover: (topic, background) =>
+      call(
+        discogsChannels.discover,
+        searchPageSchema.shape.releases,
+        background ? { topic, background } : topic,
+      ),
+    expandDiscovery: (input) => call(discogsChannels.expandDiscovery, discoveryPageSchema, input),
+    starterShelf: () => call(discogsChannels.starterShelf, searchPageSchema.shape.releases),
+    previewRelease: (id) => call(discogsChannels.previewRelease, releaseSchema, id),
+    crateStyles: () => call(discogsChannels.crateStyles, z.array(z.string())),
+    discoveryHistory: () => call(discogsChannels.discoveryHistory, z.array(historyEntrySchema)),
+    recordDiscovery: (entry) => call(discogsChannels.recordDiscovery, z.undefined(), entry),
+    markSeen: (id) => call(discogsChannels.markSeen, z.undefined(), id),
     account: () => call(discogsChannels.account, accountSchema.nullable()),
     connect: (token) => call(discogsChannels.connect, accountSchema, token),
     loadRelease: (id) => call(discogsChannels.loadRelease, releaseSchema, id),

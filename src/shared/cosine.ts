@@ -65,5 +65,8 @@ export interface CosineBridge {
   saveKey: (key: string) => Promise<CosineResult<{ configured: boolean }>>;
   forget: () => Promise<CosineResult<{ configured: boolean }>>;
   similar: (input: CosineQuery) => Promise<CosineResult<Recommendations>>;
-  resolve: (item: Recommendation) => Promise<CosineResult<ResolvedRecommendation>>;
+  resolve: (
+    item: Recommendation,
+    background?: boolean,
+  ) => Promise<CosineResult<ResolvedRecommendation>>;
 }

@@ -18,6 +18,7 @@ test('reports actual subprocess progress, cancels, continues the queue and retri
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     const started = await page.evaluate(
       async (release) =>
@@ -91,6 +92,7 @@ test('reviews album source coverage, downloads one source per track and shows qu
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
     await page.evaluate(async (release) => window.catalogue?.add({ crateId: 'default', release }), {
       ...loadedRelease,
@@ -107,6 +109,7 @@ test('reviews album source coverage, downloads one source per track and shows qu
       ],
     });
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     const sources = page.getByRole('region', { name: 'Audio sources' });
     await expect(

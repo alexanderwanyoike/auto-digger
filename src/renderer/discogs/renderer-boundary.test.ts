@@ -8,3 +8,8 @@ test('loads Discogs navigation without importing runtime search validation into 
   const { useDiscogs } = await import('./use-discogs');
   expect(useDiscogs).toBeTypeOf('function');
 });
+
+test('loads Catalogue range pagination without importing runtime search validation', async () => {
+  const { useCatalogueRange } = await import('../explore/use-catalogue-range');
+  expect(useCatalogueRange).toBeTypeOf('function');
+});

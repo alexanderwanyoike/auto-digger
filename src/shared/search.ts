@@ -31,11 +31,24 @@ export const filtersSchema = z.object({
   title: text,
 });
 export type DigFilters = z.infer<typeof filtersSchema>;
+export function sameSearchFilters(left: DigFilters, right: DigFilters | null) {
+  const first = filtersSchema.safeParse(left);
+  const second = filtersSchema.safeParse(right);
+  return (
+    first.success && second.success && JSON.stringify(first.data) === JSON.stringify(second.data)
+  );
+}
+
+export const maxSearchPage = 200;
+
 export const searchInputSchema = z.object({
-  context: z.literal('artist').optional(),
+  context: z.enum(['artist', 'explore', 'catalogue', 'catalogue-range']).optional(),
+  order: z.enum(['oldest', 'newest']).optional(),
+  background: z.boolean().optional(),
   filters: filtersSchema,
-  page: z.number().int().min(1).max(200),
+  page: z.number().int().min(1).max(maxSearchPage),
 });
+export type SearchInput = z.output<typeof searchInputSchema>;
 export const searchPageSchema = z.object({
   page: z.number().int().positive(),
   pages: z.number().int().nonnegative(),

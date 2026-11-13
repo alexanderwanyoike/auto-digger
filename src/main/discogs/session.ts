@@ -1,3 +1,5 @@
+import { followTopicSchema } from '../../shared/following';
+import { searchTopicArtwork } from './topic-artwork';
 import { researchSearchInputSchema } from '../../shared/research-search';
 import { createDigger } from './digger';
 import { digInputSchema } from '../../shared/dig';
@@ -8,27 +10,40 @@ import type { DiscogsAccount, DiscogsRelease, DiscogsResult } from '../../shared
 import { releaseMetadataSchema } from './release-metadata';
 import { requestDiscogs } from './request';
 import { searchDiscogs } from './search';
+import { createDiscogsReadCache } from './read-cache';
+import { createDiscogsRequestBudget } from './request-budget';
 import { searchInputSchema } from '../../shared/search';
 import type { SearchPage } from '../../shared/search';
 
-export function createDiscogsSession(request: typeof fetch = (input, init) => fetch(input, init)) {
+export function createDiscogsSession(
+  request: typeof fetch = (input, init) => fetch(input, init),
+  budget = createDiscogsRequestBudget(),
+) {
   let account: DiscogsAccount | null = null;
   let acceptedToken: string | null = null;
   let revision = 0;
+  const searches = createDiscogsReadCache<SearchPage>();
+  const releases = createDiscogsReadCache<DiscogsRelease>();
+  const portraits = createDiscogsReadCache<string | null>();
+  const release = (id: number, token: string, signal?: AbortSignal) => {
+    const read = () =>
+      requestDiscogs(`/releases/${id.toString()}`, token, releaseMetadataSchema, request, {
+        budget,
+        ...(signal ? { signal } : {}),
+      });
+    return signal ? read() : releases.read(id.toString(), read);
+  };
   const createSessionDigger = () =>
     createDigger(
-      (filters, page) => searchDiscogs({ filters, page }, acceptedToken ?? '', request),
-      (id) =>
-        requestDiscogs(
-          `/releases/${id.toString()}`,
-          acceptedToken ?? '',
-          releaseMetadataSchema,
-          request,
-        ),
+      (filters, page) => searchDiscogs({ filters, page }, acceptedToken ?? '', request, { budget }),
+      (id) => release(id, acceptedToken ?? ''),
     );
   const digger = createSessionDigger();
   const artistDigger = createSessionDigger();
   const clear = () => {
+    searches.clear();
+    releases.clear();
+    portraits.clear();
     digger.reset();
     artistDigger.reset();
     revision += 1;
@@ -57,6 +72,22 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
       if (!result.ok && result.error.code === 'unauthorized') clear();
       return result;
     },
+    async topicArtwork(input: unknown): Promise<DiscogsResult<string | null>> {
+      const parsed = followTopicSchema.safeParse(input);
+      if (!parsed.success || parsed.data.kind === 'genre')
+        return discogsFailure('invalid-input', 'Choose a Discogs artist or label.');
+      if (!acceptedToken)
+        return discogsFailure('unauthorized', 'Connect your Discogs account first.');
+      const started = revision;
+      const topic = parsed.data;
+      const token = acceptedToken;
+      const result = await portraits.read(JSON.stringify(topic), () =>
+        searchTopicArtwork(topic, token, request, { budget, background: true }),
+      );
+      if (started !== revision)
+        return discogsFailure('cancelled', 'The Discogs session has changed.');
+      return result;
+    },
     async search(input: unknown): Promise<DiscogsResult<SearchPage>> {
       if (!acceptedToken)
         return discogsFailure('unauthorized', 'Connect your Discogs account first.');
@@ -67,11 +98,17 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
           'invalid-input',
           'Use a year such as 1998 or a range such as 1990-1999, with the earlier year first.',
         );
-      const result = await searchDiscogs(parsed.data, acceptedToken, request);
+      const token = acceptedToken;
+      const { background, ...query } = parsed.data;
+      const read = () =>
+        searchDiscogs(query, token, request, { budget, background: background ?? false });
+      const catalogue = query.context === 'catalogue' || query.context === 'catalogue-range';
+      const reuse = catalogue || (Boolean(background) && query.page > 1);
+      const result = await searches.read(JSON.stringify(query), read, reuse);
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();
-      if (result.ok) {
+      if (result.ok && query.context !== 'explore' && !catalogue) {
         const activeDigger = parsed.data.context === 'artist' ? artistDigger : digger;
         activeDigger.apply(parsed.data.filters);
       }
@@ -88,6 +125,7 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
         );
       const started = revision;
       const result = await searchDiscogs(parsed.data, acceptedToken, request, {
+        budget,
         query: parsed.data.query,
         ...(signal ? { signal } : {}),
       });
@@ -103,13 +141,7 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
         return discogsFailure('invalid-input', 'Enter a positive numeric Discogs release ID.');
       }
       const started = revision;
-      const result = await requestDiscogs(
-        `/releases/${id.toString()}`,
-        acceptedToken,
-        releaseMetadataSchema,
-        request,
-        signal,
-      );
+      const result = await release(id, acceptedToken, signal);
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();
@@ -126,7 +158,9 @@ export function createDiscogsSession(request: typeof fetch = (input, init) => fe
         return discogsFailure('invalid-input', 'Enter a valid Discogs personal token.');
       }
       const started = revision;
-      const result = await requestDiscogs('/oauth/identity', token.trim(), accountSchema, request);
+      const result = await requestDiscogs('/oauth/identity', token.trim(), accountSchema, request, {
+        budget,
+      });
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (result.ok) {

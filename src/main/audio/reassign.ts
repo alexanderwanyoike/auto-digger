@@ -1,6 +1,7 @@
 import { copyFile, rename, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { trackPositionKey } from '../../shared/track-position';
 import type { AudioResult, LocalTrack } from '../../shared/audio';
 import type { DiscogsRelease } from '../../shared/discogs';
 import { audioFailure } from '../../shared/audio-failure';
@@ -33,6 +34,7 @@ export async function reassignTrack(
       title: tagged.value.title,
       warning: tagged.value.warning,
       trackIndex,
+      trackPosition: trackPositionKey(release, trackIndex),
     };
     const published = await files.save(corrected);
     if (!published.ok) return published;

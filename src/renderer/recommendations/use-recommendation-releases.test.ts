@@ -59,7 +59,7 @@ test('loads one cover per linked release in sequence and shares in-flight metada
     expect(result.current.covers[12]?.url).toBe('https://i.discogs.com/quiet.jpg');
   });
   expect(resolve).toHaveBeenCalledTimes(2);
-  expect(resolve).toHaveBeenLastCalledWith(data.tracks[2]);
+  expect(resolve).toHaveBeenLastCalledWith(data.tracks[2], true);
   expect(result.current.covers[13]).toBeUndefined();
   expect(await result.current.read(item)).toEqual(resolved);
   expect(resolve).toHaveBeenCalledTimes(2);
@@ -107,3 +107,37 @@ test('a failed background cover lookup allows an explicit open or preview to ret
   expect(result.current.covers[12]?.url).toBe('https://i.discogs.com/quiet.jpg');
   expect(resolve).toHaveBeenCalledTimes(2);
 });
+
+test.each([false, true])(
+  'tries foreground quota after a shared denial only while the view is active (%s)',
+  async (dismissed) => {
+    let finish: (value: CosineResult<ResolvedRecommendation>) => void = () => undefined;
+    const resolve = vi
+      .fn<CosineBridge['resolve']>()
+      .mockImplementationOnce(
+        () =>
+          new Promise((done) => {
+            finish = done;
+          }),
+      )
+      .mockResolvedValue(resolved);
+    const api = bridge(resolve);
+    const { result } = renderHook(() => useRecommendationReleases(api, data));
+    const preview = result.current.read(item);
+    const denial = {
+      ok: false,
+      error: { code: 'rate-limited', message: 'Wait for quota' },
+    } as const;
+    if (dismissed)
+      act(() => {
+        result.current.clear();
+      });
+    await act(async () => {
+      finish(denial);
+      await preview;
+    });
+    expect(await preview).toEqual(dismissed ? denial : resolved);
+    expect(resolve).toHaveBeenCalledTimes(dismissed ? 1 : 2);
+    if (!dismissed) expect(resolve).toHaveBeenLastCalledWith(item, false);
+  },
+);

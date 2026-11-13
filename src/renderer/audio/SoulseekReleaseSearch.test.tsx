@@ -67,6 +67,7 @@ test('matches each release search filename independently and lets the user corre
         }}
       />,
     );
+    await user.click(screen.getByRole('button', { name: 'Digging desk' }));
     await user.click(await screen.findByRole('button', { name: 'Open Quiet Orbit EP' }));
     await user.click(screen.getByRole('button', { name: 'Soulseek' }));
     await user.click(screen.getByRole('button', { name: 'Search release · Quiet Orbit EP' }));

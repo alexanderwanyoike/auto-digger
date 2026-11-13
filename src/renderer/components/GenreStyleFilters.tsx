@@ -1,6 +1,7 @@
 import { genres } from 'discogs-dataset-genres-styles';
 import { mappedStyles, stylesForGenres } from '../../shared/genre-styles';
 import { TaxonomySelect } from './TaxonomySelect';
+import { FollowControl } from '../following/FollowControl';
 
 export function GenreStyleFilters({
   disabled,
@@ -29,6 +30,13 @@ export function GenreStyleFilters({
         }}
         disabled={disabled}
       />
+      {genre.length > 0 && (
+        <div className="follow-genre-actions">
+          {genre.map((name) => (
+            <FollowControl key={name} topic={{ kind: 'genre', name }} showName />
+          ))}
+        </div>
+      )}
       <TaxonomySelect
         name="style"
         label="Style"

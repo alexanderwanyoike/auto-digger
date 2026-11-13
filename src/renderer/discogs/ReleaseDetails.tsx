@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { StoreLinks } from './StoreLinks';
 import { RecordArtwork } from '../components/RecordArtwork';
+import { FollowControl } from '../following/FollowControl';
+import { PlaylistTrackActions } from '../playlists/PlaylistTrackActions';
 import type { DiscogsRelease } from '../../shared/discogs';
 
 export function ReleaseDetails({
@@ -24,18 +26,20 @@ export function ReleaseDetails({
           <p className="release-artist">
             {onBrowseArtist && release.artists.length
               ? release.artists.map((artist) => (
-                  <button
-                    key={artist}
-                    type="button"
-                    className="artist-browse-link"
-                    aria-label={`Browse releases by ${artist}`}
-                    disabled={artistBrowsingDisabled}
-                    onClick={() => {
-                      onBrowseArtist(artist);
-                    }}
-                  >
-                    {artist}
-                  </button>
+                  <span className="follow-credit" key={artist}>
+                    <button
+                      type="button"
+                      className="artist-browse-link"
+                      aria-label={`Browse releases by ${artist}`}
+                      disabled={artistBrowsingDisabled}
+                      onClick={() => {
+                        onBrowseArtist(artist);
+                      }}
+                    >
+                      {artist}
+                    </button>
+                    <FollowControl topic={{ kind: 'artist', name: artist }} />
+                  </span>
                 ))
               : release.artists.join(', ') || 'Artist not listed'}
           </p>
@@ -46,7 +50,10 @@ export function ReleaseDetails({
             {release.labels.length ? (
               release.labels.map((label) => (
                 <p key={`${label.name}-${label.catalogueNumber}`}>
-                  <strong>{label.name}</strong>
+                  <strong className="follow-credit">
+                    {label.name}
+                    <FollowControl topic={{ kind: 'label', name: label.name }} />
+                  </strong>
                   <span>{label.catalogueNumber || 'Catalogue number not listed'}</span>
                 </p>
               ))
@@ -78,11 +85,12 @@ export function ReleaseDetails({
       </div>
       {release.tracks.length ? (
         <ol className="tracklist">
-          {release.tracks.map((track) => (
-            <li key={`${track.position}-${track.title}`}>
+          {release.tracks.map((track, trackIndex) => (
+            <li key={`${track.position}-${track.title}-${trackIndex.toString()}`}>
               <span className="track-position">{track.position || '•'}</span>
               <span>{track.title}</span>
               <span className="track-duration">{track.duration || 'Not listed'}</span>
+              <PlaylistTrackActions track={{ release, trackIndex }} />
             </li>
           ))}
         </ol>

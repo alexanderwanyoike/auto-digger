@@ -23,6 +23,7 @@ test('previews YouTube without saving, reuses the temporary file and saves style
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
     await page.waitForLoadState('load');
     await page.evaluate((release) => window.crate?.save(release), {
@@ -32,6 +33,7 @@ test('previews YouTube without saving, reuses the temporary file and saves style
       ],
     });
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     const preview = page.getByRole('button', { name: 'Preview audio', exact: true });
     await expect(preview).toBeVisible({ timeout: 2000 });
@@ -101,6 +103,7 @@ test('previews a Soulseek EP result, then saves the same MP3 with Discogs assign
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await page.getByLabel('slskd URL', { exact: true }).fill(service.url);
     await page.getByLabel('slskd API key', { exact: true }).fill('fixture-key');
@@ -109,6 +112,7 @@ test('previews a Soulseek EP result, then saves the same MP3 with Discogs assign
     await expect(page.getByText('slskd connection saved.', { exact: true })).toBeVisible();
     await page.evaluate((release) => window.crate?.save(release), { ...loadedRelease, videos: [] });
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP', exact: true }).click();
     await page.getByRole('button', { name: 'Soulseek', exact: true }).click();
     await page

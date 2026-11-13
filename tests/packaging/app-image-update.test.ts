@@ -82,7 +82,7 @@ test.skipIf(process.platform !== 'linux')(
       browser = await chromium.connectOverCDP(originalDebugger);
       const page = browser.contexts()[0]?.pages()[0];
       if (!page) throw new Error('No original window');
-      await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
+      await page.getByRole('heading', { name: 'Explore', exact: true }).waitFor();
       expect(
         await page.evaluate(async () => window.catalogue?.create('Update survivor')),
       ).toMatchObject({ ok: true });

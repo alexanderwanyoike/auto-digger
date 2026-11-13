@@ -20,12 +20,14 @@ import { loadedRelease } from '../discogs-fixtures';
     });
     try {
       const page = await desktop.firstWindow();
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await page.getByRole('heading', { name: 'Digging desk' }).waitFor();
       await page.evaluate(async (release) => {
         await window.crate?.save(release);
         await window.audioLibrary?.download({ release, videoIndex: 0 });
       }, loadedRelease);
       await page.reload();
+      await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await page.getByRole('button', { name: 'Open Quiet Orbit EP' }).click();
       await page.setViewportSize({ width, height: 780 });
       const player = page.getByRole('contentinfo', { name: 'Playback' });
@@ -74,6 +76,7 @@ test('keeps source controls and row positions fixed while a download reports pro
   });
   try {
     const page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('heading', { name: 'Digging desk', exact: true }).waitFor();
     await page.setViewportSize({ width: 1180, height: 900 });
     await page.evaluate(async (release) => window.crate?.save(release), {
@@ -84,6 +87,7 @@ test('keeps source controls and row positions fixed while a download reports pro
       ],
     });
     await page.reload();
+    await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
     await page.getByRole('button', { name: 'Open Quiet Orbit EP' }).click();
     const list = page.getByRole('list', { name: 'YouTube audio sources' });
     await list.getByText('1 alternate upload', { exact: true }).click();
