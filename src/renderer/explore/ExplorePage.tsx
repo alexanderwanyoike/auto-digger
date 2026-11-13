@@ -14,6 +14,7 @@ import { YearComparisonForm } from './YearComparisonForm';
 import { ExploreResults } from './ExploreResults';
 import { sleevePreview } from './sleeve-preview';
 import { ReleaseShelf } from './ReleaseShelf';
+import { CataloguePage } from './CataloguePage';
 import type { useStarterShelf } from './use-starter-shelf';
 
 export function ExplorePage({
@@ -38,6 +39,7 @@ export function ExplorePage({
   audio: ReturnType<typeof useAudioLibrary>;
 }) {
   const scrollContainer = useRef<HTMLDivElement>(null);
+  const [catalogue, setCatalogue] = useState(false);
   const explore = useExplore(bridge, onUnauthorized);
   const { topic, release, view, busy, error } = explore;
   const [previewBusy, setPreviewBusy] = useState(false);
@@ -72,6 +74,7 @@ export function ExplorePage({
       : undefined;
   const disabled = !connected || busy;
   const browse = (next: FollowTopic, page?: number) => {
+    setCatalogue(false);
     scrollContainer.current?.scrollTo(0, 0);
     explore.browse(next, page).catch(() => undefined);
   };
@@ -80,10 +83,28 @@ export function ExplorePage({
   };
   return (
     <div className="explore-page" ref={scrollContainer}>
-      {release ? (
+      {catalogue && connected && bridge && (
+        <div hidden={Boolean(release)}>
+          <CataloguePage
+            bridge={bridge}
+            busy={busy}
+            onOpen={open}
+            onUnauthorized={onUnauthorized}
+            onBack={() => {
+              setCatalogue(false);
+            }}
+          />
+        </div>
+      )}
+      {catalogue && !release && error && (
+        <p className="explore-notice" role="alert">
+          {error}
+        </p>
+      )}
+      {release && (
         <section className="explore-workspace" aria-label="Selected release">
           <button type="button" className="secondary-button explore-back" onClick={explore.back}>
-            Back to Explore
+            {catalogue ? 'Back to Catalogue' : 'Back to Explore'}
           </button>
           <FollowingContext.Provider value={following}>
             <ReleaseAudioDetails
@@ -98,7 +119,8 @@ export function ExplorePage({
             />
           </FollowingContext.Provider>
         </section>
-      ) : (
+      )}
+      {!release && (!catalogue || !connected) && (
         <>
           {connected && !topic && (
             <ReleaseShelf
@@ -203,6 +225,20 @@ export function ExplorePage({
                 )}
               </section>
             </>
+          )}
+          {connected && !topic && (
+            <footer className="explore-footer">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => {
+                  scrollContainer.current?.scrollTo(0, 0);
+                  setCatalogue(true);
+                }}
+              >
+                Catalogue
+              </button>
+            </footer>
           )}
         </>
       )}

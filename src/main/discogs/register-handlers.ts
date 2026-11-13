@@ -4,6 +4,7 @@ import { discogsChannels } from '../../shared/discogs';
 import { discogsFailure } from '../../shared/discogs-failure';
 import type { DiscogsResult } from '../../shared/discogs';
 import type { createRememberedSession } from './remembered-session';
+import type { createCrateTaste } from '../discovery/crate-taste';
 import type { createDiscover, createStarterShelf } from '../discovery/discover';
 import type { createDiscoveryHistory } from '../discovery/history';
 
@@ -15,10 +16,12 @@ export function registerDiscogsHandlers(
   {
     discover,
     starterShelf,
+    crateTaste,
     markOpened,
   }: {
     discover: ReturnType<typeof createDiscover>;
     starterShelf: ReturnType<typeof createStarterShelf>;
+    crateTaste: ReturnType<typeof createCrateTaste>;
     markOpened: ReturnType<typeof createDiscoveryHistory>['opened'];
   },
 ) {
@@ -53,6 +56,11 @@ export function registerDiscogsHandlers(
   handle(discogsChannels.discover, discover);
   handle(discogsChannels.starterShelf, starterShelf);
   handle(discogsChannels.previewRelease, (id) => session.loadRelease(id));
+  handle(discogsChannels.crateStyles, async () => {
+    const taste = await crateTaste();
+    if (!taste.ok) return discogsFailure('unavailable', taste.error.message);
+    return { ok: true, value: taste.value.map(({ style }) => style) };
+  });
   handle(discogsChannels.markSeen, async (id) => {
     if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1)
       return discogsFailure('invalid-input', 'Choose a valid Discogs release.');

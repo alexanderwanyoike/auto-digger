@@ -41,6 +41,7 @@ export function sameSearchFilters(left: DigFilters, right: DigFilters | null) {
 
 export const searchInputSchema = z.object({
   context: z.enum(['artist', 'explore']).optional(),
+  order: z.literal('oldest').optional(),
   filters: filtersSchema,
   page: z.number().int().min(1).max(200),
 });
