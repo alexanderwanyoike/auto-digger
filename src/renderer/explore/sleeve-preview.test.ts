@@ -12,8 +12,9 @@ const saved: LocalTrack = {
   album: 'Quiet Orbit EP',
   artworkUrl: null,
   filename: 'driftwood.mp3',
-  bytes: 100,
-  downloadedAt: '2024-01-01T00:00:00Z',
+  releaseId: 12,
+  videoId: 'lmnopqrstuv',
+  warning: null,
   trackIndex: 1,
 };
 
