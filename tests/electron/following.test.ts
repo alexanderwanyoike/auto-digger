@@ -186,7 +186,10 @@ test('drops queued portrait lookups when the listener leaves Following', async (
       if (!bridge) return;
       await Promise.all(
         Array.from({ length: 12 }, (_, index) =>
-          bridge.setFollowed({ topic: { kind: 'label', name: `Label ${index}` }, followed: true }),
+          bridge.setFollowed({
+            topic: { kind: 'label', name: `Label ${index.toString()}` },
+            followed: true,
+          }),
         ),
       );
     });
