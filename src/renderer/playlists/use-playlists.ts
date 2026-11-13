@@ -71,13 +71,14 @@ export function usePlaylists(
     if (!audio.bridge || !audio.queue.available || localPlaylistTrack(track, audio.tracks)) return;
     const { probe } = audio.bridge;
     const jobs = audio.queue.jobs.filter(
-      ({ stage }) => stage !== 'failed' && stage !== 'cancelled',
+      ({ stage }) => stage !== 'complete' && stage !== 'failed' && stage !== 'cancelled',
     );
-    const saved = [
-      ...audio.tracks,
-      ...jobs.flatMap(({ track: downloaded }) => (downloaded ? [downloaded] : [])),
-    ];
-    if (localPlaylistTrack(track, saved) || playlistJob(track, jobs)) return;
+    const completed = audio.queue.jobs.flatMap(({ stage, track: downloaded }) =>
+      stage === 'complete' && downloaded ? [[downloaded.id, downloaded] as const] : [],
+    );
+    const saved = new Map(completed);
+    audio.tracks.forEach((downloaded) => saved.set(downloaded.id, downloaded));
+    if (localPlaylistTrack(track, [...saved.values()]) || playlistJob(track, jobs)) return;
     const unavailableSources = new Set(
       jobs.flatMap(({ sourceId }) => (sourceId ? [sourceId] : [])),
     );
