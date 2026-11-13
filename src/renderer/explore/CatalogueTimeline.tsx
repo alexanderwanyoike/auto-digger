@@ -28,13 +28,20 @@ export function CatalogueTimeline({
   onShowYear: (style: string, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
-  const [jumpLoaded, setJumpLoaded] = useState(false);
-  const index = useCatalogueYearIndex(search, style, onUnauthorized, jumpYear, jumpLoaded);
+  const [jumpResult, setJumpResult] = useState<{ empty: boolean }>();
+  const index = useCatalogueYearIndex(
+    search,
+    style,
+    onUnauthorized,
+    jumpYear,
+    jumpResult !== undefined,
+  );
   const records = useCatalogueRecords(search, style, jumpYear ?? index.years[0], onUnauthorized);
   useEffect(() => {
-    if (jumpYear !== undefined && records.groups.some(({ year }) => year === jumpYear))
-      setJumpLoaded(true);
-  }, [jumpYear, records.groups]);
+    if (jumpYear === undefined || jumpResult !== undefined) return;
+    const group = records.groups.find(({ year }) => year === jumpYear);
+    if (group) setJumpResult({ empty: !group.releases.length });
+  }, [jumpResult, jumpYear, records.groups]);
   const [exploring, setExploring] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const catalogue = useRef<HTMLDivElement>(null);
@@ -172,12 +179,14 @@ export function CatalogueTimeline({
           }}
         >
           <div ref={yearRailContent}>
+            {index.previousError && (
+              <button className="secondary-button" type="button" onClick={index.retryPrevious}>
+                Retry earlier year
+              </button>
+            )}
             <ol>
               {index.years
-                .filter(
-                  (year) =>
-                    !records.groups.some((group) => group.year === year && !group.releases.length),
-                )
+                .filter((year) => !(year === jumpYear && jumpResult?.empty))
                 .map((year) => (
                   <li key={year}>
                     <button
