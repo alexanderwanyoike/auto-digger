@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { CrateError } from '../../shared/crate';
 import type { DiscogsRelease } from '../../shared/discogs';
 import { isEp } from '../../shared/is-ep';
 import { CratePicker } from './CratePicker';
@@ -15,12 +16,12 @@ export function SaveToCrate({
 }) {
   const saved = crate.releases.some((item) => item.id === release.id);
   const ep = isEp(release.formats);
-  const [selectionFailed, setSelectionFailed] = useState(false);
+  const [selectionError, setSelectionError] = useState<CrateError | null>(null);
   const destinationError = showDestination ? crate.error : null;
   return (
     <div className="save-to-crate">
       {showDestination && (
-        <CratePicker crate={crate} label="Save to crate" onSelection={setSelectionFailed} />
+        <CratePicker crate={crate} label="Save to crate" onSelection={setSelectionError} />
       )}
       <button
         type="button"
@@ -30,7 +31,7 @@ export function SaveToCrate({
           saved ||
           !crate.ready ||
           crate.busy ||
-          selectionFailed ||
+          (destinationError !== null && destinationError === selectionError) ||
           (crate.catalogue.available && !crate.catalogue.view.crateId)
         }
         onClick={() => {

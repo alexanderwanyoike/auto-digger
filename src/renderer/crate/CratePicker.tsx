@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import type { CrateError } from '../../shared/crate';
 import type { useCrate } from './use-crate';
 
 export function CratePicker({
@@ -8,7 +9,7 @@ export function CratePicker({
 }: {
   crate: ReturnType<typeof useCrate>;
   label?: string;
-  onSelection?: (failed: boolean) => void;
+  onSelection?: (error: CrateError | null) => void;
 }) {
   const pickerId = useId();
   const { catalogue } = crate;
@@ -25,11 +26,9 @@ export function CratePicker({
           catalogue
             .perform((api) => api.view(id))
             .then((result) => {
-              onSelection?.(!result.ok);
+              onSelection?.(result.ok ? null : result.error);
             })
-            .catch(() => {
-              onSelection?.(true);
-            });
+            .catch(() => undefined);
         }}
       >
         {!catalogue.view.crates.length && <option value="">Create a crate first</option>}
