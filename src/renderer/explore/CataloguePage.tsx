@@ -82,6 +82,7 @@ export function CataloguePage({
           key={style}
           disabled={busy}
           onApply={(from, to) => {
+            setSelected(style);
             resetScroll();
             setJump((previous) => ({ from, to, revision: (previous?.revision ?? 0) + 1 }));
           }}
