@@ -32,6 +32,8 @@ Explore opens first. **Discover records** learns from the Discogs styles of new 
 
 Open **Catalogue** in the Explore toolbar to browse a Discogs style by year. Saved styles appear first and the most-saved style opens by default. Scroll through release grids in chronological order or pick a year on the left to jump. More releases load as you scroll. Choose **Show more** beside any year to browse that year on its own page. **Back to Catalogue** returns to your place after viewing a record.
 
+**History** in Explore lists opened and played releases. Select an entry to reopen it. The player also has an **Open playing release** button for the track on the deck.
+
 ## Download audio
 
 Every attached video has its own source row. **Discogs track** names the release track; **YouTube video** names the upload. Auto Digger matches unambiguous complete titles. Correct a suggestion or choose **Keep video title** when a source covers something different. Multiple videos can map to one track.

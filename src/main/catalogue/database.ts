@@ -64,6 +64,12 @@ export async function openCatalogue(
         database
           .prepare('SELECT crate_id,release_id,styles FROM personal_crate_saves LIMIT 0')
           .all();
+      if (version >= 8)
+        database
+          .prepare(
+            'SELECT id,title,artist,artwork_url,played,last_activity FROM release_activity LIMIT 0',
+          )
+          .all();
       database.exec('PRAGMA foreign_keys=ON');
     }
     if (version < catalogueVersion) upgradeCatalogue(database);

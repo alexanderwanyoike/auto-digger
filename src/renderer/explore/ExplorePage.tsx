@@ -13,6 +13,7 @@ import { YearComparisonForm } from './YearComparisonForm';
 import { ExploreResults } from './ExploreResults';
 import { sleevePreview } from './sleeve-preview';
 import { ReleaseShelf } from './ReleaseShelf';
+import { HistorySection } from './HistorySection';
 import { CataloguePage } from './CataloguePage';
 import { ExploreCollectionPage, discoveryTitles } from './ExploreCollectionPage';
 import type { ExploreCollection } from './ExploreCollectionPage';
@@ -27,6 +28,7 @@ export function ExplorePage({
   starterShelf,
   followsShelf,
   markSeen,
+  historyRevision,
   playerRelease,
   onPlayerRequestHandled,
   following,
@@ -39,6 +41,7 @@ export function ExplorePage({
   starterShelf: ReturnType<typeof useStarterShelf>;
   followsShelf: ReturnType<typeof useStarterShelf>;
   markSeen: (id: number) => void;
+  historyRevision: number;
   playerRelease: { id: number } | null;
   onPlayerRequestHandled: () => void;
   following: ReturnType<typeof useFollowing>;
@@ -54,7 +57,13 @@ export function ExplorePage({
   const [collection, setCollection] = useState<ExploreCollection | null>(null);
   const [section, setSection] = useState<ExploreSection>('Feed');
   const catalogue = section === 'Catalogue';
-  const releaseBackLabel = catalogue ? 'Back to Catalogue' : 'Back to Explore';
+  const releaseBackLabels = {
+    Feed: 'Back to Explore',
+    Following: 'Back to Explore',
+    Catalogue: 'Back to Catalogue',
+    History: 'Back to History',
+  };
+  const releaseBackLabel = releaseBackLabels[section];
   const explore = useExplore(bridge, onUnauthorized);
   const { topic, release, view, busy, error, open: openRelease } = explore;
   useLayoutEffect(() => {
@@ -91,7 +100,7 @@ export function ExplorePage({
           sleevePreview(
             loadPreview,
             audioBridge.probe,
-            (input, releaseId) => audio.preview(input, releaseId),
+            (input) => audio.preview(input),
             id,
             audio.tracks,
           )
@@ -150,6 +159,7 @@ export function ExplorePage({
     connected &&
     !collection &&
     !catalogue &&
+    section !== 'History' &&
     explore.discoverAvailable &&
     following.topics.length > 0 &&
     (!topic || following.isFollowed(topic));
@@ -265,7 +275,7 @@ export function ExplorePage({
       )}
       {!release && (
         <>
-          {!connected && (
+          {!connected && section !== 'History' && (
             <p className="explore-notice">Connect Discogs to browse and discover releases.</p>
           )}
           {previewError && (
@@ -282,6 +292,14 @@ export function ExplorePage({
             <p className="explore-notice" role="alert">
               {error}
             </p>
+          )}
+          {section === 'History' && bridge?.discoveryHistory && (
+            <HistorySection
+              load={bridge.discoveryHistory}
+              revision={historyRevision}
+              canOpen={!disabled}
+              onOpen={open}
+            />
           )}
           {connected && section === 'Feed' && !view && !collection && (
             <>

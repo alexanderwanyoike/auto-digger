@@ -1,6 +1,6 @@
 import { RefreshCw, Shuffle } from 'lucide-react';
 
-export const exploreSections = ['Feed', 'Following', 'Catalogue'] as const;
+export const exploreSections = ['Feed', 'Following', 'Catalogue', 'History'] as const;
 export type ExploreSection = (typeof exploreSections)[number];
 
 export function ExploreToolbar({

@@ -79,7 +79,7 @@ export function useAudioLibrary(
       active = false;
     };
   }, [bridge, completionKey]);
-  function play(track: LocalTrack, sleeveReleaseId?: number) {
+  function play(track: LocalTrack) {
     if (track.missing) {
       setError(
         'This audio file is missing or unavailable. Restore it or download the source again.',
@@ -88,7 +88,7 @@ export function useAudioLibrary(
     }
     actions.current += 1;
     setPlayback((previous) => ({
-      track: { ...downloadedPlayback(track), sleeveReleaseId },
+      track: downloadedPlayback(track),
       request: previous.request + 1,
     }));
   }
@@ -155,14 +155,11 @@ export function useAudioLibrary(
     bridge,
     available: Boolean(bridge),
     play,
-    async preview(
-      input: DownloadInput,
-      sleeveReleaseId?: number,
-    ): Promise<AudioResult<LocalTrack>> {
+    async preview(input: DownloadInput): Promise<AudioResult<LocalTrack>> {
       const id = downloadSourceId(input);
       const saved = tracks.find((track) => track.id === id && !track.missing);
       if (saved) {
-        play(saved, sleeveReleaseId);
+        play(saved);
         return { ok: true, value: saved };
       }
       if (preparing.current)
@@ -183,7 +180,6 @@ export function useAudioLibrary(
               ...downloadedPlayback(result.value),
               url: `auto-digger-audio://preview/${result.value.id}`,
               preview: true,
-              sleeveReleaseId,
             },
             request: previous.request + 1,
           }));

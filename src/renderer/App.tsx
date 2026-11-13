@@ -16,6 +16,7 @@ import { DownloadsPage } from './sections/DownloadsPage';
 import { SettingsPage } from './sections/SettingsPage';
 import type { CrateBridge } from '../shared/crate';
 import { useCrate } from './crate/use-crate';
+import type { PlaybackItem } from '../shared/playback';
 import type { DiscogsBridge } from '../shared/discogs';
 import { useDiscogs } from './discogs/use-discogs';
 import { ConnectionDialog } from './discogs/ConnectionDialog';
@@ -88,13 +89,22 @@ export function App({
     if (session.release) markSeen(session.release.id);
   }, [markSeen, session.release]);
   const [historyError, setHistoryError] = useState<string | null>(null);
-  const recordSleevePlayback = useCallback(
-    (id: number) => {
-      markSeen(id);
+  const [historyRevision, setHistoryRevision] = useState(0);
+  const recordTrackPlayback = useCallback(
+    (track: PlaybackItem & { releaseId: number }) => {
+      markSeen(track.releaseId);
       discogs
-        ?.markSeen?.(id)
+        ?.recordDiscovery?.({
+          id: track.releaseId,
+          title:
+            track.album.trim() || track.title.trim() || `Release ${track.releaseId.toString()}`,
+          artist: track.artist,
+          artworkUrl: track.artworkUrl,
+          activity: 'played',
+        })
         .then((result) => {
           setHistoryError(result.ok ? null : result.error.message);
+          if (result.ok) setHistoryRevision((previous) => previous + 1);
         })
         .catch(() => {
           setHistoryError('Discovery history could not be saved.');
@@ -215,6 +225,7 @@ export function App({
             starterShelf={starterShelf}
             followsShelf={followsShelf}
             markSeen={markSeen}
+            historyRevision={historyRevision}
             playerRelease={playerRelease}
             onPlayerRequestHandled={() => {
               setPlayerRelease(null);
@@ -279,7 +290,7 @@ export function App({
       )}
       <PlaybackBar
         audio={audio}
-        onSleevePlaying={recordSleevePlayback}
+        onTrackPlaying={recordTrackPlayback}
         onOpenRelease={
           session.account
             ? (id) => {

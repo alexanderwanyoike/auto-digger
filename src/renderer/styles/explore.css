@@ -340,3 +340,58 @@
 .explore-collection > ul + :is(p, button) {
   margin-top: 18px;
 }
+
+.explore-history {
+  padding: 20px var(--explore-padding) 24px;
+}
+.explore-history h2 {
+  margin-bottom: 14px;
+}
+.explore-history > p {
+  color: var(--muted);
+  font-size: 13px;
+}
+.explore-history ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.explore-history li > button {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 7px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text);
+  text-align: start;
+}
+.explore-history li > button:hover:not(:disabled) {
+  background: var(--surface-raised);
+}
+.explore-history .record-cover {
+  border-radius: 4px;
+}
+.history-release {
+  display: grid;
+  gap: 4px;
+}
+.history-release > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.explore-history li button span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.history-release strong {
+  color: var(--text);
+  font-size: 12px;
+}

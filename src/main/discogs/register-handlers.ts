@@ -3,7 +3,7 @@ import type { BrowserWindow } from 'electron';
 import type { createDiscoveryPages } from '../discovery/discovery-pages';
 import { discogsChannels } from '../../shared/discogs';
 import { discogsFailure } from '../../shared/discogs-failure';
-import type { DiscogsResult } from '../../shared/discogs';
+import type { DiscogsRelease, DiscogsResult } from '../../shared/discogs';
 import type { createRememberedSession } from './remembered-session';
 import type { createCrateTaste } from '../discovery/crate-taste';
 import type { createDiscover, createStarterShelf } from '../discovery/discover';
@@ -19,13 +19,13 @@ export function registerDiscogsHandlers(
     starterShelf,
     discoveryPages,
     crateTaste,
-    markOpened,
+    history,
   }: {
     discover: ReturnType<typeof createDiscover>;
     starterShelf: ReturnType<typeof createStarterShelf>;
     discoveryPages: ReturnType<typeof createDiscoveryPages>;
     crateTaste: ReturnType<typeof createCrateTaste>;
-    markOpened: ReturnType<typeof createDiscoveryHistory>['opened'];
+    history: ReturnType<typeof createDiscoveryHistory>;
   },
 ) {
   const handle = (channel: string, operation: Operation) => {
@@ -45,15 +45,25 @@ export function registerDiscogsHandlers(
       }
     });
   };
-  const remember = async <T>(result: DiscogsResult<T>, releaseId: (value: T) => number) => {
+  const remember = async <T>(
+    result: DiscogsResult<T>,
+    releaseFor: (value: T) => DiscogsRelease,
+  ) => {
     if (result.ok) {
-      const saved = await markOpened(releaseId(result.value));
+      const release = releaseFor(result.value);
+      const saved = await history.record({
+        id: release.id,
+        title: release.title,
+        artist: release.artists.join(', '),
+        artworkUrl: release.artworkUrl,
+        activity: 'opened',
+      });
       if (!saved.ok) process.stderr.write(`${saved.error.message}\n`);
     }
     return result;
   };
   handle(discogsChannels.dig, async (input) =>
-    remember(await session.dig(input), (value) => value.release.id),
+    remember(await session.dig(input), (value) => value.release),
   );
   handle(discogsChannels.topicArtwork, (input) => session.topicArtwork(input));
   handle(discogsChannels.search, (input) => session.search(input));
@@ -66,16 +76,28 @@ export function registerDiscogsHandlers(
     if (!taste.ok) return discogsFailure('unavailable', taste.error.message);
     return { ok: true, value: taste.value.map(({ style }) => style) };
   });
+  handle(discogsChannels.discoveryHistory, async () => {
+    const result = await history.list();
+    return result.ok ? result : discogsFailure('unavailable', result.error.message);
+  });
+  handle(discogsChannels.recordDiscovery, async (input) => {
+    const result = await history.record(input);
+    if (result.ok) return result;
+    return discogsFailure(
+      result.error.code === 'invalid-input' ? 'invalid-input' : 'unavailable',
+      result.error.message,
+    );
+  });
   handle(discogsChannels.markSeen, async (id) => {
     if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1)
       return discogsFailure('invalid-input', 'Choose a valid Discogs release.');
-    const saved = await markOpened(id);
+    const saved = await history.opened(id);
     return saved.ok ? saved : discogsFailure('unavailable', saved.error.message);
   });
   handle(discogsChannels.account, () => session.account());
   handle(discogsChannels.connect, (input) => session.connect(input));
   handle(discogsChannels.loadRelease, async (input) =>
-    remember(await session.loadRelease(input), (value) => value.id),
+    remember(await session.loadRelease(input), (value) => value),
   );
   handle(discogsChannels.disconnect, () => session.disconnect());
   handle(discogsChannels.openSettings, async () => {

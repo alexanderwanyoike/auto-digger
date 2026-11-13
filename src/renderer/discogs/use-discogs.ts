@@ -128,7 +128,13 @@ export function useDiscogs(
       setRelease(saved);
       setError(null);
       bridge
-        ?.markSeen?.(saved.id)
+        ?.recordDiscovery?.({
+          id: saved.id,
+          title: saved.title,
+          artist: saved.artists.join(', '),
+          artworkUrl: saved.artworkUrl,
+          activity: 'opened',
+        })
         .then((result) => {
           if (!result.ok) setError(result.error);
         })

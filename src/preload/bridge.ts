@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { digResultSchema } from '../shared/dig';
+import { historyEntrySchema } from '../shared/discovery-history';
 import { discoveryPageSchema } from '../shared/discovery';
 import { searchPageSchema } from '../shared/search';
 import {
@@ -55,6 +56,8 @@ export function createDiscogsBridge(invoke: Invoke): DiscogsBridge {
     starterShelf: () => call(discogsChannels.starterShelf, searchPageSchema.shape.releases),
     previewRelease: (id) => call(discogsChannels.previewRelease, releaseSchema, id),
     crateStyles: () => call(discogsChannels.crateStyles, z.array(z.string())),
+    discoveryHistory: () => call(discogsChannels.discoveryHistory, z.array(historyEntrySchema)),
+    recordDiscovery: (entry) => call(discogsChannels.recordDiscovery, z.undefined(), entry),
     markSeen: (id) => call(discogsChannels.markSeen, z.undefined(), id),
     account: () => call(discogsChannels.account, accountSchema.nullable()),
     connect: (token) => call(discogsChannels.connect, accountSchema, token),
