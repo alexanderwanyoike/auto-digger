@@ -89,7 +89,7 @@ test('browses a year range with one paginated search and opens an individual yea
     expect(await rangeRequests()).toEqual([{ ...query, page: 1 }]);
 
     await page.locator('.explore-scroll').evaluate((viewport) => {
-      viewport.scrollTop = viewport.scrollHeight;
+      viewport.scrollTo(0, viewport.scrollHeight);
     });
     await expect(second.getByRole('button', { name: 'Play Record 1995 0' })).toBeVisible();
     await expect(years.getByRole('button')).toHaveText(['1993', '1995']);
