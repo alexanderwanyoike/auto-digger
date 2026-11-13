@@ -27,7 +27,7 @@ export function CatalogueTimeline({
   onOpen: (id: number) => void;
   onPreview: ((id: number) => void) | undefined;
   previewBusy: boolean;
-  onShowYear: (style: string, group: YearRecords) => void;
+  onShowYear: (style: string, year: number, group: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
   const [jumpResult, setJumpResult] = useState<{ empty: boolean }>();
@@ -252,7 +252,7 @@ export function CatalogueTimeline({
               onPreview={onPreview}
               previewBusy={previewBusy}
               onShowMore={() => {
-                onShowYear(style, group);
+                onShowYear(style, group.year, group);
               }}
             />
           ))}

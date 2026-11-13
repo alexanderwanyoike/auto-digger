@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { YearRecords } from './use-catalogue-records';
 import type { DiscogsBridge } from '../../shared/discogs';
 import { CatalogueStylePicker } from './CatalogueStylePicker';
+import { CatalogueRangeTimeline } from './CatalogueRangeTimeline';
+import { CatalogueYearForm } from './CatalogueYearForm';
 import { CatalogueTimeline } from './CatalogueTimeline';
 import { starterStyle } from '../../shared/discovery';
 import { catalogueStyles } from './catalogue-years';
@@ -22,13 +24,13 @@ export function CataloguePage({
   onOpen: (id: number) => void;
   onPreview: ((id: number) => void) | undefined;
   previewBusy: boolean;
-  onShowYear: (style: string, group: YearRecords) => void;
+  onShowYear: (style: string, year: number, group?: YearRecords) => void;
   onUnauthorized: () => void;
 }) {
   const [preferred, setPreferred] = useState<string[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
-  const [year, setYear] = useState('');
-  const [jump, setJump] = useState<{ year: number; revision: number }>();
+  const section = useRef<HTMLElement>(null);
+  const [jump, setJump] = useState<{ from: number; to: number | undefined; revision: number }>();
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let current = true;
@@ -54,8 +56,13 @@ export function CataloguePage({
   }, [bridge]);
   const styles = catalogueStyles(preferred ?? []);
   const style = selected ?? styles.find((value) => preferred?.includes(value)) ?? starterStyle;
+  const resetScroll = () => {
+    section.current?.closest('.explore-scroll')?.scrollTo(0, 0);
+  };
+  const ready = preferred !== null || !bridge.crateStyles || selected !== null;
+  const timelineKey = `${style}:${jump?.revision.toString() ?? ''}`;
   return (
-    <section className="catalogue-page" aria-labelledby="catalogue-heading">
+    <section ref={section} className="catalogue-page" aria-labelledby="catalogue-heading">
       <header className="catalogue-header">
         <h2 id="catalogue-heading" className="sr-only">
           Catalogue
@@ -66,46 +73,40 @@ export function CataloguePage({
           styles={styles}
           onChange={(next) => {
             setSelected(next);
-            setYear('');
             setJump(undefined);
+            resetScroll();
           }}
         />
-        <form
-          className="catalogue-jump"
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (/^[1-9][0-9]{3}$/.test(year))
-              setJump((previous) => ({
-                year: Number(year),
-                revision: (previous?.revision ?? 0) + 1,
-              }));
+        <CatalogueYearForm
+          key={style}
+          disabled={busy}
+          onApply={(from, to) => {
+            resetScroll();
+            setJump((previous) => ({ from, to, revision: (previous?.revision ?? 0) + 1 }));
           }}
-        >
-          <label className="catalogue-jump-field" htmlFor="catalogue-jump-year">
-            <span>Jump to year</span>
-            <input
-              type="text"
-              id="catalogue-jump-year"
-              inputMode="numeric"
-              maxLength={4}
-              pattern="[1-9][0-9]{3}"
-              required
-              value={year}
-              onChange={(event) => {
-                setYear(event.target.value);
-              }}
-            />
-          </label>
-          <button type="submit" className="secondary-button" disabled={busy || year.length !== 4}>
-            Go
-          </button>
-        </form>
+        />
       </header>
       {error && <p role="alert">{error}</p>}
-      {(preferred !== null || !bridge.crateStyles || selected !== null) && (
+      {ready && jump?.to !== undefined && (
+        <CatalogueRangeTimeline
+          key={timelineKey}
+          from={jump.from}
+          to={jump.to}
+          style={style}
+          disabled={busy}
+          active={active}
+          search={bridge.search}
+          onOpen={onOpen}
+          onPreview={onPreview}
+          previewBusy={previewBusy}
+          onShowYear={onShowYear}
+          onUnauthorized={onUnauthorized}
+        />
+      )}
+      {ready && jump?.to === undefined && (
         <CatalogueTimeline
-          key={`${style}:${jump?.revision.toString() ?? ''}`}
-          jumpYear={jump?.year}
+          key={timelineKey}
+          jumpYear={jump?.from}
           style={style}
           disabled={busy}
           active={active}

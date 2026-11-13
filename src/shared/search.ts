@@ -42,7 +42,7 @@ export function sameSearchFilters(left: DigFilters, right: DigFilters | null) {
 export const maxSearchPage = 200;
 
 export const searchInputSchema = z.object({
-  context: z.enum(['artist', 'explore', 'catalogue']).optional(),
+  context: z.enum(['artist', 'explore', 'catalogue', 'catalogue-range']).optional(),
   order: z.enum(['oldest', 'newest']).optional(),
   background: z.boolean().optional(),
   filters: filtersSchema,

@@ -102,12 +102,13 @@ export function createDiscogsSession(
       const { background, ...query } = parsed.data;
       const read = () =>
         searchDiscogs(query, token, request, { budget, background: background ?? false });
-      const reuse = query.context === 'catalogue' || (Boolean(background) && query.page > 1);
+      const catalogue = query.context === 'catalogue' || query.context === 'catalogue-range';
+      const reuse = catalogue || (Boolean(background) && query.page > 1);
       const result = await searches.read(JSON.stringify(query), read, reuse);
       if (started !== revision)
         return discogsFailure('cancelled', 'The Discogs session has changed.');
       if (!result.ok && result.error.code === 'unauthorized') clear();
-      if (result.ok && parsed.data.context !== 'explore' && parsed.data.context !== 'catalogue') {
+      if (result.ok && query.context !== 'explore' && !catalogue) {
         const activeDigger = parsed.data.context === 'artist' ? artistDigger : digger;
         activeDigger.apply(parsed.data.filters);
       }

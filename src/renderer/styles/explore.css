@@ -187,13 +187,29 @@
   align-items: center;
   gap: 8px;
 }
+.catalogue-jump {
+  flex-wrap: wrap;
+}
+.catalogue-year-error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--text);
+  font-size: 12px;
+}
 .catalogue-jump-field {
   margin: 0;
   color: var(--muted);
   font-size: 12px;
 }
 .catalogue-jump input {
-  width: 72px;
+  width: 66px;
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 .catalogue-style {
   display: grid;

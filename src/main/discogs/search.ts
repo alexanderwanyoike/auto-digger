@@ -55,7 +55,7 @@ export async function searchDiscogs(
     per_page: '50',
     page: page.toString(),
   });
-  if ((input.context === 'explore' || input.context === 'catalogue') && input.order) {
+  if (input.order && input.context && input.context !== 'artist') {
     query.set('sort', 'year');
     query.set('sort_order', input.order === 'oldest' ? 'asc' : 'desc');
   }
