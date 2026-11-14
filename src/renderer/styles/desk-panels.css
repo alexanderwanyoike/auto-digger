@@ -17,8 +17,6 @@
   padding-bottom: 6px;
   overflow-y: auto;
   overscroll-behavior-y: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line) transparent;
 }
 .crate-panel > .desk-panel-scroll {
   display: flex;

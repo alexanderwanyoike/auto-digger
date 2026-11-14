@@ -57,8 +57,6 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line) transparent;
 }
 .library-table {
   table-layout: fixed;

@@ -50,8 +50,6 @@
   overflow-y: auto;
   flex: 1;
   max-height: calc(100vh - 290px);
-  scrollbar-width: thin;
-  scrollbar-color: var(--line) transparent;
 }
 .section-page label,
 .crate-picker {
@@ -267,8 +265,6 @@ main {
   min-height: 0;
   max-height: none;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line) transparent;
 }
 .section-page {
   min-height: 0;

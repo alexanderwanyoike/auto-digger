@@ -1,0 +1,9 @@
+@media (forced-colors: none) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--muted) 82%, var(--line)) transparent;
+  }
+  *:hover {
+    scrollbar-color: var(--muted) transparent;
+  }
+}

@@ -149,6 +149,14 @@ async function expectPanelEnds(panel: Locator, heading: string, footer: string) 
       await page.getByRole('button', { name: 'Digging desk', exact: true }).click();
       await page.getByRole('button', { name: 'Connected as quiet-digger', exact: true }).waitFor();
       await expect(crate.getByLabel('20 saved releases', { exact: true })).toBeVisible();
+      const crateViewport = crate.locator('.desk-panel-scroll');
+      await expect(crateViewport).toHaveCSS('scrollbar-width', 'thin');
+      await page.mouse.move(0, 0);
+      const thumbColor = () =>
+        crateViewport.evaluate((element) => getComputedStyle(element).scrollbarColor);
+      const idleColor = await thumbColor();
+      await crateViewport.hover();
+      await expect.poll(thumbColor).not.toBe(idleColor);
       await crate
         .getByRole('button', { name: 'Open Archive record 20', exact: true })
         .scrollIntoViewIfNeeded();
